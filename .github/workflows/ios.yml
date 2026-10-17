@@ -25,9 +25,22 @@ jobs:
         with:
           channel: stable
           cache: true
-      - run: flutter pub get
-      - run: flutter analyze --no-fatal-infos --no-fatal-warnings
-      - run: flutter test
+      - run: flutter pub get 2>&1 | tee pub.log
+      - run: flutter analyze --no-fatal-infos --no-fatal-warnings 2>&1 | tee analyze.log; exit ${PIPESTATUS[0]}
+        shell: bash
+      - run: flutter test 2>&1 | tee test.log; exit ${PIPESTATUS[0]}
+        shell: bash
+      - name: Publish logs to the ci-logs branch
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p /tmp/logs && cp *.log /tmp/logs/ 2>/dev/null || true
+          echo "${{ job.status }} ${{ github.sha }}" > /tmp/logs/status.txt
+          git config user.name "ci" && git config user.email "ci@users.noreply.github.com"
+          git fetch origin ci-logs 2>/dev/null && git checkout -B ci-logs origin/ci-logs || git checkout --orphan ci-logs
+          git rm -rq . 2>/dev/null || true
+          rm -rf check && mkdir -p check && cp /tmp/logs/* check/
+          git add check && git commit -qm "check logs ${{ github.run_number }}" && git push -q origin ci-logs || true
 
   testflight:
     name: Build & upload to TestFlight
@@ -83,10 +96,27 @@ jobs:
           /usr/libexec/PlistBuddy -c "Add :UISupportedInterfaceOrientations array" -c "Add :UISupportedInterfaceOrientations:0 string UIInterfaceOrientationPortrait" "$PL"
 
       - name: Build Flutter (unsigned)
-        run: flutter build ios --release --no-codesign --build-number=${{ github.run_number }}
+        shell: bash
+        run: flutter build ios --release --no-codesign --build-number=${{ github.run_number }} 2>&1 | tee flutter-build.log; exit ${PIPESTATUS[0]}
 
       - name: Sign, archive and upload to TestFlight
-        run: bundle exec fastlane ios beta
+        shell: bash
+        run: bundle exec fastlane ios beta 2>&1 | tee fastlane.log; exit ${PIPESTATUS[0]}
+
+      - name: Publish logs to the ci-logs branch
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p /tmp/logs
+          cp ~/Library/Logs/gym/*.log /tmp/logs/ 2>/dev/null || true
+          tail -n 400 flutter-build.log > /tmp/logs/flutter-build.log 2>/dev/null || true
+          tail -n 400 fastlane.log | sed -E 's/(key_content|password|PASSWORD)[^ ]*/\1 [hidden]/g' > /tmp/logs/fastlane.log 2>/dev/null || true
+          echo "${{ job.status }} ${{ github.sha }}" > /tmp/logs/status.txt
+          git config user.name "ci" && git config user.email "ci@users.noreply.github.com"
+          git stash -u -q 2>/dev/null || true
+          git fetch origin ci-logs 2>/dev/null && git checkout -B ci-logs origin/ci-logs || git checkout --orphan ci-logs
+          rm -rf ios-build && mkdir -p ios-build && cp /tmp/logs/* ios-build/
+          git add ios-build && git commit -qm "ios logs ${{ github.run_number }}" && git push -q origin ci-logs || true
 
       - name: Keep the build logs on failure
         if: failure()
