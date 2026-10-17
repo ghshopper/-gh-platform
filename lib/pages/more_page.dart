@@ -9,6 +9,7 @@ import '../format.dart';
 import '../models.dart';
 import '../ui/colors.dart';
 import '../ui/kit.dart';
+import 'drivers_pages.dart';
 import 'purchases_pages.dart';
 
 class MorePage extends StatefulWidget {
@@ -79,6 +80,12 @@ class _MorePageState extends State<MorePage> {
             leading: const IconBox(CupertinoIcons.bag_fill, color: GH.gold),
             title: 'فواتير الشراء',
             onTap: () => pushPage(context, const PurchaseInvoicesPage()),
+          ),
+          Tile(
+            leading: const IconBox(CupertinoIcons.car_detailed, color: GH.blue),
+            title: 'المناديب',
+            value: Store.i.drivers.isEmpty ? null : '${Store.i.drivers.length}',
+            onTap: () => pushPage(context, const DriversPage()),
           ),
           Tile(
             leading: const IconBox(CupertinoIcons.table_fill, color: GH.green),

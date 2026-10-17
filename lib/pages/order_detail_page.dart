@@ -10,6 +10,7 @@ import '../pdf_invoice.dart';
 import '../ui/colors.dart';
 import '../ui/kit.dart';
 import 'customers_page.dart';
+import 'drivers_pages.dart';
 import 'item_pages.dart';
 import 'trips_page.dart';
 
@@ -445,6 +446,32 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
               children: o.items.isEmpty
                   ? [const Tile(title: 'ما في قطع')]
                   : o.items.map((i) => _itemRow(o, i)).toList(),
+            ),
+            Section(
+              header: 'التوصيل',
+              children: [
+                Tile(
+                  leading: IconBox(CupertinoIcons.car_detailed,
+                      color: o.driverStatus?.color ?? GH.tertiary),
+                  title: Store.i.driver(o.driverId)?.name ?? 'أسند لمندوب',
+                  titleStyle: o.driverId == null
+                      ? const TextStyle(fontSize: 16, color: GH.burgundy)
+                      : null,
+                  subtitle: o.driverId == null
+                      ? null
+                      : [
+                          if (o.deliveryFee > 0)
+                            o.deliveryCollect
+                                ? 'يحصّل التوصيل ${omr(o.deliveryFee)}'
+                                : 'التوصيل مدفوع',
+                          if (o.deliveryAddress != null) o.deliveryAddress!,
+                        ].join(' · '),
+                  trailing: o.driverStatus == null
+                      ? null
+                      : Badge(o.driverStatus!.label, color: o.driverStatus!.color),
+                  onTap: () => presentForm(context, DeliveryPage(order: o)),
+                ),
+              ],
             ),
             Section(
               header: 'الدفعات',

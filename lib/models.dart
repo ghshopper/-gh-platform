@@ -38,6 +38,7 @@ class Customer {
     required this.name,
     this.phone,
     this.city,
+    this.address,
     this.notes,
     this.isMale = false,
   });
@@ -46,6 +47,9 @@ class Customer {
   final String name;
   final String? phone;
   final String? city;
+
+  /// Default delivery address (area, street, house, or a maps link).
+  final String? address;
   final String? notes;
 
   /// Used to word messages ("طلبكَ" / "طلبكِ").
@@ -61,6 +65,7 @@ class Customer {
         name: (m['name'] ?? '').toString(),
         phone: _s(m['phone']),
         city: _s(m['city']),
+        address: _s(m['address']),
         notes: _s(m['notes']),
         isMale: m['gender'] == 'm',
       );
@@ -441,6 +446,13 @@ class Order {
     this.createdAt,
     required this.items,
     required this.payments,
+    this.driverId,
+    this.deliveryAddress,
+    this.deliveryCollect = false,
+    this.driverStatus,
+    this.driverNote,
+    this.deliveryPhotoPath,
+    this.driverDeliveredAt,
   });
 
   final String id;
@@ -456,6 +468,17 @@ class Order {
   final DateTime? createdAt;
   final List<OrderItem> items;
   final List<Payment> payments;
+
+  // Delivery by a driver
+  final String? driverId;
+  final String? deliveryAddress;
+
+  /// true: the driver collects the delivery fee from the customer.
+  final bool deliveryCollect;
+  final DriverStatus? driverStatus;
+  final String? driverNote;
+  final String? deliveryPhotoPath;
+  final DateTime? driverDeliveredAt;
 
   String get invoiceNo => invoiceNumber(orderNo, createdAt);
 
@@ -523,6 +546,124 @@ class Order {
       createdAt: _dt(m['created_at']),
       items: items,
       payments: payments,
+      driverId: _s(m['driver_id']),
+      deliveryAddress: _s(m['delivery_address']),
+      deliveryCollect: m['delivery_collect'] == true,
+      driverStatus: driverStatusFrom(m['driver_status'] as String?),
+      driverNote: _s(m['driver_note']),
+      deliveryPhotoPath: _s(m['delivery_photo_path']),
+      driverDeliveredAt: _dt(m['driver_delivered_at']),
+    );
+  }
+}
+
+// ───────────────────────── Drivers ─────────────────────────
+
+enum DriverStatus { assigned, picked, delivered }
+
+DriverStatus? driverStatusFrom(String? v) {
+  for (final s in DriverStatus.values) {
+    if (s.name == v) return s;
+  }
+  return null;
+}
+
+extension DriverStatusX on DriverStatus {
+  String get label => switch (this) {
+        DriverStatus.assigned => 'عند المندوب',
+        DriverStatus.picked => 'في الطريق',
+        DriverStatus.delivered => 'تم التسليم',
+      };
+
+  Color get color => switch (this) {
+        DriverStatus.assigned => GH.blue,
+        DriverStatus.picked => GH.amber,
+        DriverStatus.delivered => GH.green,
+      };
+}
+
+class Driver {
+  Driver({
+    required this.id,
+    required this.name,
+    this.phone,
+    this.userId,
+    this.active = true,
+  });
+
+  final String id;
+  final String name;
+  final String? phone;
+  final String? userId;
+  final bool active;
+
+  factory Driver.fromMap(Map<String, dynamic> m) => Driver(
+        id: m['id'] as String,
+        name: (m['name'] ?? '').toString(),
+        phone: _s(m['phone']),
+        userId: _s(m['user_id']),
+        active: m['active'] != false,
+      );
+}
+
+/// An order as a driver sees it (from gh_driver_orders): no prices.
+class DriverOrder {
+  DriverOrder({
+    required this.id,
+    required this.invoiceNo,
+    required this.customerName,
+    this.customerPhone,
+    this.customerCity,
+    this.address,
+    required this.deliveryFee,
+    required this.collect,
+    this.status,
+    this.note,
+    this.photoPath,
+    this.deliveredAt,
+    required this.items,
+  });
+
+  final String id;
+  final String invoiceNo;
+  final String customerName;
+  final String? customerPhone;
+  final String? customerCity;
+  final String? address;
+  final double deliveryFee;
+  final bool collect;
+  final DriverStatus? status;
+  final String? note;
+  final String? photoPath;
+  final DateTime? deliveredAt;
+  final List<({String? brand, String name, String? details})> items;
+
+  bool get isDone => status == DriverStatus.delivered;
+
+  factory DriverOrder.fromMap(Map<String, dynamic> m) {
+    final n = m['order_no'];
+    return DriverOrder(
+      id: m['id'] as String,
+      invoiceNo: invoiceNumber(
+          n is num ? n.toInt() : int.tryParse('$n') ?? 0, _dt(m['created_at'])),
+      customerName: (m['customer_name'] ?? '').toString(),
+      customerPhone: _s(m['customer_phone']),
+      customerCity: _s(m['customer_city']),
+      address: _s(m['address']),
+      deliveryFee: _d(m['delivery_fee']),
+      collect: m['delivery_collect'] == true,
+      status: driverStatusFrom(m['driver_status'] as String?),
+      note: _s(m['driver_note']),
+      photoPath: _s(m['delivery_photo_path']),
+      deliveredAt: _dt(m['driver_delivered_at']),
+      items: ((m['items'] as List?) ?? const [])
+          .map((e) => Map<String, dynamic>.from(e as Map))
+          .map((e) => (
+                brand: _s(e['brand']),
+                name: (e['name'] ?? '').toString(),
+                details: _s(e['details']),
+              ))
+          .toList(),
     );
   }
 }

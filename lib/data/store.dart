@@ -23,6 +23,7 @@ class Store extends ChangeNotifier {
   List<Trip> trips = [];
   List<TripExpense> expenses = [];
   List<PurchaseInvoice> invoices = [];
+  List<Driver> drivers = [];
   BusinessSettings settings = BusinessSettings();
 
   Map<String, Customer> _customerById = {};
@@ -72,6 +73,7 @@ class Store extends ChangeNotifier {
             .select()
             .order('purchased_on', ascending: false),
         _db.from('gh_settings').select().maybeSingle(),
+        _db.from('gh_drivers').select().order('created_at'),
       ]);
       final raw = <String, dynamic>{
         'orders': results[0],
@@ -80,6 +82,7 @@ class Store extends ChangeNotifier {
         'expenses': results[3],
         'invoices': results[4],
         'settings': results[5],
+        'drivers': results[6],
       };
       _apply(raw);
       lastError = null;
@@ -104,6 +107,7 @@ class Store extends ChangeNotifier {
     trips = rows('trips').map(Trip.fromMap).toList();
     expenses = rows('expenses').map(TripExpense.fromMap).toList();
     invoices = rows('invoices').map(PurchaseInvoice.fromMap).toList();
+    drivers = rows('drivers').map(Driver.fromMap).toList();
     final s = raw['settings'];
     settings = s is Map
         ? BusinessSettings.fromMap(Map<String, dynamic>.from(s))
@@ -119,6 +123,7 @@ class Store extends ChangeNotifier {
     trips = [];
     expenses = [];
     invoices = [];
+    drivers = [];
     settings = BusinessSettings();
     _customerById = {};
     _tripById = {};
@@ -132,6 +137,19 @@ class Store extends ChangeNotifier {
   Customer? customer(String? id) => id == null ? null : _customerById[id];
   Trip? trip(String? id) => id == null ? null : _tripById[id];
   Order? order(String id) => _orderById[id];
+  Driver? driver(String? id) {
+    if (id == null) return null;
+    for (final d in drivers) {
+      if (d.id == id) return d;
+    }
+    return null;
+  }
+
+  /// Orders handed to a driver and not yet delivered.
+  List<Order> get withDrivers => orders
+      .where((o) =>
+          o.driverId != null && o.driverStatus != DriverStatus.delivered)
+      .toList();
 
   String customerName(Order o) => customer(o.customerId)?.name ?? '—';
 
@@ -178,6 +196,7 @@ class Store extends ChangeNotifier {
     required String name,
     String? phone,
     String? city,
+    String? address,
     String? notes,
     bool isMale = false,
   }) {
@@ -186,6 +205,7 @@ class Store extends ChangeNotifier {
         'name': name,
         'phone': phone,
         'city': city,
+        'address': address,
         'notes': notes,
         'gender': isMale ? 'm' : 'f',
       };
@@ -386,6 +406,66 @@ class Store extends ChangeNotifier {
         await _db.storage.from('gh-photos').createSignedUrl(path, 60 * 60 * 24);
     _signed[path] = url;
     return url;
+  }
+
+  // ───────────── drivers ─────────────
+
+  Future<Map<String, dynamic>> _driverAdmin(Map<String, dynamic> body) async {
+    try {
+      final res =
+          await _db.functions.invoke('gh-driver-admin', body: body);
+      final data = res.data;
+      if (data is Map && data['error'] != null) {
+        throw Exception(data['error']);
+      }
+      return data is Map ? Map<String, dynamic>.from(data) : {};
+    } on FunctionException catch (e) {
+      final d = e.details;
+      if (d is Map && d['error'] != null) throw Exception(d['error']);
+      rethrow;
+    }
+  }
+
+  Future<void> createDriver(
+          {required String name,
+          required String phone,
+          required String password}) =>
+      _write(() => _driverAdmin(
+          {'action': 'create', 'name': name, 'phone': phone, 'password': password}));
+
+  Future<void> setDriverPassword(String driverId, String password) =>
+      _driverAdmin(
+          {'action': 'password', 'driver_id': driverId, 'password': password});
+
+  Future<void> deleteDriver(String driverId) =>
+      _write(() => _driverAdmin({'action': 'delete', 'driver_id': driverId}));
+
+  Future<void> saveDriver(String id, {String? name, bool? active}) =>
+      _write(() async => _db.from('gh_drivers').update({
+            if (name != null) 'name': name,
+            if (active != null) 'active': active,
+          }).eq('id', id));
+
+  /// Hands an order to a driver (or takes it back when [driverId] is null).
+  Future<void> setDelivery(
+    Order o, {
+    required String? driverId,
+    String? address,
+    bool? collect,
+    String? note,
+  }) {
+    return _write(() async {
+      final changedDriver = driverId != o.driverId;
+      await _db.from('gh_orders').update({
+        'driver_id': driverId,
+        'delivery_address': address,
+        if (collect != null) 'delivery_collect': collect,
+        'driver_note': note,
+        if (changedDriver)
+          'driver_status': driverId == null ? null : 'assigned',
+        if (changedDriver) 'driver_delivered_at': null,
+      }).eq('id', o.id);
+    });
   }
 
   // ───────────── payments ─────────────

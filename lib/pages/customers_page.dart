@@ -179,6 +179,8 @@ class CustomerDetailPage extends StatelessWidget {
                   chevron: false),
               if (c.city != null)
                 Tile(title: 'المنطقة', value: c.city, chevron: false),
+              if (c.address != null)
+                Tile(title: 'العنوان', subtitle: c.address, chevron: false),
               Tile(
                   title: 'رصيده عندك',
                   value: omr(balance),
@@ -240,6 +242,7 @@ class _CustomerFormPageState extends State<CustomerFormPage> {
   late final _name = TextEditingController(text: widget.customer?.name);
   late final _phone = TextEditingController(text: widget.customer?.phone);
   late final _city = TextEditingController(text: widget.customer?.city);
+  late final _address = TextEditingController(text: widget.customer?.address);
   late final _notes = TextEditingController(text: widget.customer?.notes);
   late bool _male = widget.customer?.isMale ?? false;
   bool _saving = false;
@@ -249,6 +252,7 @@ class _CustomerFormPageState extends State<CustomerFormPage> {
     _name.dispose();
     _phone.dispose();
     _city.dispose();
+    _address.dispose();
     _notes.dispose();
     super.dispose();
   }
@@ -268,6 +272,7 @@ class _CustomerFormPageState extends State<CustomerFormPage> {
         name: _name.text.trim(),
         phone: _clean(_phone),
         city: _clean(_city),
+        address: _clean(_address),
         notes: _clean(_notes),
         isMale: _male,
       );
@@ -306,6 +311,10 @@ class _CustomerFormPageState extends State<CustomerFormPage> {
               keyboard: TextInputType.phone,
               ltr: true),
           FieldRow(label: 'المنطقة', controller: _city, placeholder: 'اختياري'),
+          FieldRow(
+              label: 'العنوان',
+              controller: _address,
+              placeholder: 'للمندوب: الحي، السكة، المنزل أو رابط الموقع'),
         ]),
         Section(
           header: 'ملاحظات',

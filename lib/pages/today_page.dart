@@ -121,7 +121,7 @@ class TodayPage extends StatelessWidget {
                   ]),
                 ]),
               ),
-              if (toBuy.isEmpty && toDeliver.isEmpty && unpaid.isEmpty)
+              if (toBuy.isEmpty && toDeliver.isEmpty && unpaid.isEmpty && store.withDrivers.isEmpty)
                 const EmptyState(
                   icon: CupertinoIcons.checkmark_seal,
                   title: 'كل شي تمام',
@@ -131,6 +131,23 @@ class TodayPage extends StatelessWidget {
                 Section(
                   header: 'وصلت وتنتظر التسليم · ${toDeliver.length}',
                   children: toDeliver.take(8).map((e) => itemTile(e)).toList(),
+                ),
+              if (store.withDrivers.isNotEmpty)
+                Section(
+                  header: 'مع المناديب · ${store.withDrivers.length}',
+                  children: store.withDrivers
+                      .take(8)
+                      .map((o) => Tile(
+                            leading: Avatar(store.customerName(o), size: 32),
+                            title: store.customerName(o),
+                            subtitle:
+                                '${store.driver(o.driverId)?.name ?? ''} · ${o.invoiceNo}',
+                            trailing: Badge(o.driverStatus?.label ?? '',
+                                color: o.driverStatus?.color ?? GH.blue),
+                            onTap: () => pushPage(
+                                context, OrderDetailPage(orderId: o.id)),
+                          ))
+                      .toList(),
                 ),
               if (toBuy.isNotEmpty)
                 Section(

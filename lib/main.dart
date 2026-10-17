@@ -7,6 +7,9 @@ import 'config.dart';
 import 'data/lock.dart';
 import 'data/rates.dart';
 import 'data/store.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'pages/driver_home.dart';
 import 'pages/login_page.dart';
 import 'pages/tabs.dart';
 import 'ui/colors.dart';
@@ -65,9 +68,77 @@ class AuthGate extends StatelessWidget {
           }
           return const LoginPage();
         }
-        return const LockGate(child: Tabs());
+        final uid = auth.currentUser!.id;
+        return RoleGate(key: ValueKey(uid), userId: uid);
       },
     );
+  }
+}
+
+/// Sends drivers to their delivery list and the owner to the full app.
+/// The role is cached on the phone so the app opens instantly next time.
+class RoleGate extends StatefulWidget {
+  const RoleGate({super.key, required this.userId});
+
+  final String userId;
+
+  @override
+  State<RoleGate> createState() => _RoleGateState();
+}
+
+class _RoleGateState extends State<RoleGate> {
+  // null = unknown yet, '' = owner, otherwise the driver's name
+  String? _role;
+  Object? _error;
+
+  String get _key => 'gh_role:${widget.userId}';
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    SharedPreferences? prefs;
+    try {
+      prefs = await SharedPreferences.getInstance();
+      final cached = prefs.getString(_key);
+      if (cached != null && mounted) setState(() => _role = cached);
+    } catch (_) {}
+    try {
+      final me = await Supabase.instance.client.rpc('gh_driver_me');
+      final role = me is Map ? (me['name'] ?? 'مندوب').toString() : '';
+      prefs?.setString(_key, role);
+      if (mounted) setState(() => _role = role);
+    } catch (e) {
+      if (mounted && _role == null) setState(() => _error = e);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_role == null) {
+      return CupertinoPageScaffold(
+        backgroundColor: GH.bg,
+        child: Center(
+          child: _error == null
+              ? const CupertinoActivityIndicator()
+              : Column(mainAxisSize: MainAxisSize.min, children: [
+                  Text(errorText(_error!), style: T.sub),
+                  CupertinoButton(
+                    onPressed: () {
+                      setState(() => _error = null);
+                      _load();
+                    },
+                    child: const Text('حاول مرة ثانية'),
+                  ),
+                ]),
+        ),
+      );
+    }
+    if (_role!.isEmpty) return const LockGate(child: Tabs());
+    return LockGate(child: DriverHome(name: _role!));
   }
 }
 

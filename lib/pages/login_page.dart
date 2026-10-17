@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../format.dart';
 import '../ui/colors.dart';
 import '../ui/kit.dart';
 
@@ -24,11 +25,20 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
+  /// Drivers sign in with their phone; it maps to their private e-mail.
+  String _loginEmail(String input) {
+    final t = normalizeDigits(input.trim());
+    if (t.contains('@')) return t;
+    var d = t.replaceAll(RegExp(r'\D'), '');
+    if (d.length == 8) d = '968$d';
+    return 'd$d@drivers.ghshopper.com';
+  }
+
   Future<void> _submit() async {
-    final email = _email.text.trim();
+    final email = _loginEmail(_email.text);
     final password = _password.text;
-    if (email.isEmpty || password.length < 6) {
-      toast(context, 'اكتب الإيميل وكلمة مرور ٦ أحرف أو أكثر', error: true);
+    if (_email.text.trim().isEmpty || password.length < 6) {
+      toast(context, 'اكتب الإيميل أو رقمك وكلمة المرور', error: true);
       return;
     }
     setState(() => _busy = true);
@@ -48,7 +58,7 @@ class _LoginPageState extends State<LoginPage> {
         toast(
             context,
             e.message.contains('Invalid login')
-                ? 'الإيميل أو كلمة المرور غلط'
+                ? 'البيانات أو كلمة المرور غلط'
                 : e.message,
             error: true);
       }
@@ -101,7 +111,8 @@ class _LoginPageState extends State<LoginPage> {
                     borderRadius: BorderRadius.circular(12),
                     child: Column(
                       children: [
-                        _field(_email, 'الإيميل',
+                        _field(_email,
+                            _signUp ? 'الإيميل' : 'الإيميل أو رقم الجوال',
                             keyboard: TextInputType.emailAddress),
                         Container(height: 0.5, color: GH.separator),
                         _field(_password, 'كلمة المرور', obscure: true),
