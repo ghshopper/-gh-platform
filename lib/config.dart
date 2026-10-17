@@ -6,5 +6,5 @@ class AppConfig {
   static const supabaseAnonKey = 'sb_publishable_SKNNfswdPLbwj0BymUf-yQ_UVwnzANY';
 
   /// Public order-tracking page; the order's secret token is appended.
-  static const trackingBaseUrl = 'https://gh-track.vercel.app/?t=';
+  static const trackingBaseUrl = 'https://gh-track-gh-2f22.vercel.app/?t=';
 }
