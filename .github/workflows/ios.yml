@@ -13,7 +13,7 @@ permissions:
   contents: write   # fastlane match stores the encrypted signing files on the "certificates" branch
 
 env:
-  BUNDLE_ID: ${{ vars.BUNDLE_ID || 'com.ghshopper.app' }}
+  BUNDLE_ID: ${{ vars.BUNDLE_ID || 'app.ghshopper.com' }}
 
 jobs:
   check:

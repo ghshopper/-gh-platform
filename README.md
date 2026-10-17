@@ -28,4 +28,4 @@
 | `APPLE_TEAM_ID` | Team ID من حساب المطورين |
 | `MATCH_PASSWORD` | كلمة سر تختارها لتشفير ملفات التوقيع |
 
-ومتغيّر (Variables) اسمه `BUNDLE_ID` إذا كان غير `com.ghshopper.app`.
+ومتغيّر (Variables) اسمه `BUNDLE_ID` إذا كان غير `app.ghshopper.com`.
