@@ -2,10 +2,10 @@ Analyzing -gh-platform...
 
    info • The import of 'dart:typed_data' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/foundation.dart'. Try removing the import directive • lib/data/store.dart:2:8 • unnecessary_import
    info • 'anonKey' is deprecated and shouldn't be used. Use publishableKey instead. anonKey will be removed in a future major version. Try replacing the use of the deprecated member with the replacement • lib/main.dart:20:5 • deprecated_member_use
-   info • The 'children' argument should be last in widget constructor invocations. Try moving the argument to the end of the argument list • lib/pages/item_pages.dart:212:11 • sort_child_properties_last
-   info • The 'children' argument should be last in widget constructor invocations. Try moving the argument to the end of the argument list • lib/pages/item_pages.dart:234:11 • sort_child_properties_last
+   info • The 'children' argument should be last in widget constructor invocations. Try moving the argument to the end of the argument list • lib/pages/item_pages.dart:221:11 • sort_child_properties_last
+   info • The 'children' argument should be last in widget constructor invocations. Try moving the argument to the end of the argument list • lib/pages/item_pages.dart:243:11 • sort_child_properties_last
    info • The 'children' argument should be last in widget constructor invocations. Try moving the argument to the end of the argument list • lib/pages/more_page.dart:232:21 • sort_child_properties_last
-   info • 'minSize' is deprecated and shouldn't be used. Use minimumSize instead. This feature was deprecated after v3.28.0-3.0.pre. Try replacing the use of the deprecated member with the replacement • lib/pages/order_detail_page.dart:574:27 • deprecated_member_use
+   info • 'minSize' is deprecated and shouldn't be used. Use minimumSize instead. This feature was deprecated after v3.28.0-3.0.pre. Try replacing the use of the deprecated member with the replacement • lib/pages/order_detail_page.dart:583:27 • deprecated_member_use
 warning • The '!' will have no effect because the receiver can't be null. Try removing the '!' operator • lib/pages/purchases_pages.dart:82:37 • unnecessary_non_null_assertion
 warning • The '!' will have no effect because the receiver can't be null. Try removing the '!' operator • lib/pages/purchases_pages.dart:159:60 • unnecessary_non_null_assertion
 warning • The '!' will have no effect because the receiver can't be null. Try removing the '!' operator • lib/pages/purchases_pages.dart:162:49 • unnecessary_non_null_assertion
@@ -14,10 +14,10 @@ warning • The '!' will have no effect because the receiver can't be null. Try 
    info • 'minSize' is deprecated and shouldn't be used. Use minimumSize instead. This feature was deprecated after v3.28.0-3.0.pre. Try replacing the use of the deprecated member with the replacement • lib/ui/kit.dart:113:7 • deprecated_member_use
    info • 'minSize' is deprecated and shouldn't be used. Use minimumSize instead. This feature was deprecated after v3.28.0-3.0.pre. Try replacing the use of the deprecated member with the replacement • lib/ui/kit.dart:134:7 • deprecated_member_use
    info • 'minSize' is deprecated and shouldn't be used. Use minimumSize instead. This feature was deprecated after v3.28.0-3.0.pre. Try replacing the use of the deprecated member with the replacement • lib/ui/kit.dart:220:7 • deprecated_member_use
-   info • The type parameter name 'T' matches a visible type name. Try changing the type parameter name to not match an existing type • lib/ui/kit.dart:790:16 • avoid_types_as_parameter_names
-   info • The type parameter name 'T' matches a visible type name. Try changing the type parameter name to not match an existing type • lib/ui/kit.dart:945:19 • avoid_types_as_parameter_names
-   info • The type parameter name 'T' matches a visible type name. Try changing the type parameter name to not match an existing type • lib/ui/kit.dart:954:24 • avoid_types_as_parameter_names
-   info • The type parameter name 'T' matches a visible type name. Try changing the type parameter name to not match an existing type • lib/ui/kit.dart:1090:24 • avoid_types_as_parameter_names
-   info • The type parameter name 'T' matches a visible type name. Try changing the type parameter name to not match an existing type • lib/ui/kit.dart:1096:21 • avoid_types_as_parameter_names
+   info • The type parameter name 'T' matches a visible type name. Try changing the type parameter name to not match an existing type • lib/ui/kit.dart:847:16 • avoid_types_as_parameter_names
+   info • The type parameter name 'T' matches a visible type name. Try changing the type parameter name to not match an existing type • lib/ui/kit.dart:1002:19 • avoid_types_as_parameter_names
+   info • The type parameter name 'T' matches a visible type name. Try changing the type parameter name to not match an existing type • lib/ui/kit.dart:1011:24 • avoid_types_as_parameter_names
+   info • The type parameter name 'T' matches a visible type name. Try changing the type parameter name to not match an existing type • lib/ui/kit.dart:1147:24 • avoid_types_as_parameter_names
+   info • The type parameter name 'T' matches a visible type name. Try changing the type parameter name to not match an existing type • lib/ui/kit.dart:1153:21 • avoid_types_as_parameter_names
 
-19 issues found. (ran in 16.3s)
+19 issues found. (ran in 12.3s)
