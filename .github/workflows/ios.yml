@@ -45,7 +45,7 @@ jobs:
   testflight:
     name: Build & upload to TestFlight
     needs: check
-    runs-on: macos-15
+    runs-on: macos-26
     timeout-minutes: 60
     env:
       ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
@@ -64,6 +64,11 @@ jobs:
             if [ -z "${!v}" ]; then echo "::error::Missing repository secret: $v"; missing=1; fi
           done
           exit $missing
+
+      - name: Use the latest stable Xcode (App Store needs the iOS 26 SDK or newer)
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
 
       - uses: subosito/flutter-action@v2
         with:
