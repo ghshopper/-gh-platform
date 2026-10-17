@@ -1,0 +1,97 @@
+name: iOS build → TestFlight
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ios-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write   # fastlane match stores the encrypted signing files on the "certificates" branch
+
+env:
+  BUNDLE_ID: ${{ vars.BUNDLE_ID || 'com.ghshopper.app' }}
+
+jobs:
+  check:
+    name: Analyze & test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter analyze --no-fatal-infos --no-fatal-warnings
+      - run: flutter test
+
+  testflight:
+    name: Build & upload to TestFlight
+    needs: check
+    runs-on: macos-15
+    timeout-minutes: 60
+    env:
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check that the Apple secrets are set
+        run: |
+          missing=0
+          for v in ASC_KEY_ID ASC_ISSUER_ID ASC_KEY_P8 APPLE_TEAM_ID MATCH_PASSWORD; do
+            if [ -z "${!v}" ]; then echo "::error::Missing repository secret: $v"; missing=1; fi
+          done
+          exit $missing
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
+
+      - name: Generate the iOS project
+        run: |
+          flutter create --platforms=ios --org com.ghshopper --project-name gh_shopper .
+          flutter pub get
+          dart run flutter_launcher_icons
+          PBX=ios/Runner.xcodeproj/project.pbxproj
+          sed -i '' "s/com\.ghshopper\.ghShopper/${BUNDLE_ID}/g" "$PBX"
+          sed -i '' 's/TARGETED_DEVICE_FAMILY = "1,2";/TARGETED_DEVICE_FAMILY = 1;/g' "$PBX"
+          sed -i '' 's/IPHONEOS_DEPLOYMENT_TARGET = [0-9.]*;/IPHONEOS_DEPLOYMENT_TARGET = 13.0;/g' "$PBX"
+          PL=ios/Runner/Info.plist
+          /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName GH Shopper" "$PL" || /usr/libexec/PlistBuddy -c "Add :CFBundleDisplayName string GH Shopper" "$PL"
+          /usr/libexec/PlistBuddy -c "Add :ITSAppUsesNonExemptEncryption bool false" "$PL"
+          /usr/libexec/PlistBuddy -c "Delete :CFBundleLocalizations" "$PL" 2>/dev/null || true
+          /usr/libexec/PlistBuddy -c "Add :CFBundleLocalizations array" -c "Add :CFBundleLocalizations:0 string ar" -c "Add :CFBundleLocalizations:1 string en" "$PL"
+          /usr/libexec/PlistBuddy -c "Set :CFBundleDevelopmentRegion ar" "$PL"
+          # iPhone only: portrait
+          /usr/libexec/PlistBuddy -c "Delete :UISupportedInterfaceOrientations~ipad" "$PL" 2>/dev/null || true
+          /usr/libexec/PlistBuddy -c "Delete :UISupportedInterfaceOrientations" "$PL" 2>/dev/null || true
+          /usr/libexec/PlistBuddy -c "Add :UISupportedInterfaceOrientations array" -c "Add :UISupportedInterfaceOrientations:0 string UIInterfaceOrientationPortrait" "$PL"
+
+      - name: Build Flutter (unsigned)
+        run: flutter build ios --release --no-codesign --build-number=${{ github.run_number }}
+
+      - name: Sign, archive and upload to TestFlight
+        run: bundle exec fastlane ios beta
+
+      - name: Keep the build logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gym-logs
+          path: ~/Library/Logs/gym
+          if-no-files-found: ignore
