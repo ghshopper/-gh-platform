@@ -131,6 +131,77 @@ extension ItemStatusX on ItemStatus {
   }
 }
 
+/// Where an item was bought. Fixed tax-free rules per place.
+enum PurchasePlace { boutiqueEu, airport, dubai, other }
+
+PurchasePlace? purchasePlaceFrom(String? s) {
+  switch (s) {
+    case 'boutique_eu':
+      return PurchasePlace.boutiqueEu;
+    case 'airport':
+      return PurchasePlace.airport;
+    case 'dubai':
+      return PurchasePlace.dubai;
+    case 'other':
+      return PurchasePlace.other;
+  }
+  return null;
+}
+
+extension PurchasePlaceX on PurchasePlace {
+  String get key {
+    switch (this) {
+      case PurchasePlace.boutiqueEu:
+        return 'boutique_eu';
+      case PurchasePlace.airport:
+        return 'airport';
+      case PurchasePlace.dubai:
+        return 'dubai';
+      case PurchasePlace.other:
+        return 'other';
+    }
+  }
+
+  String get label {
+    switch (this) {
+      case PurchasePlace.boutiqueEu:
+        return 'بوتيك أوروبا';
+      case PurchasePlace.airport:
+        return 'مطار (ديوتي فري)';
+      case PurchasePlace.dubai:
+        return 'دبي';
+      case PurchasePlace.other:
+        return 'مكان ثاني';
+    }
+  }
+
+  /// Default currency for this place.
+  String get currency {
+    switch (this) {
+      case PurchasePlace.boutiqueEu:
+      case PurchasePlace.airport:
+        return 'EUR';
+      case PurchasePlace.dubai:
+        return 'AED';
+      case PurchasePlace.other:
+        return 'EUR';
+    }
+  }
+
+  /// Tax-free refund percentage you should get back.
+  double get taxFreePct {
+    switch (this) {
+      case PurchasePlace.boutiqueEu:
+        return 12;
+      case PurchasePlace.dubai:
+        return 4;
+      case PurchasePlace.airport:
+      case PurchasePlace.other:
+        return 0;
+    }
+  }
+}
+
 class OrderItem {
   OrderItem({
     required this.id,
@@ -143,6 +214,9 @@ class OrderItem {
     this.costAmount,
     this.costCurrency,
     this.costRate,
+    this.purchasePlace,
+    this.taxFreePct,
+    this.taxFreeReceived = false,
     this.purchasedAt,
     this.arrivedAt,
     this.deliveredAt,
@@ -161,6 +235,9 @@ class OrderItem {
   final double? costAmount;
   final String? costCurrency;
   final double? costRate;
+  final PurchasePlace? purchasePlace;
+  final double? taxFreePct;
+  final bool taxFreeReceived;
   final DateTime? purchasedAt;
   final DateTime? arrivedAt;
   final DateTime? deliveredAt;
@@ -172,6 +249,15 @@ class OrderItem {
 
   double? get costOmr =>
       (costAmount == null || costRate == null) ? null : costAmount! * costRate!;
+
+  /// Tax-free refund expected for this item, in the purchase currency.
+  double get taxFreeAmount {
+    final pct = taxFreePct ?? 0;
+    if (costAmount == null || pct <= 0) return 0;
+    return costAmount! * pct / 100;
+  }
+
+  bool get hasTaxFree => taxFreeAmount > 0;
 
   factory OrderItem.fromMap(Map<String, dynamic> m) {
     int? orderNo;
@@ -194,6 +280,9 @@ class OrderItem {
       costAmount: _dn(m['cost_amount']),
       costCurrency: _s(m['cost_currency']),
       costRate: _dn(m['cost_rate']),
+      purchasePlace: purchasePlaceFrom(m['purchase_place'] as String?),
+      taxFreePct: _dn(m['tax_free_pct']),
+      taxFreeReceived: m['tax_free_received'] == true,
       purchasedAt: _dt(m['purchased_at']),
       arrivedAt: _dt(m['arrived_at']),
       deliveredAt: _dt(m['delivered_at']),
@@ -271,6 +360,20 @@ class Order {
 
   double get costOmr =>
       activeItems.fold<double>(0, (sum, i) => sum + (i.costOmr ?? 0));
+
+  /// What the customer transferred minus what you paid for her items.
+  double get customerBalance => paid - costOmr;
+
+  /// Tax-free still to collect, grouped by currency.
+  Map<String, double> get taxFreePending {
+    final map = <String, double>{};
+    for (final i in activeItems) {
+      if (!i.hasTaxFree || i.taxFreeReceived) continue;
+      final c = i.costCurrency ?? 'EUR';
+      map[c] = (map[c] ?? 0) + i.taxFreeAmount;
+    }
+    return map;
+  }
 
   /// The least-advanced status among active items (what still needs doing).
   ItemStatus get overallStatus {

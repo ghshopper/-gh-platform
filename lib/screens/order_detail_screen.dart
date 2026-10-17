@@ -6,6 +6,7 @@ import '../format.dart';
 import '../messages.dart';
 import '../models.dart';
 import '../pdf_invoice.dart';
+import '../purchase_dialog.dart';
 import '../repo.dart';
 import '../theme.dart';
 import '../widgets.dart';
@@ -124,14 +125,32 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     }
   }
 
+  /// Moves an item to [status]; buying asks for the purchase details first.
+  Future<void> _advance(OrderItem item, ItemStatus status) async {
+    if (status == ItemStatus.purchased && item.costAmount == null) {
+      final ok = await showPurchaseDialog(context, item);
+      if (ok) await _load();
+      return;
+    }
+    await _run(() => Repo.setItemStatus(item, status));
+  }
+
   Future<void> _itemMenu(OrderItem item, String action) async {
     if (action == 'edit') return _itemDialog(item: item);
+    if (action == 'purchase') {
+      final ok = await showPurchaseDialog(context, item);
+      if (ok) await _load();
+      return;
+    }
+    if (action == 'taxfree') {
+      return _run(
+          () => Repo.setTaxFreeReceived(item.id, !item.taxFreeReceived));
+    }
     if (action == 'delete') {
       if (!await confirm(context, 'حذف ${item.name}؟')) return;
       return _run(() => Repo.deleteItem(item.id));
     }
-    final status = itemStatusFrom(action);
-    await _run(() => Repo.setItemStatus(item, status));
+    await _advance(item, itemStatusFrom(action));
   }
 
   Future<void> _markAll(ItemStatus status) async {
@@ -140,6 +159,19 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
         .where((i) => i.status.index < status.index)
         .toList();
     if (targets.isEmpty) return;
+    if (status == ItemStatus.purchased) {
+      // Each bought item needs its price and place.
+      for (final i in targets) {
+        if (i.costAmount != null) {
+          await Repo.setItemStatus(i, status);
+          continue;
+        }
+        final ok = await showPurchaseDialog(context, i);
+        if (!ok) break;
+      }
+      await _load();
+      return;
+    }
     await _run(() async {
       for (final i in targets) {
         await Repo.setItemStatus(i, status);
@@ -511,12 +543,30 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                 strong: true,
                 color: o.hasBalance ? GH.red : GH.green,
               ),
-              if (o.costOmr > 0) ...[
-                const Divider(height: 22),
-                KeyValue('تكلفة الشراء', omr(o.costOmr), color: GH.muted),
+              const Divider(height: 22),
+              const Row(
+                children: [
+                  Icon(Icons.lock_outline, size: 16, color: GH.muted),
+                  SizedBox(width: 6),
+                  Text('خاص بك (ما يطلع في الفاتورة)',
+                      style: TextStyle(color: GH.muted, fontSize: 12)),
+                ],
+              ),
+              const SizedBox(height: 4),
+              KeyValue('حوّلت لك', omr(o.paid)),
+              KeyValue('دفعت عن قطعها', omr(o.costOmr)),
+              KeyValue(
+                'رصيدها الحالي عندك',
+                omr(o.customerBalance),
+                strong: true,
+                color: o.customerBalance < -0.0005 ? GH.red : GH.green,
+              ),
+              if (o.costOmr > 0)
                 KeyValue('ربحك التقديري', omr(o.itemsTotal - o.costOmr),
                     color: GH.muted),
-              ],
+              ...o.taxFreePending.entries.map((e) => KeyValue(
+                  'تاكس فري باقي تستلمه', money(e.value, e.key),
+                  color: GH.goldDark)),
             ],
           ),
         ),
@@ -639,12 +689,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                     Text(omr(i.price),
                         style: const TextStyle(
                             fontWeight: FontWeight.w700, color: GH.burgundy)),
-                    if (i.costAmount != null)
-                      Text(
-                        'التكلفة: ${money(i.costAmount!, i.costCurrency ?? '')}'
-                        '${i.costOmr == null ? '' : ' ≈ ${omr(i.costOmr!)}'}',
-                        style: const TextStyle(color: GH.muted, fontSize: 12),
-                      ),
+                    if (i.costAmount != null) _purchaseInfo(i),
                   ],
                 ),
               ),
@@ -657,6 +702,17 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                       .map((s) => PopupMenuItem(
                           value: s.name, child: Text(s.actionLabel))),
                   const PopupMenuDivider(),
+                  PopupMenuItem(
+                      value: 'purchase',
+                      child: Text(i.costAmount == null
+                          ? 'تسجيل الشراء'
+                          : 'تعديل بيانات الشراء')),
+                  if (i.hasTaxFree)
+                    PopupMenuItem(
+                        value: 'taxfree',
+                        child: Text(i.taxFreeReceived
+                            ? 'التاكس فري ما استلمته'
+                            : 'استلمت التاكس فري')),
                   const PopupMenuItem(value: 'edit', child: Text('تعديل')),
                   const PopupMenuItem(
                       value: 'delete',
@@ -677,9 +733,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                     foregroundColor: GH.burgundy,
                     minimumSize: const Size(44, 40),
                   ),
-                  onPressed: _busy
-                      ? null
-                      : () => _run(() => Repo.setItemStatus(i, next)),
+                  onPressed: _busy ? null : () => _advance(i, next),
                   icon: const Icon(Icons.check, size: 18),
                   label: Text(next.actionLabel),
                 ),
@@ -688,6 +742,53 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
           ],
         ],
       ),
+    );
+  }
+
+  Widget _purchaseInfo(OrderItem i) {
+    final parts = <String>[
+      'الشراء: ${money(i.costAmount!, i.costCurrency ?? '')}',
+      if (i.costOmr != null) '≈ ${omr(i.costOmr!)}',
+      if (i.purchasePlace != null) i.purchasePlace!.label,
+    ];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(parts.join(' · '),
+            style: const TextStyle(color: GH.muted, fontSize: 12)),
+        if (i.hasTaxFree)
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: InkWell(
+              onTap: _busy
+                  ? null
+                  : () => _run(() =>
+                      Repo.setTaxFreeReceived(i.id, !i.taxFreeReceived)),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    i.taxFreeReceived
+                        ? Icons.check_circle
+                        : Icons.radio_button_unchecked,
+                    size: 16,
+                    color: i.taxFreeReceived ? GH.green : GH.goldDark,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    'تاكس فري ${money(i.taxFreeAmount, i.costCurrency ?? '')}'
+                    '${i.taxFreeReceived ? ' · استلمته' : ' · ما استلمته'}',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: i.taxFreeReceived ? GH.green : GH.goldDark,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+      ],
     );
   }
 

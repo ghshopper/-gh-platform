@@ -1,8 +1,7 @@
 name: iOS build → TestFlight
 
 on:
-  push:
-    branches: [main]
+  push:            # every branch is checked; only main is built and uploaded
   workflow_dispatch:
 
 concurrency:
@@ -45,6 +44,7 @@ jobs:
   testflight:
     name: Build & upload to TestFlight
     needs: check
+    if: github.ref == 'refs/heads/main'
     runs-on: macos-26
     timeout-minutes: 60
     env:

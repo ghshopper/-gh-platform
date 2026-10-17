@@ -152,6 +152,48 @@ class Repo {
     await _db.from('gh_order_items').update(data).eq('id', item.id);
   }
 
+  /// Records what you paid for an item and where, and marks it purchased.
+  /// The amount is deducted from the customer's balance automatically.
+  static Future<void> recordPurchase(
+    OrderItem item, {
+    required PurchasePlace place,
+    required double price,
+    required String currency,
+    required double rate,
+  }) async {
+    final data = <String, dynamic>{
+      'purchase_place': place.key,
+      'cost_amount': price,
+      'cost_currency': currency,
+      'cost_rate': rate,
+      'tax_free_pct': place.taxFreePct,
+    };
+    if (item.status == ItemStatus.requested) {
+      data['status'] = ItemStatus.purchased.name;
+    }
+    if (item.purchasedAt == null) data['purchased_at'] = _now();
+    await _db.from('gh_order_items').update(data).eq('id', item.id);
+  }
+
+  static Future<void> setTaxFreeReceived(String itemId, bool received) async {
+    await _db
+        .from('gh_order_items')
+        .update({'tax_free_received': received}).eq('id', itemId);
+  }
+
+  /// Items whose tax-free refund hasn't been received yet (all orders).
+  static Future<List<OrderItem>> pendingTaxFreeItems() async {
+    final rows = await _db
+        .from('gh_order_items')
+        .select('*, gh_orders(order_no, gh_customers(name))')
+        .gt('tax_free_pct', 0)
+        .eq('tax_free_received', false)
+        .not('cost_amount', 'is', null)
+        .neq('status', 'cancelled')
+        .order('purchased_at');
+    return rows.map((e) => OrderItem.fromMap(e)).toList();
+  }
+
   /// Items not yet linked to a purchase invoice (to attach to a new one).
   static Future<List<OrderItem>> unlinkedItems() async {
     final rows = await _db

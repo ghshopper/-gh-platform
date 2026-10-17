@@ -93,6 +93,12 @@ class _SummaryScreenState extends State<SummaryScreen> {
           int count(ItemStatus s) => items.where((i) => i.status == s).length;
           final owed = allOrders.fold<double>(
               0, (s, o) => s + (o.remaining > 0 ? o.remaining : 0));
+          final held = allOrders.fold<double>(
+              0, (s, o) => s + (o.customerBalance > 0 ? o.customerBalance : 0));
+          final taxFree = <String, double>{};
+          for (final o in allOrders) {
+            o.taxFreePending.forEach((c, v) => taxFree[c] = (taxFree[c] ?? 0) + v);
+          }
 
           return RefreshIndicator(
             onRefresh: _reload,
@@ -156,6 +162,15 @@ class _SummaryScreenState extends State<SummaryScreen> {
                       KeyValue('مبالغ متبقية عند العملاء', omr(owed),
                           strong: true,
                           color: owed > 0.0005 ? GH.red : GH.green),
+                      KeyValue('أرصدة العملاء عندك (ما انصرفت)', omr(held),
+                          color: GH.green),
+                      if (taxFree.isEmpty)
+                        const KeyValue('تاكس فري باقي تستلمه', '—',
+                            color: GH.muted)
+                      else
+                        ...taxFree.entries.map((e) => KeyValue(
+                            'تاكس فري باقي تستلمه', money(e.value, e.key),
+                            strong: true, color: GH.goldDark)),
                     ],
                   ),
                 ),
