@@ -220,7 +220,7 @@ class _SummaryPageState extends State<SummaryPage> {
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
               child: Row(children: [
-                Expanded(child: StatCard(label: 'المبيعات', value: omr(sales))),
+                Expanded(child: StatCard(label: 'المبيعات', value: omr(sales), hero: true, icon: CupertinoIcons.chart_bar_alt_fill)),
                 const SizedBox(width: 10),
                 Expanded(
                     child: StatCard(

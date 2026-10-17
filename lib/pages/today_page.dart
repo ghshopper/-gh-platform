@@ -88,6 +88,7 @@ class TodayPage extends StatelessWidget {
                     Expanded(
                         child: StatCard(
                             icon: CupertinoIcons.chart_bar_alt_fill,
+                            hero: true,
                             label: 'مبيعات الشهر',
                             value: omr(sales))),
                     const SizedBox(width: 10),
@@ -110,7 +111,7 @@ class TodayPage extends StatelessWidget {
                     Expanded(
                         child: StatCard(
                             icon: CupertinoIcons.arrow_2_circlepath,
-                            color: GH.amber,
+                            color: GH.purple,
                             label: 'تاكس فري باقي',
                             value: taxFree.isEmpty
                                 ? '—'

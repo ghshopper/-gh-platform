@@ -6,6 +6,7 @@ import '../models.dart';
 import '../ui/colors.dart';
 import '../ui/kit.dart';
 import 'customers_page.dart';
+import 'price_entry.dart';
 import 'trips_page.dart';
 
 const paymentMethods = ['تحويل بنكي', 'نقداً', 'رابط دفع', 'أخرى'];
@@ -14,7 +15,7 @@ class _ItemDraft {
   final brand = TextEditingController();
   final name = TextEditingController();
   final details = TextEditingController();
-  final price = TextEditingController();
+  final price = PriceDraft();
 
   void dispose() {
     brand.dispose();
@@ -65,7 +66,7 @@ class _OrderFormPageState extends State<OrderFormPage> {
   }
 
   double get _itemsTotal =>
-      _items.fold<double>(0, (s, d) => s + (parseAmount(d.price.text) ?? 0));
+      _items.fold<double>(0, (s, d) => s + d.price.omrValue);
 
   Future<void> _pickCustomer() async {
     final c = await pushPage<Customer>(context, const CustomerPickerPage());
@@ -96,7 +97,7 @@ class _OrderFormPageState extends State<OrderFormPage> {
               'brand': d.brand.text.trim().isEmpty ? null : d.brand.text.trim(),
               'details':
                   d.details.text.trim().isEmpty ? null : d.details.text.trim(),
-              'price': parseAmount(d.price.text) ?? 0,
+              ...d.price.toMap(),
             })
         .toList();
     if (items.isEmpty) {
@@ -114,6 +115,9 @@ class _OrderFormPageState extends State<OrderFormPage> {
         deposit: parseAmount(_deposit.text) ?? 0,
         depositMethod: _method,
       );
+      for (final d in _items) {
+        await d.price.remember();
+      }
       if (mounted) Navigator.pop(context, id);
     } catch (e) {
       if (mounted) {
@@ -169,11 +173,7 @@ class _OrderFormPageState extends State<OrderFormPage> {
                   label: 'التفاصيل',
                   controller: _items[k].details,
                   placeholder: 'المقاس، اللون…'),
-              AmountRow(
-                label: 'السعر',
-                controller: _items[k].price,
-                onChanged: (_) => setState(() {}),
-              ),
+              ..._items[k].price.rows(() => setState(() {})),
             ],
           ),
         Padding(

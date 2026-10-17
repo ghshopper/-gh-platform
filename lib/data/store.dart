@@ -262,6 +262,7 @@ class Store extends ChangeNotifier {
     String? brand,
     String? details,
     required double price,
+    Map<String, dynamic> pricing = const {},
   }) {
     return _write(() async {
       final data = {
@@ -269,6 +270,7 @@ class Store extends ChangeNotifier {
         'brand': brand,
         'details': details,
         'price': price,
+        ...pricing,
       };
       if (id == null) {
         await _db.from('gh_order_items').insert({...data, 'order_id': orderId});

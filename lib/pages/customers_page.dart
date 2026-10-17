@@ -141,7 +141,7 @@ class CustomerDetailPage extends StatelessWidget {
               child: Row(
                 children: [
                   Expanded(
-                      child: StatCard(label: 'المشتريات', value: omr(total))),
+                      child: StatCard(label: 'المشتريات', value: omr(total), hero: true, icon: CupertinoIcons.bag_fill)),
                   const SizedBox(width: 10),
                   Expanded(
                       child: StatCard(

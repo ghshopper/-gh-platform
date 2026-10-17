@@ -534,6 +534,15 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                     ],
                   ),
                   if (i.details != null) Text(i.details!, style: T.sub),
+                  if (i.listPrice != null && i.listCurrency != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 2),
+                      child: Text(
+                        'السعر ${money(i.listPrice!, i.listCurrency!)}'
+                        '${(i.commissionPct ?? 0) > 0 ? ' + عمولة ${i.commissionPct!.toStringAsFixed(i.commissionPct! % 1 == 0 ? 0 : 1)}٪' : ''}',
+                        style: T.small.copyWith(color: GH.blue),
+                      ),
+                    ),
                   if (i.costAmount != null)
                     Padding(
                       padding: const EdgeInsets.only(top: 2),

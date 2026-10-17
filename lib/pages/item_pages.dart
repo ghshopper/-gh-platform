@@ -10,6 +10,7 @@ import '../models.dart';
 import '../ui/colors.dart';
 import '../ui/kit.dart';
 import 'order_form_page.dart' show paymentMethods;
+import 'price_entry.dart';
 
 // ───────────────────────── Item add / edit ─────────────────────────
 
@@ -27,8 +28,7 @@ class _ItemFormPageState extends State<ItemFormPage> {
   late final _brand = TextEditingController(text: widget.item?.brand);
   late final _name = TextEditingController(text: widget.item?.name);
   late final _details = TextEditingController(text: widget.item?.details);
-  late final _price = TextEditingController(
-      text: widget.item == null ? '' : plainOmr(widget.item!.price).replaceAll(',', ''));
+  late final _price = PriceDraft(item: widget.item);
   bool _saving = false;
 
   @override
@@ -56,8 +56,10 @@ class _ItemFormPageState extends State<ItemFormPage> {
         name: _name.text.trim(),
         brand: _clean(_brand),
         details: _clean(_details),
-        price: parseAmount(_price.text) ?? 0,
+        price: _price.omrValue,
+        pricing: _price.toMap(),
       );
+      await _price.remember();
       if (mounted) Navigator.pop(context);
     } catch (e) {
       if (mounted) {
@@ -84,8 +86,8 @@ class _ItemFormPageState extends State<ItemFormPage> {
               placeholder: 'Lady Dior',
               autofocus: widget.item == null),
           FieldRow(label: 'التفاصيل', controller: _details, placeholder: 'اختياري'),
-          AmountRow(label: 'سعر البيع', controller: _price),
         ]),
+        Section(header: 'سعر البيع', children: _price.rows(() => setState(() {}))),
         const Padding(
           padding: EdgeInsets.fromLTRB(32, 8, 32, 0),
           child: Text('سعر البيع للعميل شامل العمولة. سعر الشراء تسجله لما تشتريها.',
@@ -121,10 +123,17 @@ class _PurchasePageState extends State<PurchasePage> {
   void initState() {
     super.initState();
     final i = widget.item;
-    _place = i.purchasePlace ?? _lastPlace;
+    _place = i.purchasePlace ??
+        (i.listCurrency == 'AED'
+            ? PurchasePlace.dubai
+            : i.listCurrency == 'EUR'
+                ? PurchasePlace.boutiqueEu
+                : _lastPlace);
     _currency = i.costCurrency ?? _place.currency;
+    final guess = i.costAmount ??
+        (i.listCurrency == _currency ? i.listPrice : null);
     _price = TextEditingController(
-        text: i.costAmount == null ? '' : i.costAmount!.toStringAsFixed(2));
+        text: guess == null ? '' : guess.toStringAsFixed(2));
     _rate = TextEditingController(
         text: i.costRate?.toString() ?? Rates.i.rateText(_currency));
   }

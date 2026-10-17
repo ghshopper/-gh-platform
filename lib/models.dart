@@ -320,6 +320,9 @@ class OrderItem {
     this.purchasePlace,
     this.taxFreePct,
     this.taxFreeReceived = false,
+    this.listPrice,
+    this.listCurrency,
+    this.commissionPct,
     this.photoPath,
     this.receiptPath,
     this.purchasedAt,
@@ -342,6 +345,10 @@ class OrderItem {
   final PurchasePlace? purchasePlace;
   final double? taxFreePct;
   final bool taxFreeReceived;
+  /// Price as quoted to the customer in a foreign currency (private).
+  final double? listPrice;
+  final String? listCurrency;
+  final double? commissionPct;
   final String? photoPath;
   final String? receiptPath;
   final DateTime? purchasedAt;
@@ -378,6 +385,9 @@ class OrderItem {
         purchasePlace: purchasePlaceFrom(m['purchase_place'] as String?),
         taxFreePct: _dn(m['tax_free_pct']),
         taxFreeReceived: m['tax_free_received'] == true,
+        listPrice: _dn(m['list_price']),
+        listCurrency: _s(m['list_currency']),
+        commissionPct: _dn(m['commission_pct']),
         photoPath: _s(m['photo_path']),
         receiptPath: _s(m['receipt_path']),
         purchasedAt: _dt(m['purchased_at']),

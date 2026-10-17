@@ -165,13 +165,13 @@ class _TripDetailPageState extends State<TripDetailPage> {
               child: Column(
                 children: [
                   Row(children: [
-                    Expanded(child: StatCard(label: 'المبيعات', value: omr(s.sales))),
+                    Expanded(child: StatCard(label: 'المبيعات', value: omr(s.sales), hero: true, icon: CupertinoIcons.chart_bar_alt_fill)),
                     const SizedBox(width: 10),
-                    Expanded(child: StatCard(label: 'المشتريات', value: omr(s.cost))),
+                    Expanded(child: StatCard(label: 'المشتريات', value: omr(s.cost), color: GH.amber, icon: CupertinoIcons.bag_fill)),
                   ]),
                   const SizedBox(height: 10),
                   Row(children: [
-                    Expanded(child: StatCard(label: 'مصاريف الرحلة', value: omr(s.spent))),
+                    Expanded(child: StatCard(label: 'مصاريف الرحلة', value: omr(s.spent), color: GH.blue, icon: CupertinoIcons.airplane)),
                     const SizedBox(width: 10),
                     Expanded(
                         child: StatCard(

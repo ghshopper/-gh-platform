@@ -443,21 +443,29 @@ class Avatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final letter = name.trim().isEmpty ? '؟' : name.trim()[0];
+    final c = GH.avatarFor(name.trim());
     return Container(
       width: size,
       height: size,
       alignment: Alignment.center,
-      decoration: const BoxDecoration(color: GH.sand, shape: BoxShape.circle),
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Color.lerp(c, CupertinoColors.white, 0.18)!, c],
+        ),
+      ),
       child: Text(letter,
           style: TextStyle(
               fontSize: size * 0.42,
-              fontWeight: FontWeight.w600,
-              color: GH.burgundy)),
+              fontWeight: FontWeight.w700,
+              color: CupertinoColors.white)),
     );
   }
 }
 
-/// A big number card for dashboards.
+/// A big number card for dashboards. [hero] paints it in the brand gradient.
 class StatCard extends StatelessWidget {
   const StatCard(
       {super.key,
@@ -465,39 +473,75 @@ class StatCard extends StatelessWidget {
       required this.value,
       this.icon,
       this.color = GH.burgundy,
+      this.hero = false,
       this.onTap});
 
   final String label;
   final String value;
   final IconData? icon;
   final Color color;
+  final bool hero;
   final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
+    final fg = hero ? CupertinoColors.white : GH.label;
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: GH.card,
-          borderRadius: BorderRadius.circular(14),
+          gradient: hero
+              ? GH.brandGradient
+              : LinearGradient(
+                  begin: AlignmentDirectional.topStart,
+                  end: AlignmentDirectional.bottomEnd,
+                  colors: [color.withAlpha(34), color.withAlpha(10)],
+                ),
+          color: hero ? null : GH.card,
+          borderRadius: BorderRadius.circular(18),
+          boxShadow: hero
+              ? [
+                  BoxShadow(
+                      color: GH.burgundy.withAlpha(70),
+                      blurRadius: 16,
+                      offset: const Offset(0, 6))
+                ]
+              : null,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
-                if (icon != null) Icon(icon, size: 18, color: color),
-                if (icon != null) const SizedBox(width: 6),
-                Expanded(child: Text(label, style: T.sub)),
+                if (icon != null)
+                  Container(
+                    width: 28,
+                    height: 28,
+                    decoration: BoxDecoration(
+                      color: hero ? CupertinoColors.white.withAlpha(40) : color,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(icon,
+                        size: 16,
+                        color: hero ? GH.goldLight : CupertinoColors.white),
+                  ),
+                if (icon != null) const SizedBox(width: 8),
+                Expanded(
+                    child: Text(label,
+                        style: T.sub.copyWith(
+                            color: hero
+                                ? CupertinoColors.white.withAlpha(210)
+                                : color.withAlpha(230),
+                            fontWeight: FontWeight.w600))),
               ],
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 10),
             FittedBox(
               fit: BoxFit.scaleDown,
               alignment: AlignmentDirectional.centerStart,
-              child: Text(value, style: T.big.copyWith(fontSize: 22)),
+              child: Text(value,
+                  style: T.big.copyWith(fontSize: 22, color: fg)),
             ),
           ],
         ),
@@ -521,11 +565,23 @@ class PrimaryButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       height: 50,
-      child: CupertinoButton(
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          gradient: onPressed == null || busy ? null : GH.brandGradient,
+          color: onPressed == null || busy ? const Color(0xFFD9C3C8) : null,
+          borderRadius: BorderRadius.circular(14),
+          boxShadow: onPressed == null || busy
+              ? null
+              : [
+                  BoxShadow(
+                      color: GH.burgundy.withAlpha(60),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4))
+                ],
+        ),
+        child: CupertinoButton(
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        color: GH.burgundy,
-        disabledColor: const Color(0xFFC7A9AE),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(14),
         onPressed: busy ? null : onPressed,
         child: busy
             ? const CupertinoActivityIndicator(color: CupertinoColors.white)
@@ -543,6 +599,7 @@ class PrimaryButton extends StatelessWidget {
                           color: CupertinoColors.white)),
                 ],
               ),
+        ),
       ),
     );
   }
