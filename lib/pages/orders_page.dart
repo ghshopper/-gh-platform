@@ -209,7 +209,7 @@ class OrderRow extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 6),
-            const Icon(CupertinoIcons.chevron_left,
+            const Icon(CupertinoIcons.forward,
                 size: 16, color: GH.tertiary),
           ],
         ),

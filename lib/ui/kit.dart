@@ -335,7 +335,7 @@ class Tile extends StatelessWidget {
               if (trailing != null) ...[const SizedBox(width: 8), trailing!],
               if (showChevron) ...[
                 const SizedBox(width: 6),
-                const Icon(CupertinoIcons.chevron_left,
+                const Icon(CupertinoIcons.forward,
                     size: 16, color: GH.tertiary),
               ],
             ],
