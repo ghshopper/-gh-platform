@@ -4,4 +4,7 @@
 class AppConfig {
   static const supabaseUrl = 'https://pjrkwzmyhjmsukdcygik.supabase.co';
   static const supabaseAnonKey = 'sb_publishable_SKNNfswdPLbwj0BymUf-yQ_UVwnzANY';
+
+  /// Public order-tracking page; the order's secret token is appended.
+  static const trackingBaseUrl = 'https://gh-track.vercel.app/?t=';
 }

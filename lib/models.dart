@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
-import 'theme.dart';
+import 'ui/colors.dart';
 
 double _d(dynamic v) {
   if (v == null) return 0;
@@ -22,6 +22,16 @@ String? _s(dynamic v) {
   return s.isEmpty ? null : s;
 }
 
+String _two(int v) => v.toString().padLeft(2, '0');
+
+/// GH-MM-DD-NNN: month and day the order was created, then its number.
+String invoiceNumber(int orderNo, DateTime? createdAt) {
+  final d = (createdAt ?? DateTime.now()).toLocal();
+  return 'GH-${_two(d.month)}-${_two(d.day)}-${orderNo.toString().padLeft(3, '0')}';
+}
+
+// ───────────────────────── Customers ─────────────────────────
+
 class Customer {
   Customer({
     required this.id,
@@ -29,6 +39,7 @@ class Customer {
     this.phone,
     this.city,
     this.notes,
+    this.isMale = false,
   });
 
   final String id;
@@ -37,14 +48,122 @@ class Customer {
   final String? city;
   final String? notes;
 
+  /// Used to word messages ("طلبكَ" / "طلبكِ").
+  final bool isMale;
+
+  String get firstName {
+    final n = name.trim();
+    return n.isEmpty ? '' : n.split(' ').first;
+  }
+
   factory Customer.fromMap(Map<String, dynamic> m) => Customer(
         id: m['id'] as String,
         name: (m['name'] ?? '').toString(),
         phone: _s(m['phone']),
         city: _s(m['city']),
         notes: _s(m['notes']),
+        isMale: m['gender'] == 'm',
       );
 }
+
+// ───────────────────────── Settings ─────────────────────────
+
+/// Business details printed on invoices; edited in Settings.
+class BusinessSettings {
+  BusinessSettings({
+    this.companyName,
+    this.companyNameEn,
+    this.crNumber,
+    this.phone,
+    this.instagram,
+    this.address,
+    this.bankDetails,
+    this.invoiceNote,
+  });
+
+  final String? companyName;
+  final String? companyNameEn;
+  final String? crNumber;
+  final String? phone;
+  final String? instagram;
+  final String? address;
+  final String? bankDetails;
+  final String? invoiceNote;
+
+  factory BusinessSettings.fromMap(Map<String, dynamic> m) => BusinessSettings(
+        companyName: _s(m['company_name']),
+        companyNameEn: _s(m['company_name_en']),
+        crNumber: _s(m['cr_number']),
+        phone: _s(m['phone']),
+        instagram: _s(m['instagram']),
+        address: _s(m['address']),
+        bankDetails: _s(m['bank_details']),
+        invoiceNote: _s(m['invoice_note']),
+      );
+}
+
+// ───────────────────────── Trips ─────────────────────────
+
+class Trip {
+  Trip({
+    required this.id,
+    required this.name,
+    this.destination,
+    this.startsOn,
+    this.endsOn,
+    this.notes,
+  });
+
+  final String id;
+  final String name;
+  final String? destination;
+  final DateTime? startsOn;
+  final DateTime? endsOn;
+  final String? notes;
+
+  factory Trip.fromMap(Map<String, dynamic> m) => Trip(
+        id: m['id'] as String,
+        name: (m['name'] ?? '').toString(),
+        destination: _s(m['destination']),
+        startsOn: _dt(m['starts_on']),
+        endsOn: _dt(m['ends_on']),
+        notes: _s(m['notes']),
+      );
+}
+
+class TripExpense {
+  TripExpense({
+    required this.id,
+    required this.tripId,
+    required this.title,
+    required this.amount,
+    required this.currency,
+    required this.rate,
+    this.spentOn,
+  });
+
+  final String id;
+  final String tripId;
+  final String title;
+  final double amount;
+  final String currency;
+  final double rate;
+  final DateTime? spentOn;
+
+  double get omr => amount * rate;
+
+  factory TripExpense.fromMap(Map<String, dynamic> m) => TripExpense(
+        id: m['id'] as String,
+        tripId: m['trip_id'] as String,
+        title: (m['title'] ?? '').toString(),
+        amount: _d(m['amount']),
+        currency: (m['currency'] ?? 'OMR').toString(),
+        rate: _d(m['exchange_rate']),
+        spentOn: _dt(m['spent_on']),
+      );
+}
+
+// ───────────────────────── Items ─────────────────────────
 
 enum ItemStatus { requested, purchased, arrived, delivered, cancelled }
 
@@ -69,33 +188,18 @@ extension ItemStatusX on ItemStatus {
     }
   }
 
-  String get english {
-    switch (this) {
-      case ItemStatus.requested:
-        return 'Requested';
-      case ItemStatus.purchased:
-        return 'Purchased';
-      case ItemStatus.arrived:
-        return 'Arrived';
-      case ItemStatus.delivered:
-        return 'Delivered';
-      case ItemStatus.cancelled:
-        return 'Cancelled';
-    }
-  }
-
   Color get color {
     switch (this) {
       case ItemStatus.requested:
-        return GH.muted;
+        return GH.statusRequested;
       case ItemStatus.purchased:
-        return GH.goldDark;
+        return GH.statusPurchased;
       case ItemStatus.arrived:
-        return GH.green;
+        return GH.statusArrived;
       case ItemStatus.delivered:
-        return GH.burgundy;
+        return GH.statusDelivered;
       case ItemStatus.cancelled:
-        return Colors.grey;
+        return CupertinoColors.systemGrey;
     }
   }
 
@@ -118,7 +222,7 @@ extension ItemStatusX on ItemStatus {
   String get actionLabel {
     switch (this) {
       case ItemStatus.requested:
-        return 'رجّعها مطلوبة';
+        return 'رجّعها بانتظار الشراء';
       case ItemStatus.purchased:
         return 'اشتريتها';
       case ItemStatus.arrived:
@@ -167,7 +271,7 @@ extension PurchasePlaceX on PurchasePlace {
       case PurchasePlace.boutiqueEu:
         return 'بوتيك أوروبا';
       case PurchasePlace.airport:
-        return 'مطار (ديوتي فري)';
+        return 'مطار';
       case PurchasePlace.dubai:
         return 'دبي';
       case PurchasePlace.other:
@@ -175,16 +279,14 @@ extension PurchasePlaceX on PurchasePlace {
     }
   }
 
-  /// Default currency for this place.
   String get currency {
     switch (this) {
       case PurchasePlace.boutiqueEu:
       case PurchasePlace.airport:
+      case PurchasePlace.other:
         return 'EUR';
       case PurchasePlace.dubai:
         return 'AED';
-      case PurchasePlace.other:
-        return 'EUR';
     }
   }
 
@@ -207,6 +309,7 @@ class OrderItem {
     required this.id,
     required this.orderId,
     required this.name,
+    this.brand,
     this.details,
     required this.price,
     required this.status,
@@ -217,17 +320,18 @@ class OrderItem {
     this.purchasePlace,
     this.taxFreePct,
     this.taxFreeReceived = false,
+    this.photoPath,
+    this.receiptPath,
     this.purchasedAt,
     this.arrivedAt,
     this.deliveredAt,
     this.createdAt,
-    this.orderNo,
-    this.customerName,
   });
 
   final String id;
   final String orderId;
   final String name;
+  final String? brand;
   final String? details;
   final double price;
   final ItemStatus status;
@@ -238,14 +342,14 @@ class OrderItem {
   final PurchasePlace? purchasePlace;
   final double? taxFreePct;
   final bool taxFreeReceived;
+  final String? photoPath;
+  final String? receiptPath;
   final DateTime? purchasedAt;
   final DateTime? arrivedAt;
   final DateTime? deliveredAt;
   final DateTime? createdAt;
 
-  /// Filled only when items are loaded together with their order.
-  final int? orderNo;
-  final String? customerName;
+  String get title => brand == null ? name : '$brand · $name';
 
   double? get costOmr =>
       (costAmount == null || costRate == null) ? null : costAmount! * costRate!;
@@ -259,39 +363,31 @@ class OrderItem {
 
   bool get hasTaxFree => taxFreeAmount > 0;
 
-  factory OrderItem.fromMap(Map<String, dynamic> m) {
-    int? orderNo;
-    String? customerName;
-    final o = m['gh_orders'];
-    if (o is Map) {
-      final n = o['order_no'];
-      orderNo = n is num ? n.toInt() : int.tryParse('$n');
-      final c = o['gh_customers'];
-      if (c is Map) customerName = _s(c['name']);
-    }
-    return OrderItem(
-      id: m['id'] as String,
-      orderId: m['order_id'] as String,
-      name: (m['name'] ?? '').toString(),
-      details: _s(m['details']),
-      price: _d(m['price']),
-      status: itemStatusFrom(m['status'] as String?),
-      purchaseInvoiceId: _s(m['purchase_invoice_id']),
-      costAmount: _dn(m['cost_amount']),
-      costCurrency: _s(m['cost_currency']),
-      costRate: _dn(m['cost_rate']),
-      purchasePlace: purchasePlaceFrom(m['purchase_place'] as String?),
-      taxFreePct: _dn(m['tax_free_pct']),
-      taxFreeReceived: m['tax_free_received'] == true,
-      purchasedAt: _dt(m['purchased_at']),
-      arrivedAt: _dt(m['arrived_at']),
-      deliveredAt: _dt(m['delivered_at']),
-      createdAt: _dt(m['created_at']),
-      orderNo: orderNo,
-      customerName: customerName,
-    );
-  }
+  factory OrderItem.fromMap(Map<String, dynamic> m) => OrderItem(
+        id: m['id'] as String,
+        orderId: m['order_id'] as String,
+        name: (m['name'] ?? '').toString(),
+        brand: _s(m['brand']),
+        details: _s(m['details']),
+        price: _d(m['price']),
+        status: itemStatusFrom(m['status'] as String?),
+        purchaseInvoiceId: _s(m['purchase_invoice_id']),
+        costAmount: _dn(m['cost_amount']),
+        costCurrency: _s(m['cost_currency']),
+        costRate: _dn(m['cost_rate']),
+        purchasePlace: purchasePlaceFrom(m['purchase_place'] as String?),
+        taxFreePct: _dn(m['tax_free_pct']),
+        taxFreeReceived: m['tax_free_received'] == true,
+        photoPath: _s(m['photo_path']),
+        receiptPath: _s(m['receipt_path']),
+        purchasedAt: _dt(m['purchased_at']),
+        arrivedAt: _dt(m['arrived_at']),
+        deliveredAt: _dt(m['delivered_at']),
+        createdAt: _dt(m['created_at']),
+      );
 }
+
+// ───────────────────────── Payments ─────────────────────────
 
 class Payment {
   Payment({
@@ -320,12 +416,15 @@ class Payment {
       );
 }
 
+// ───────────────────────── Orders ─────────────────────────
+
 class Order {
   Order({
     required this.id,
     required this.orderNo,
     required this.customerId,
-    this.customer,
+    this.tripId,
+    this.trackingToken,
     this.trip,
     required this.deliveryFee,
     this.notes,
@@ -337,7 +436,10 @@ class Order {
   final String id;
   final int orderNo;
   final String customerId;
-  final Customer? customer;
+  final String? tripId;
+  final String? trackingToken;
+
+  /// Free-text trip name from before trips existed.
   final String? trip;
   final double deliveryFee;
   final String? notes;
@@ -345,8 +447,7 @@ class Order {
   final List<OrderItem> items;
   final List<Payment> payments;
 
-  String get invoiceNo => 'GH-${orderNo.toString().padLeft(4, '0')}';
-  String get customerName => customer?.name ?? '—';
+  String get invoiceNo => invoiceNumber(orderNo, createdAt);
 
   List<OrderItem> get activeItems =>
       items.where((i) => i.status != ItemStatus.cancelled).toList();
@@ -388,7 +489,6 @@ class Order {
 
   factory Order.fromMap(Map<String, dynamic> m) {
     final n = m['order_no'];
-    final c = m['gh_customers'];
     final itemsRaw = (m['gh_order_items'] as List?) ?? const [];
     final paymentsRaw = (m['gh_payments'] as List?) ?? const [];
     final items = itemsRaw
@@ -405,7 +505,8 @@ class Order {
       id: m['id'] as String,
       orderNo: n is num ? n.toInt() : int.tryParse('$n') ?? 0,
       customerId: m['customer_id'] as String,
-      customer: c is Map ? Customer.fromMap(Map<String, dynamic>.from(c)) : null,
+      tripId: _s(m['trip_id']),
+      trackingToken: _s(m['tracking_token']),
       trip: _s(m['trip']),
       deliveryFee: _d(m['delivery_fee']),
       notes: _s(m['notes']),
@@ -415,6 +516,8 @@ class Order {
     );
   }
 }
+
+// ───────────────────────── Purchase invoices ─────────────────────────
 
 class PurchaseInvoice {
   PurchaseInvoice({
@@ -427,7 +530,6 @@ class PurchaseInvoice {
     required this.rate,
     required this.totalAmount,
     this.notes,
-    this.itemCount = 0,
   });
 
   final String id;
@@ -439,44 +541,29 @@ class PurchaseInvoice {
   final double rate;
   final double totalAmount;
   final String? notes;
-  final int itemCount;
 
   double get totalOmr => totalAmount * rate;
 
-  factory PurchaseInvoice.fromMap(Map<String, dynamic> m) {
-    var count = 0;
-    final items = m['gh_order_items'];
-    if (items is List && items.isNotEmpty) {
-      final first = items.first;
-      if (first is Map && first['count'] != null) {
-        final c = first['count'];
-        count = c is num ? c.toInt() : int.tryParse('$c') ?? 0;
-      } else {
-        count = items.length;
-      }
-    }
-    return PurchaseInvoice(
-      id: m['id'] as String,
-      store: (m['store'] ?? '').toString(),
-      invoiceNo: _s(m['invoice_no']),
-      purchasedOn: _dt(m['purchased_on']),
-      country: _s(m['country']),
-      currency: (m['currency'] ?? 'EUR').toString(),
-      rate: _d(m['exchange_rate']),
-      totalAmount: _d(m['total_amount']),
-      notes: _s(m['notes']),
-      itemCount: count,
-    );
-  }
+  factory PurchaseInvoice.fromMap(Map<String, dynamic> m) => PurchaseInvoice(
+        id: m['id'] as String,
+        store: (m['store'] ?? '').toString(),
+        invoiceNo: _s(m['invoice_no']),
+        purchasedOn: _dt(m['purchased_on']),
+        country: _s(m['country']),
+        currency: (m['currency'] ?? 'EUR').toString(),
+        rate: _d(m['exchange_rate']),
+        totalAmount: _d(m['total_amount']),
+        notes: _s(m['notes']),
+      );
 }
 
-/// Default exchange rates (OMR per one unit). Editable on every invoice.
+/// Fallback exchange rates (OMR per one unit) when the live rate isn't loaded.
 const Map<String, double> defaultRates = {
   'EUR': 0.42,
+  'AED': 0.105,
   'GBP': 0.49,
   'USD': 0.385,
   'CHF': 0.44,
-  'AED': 0.105,
   'SAR': 0.1026,
   'OMR': 1.0,
 };
