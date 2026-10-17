@@ -392,9 +392,10 @@ class _TripFormPageState extends State<TripFormPage> {
 // ───────────────────────── Expense form ─────────────────────────
 
 class ExpenseFormPage extends StatefulWidget {
-  const ExpenseFormPage({super.key, required this.tripId});
+  const ExpenseFormPage({super.key, this.tripId});
 
-  final String tripId;
+  /// null: a general business expense.
+  final String? tripId;
 
   @override
   State<ExpenseFormPage> createState() => _ExpenseFormPageState();
@@ -408,7 +409,9 @@ class _ExpenseFormPageState extends State<ExpenseFormPage> {
   DateTime _date = DateTime.now();
   bool _saving = false;
 
-  static const _quick = ['طيران', 'فندق', 'مواصلات', 'أكل', 'شحن'];
+  static const _tripQuick = ['طيران', 'فندق', 'مواصلات', 'أكل', 'شحن'];
+  static const _generalQuick = ['إعلانات', 'تغليف', 'شحن', 'تصوير', 'اشتراكات', 'رواتب'];
+  List<String> get _quick => widget.tripId == null ? _generalQuick : _tripQuick;
 
   @override
   void dispose() {
@@ -468,7 +471,10 @@ class _ExpenseFormPageState extends State<ExpenseFormPage> {
           ),
         ),
         Section(children: [
-          FieldRow(label: 'البند', controller: _title, placeholder: 'طيران'),
+          FieldRow(
+              label: 'البند',
+              controller: _title,
+              placeholder: widget.tripId == null ? 'إعلانات' : 'طيران'),
           PickerRow(
             label: 'العملة',
             value: _currency,

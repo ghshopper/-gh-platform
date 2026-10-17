@@ -516,7 +516,7 @@ class Store extends ChangeNotifier {
       _write(() async => _db.from('gh_trips').delete().eq('id', id));
 
   Future<void> addExpense({
-    required String tripId,
+    String? tripId,
     required String title,
     required double amount,
     required String currency,

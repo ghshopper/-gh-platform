@@ -139,7 +139,7 @@ class Trip {
 class TripExpense {
   TripExpense({
     required this.id,
-    required this.tripId,
+    this.tripId,
     required this.title,
     required this.amount,
     required this.currency,
@@ -148,7 +148,9 @@ class TripExpense {
   });
 
   final String id;
-  final String tripId;
+
+  /// null for a general business expense (not tied to a trip).
+  final String? tripId;
   final String title;
   final double amount;
   final String currency;
@@ -159,7 +161,7 @@ class TripExpense {
 
   factory TripExpense.fromMap(Map<String, dynamic> m) => TripExpense(
         id: m['id'] as String,
-        tripId: m['trip_id'] as String,
+        tripId: _s(m['trip_id']),
         title: (m['title'] ?? '').toString(),
         amount: _d(m['amount']),
         currency: (m['currency'] ?? 'OMR').toString(),
