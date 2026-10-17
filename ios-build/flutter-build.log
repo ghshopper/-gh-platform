@@ -4,5 +4,5 @@ Updating minimum iOS deployment target to 15.0.
 Upgrading project.pbxproj
 Upgrading AppFrameworkInfo.plist
 Running Xcode build...                                          
-Xcode build done.                                           123.7s
+Xcode build done.                                           110.9s
 ✓ Built build/ios/iphoneos/Runner.app (21.8MB)
