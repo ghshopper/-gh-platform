@@ -24,7 +24,8 @@ const DRIVER_STATUS = {
   picked:   { label: 'في الطريق', color: '#C26A00' },
   delivered:{ label: 'سلّمها المندوب', color: '#16804A' },
 }
-const METHOD = { home: 'إلى البيت', office: 'إلى المكتب', nool: 'نول', genacom: 'جيناكم' }
+const METHOD = { home: 'مندوبنا · للبيت', office: 'إلى المكتب', nool: 'نول · للبيت', nool_office: 'نول · من الفرع', genacom: 'جيناكم · للبيت', genacom_office: 'جيناكم · من الفرع' }
+const COURIERS = ['nool', 'nool_office', 'genacom', 'genacom_office']
 const EVENT_LABEL = {
   created: 'تم إنشاء الطلب', purchased: 'تم الشراء', arrived: 'وصل مسقط', out_for_delivery: 'خرج للتوصيل',
   label: 'طُبعت البوليصة', assigned: 'سُلّم للمندوب', unassigned: 'سُحب من المندوب',
@@ -215,7 +216,7 @@ export default function AppOrders() {
                       <td style={{ ...td, fontWeight: 700 }}>{omr(t.total)}</td>
                       <td style={{ ...td, color: t.remaining > 0.0005 ? '#E5383B' : '#16804A', fontWeight: 600 }}>{t.remaining > 0.0005 ? omr(t.remaining) : 'مدفوع'}</td>
                       <td style={td}><Pill {...st} /></td>
-                      <td style={td}>{['nool', 'genacom'].includes(o.delivery_method) ? <span style={{ color: '#A8833F', fontWeight: 600, fontSize: 13 }}>شحن {METHOD[o.delivery_method]}{o.carrier_tracking ? ' · ✓' : ''}</span> : ds ? <span style={{ color: ds.color, fontWeight: 600, fontSize: 13 }}>{ds.label} · {drivers[o.driver_id]?.name || ''}</span> : <span style={{ color: '#cbd5e1' }}>—</span>}</td>
+                      <td style={td}>{COURIERS.includes(o.delivery_method) ? <span style={{ color: '#A8833F', fontWeight: 600, fontSize: 13 }}>شحن {METHOD[o.delivery_method]}{o.carrier_tracking ? ' · ✓' : ''}</span> : ds ? <span style={{ color: ds.color, fontWeight: 600, fontSize: 13 }}>{ds.label} · {drivers[o.driver_id]?.name || ''}</span> : <span style={{ color: '#cbd5e1' }}>—</span>}</td>
                       <td style={td} onClick={(e) => e.stopPropagation()}>
                         <button title="طباعة البوليصة" onClick={() => printWaybill(o)} style={iconBtn}><RiPrinterLine size={18} /></button>
                       </td>
@@ -306,7 +307,7 @@ function OrderDetail({ o, c, driver, busy, onStatus, onPrint }) {
         {o.carrier_tracking && (/^https?:\/\//.test(o.carrier_tracking)
           ? <Row k="تتبّع الشحنة" v={<a href={o.carrier_tracking} target="_blank" rel="noreferrer" style={{ color: '#A8833F' }}>فتح الرابط</a>} />
           : <Row k="رقم الشحنة" v={o.carrier_tracking} />)}
-        {!['nool', 'genacom'].includes(o.delivery_method) && <Row k="المندوب" v={driver?.name || 'ما أُسند'} />}
+        {!COURIERS.includes(o.delivery_method) && <Row k="المندوب" v={driver?.name || 'ما أُسند'} />}
         {o.driver_status && <Row k="الحالة" v={DRIVER_STATUS[o.driver_status]?.label} />}
         <Row k="رسوم التوصيل" v={o.delivery_collect ? `يحصّلها المندوب (${omr(o.delivery_fee)})` : 'مدفوعة مسبقاً'} />
         {o.delivery_address && <Row k="العنوان" v={o.delivery_address} />}
