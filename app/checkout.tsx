@@ -7,6 +7,7 @@ import { api, listOf } from '@/api';
 import { useAppData } from '@/appdata';
 import { useAuth } from '@/auth';
 import { useCart } from '@/cart';
+import { CouponBox } from '@/coupon-box';
 import { num, omr } from '@/format';
 import { rememberGuestOrder } from '@/guest';
 import { Icon } from '@/icons';
@@ -130,7 +131,9 @@ export default function Checkout() {
   const realCode = AMWAL_CODES.includes(payment) ? 'amwalpay' : payment;
   const gw = gateways.find((g) => g.code === realCode);
   const extra = num(gw?.extra_fee);
-  const before = cart.subtotal + fee + service + tax + extra;
+  const gross = cart.subtotal + fee + service + tax + extra;
+  const couponValue = cart.coupon ? Math.min(cart.coupon.discount, gross) : 0;
+  const before = gross - couponValue;
   const loyaltyValue = useLoyalty ? Math.min(loyalty.balance * loyalty.rate, before) : 0;
   const total = Math.max(0, before - loyaltyValue);
 
@@ -205,6 +208,15 @@ export default function Checkout() {
     setBusy(true);
     let paidNote = '';
     try {
+      // The code's amount is checked again by the server; make sure it still
+      // matches before any money moves.
+      if (cart.coupon) {
+        const fresh = await cart.recheckCoupon(phone.trim());
+        if (!fresh || Math.abs(fresh.discount - cart.coupon.discount) > 0.0005) {
+          Alert.alert(tr('تغيّر كود الخصم', 'Your discount changed'), tr('راجع الإجمالي الجديد ثم أكمل الطلب', 'Check the new total, then place the order'));
+          return;
+        }
+      }
       if (AMWAL_CODES.includes(payment)) {
         const wallet = payment === 'amwal_apple' || payment === 'amwal_google';
         const r = await payWithAmwal(total, wallet, isAr);
@@ -228,7 +240,9 @@ export default function Checkout() {
         subtotal: Number(cart.subtotal.toFixed(3)),
         shipping_cost: Number(fee.toFixed(3)),
         service_fee: Number(service.toFixed(3)),
+        // Loyalty only: the server adds the code's discount itself.
         discount_amount: Number(loyaltyValue.toFixed(3)),
+        coupon_code: cart.coupon?.code ?? null,
         tax_amount: Number(tax.toFixed(3)),
         total_amount: Number(total.toFixed(3)),
         notes: [paidNote, notes.trim()].filter(Boolean).join('\n') || null,
@@ -307,7 +321,7 @@ export default function Checkout() {
                 const on = carrier === k;
                 return (
                   <Pressable key={k} onPress={() => { setCarrier(k); if (k === 'own') setBranch(false); }} accessibilityRole="radio" accessibilityState={{ checked: on }}
-                    style={{ flex: 1, height: 64, borderWidth: 1, borderColor: on ? C.ink : '#E2E2E2', backgroundColor: on ? C.white : '#FAFAFA', alignItems: 'center', justifyContent: 'center' }}>
+                    style={{ flex: 1, height: 64, borderWidth: 1, borderColor: on ? C.ink : C.lineStrong, backgroundColor: on ? C.white : C.surface2, alignItems: 'center', justifyContent: 'center' }}>
                     <T size={13.5} w="medium" center>{t}</T>
                     <T size={11} color={C.muted} center>{d}</T>
                   </Pressable>
@@ -395,6 +409,7 @@ export default function Checkout() {
               <Check on={useLoyalty} onPress={() => setUseLoyalty(!useLoyalty)}
                 label={tr(`استخدم نقاط الولاء (${loyalty.balance} نقطة = ${omr(loyalty.balance * loyalty.rate)})`, `Use loyalty points (${loyalty.balance} = ${omr(loyalty.balance * loyalty.rate)})`)} />
             ) : null}
+            <CouponBox />
             <Field label={tr('ملاحظات للطلب (اختياري)', 'Order notes (optional)')} value={notes} onChangeText={setNotes} multiline />
           </Section>
 
@@ -405,6 +420,7 @@ export default function Checkout() {
             {service > 0 ? <SummaryRow label={tr('رسوم الخدمة وتجهيز الهدايا', 'Service & gift wrapping')} value={omr(service)} /> : null}
             {tax > 0 ? <SummaryRow label={tr('الضريبة', 'Tax')} value={omr(tax)} /> : null}
             {extra > 0 ? <SummaryRow label={tr('رسوم الدفع', 'Payment fee')} value={omr(extra)} /> : null}
+            {couponValue > 0 && cart.coupon ? <SummaryRow label={tr(`كود الخصم (${cart.coupon.code})`, `Discount (${cart.coupon.code})`)} value={`-${omr(couponValue)}`} color={C.green} /> : null}
             {loyaltyValue > 0 ? <SummaryRow label={tr('خصم الولاء', 'Loyalty discount')} value={`-${omr(loyaltyValue)}`} color={C.green} /> : null}
             <View style={{ height: 6 }} />
             <SummaryRow label={tr('الإجمالي', 'Total')} value={omr(total)} strong />

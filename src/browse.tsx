@@ -47,7 +47,7 @@ function Chip({ label, on, onPress }: { label: string; on: boolean; onPress: () 
 
 function FilterSheet({ visible, value, onClose, onApply }: { visible: boolean; value: BrowseFilters; onClose: () => void; onApply: (f: BrowseFilters) => void }) {
   const insets = useSafeAreaInsets();
-  const { tr, pick, isAr } = useLang();
+  const { tr, pick, dir } = useLang();
   const app = useAppData();
   const [draft, setDraft] = useState<BrowseFilters>(value);
   const [attrs, setAttrs] = useState<AttributeRow[]>([]);
@@ -77,14 +77,14 @@ function FilterSheet({ visible, value, onClose, onApply }: { visible: boolean; v
         onChangeText={(t) => setDraft({ ...draft, [key]: t.replace(/[^0-9.]/g, '') })}
         placeholder="OMR"
         placeholderTextColor={C.faint}
-        style={{ fontFamily: F.latin, fontSize: 15, borderBottomWidth: 1, borderBottomColor: C.lineStrong, paddingVertical: 8, textAlign: isAr ? 'right' : 'left', color: C.ink }}
+        style={{ fontFamily: F.latin, fontSize: 15, borderBottomWidth: 1, borderBottomColor: C.lineStrong, paddingVertical: 8, color: C.ink }}
       />
     </View>
   );
 
   return (
     <Modal visible={visible} animationType="slide" presentationStyle="pageSheet" onRequestClose={onClose}>
-      <View style={{ flex: 1, backgroundColor: C.white, direction: isAr ? 'rtl' : 'ltr' }}>
+      <View style={[{ flex: 1, backgroundColor: C.bg }, dir]}>
         <View style={{ height: 56, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 8, borderBottomWidth: 1, borderBottomColor: C.line }}>
           <Pressable onPress={onClose} style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }} accessibilityLabel={tr('إغلاق', 'Close')}>
             <Icon name="close" size={20} />
@@ -150,8 +150,12 @@ function FilterSheet({ visible, value, onClose, onApply }: { visible: boolean; v
 }
 
 /** Product grid with search, filters, sorting and endless scroll. */
-export function ProductBrowser({ initial, header, showSearch = true, autoFocus }: { initial: BrowseFilters; header?: ReactNode; showSearch?: boolean; autoFocus?: boolean }) {
-  const { tr, isAr } = useLang();
+export function ProductBrowser({ initial, header, showSearch = true, autoFocus, search }: {
+  initial: BrowseFilters; header?: ReactNode; showSearch?: boolean; autoFocus?: boolean;
+  /** Search text owned by the parent (the Search tab's own field). */
+  search?: string;
+}) {
+  const { tr, dir } = useLang();
   const [filters, setFilters] = useState<BrowseFilters>(initial);
   const [query, setQuery] = useState(initial.search ?? '');
   const [items, setItems] = useState<Product[]>([]);
@@ -203,12 +207,19 @@ export function ProductBrowser({ initial, header, showSearch = true, autoFocus }
     load(filters, 1);
   }, [filters, load]);
 
+  useEffect(() => {
+    if (search === undefined) return;
+    const t = setTimeout(() => setFilters((f) => (f.search === (search || undefined) ? f : { ...f, search: search || undefined })), 350);
+    return () => clearTimeout(t);
+  }, [search]);
+
   // Search as you type (short pause).
   useEffect(() => {
+    if (search !== undefined) return;
     if ((filters.search ?? '') === query) return;
     const t = setTimeout(() => setFilters((f) => ({ ...f, search: query || undefined })), 400);
     return () => clearTimeout(t);
-  }, [query, filters.search]);
+  }, [query, filters.search, search]);
 
   const activeCount =
     (filters.category_id && filters.category_id !== initial.category_id ? 1 : 0) +
@@ -224,7 +235,7 @@ export function ProductBrowser({ initial, header, showSearch = true, autoFocus }
     <View style={{ flex: 1 }}>
       {showSearch ? (
         <View style={{ paddingHorizontal: S.gutter, paddingTop: 10 }}>
-          <View style={{ height: 46, backgroundColor: C.surface, flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 14 }}>
+          <View style={{ height: 48, borderWidth: 1, borderColor: C.lineStrong, flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 14 }}>
             <Icon name="search" size={18} />
             <TextInput
               value={query}
@@ -232,8 +243,8 @@ export function ProductBrowser({ initial, header, showSearch = true, autoFocus }
               autoFocus={autoFocus}
               returnKeyType="search"
               placeholder={tr('ابحث عن منتج، ماركة، أو فئة', 'Search products, brands or categories')}
-              placeholderTextColor="#8F8F8F"
-              style={{ flex: 1, fontFamily: F.regular, fontSize: 14, color: C.ink, textAlign: isAr ? 'right' : 'left' }}
+              placeholderTextColor={C.faint}
+              style={{ flex: 1, fontFamily: F.regular, fontSize: 14, color: C.ink }}
             />
             {query ? (
               <Pressable onPress={() => setQuery('')} hitSlop={8} accessibilityLabel={tr('مسح', 'Clear')}>
@@ -274,7 +285,7 @@ export function ProductBrowser({ initial, header, showSearch = true, autoFocus }
           ListEmptyComponent={<Empty icon="search" title={tr('لا توجد منتجات مطابقة', 'No matching products')} text={tr('جرب تغيير البحث أو الفلاتر', 'Try a different search or filter')} />}
         />
       )}
-      <FilterSheet visible={sheet} value={filters} onClose={() => setSheet(false)} onApply={(f) => { setSheet(false); setFilters({ ...f, search: query || undefined }); }} />
+      <FilterSheet visible={sheet} value={filters} onClose={() => setSheet(false)} onApply={(f) => { setSheet(false); setFilters({ ...f, search: (search ?? query) || undefined }); }} />
     </View>
   );
 }

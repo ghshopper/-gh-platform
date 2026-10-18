@@ -3,6 +3,7 @@ import { Alert, Pressable, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppData } from '@/appdata';
 import { useCart } from '@/cart';
+import { CouponBox } from '@/coupon-box';
 import { omr } from '@/format';
 import { Icon } from '@/icons';
 import { useLang } from '@/lang';
@@ -18,7 +19,7 @@ export default function Bag() {
   const tax = (cart.subtotal * app.taxPercent) / 100;
 
   return (
-    <View style={{ flex: 1, backgroundColor: C.white, paddingTop: insets.top }}>
+    <View style={{ flex: 1, backgroundColor: C.bg, paddingTop: insets.top }}>
       <View style={{ height: 52, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', borderBottomWidth: 1, borderBottomColor: C.line }}>
         <T latin w="medium" size={13} spacing={3} center>{`BAG · ${tr('السلة', 'BAG')}${cart.count ? ` (${cart.count})` : ''}`}</T>
         {cart.items.length ? (
@@ -38,7 +39,7 @@ export default function Bag() {
       </View>
 
       {cart.items.length === 0 ? (
-        <Empty icon="bag" title={tr('السلة فارغة', 'Your bag is empty')} text={tr('تصفح المنتجات وأضف ما يعجبك', 'Browse and add what you love')} action={tr('تسوّق الآن', 'Shop now')} onAction={() => router.push('/')} />
+        <Empty icon="bag" title={tr('السلة فارغة', 'Your bag is empty')} text={tr('تصفح المنتجات وأضف ما يعجبك', 'Browse and add what you love')} action={tr('تسوّق الآن', 'Shop now')} onAction={() => router.navigate('/')} />
       ) : (
         <>
           <ScrollView contentContainerStyle={{ paddingHorizontal: S.gutter, paddingBottom: 260 }}>
@@ -73,12 +74,16 @@ export default function Bag() {
               <Icon name="gift" size={18} color={C.gold} stroke={1.3} />
               <T size={12.5} color={C.sub} style={{ flex: 1 }}>{tr('تقدر ترسلها هدية في الخطوة الجاية، مع رسالة الإهداء', 'You can send it as a gift with a message in the next step')}</T>
             </View>
+            <View style={{ marginTop: 18, paddingTop: 8, borderTopWidth: 1, borderTopColor: C.line }}>
+              <CouponBox />
+            </View>
           </ScrollView>
 
           <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, backgroundColor: C.white, borderTopWidth: 1, borderTopColor: C.line, padding: S.gutter, paddingTop: 14, gap: 6 }}>
             <SummaryRow label={tr('المجموع الفرعي', 'Subtotal')} value={omr(cart.subtotal)} />
             {service > 0 ? <SummaryRow label={tr('رسوم الخدمة وتجهيز الهدايا', 'Service & gift wrapping')} value={omr(service)} /> : null}
             {tax > 0 ? <SummaryRow label={tr(`الضريبة (${app.taxPercent}٪)`, `Tax (${app.taxPercent}%)`)} value={omr(tax)} /> : null}
+            {cart.coupon ? <SummaryRow label={tr(`كود الخصم (${cart.coupon.code})`, `Discount (${cart.coupon.code})`)} value={`-${omr(cart.coupon.discount)}`} color={C.green} /> : null}
             <T size={12} color={C.muted}>{tr('التوصيل يتحدد في الخطوة الجاية', 'Delivery is set in the next step')}</T>
             <Btn label={tr('إتمام الطلب', 'Checkout')} onPress={() => router.push('/checkout')} style={{ marginTop: 8 }} />
           </View>

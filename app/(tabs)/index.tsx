@@ -74,7 +74,7 @@ function Hero({ slides }: { slides: HeroSlide[] }) {
       {list.length > 1 ? (
         <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 6, marginTop: 16 }}>
           {list.map((_, i) => (
-            <View key={i} style={{ width: 18, height: 2, backgroundColor: i === index ? C.ink : '#DADADA' }} />
+            <View key={i} style={{ width: 18, height: 2, backgroundColor: i === index ? C.ink : C.lineStrong }} />
           ))}
         </View>
       ) : null}
@@ -132,7 +132,7 @@ export default function Home() {
   const sectionAction = (s: SectionSetting | undefined) => (s ? pick(s, 'action_text') : '') || tr('عرض الكل', 'View all');
 
   return (
-    <View style={{ flex: 1, backgroundColor: C.white }}>
+    <View style={{ flex: 1, backgroundColor: C.bg }}>
       <ScrollView
         contentContainerStyle={{ paddingBottom: 40 }}
         refreshControl={
@@ -172,12 +172,12 @@ export default function Home() {
 
         {/* Search */}
         <Pressable
-          onPress={() => router.push('/search')}
+          onPress={() => router.navigate('/search')}
           accessibilityRole="search"
-          style={{ marginHorizontal: S.gutter, marginTop: 16, height: 46, backgroundColor: C.surface, flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 14 }}
+          style={{ marginHorizontal: S.gutter, marginTop: 16, height: 48, borderWidth: 1, borderColor: C.lineStrong, flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 14 }}
         >
           <Icon name="search" size={18} />
-          <T size={14} color="#8F8F8F">{tr('ابحث عن منتج، ماركة، أو فئة', 'Search products, brands or categories')}</T>
+          <T size={14} color={C.faint}>{tr('ابحث عن منتج، ماركة، أو فئة', 'Search products, brands or categories')}</T>
         </Pressable>
 
         <Hero slides={app.home?.hero_slides ?? []} />

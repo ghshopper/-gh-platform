@@ -39,7 +39,11 @@ interface TProps {
   onPress?: () => void;
 }
 
-/** All text in the app: right-aligned in Arabic, left in English. */
+/**
+ * All text in the app. Alignment is left natural so it follows the layout
+ * direction (right in Arabic, left in English) on both platforms; `ltr`
+ * pieces (numbers, emails) are isolated so their own order is kept.
+ */
 export function T({ children, size = 14, w = 'regular', color = C.ink, latin, serif, center, ltr, spacing, lines, lh, style, onPress }: TProps) {
   const { isAr } = useLang();
   const fontFamily = serif
@@ -47,7 +51,8 @@ export function T({ children, size = 14, w = 'regular', color = C.ink, latin, se
     : latin
       ? w === 'medium' || w === 'semibold' ? F.latinMedium : F.latin
       : F[w];
-  const align: TextStyle['textAlign'] = center ? 'center' : isAr ? 'right' : 'left';
+  const align: TextStyle['textAlign'] | undefined = center ? 'center' : undefined;
+  const body = ltr && isAr && (typeof children === 'string' || typeof children === 'number') ? `\u2066${children}\u2069` : children;
   return (
     <Text
       onPress={onPress}
@@ -58,14 +63,14 @@ export function T({ children, size = 14, w = 'regular', color = C.ink, latin, se
           fontSize: size,
           color,
           textAlign: align,
-          writingDirection: ltr ? 'ltr' : isAr ? 'rtl' : 'ltr',
+          writingDirection: isAr ? 'rtl' : 'ltr',
           letterSpacing: spacing,
           lineHeight: lh ?? Math.round(size * (latin ? 1.35 : 1.6)),
         },
         style,
       ]}
     >
-      {children}
+      {body}
     </Text>
   );
 }
@@ -234,8 +239,7 @@ export function Divider({ style }: { style?: StyleProp<ViewStyle> }) {
 }
 
 /** Underlined form field like the design. */
-export function Field({ label, error, style, ltr, ...rest }: TextInputProps & { label: string; error?: string | null; ltr?: boolean; style?: StyleProp<ViewStyle> }) {
-  const { isAr } = useLang();
+export function Field({ label, error, style, ltr: _ltr, ...rest }: TextInputProps & { label: string; error?: string | null; ltr?: boolean; style?: StyleProp<ViewStyle> }) {
   const [focus, setFocus] = useState(false);
   return (
     <View style={[{ gap: 4 }, style]}>
@@ -252,8 +256,6 @@ export function Field({ label, error, style, ltr, ...rest }: TextInputProps & { 
           paddingVertical: 10,
           borderBottomWidth: 1,
           borderBottomColor: error ? C.red : focus ? C.ink : C.lineStrong,
-          textAlign: ltr ? (isAr ? 'right' : 'left') : isAr ? 'right' : 'left',
-          writingDirection: ltr ? 'ltr' : isAr ? 'rtl' : 'ltr',
           minHeight: rest.multiline ? 70 : undefined,
           textAlignVertical: rest.multiline ? 'top' : 'center',
         }}
@@ -271,7 +273,7 @@ export function Photo({ path, style, label, contain }: { path?: string | null; s
       {url ? (
         <Image source={{ uri: url }} style={{ width: '100%', height: '100%' }} contentFit={contain ? 'contain' : 'cover'} transition={200} cachePolicy="memory-disk" />
       ) : label ? (
-        <T latin size={10} spacing={2} color="#A6A29C" center>{label.toUpperCase()}</T>
+        <T latin size={10} spacing={2} color={C.placeholder} center>{label.toUpperCase()}</T>
       ) : null}
     </View>
   );
@@ -304,7 +306,7 @@ export function Segments<K extends string>({ value, options, onChange }: { value
         const on = o.key === value;
         return (
           <Pressable key={o.key} onPress={() => onChange(o.key)} accessibilityRole="radio" accessibilityState={{ checked: on }}
-            style={{ flex: 1, height: 40, alignItems: 'center', justifyContent: 'center', backgroundColor: on ? C.white : 'transparent', shadowColor: '#000', shadowOpacity: on ? 0.08 : 0, shadowRadius: 3, shadowOffset: { width: 0, height: 1 } }}>
+            style={{ flex: 1, height: 40, alignItems: 'center', justifyContent: 'center', backgroundColor: on ? C.bg : 'transparent', shadowColor: C.black, shadowOpacity: on ? 0.08 : 0, shadowRadius: 3, shadowOffset: { width: 0, height: 1 } }}>
             <T size={13} color={on ? C.ink : C.sub} center>{o.label}</T>
           </Pressable>
         );

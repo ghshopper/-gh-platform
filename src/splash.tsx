@@ -63,7 +63,7 @@ export function BrandSplash({ onDone }: { onDone: () => void }) {
 
   const url = data?.full_media_url ?? null;
   return (
-    <Animated.View style={[StyleSheet.absoluteFill, { backgroundColor: C.white, opacity }]}>
+    <Animated.View style={[StyleSheet.absoluteFill, { backgroundColor: C.pure, opacity }]}>
       <Pressable style={{ flex: 1 }} onPress={finish} accessibilityRole="button" accessibilityLabel={tr('تخطي', 'Skip')}>
         {url && data?.media_type === 'video' ? (
           <VideoSplash url={url} />
@@ -76,7 +76,7 @@ export function BrandSplash({ onDone }: { onDone: () => void }) {
         )}
         {url ? (
           <View style={{ position: 'absolute', bottom: 50, left: 0, right: 0 }}>
-            <T size={12} color={C.white} center>{tr('اضغط للتخطي', 'Tap to skip')}</T>
+            <T size={12} color={C.pure} center>{tr('اضغط للتخطي', 'Tap to skip')}</T>
           </View>
         ) : null}
       </Pressable>

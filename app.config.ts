@@ -12,7 +12,7 @@ const config: ExpoConfig = {
   version: '2.0.0',
   orientation: 'portrait',
   icon: './assets/icon.png',
-  userInterfaceStyle: 'light',
+  userInterfaceStyle: 'automatic',
   ios: {
     bundleIdentifier: IOS_BUNDLE_ID,
     buildNumber: process.env.BUILD_NUMBER ?? '1',
@@ -44,7 +44,6 @@ const config: ExpoConfig = {
   plugins: [
     'expo-router',
     'expo-font',
-    ['expo-localization', { supportsRTL: false }],
     [
       'expo-splash-screen',
       { image: './assets/logo.png', imageWidth: 150, backgroundColor: '#FFFFFF' },

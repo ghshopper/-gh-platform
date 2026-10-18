@@ -28,7 +28,7 @@ function TabBar({ state, navigation, navigateToTab }: TabBarProps) {
   const { tr } = useLang();
   const { count } = useCart();
   return (
-    <View style={{ flexDirection: 'row', backgroundColor: 'rgba(255,255,255,0.98)', borderTopWidth: 1, borderTopColor: C.line, paddingTop: 8, paddingBottom: Math.max(insets.bottom, 10) }}>
+    <View style={{ flexDirection: 'row', backgroundColor: C.tabBar, borderTopWidth: 1, borderTopColor: C.line, paddingTop: 8, paddingBottom: Math.max(insets.bottom, 10) }}>
       {state.routes.map((route, i) => {
         const tab = TABS.find((t) => t.name === route.name);
         if (!tab) return null;

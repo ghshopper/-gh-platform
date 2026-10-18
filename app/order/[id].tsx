@@ -71,7 +71,7 @@ export default function OrderDetail() {
           <T size={24} w="medium">{tr(st.ar, st.en)}</T>
           <T size={13.5} color={C.sub} w="light">{subtitle}</T>
           <View style={{ flexDirection: 'row', gap: 4, marginTop: 20 }}>
-            {STEPS.map((_, i) => <View key={i} style={{ flex: 1, height: 3, backgroundColor: i <= st.step ? C.ink : '#E2E2E2' }} />)}
+            {STEPS.map((_, i) => <View key={i} style={{ flex: 1, height: 3, backgroundColor: i <= st.step ? C.ink : C.lineStrong }} />)}
           </View>
           <View style={{ flexDirection: 'row', marginTop: 8 }}>
             {STEPS.map((s, i) => (
@@ -93,11 +93,11 @@ export default function OrderDetail() {
             {o.driver.phone ? (
               <>
                 <Pressable onPress={() => Linking.openURL(`tel:${o.driver?.phone}`)} accessibilityLabel={tr('اتصال بالمندوب', 'Call driver')}
-                  style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: C.white, borderWidth: 1, borderColor: '#E2E2E2', alignItems: 'center', justifyContent: 'center' }}>
+                  style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: C.white, borderWidth: 1, borderColor: C.lineStrong, alignItems: 'center', justifyContent: 'center' }}>
                   <Icon name="phone" size={18} stroke={1.5} />
                 </Pressable>
                 <Pressable onPress={() => Linking.openURL(`https://wa.me/${waNumber(o.driver?.phone)}`)} accessibilityLabel={tr('واتساب المندوب', 'WhatsApp driver')}
-                  style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: C.white, borderWidth: 1, borderColor: '#E2E2E2', alignItems: 'center', justifyContent: 'center' }}>
+                  style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: C.white, borderWidth: 1, borderColor: C.lineStrong, alignItems: 'center', justifyContent: 'center' }}>
                   <Icon name="whatsapp" size={18} stroke={1.5} />
                 </Pressable>
               </>

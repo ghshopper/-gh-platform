@@ -14,9 +14,11 @@ import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AppDataProvider } from '@/appdata';
+import { AppearanceProvider, useAppearance } from '@/appearance';
 import { AuthProvider, useAuth } from '@/auth';
 import { CartProvider } from '@/cart';
 import { LangProvider, useLang } from '@/lang';
+import { QuickAddHost } from '@/product-card';
 import { BrandSplash } from '@/splash';
 import { C } from '@/theme';
 import { WishlistProvider } from '@/wishlist';
@@ -24,7 +26,8 @@ import { WishlistProvider } from '@/wishlist';
 SplashScreen.preventAutoHideAsync().catch(() => undefined);
 
 function Shell() {
-  const { isAr } = useLang();
+  const { dir } = useLang();
+  const { dark } = useAppearance();
   const { ready } = useAuth();
   const [splashDone, setSplashDone] = useState(false);
 
@@ -33,14 +36,15 @@ function Shell() {
   }, [ready]);
 
   return (
-    // The whole app mirrors with the language (native RTL is off on purpose).
-    <View style={{ flex: 1, direction: isAr ? 'rtl' : 'ltr', backgroundColor: C.bg }}>
-      <StatusBar style="dark" />
+    // Arabic mirrors natively (see lang.tsx); `dir` is only a fallback.
+    <View style={[{ flex: 1, backgroundColor: C.bg }, dir]}>
+      <StatusBar style={dark ? 'light' : 'dark'} />
       <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: C.bg }, animation: 'slide_from_right' }}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="login" options={{ presentation: 'modal' }} />
         <Stack.Screen name="register" options={{ presentation: 'modal' }} />
       </Stack>
+      <QuickAddHost />
       {ready && !splashDone ? <BrandSplash onDone={() => setSplashDone(true)} /> : null}
     </View>
   );
@@ -64,7 +68,9 @@ export default function RootLayout() {
             <AppDataProvider>
               <WishlistProvider>
                 <CartProvider>
-                  <Shell />
+                  <AppearanceProvider>
+                    <Shell />
+                  </AppearanceProvider>
                 </CartProvider>
               </WishlistProvider>
             </AppDataProvider>

@@ -123,7 +123,7 @@ export default function RequestPiece() {
 
           <View style={{ flexDirection: 'row', gap: 10 }}>
             <Pressable onPress={choosePhoto} accessibilityRole="button"
-              style={{ width: 150, height: 170, borderWidth: 1, borderStyle: 'dashed', borderColor: '#BDB8B0', backgroundColor: '#FAF9F7', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
+              style={{ width: 150, height: 170, borderWidth: 1, borderStyle: 'dashed', borderColor: C.lineStrong, backgroundColor: C.surface2, alignItems: 'center', justifyContent: 'center', gap: 10 }}>
               <Icon name="camera" size={28} stroke={1.3} />
               <T size={13} center>{tr('صوّر أو اختر صورة', 'Take or choose a photo')}</T>
             </Pressable>

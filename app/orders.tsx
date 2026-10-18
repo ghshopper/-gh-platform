@@ -30,7 +30,7 @@ function OrderRow({ o }: { o: MyOrder }) {
           <T latin w="medium" size={13} spacing={1.5}>{o.invoice_no}</T>
           <T size={12} color={C.muted}>{dateText(o.created_at, isAr)}</T>
         </View>
-        <View style={{ paddingHorizontal: 10, paddingVertical: 4, backgroundColor: o.status === 'delivered' ? '#E8F3EC' : C.surface }}>
+        <View style={{ paddingHorizontal: 10, paddingVertical: 4, backgroundColor: o.status === 'delivered' ? C.greenSoft : C.surface }}>
           <T size={11.5} color={o.status === 'delivered' ? C.green : C.ink}>{tr(st.ar, st.en)}</T>
         </View>
       </View>

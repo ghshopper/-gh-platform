@@ -1,70 +1,159 @@
 import { router } from 'expo-router';
-import { Alert, Linking, ScrollView, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Alert, Linking, Pressable, ScrollView, Switch, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { type ThemeMode, useAppearance } from '@/appearance';
 import { useAuth } from '@/auth';
 import { num, waNumber } from '@/format';
+import { Icon, type IconName } from '@/icons';
 import { useLang } from '@/lang';
+import { pushEnabled, setPushEnabled } from '@/push';
 import { C, S } from '@/theme';
-import { Btn, Kicker, Row, T } from '@/ui';
+import { Btn, Row, T } from '@/ui';
 import { useWishlist } from '@/wishlist';
 
 const COMPANY_WA = '96877246972';
+const INSTAGRAM = 'https://instagram.com/shopper.gh';
+const CARD = '#350304'; // the brand maroon, same in light and dark
+const CARD_GOLD = '#D6B08C';
+
+function Tile({ icon, label, note, onPress }: { icon: IconName; label: string; note?: string; onPress: () => void }) {
+  return (
+    <Pressable onPress={onPress} accessibilityRole="button"
+      style={({ pressed }) => ({ width: '50%', height: 104, borderEndWidth: 1, borderBottomWidth: 1, borderColor: C.line, padding: 16, justifyContent: 'space-between', backgroundColor: pressed ? C.surface2 : C.bg })}>
+      <Icon name={icon} size={23} stroke={1.25} />
+      <View>
+        <T size={14} w="medium" lines={1}>{label}</T>
+        {note ? <T size={11.5} color={C.muted} lines={1}>{note}</T> : null}
+      </View>
+    </Pressable>
+  );
+}
+
+function Section({ title }: { title: string }) {
+  return <T size={12} color={C.muted} style={{ paddingHorizontal: S.gutter, marginTop: 30, marginBottom: 2 }}>{title}</T>;
+}
 
 export default function Account() {
   const insets = useSafeAreaInsets();
   const { tr, isAr, setLang } = useLang();
+  const { mode, setMode } = useAppearance();
   const { user, loggedIn, logout } = useAuth();
   const wish = useWishlist();
+  const [push, setPush] = useState(true);
+
+  useEffect(() => {
+    pushEnabled().then(setPush).catch(() => undefined);
+  }, []);
+
+  const togglePush = async (on: boolean) => {
+    setPush(on);
+    if (!on) {
+      await setPushEnabled(false);
+      return;
+    }
+    if (!loggedIn) return;
+    const ok = await setPushEnabled(true).catch(() => false);
+    if (!ok) {
+      Alert.alert(tr('الإشعارات مقفلة', 'Notifications are off'), tr('فعّل إشعارات GH Shopper من إعدادات الجهاز', 'Turn on GH Shopper notifications in your phone settings'), [
+        { text: tr('لاحقاً', 'Later'), style: 'cancel' },
+        { text: tr('الإعدادات', 'Settings'), onPress: () => Linking.openSettings() },
+      ]);
+    }
+  };
+
+  const themes: { key: ThemeMode; ar: string; en: string }[] = [
+    { key: 'system', ar: 'حسب الجهاز', en: 'Use phone setting' },
+    { key: 'light', ar: 'فاتح', en: 'Light' },
+    { key: 'dark', ar: 'ليلي', en: 'Dark' },
+  ];
+  const themeLabel = themes.find((t) => t.key === mode) ?? themes[0];
+
+  const points = num(user?.loyalty_points);
+  const signIn = () => router.push('/login');
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: C.white }} contentContainerStyle={{ paddingTop: insets.top + 10, paddingBottom: 40 }}>
-      <View style={{ paddingHorizontal: S.gutter, gap: 4 }}>
-        <T size={26} w="medium">{tr('حسابي', 'Account')}</T>
+    <ScrollView style={{ flex: 1, backgroundColor: C.bg }} contentContainerStyle={{ paddingTop: insets.top + 10, paddingBottom: 50 }}>
+      <View style={{ paddingHorizontal: S.gutter }}>
+        <T size={26} w="medium">{loggedIn && user ? tr(`أهلاً، ${user.name.split(' ')[0]}`, `Hi, ${user.name.split(' ')[0]}`) : tr('حسابي', 'Account')}</T>
       </View>
 
+      {/* Member card */}
       {loggedIn && user ? (
-        <View style={{ marginHorizontal: S.gutter, marginTop: 16, padding: 20, backgroundColor: C.cream, gap: 4 }}>
-          <Kicker color={C.gold}>GH MEMBER</Kicker>
-          <T size={20} w="medium">{user.name}</T>
-          {user.email ? <T latin size={12.5} color={C.sub}>{user.email}</T> : null}
-          <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 6, marginTop: 10 }}>
-            <T latin size={22}>{String(num(user.loyalty_points))}</T>
-            <T size={12.5} color={C.sub}>{tr('نقطة ولاء', 'loyalty points')}</T>
+        <Pressable onPress={() => router.push('/loyalty')} accessibilityRole="button"
+          style={{ marginHorizontal: S.gutter, marginTop: 16, padding: 20, backgroundColor: CARD, minHeight: 176, justifyContent: 'space-between' }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <T latin size={11} spacing={3} color={CARD_GOLD}>{`GH MEMBER${user.loyalty_tier ? ` · ${user.loyalty_tier.toUpperCase()}` : ''}`}</T>
+            <Icon name="crown" size={20} color={CARD_GOLD} stroke={1.2} />
           </View>
-        </View>
+          <View style={{ gap: 2, marginTop: 18 }}>
+            <T size={19} w="medium" color={C.pure} lines={1}>{user.name}</T>
+            {user.email ? <T latin size={12.5} color="rgba(255,255,255,0.7)" lines={1} ltr>{user.email}</T> : null}
+          </View>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: 16 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 8 }}>
+              <T latin size={28} color={C.pure} lh={32}>{points.toLocaleString('en-US')}</T>
+              <T size={12.5} color="rgba(255,255,255,0.75)">{tr('نقطة', 'points')}</T>
+            </View>
+            <T size={12} color={CARD_GOLD} style={{ textDecorationLine: 'underline' }}>{tr('تفاصيل النقاط', 'Points details')}</T>
+          </View>
+        </Pressable>
       ) : (
-        <View style={{ marginHorizontal: S.gutter, marginTop: 16, padding: 22, backgroundColor: C.cream, gap: 10 }}>
-          <T size={17} w="medium">{tr('أهلاً بك في GH Shopper', 'Welcome to GH Shopper')}</T>
-          <T size={13} color={C.sub}>{tr('سجّل دخولك عشان تتابع طلباتك، تجمع النقاط، وتحفظ القطع اللي تعجبك.', 'Sign in to follow your orders, earn points and save what you love.')}</T>
+        <View style={{ marginHorizontal: S.gutter, marginTop: 16, padding: 22, backgroundColor: CARD, gap: 10 }}>
+          <T latin size={11} spacing={3} color={CARD_GOLD}>GH MEMBER</T>
+          <T size={18} w="medium" color={C.pure}>{tr('أهلاً بك في GH Shopper', 'Welcome to GH Shopper')}</T>
+          <T size={13} color="rgba(255,255,255,0.75)">{tr('سجّل دخولك عشان تتابع طلباتك، تجمع النقاط، وتحفظ القطع اللي تعجبك.', 'Sign in to follow your orders, earn points and save what you love.')}</T>
           <View style={{ flexDirection: 'row', gap: 10, marginTop: 6 }}>
-            <Btn style={{ flex: 1 }} height={46} label={tr('تسجيل الدخول', 'Sign in')} onPress={() => router.push('/login')} />
-            <Btn style={{ flex: 1 }} height={46} kind="outline" label={tr('إنشاء حساب', 'Create account')} onPress={() => router.push('/register')} />
+            <Pressable onPress={signIn} style={{ flex: 1, height: 46, backgroundColor: C.pure, alignItems: 'center', justifyContent: 'center' }}>
+              <T size={14} color="#111111" center>{tr('تسجيل الدخول', 'Sign in')}</T>
+            </Pressable>
+            <Pressable onPress={() => router.push('/register')} style={{ flex: 1, height: 46, borderWidth: 1, borderColor: C.pure, alignItems: 'center', justifyContent: 'center' }}>
+              <T size={14} color={C.pure} center>{tr('إنشاء حساب', 'Create account')}</T>
+            </Pressable>
           </View>
         </View>
       )}
 
-      <View style={{ paddingHorizontal: S.gutter, marginTop: 18 }}>
-        <Row icon="doc" title={tr('طلباتي', 'My orders')} subtitle={loggedIn ? tr('كل طلباتك مع الفواتير', 'All your orders and invoices') : tr('الطلبات المحفوظة في هذا الجهاز', 'Orders saved on this phone')} onPress={() => router.push('/orders')} />
-        <Row icon="heart" title={tr('المفضلة', 'Wishlist')} value={wish.products.length ? String(wish.products.length) : undefined} onPress={() => router.push('/wishlist')} />
-        {loggedIn ? <Row icon="pin" title={tr('عناويني', 'My addresses')} onPress={() => router.push('/addresses')} /> : null}
-        {loggedIn ? <Row icon="crown" title={tr('برنامج الولاء', 'Loyalty program')} onPress={() => router.push('/loyalty')} /> : null}
-        <Row icon="camera" title={tr('اطلب قطعة غير متوفرة', 'Request a piece')} subtitle={tr('أخبرنا بالقطعة وبنجيبها لك', 'Tell us the piece and we get it')} onPress={() => router.push('/request')} />
-        <Row icon="search" title={tr('تتبع طلب برقمه', 'Track an order')} onPress={() => router.push('/track')} />
-        <Row icon="bell" title={tr('الإشعارات', 'Notifications')} onPress={() => router.push('/notifications')} />
+      {/* Shortcuts */}
+      <View style={{ marginHorizontal: S.gutter, marginTop: 20, flexDirection: 'row', flexWrap: 'wrap', borderTopWidth: 1, borderStartWidth: 1, borderColor: C.line }}>
+        <Tile icon="doc" label={tr('طلباتي', 'My orders')} note={loggedIn ? tr('الطلبات والفواتير', 'Orders & invoices') : tr('في هذا الجهاز', 'On this phone')} onPress={() => router.push('/orders')} />
+        <Tile icon="heart" label={tr('المفضلة', 'Wishlist')} note={wish.products.length ? tr(`${wish.products.length} قطعة`, `${wish.products.length} pieces`) : undefined} onPress={() => (loggedIn ? router.push('/wishlist') : signIn())} />
+        <Tile icon="pin" label={tr('عناويني', 'Addresses')} onPress={() => (loggedIn ? router.push('/addresses') : signIn())} />
+        <Tile icon="user" label={tr('الملف الشخصي', 'Profile')} note={loggedIn ? tr('الاسم والبريد وكلمة المرور', 'Name, email, password') : undefined} onPress={() => (loggedIn ? router.push('/profile') : signIn())} />
+        <Tile icon="crown" label={tr('نقاطي', 'My points')} note={loggedIn ? tr(`${points} نقطة`, `${points} points`) : undefined} onPress={() => (loggedIn ? router.push('/loyalty') : signIn())} />
+        <Tile icon="camera" label={tr('اطلب قطعة', 'Request a piece')} note={tr('نجيبها لك', 'We get it for you')} onPress={() => router.push('/request')} />
+        <Tile icon="truck" label={tr('تتبع طلب', 'Track an order')} note={tr('برقم الطلب', 'By order number')} onPress={() => router.push('/track')} />
+        <Tile icon="bell" label={tr('الإشعارات', 'Notifications')} onPress={() => router.push('/notifications')} />
       </View>
 
-      <View style={{ paddingHorizontal: S.gutter, marginTop: 26 }}>
-        <T latin w="medium" size={12} spacing={2.2} style={{ marginBottom: 4 }}>{tr('SETTINGS · الإعدادات', 'SETTINGS')}</T>
-        <Row icon="globe" title={tr('اللغة', 'Language')} value={isAr ? 'العربية' : 'English'}
-          onPress={() => Alert.alert(tr('اللغة', 'Language'), undefined, [
+      <Section title={tr('الإعدادات', 'Settings')} />
+      <View style={{ paddingHorizontal: S.gutter }}>
+        <Row icon="globe" title={tr('اللغة والدولة', 'Language & country')} value={`${isAr ? 'العربية' : 'English'} · ${tr('عُمان', 'Oman')}`}
+          onPress={() => Alert.alert(tr('اللغة', 'Language'), tr('بيعاد فتح التطبيق باللغة اللي تختارها', 'The app reopens in the language you choose'), [
             { text: 'العربية', onPress: () => setLang('ar') },
             { text: 'English', onPress: () => setLang('en') },
             { text: tr('إلغاء', 'Cancel'), style: 'cancel' },
           ])} />
-        {loggedIn ? <Row icon="edit" title={tr('تعديل الحساب', 'Edit account')} onPress={() => router.push('/profile')} /> : null}
+        <Row icon="moon" title={tr('المظهر', 'Appearance')} value={tr(themeLabel.ar, themeLabel.en)}
+          onPress={() => Alert.alert(tr('المظهر', 'Appearance'), undefined, [
+            ...themes.map((t) => ({ text: tr(t.ar, t.en), onPress: () => setMode(t.key) })),
+            { text: tr('إلغاء', 'Cancel'), style: 'cancel' as const },
+          ])} />
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14, minHeight: 56, borderBottomWidth: 1, borderBottomColor: C.line }}>
+          <Icon name="bell" size={21} stroke={1.3} />
+          <View style={{ flex: 1 }}>
+            <T size={15}>{tr('إشعارات الطلبات والعروض', 'Order & offer notifications')}</T>
+            {!loggedIn ? <T size={12} color={C.muted}>{tr('تشتغل بعد تسجيل الدخول', 'Works once you sign in')}</T> : null}
+          </View>
+          <Switch value={push} onValueChange={togglePush} trackColor={{ true: C.ink, false: C.lineStrong }} thumbColor={C.white} ios_backgroundColor={C.lineStrong} />
+        </View>
+      </View>
+
+      <Section title={tr('المساعدة', 'Help')} />
+      <View style={{ paddingHorizontal: S.gutter }}>
+        <Row icon="whatsapp" title={tr('تحدث معنا', 'Chat with us')} subtitle={tr('واتساب · نرد عليك بسرعة', 'WhatsApp · we reply fast')} onPress={() => Linking.openURL(`https://wa.me/${waNumber(COMPANY_WA)}`)} />
+        <Row icon="instagram" title={tr('تابعنا', 'Follow us')} value="@shopper.gh" onPress={() => Linking.openURL(INSTAGRAM)} />
         <Row icon="info" title={tr('الشروط والسياسات', 'Terms & policies')} onPress={() => router.push('/policies')} />
-        <Row icon="whatsapp" title={tr('تواصل معنا على واتساب', 'WhatsApp us')} onPress={() => Linking.openURL(`https://wa.me/${waNumber(COMPANY_WA)}`)} />
-        <Row icon="share" title="Instagram · @shopper.gh" onPress={() => Linking.openURL('https://instagram.com/shopper.gh')} />
         {loggedIn ? (
           <Row icon="logout" title={tr('تسجيل الخروج', 'Sign out')} danger chevron={false}
             onPress={() => Alert.alert(tr('تسجيل الخروج', 'Sign out'), tr('أكيد؟', 'Are you sure?'), [
@@ -73,6 +162,12 @@ export default function Account() {
             ])} />
         ) : null}
       </View>
+
+      {!loggedIn ? (
+        <View style={{ paddingHorizontal: S.gutter, marginTop: 24 }}>
+          <Btn kind="outline" height={46} label={tr('تسجيل الدخول', 'Sign in')} onPress={signIn} />
+        </View>
+      ) : null}
       <T size={11} color={C.faint} center style={{ marginTop: 30 }}>GH SPC · CR 1666587 · v2.0</T>
     </ScrollView>
   );

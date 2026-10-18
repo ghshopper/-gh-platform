@@ -13,7 +13,7 @@ import { useLoad } from '@/hooks';
 import { knownProduct, rememberProduct } from '@/product-cache';
 import { Icon } from '@/icons';
 import { useLang } from '@/lang';
-import { askToSignIn, brandOf, ProductCard } from '@/product-card';
+import { askToSignIn, brandOf, ProductCard, showToast } from '@/product-card';
 import { C, F, S } from '@/theme';
 import type { Product } from '@/types';
 import { BrandText, Btn, Divider, ErrorBox, Loader, Photo, Price, T } from '@/ui';
@@ -133,10 +133,7 @@ export default function ProductScreen() {
       image: images[0] ?? '',
       options: Object.entries(chosen).map(([label, value]) => ({ label, value })),
     });
-    Alert.alert(tr('تمت الإضافة للسلة', 'Added to your bag'), `${brand ? `${brand} · ` : ''}${name}`, [
-      { text: tr('متابعة التسوق', 'Keep shopping'), style: 'cancel' },
-      { text: tr('عرض السلة', 'View bag'), onPress: () => router.push('/bag') },
-    ]);
+    showToast(tr('تمت الإضافة للسلة', 'Added to your bag'));
   };
 
   const askOnWhatsApp = () => {
@@ -190,7 +187,7 @@ export default function ProductScreen() {
           </View>
           {media.length > 1 ? (
             <View style={{ position: 'absolute', bottom: 16, left: 0, right: 0, flexDirection: 'row', justifyContent: 'center', gap: 6 }}>
-              {media.map((_, i) => <View key={i} style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: i === slide ? C.ink : '#CFCCC7' }} />)}
+              {media.map((_, i) => <View key={i} style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: i === slide ? C.ink : C.lineStrong }} />)}
             </View>
           ) : null}
         </View>
@@ -202,7 +199,7 @@ export default function ProductScreen() {
               <BrandText size={14}>{brand}</BrandText>
             </Pressable>
           ) : null}
-          <T size={17} color="#333333">{name}</T>
+          <T size={17} color={C.ink}>{name}</T>
           <Price value={price} was={was} size={17} />
           {count > 0 ? (
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
@@ -340,7 +337,7 @@ export default function ProductScreen() {
       <Modal visible={guide} animationType="fade" transparent onRequestClose={() => setGuide(false)}>
         <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.85)', justifyContent: 'center' }} onPress={() => setGuide(false)}>
           {p.size_guide_image ? <Image source={{ uri: imageUrl(p.size_guide_image) }} style={{ width: W, height: W * 1.3 }} contentFit="contain" /> : null}
-          <T size={13} color={C.white} center style={{ marginTop: 16 }}>{tr('اضغط للإغلاق', 'Tap to close')}</T>
+          <T size={13} color={C.pure} center style={{ marginTop: 16 }}>{tr('اضغط للإغلاق', 'Tap to close')}</T>
         </Pressable>
       </Modal>
 
@@ -363,7 +360,7 @@ export default function ProductScreen() {
           </View>
           <Stars value={rating} size={30} onChange={setRating} />
           <TextInput value={comment} onChangeText={setComment} multiline placeholder={tr('اكتب تعليقك هنا...', 'Your comment…')} placeholderTextColor={C.faint}
-            style={{ minHeight: 120, borderWidth: 1, borderColor: C.lineStrong, padding: 12, fontFamily: F.regular, fontSize: 14, color: C.ink, textAlignVertical: 'top', textAlign: isAr ? 'right' : 'left' }} />
+            style={{ minHeight: 120, borderWidth: 1, borderColor: C.lineStrong, padding: 12, fontFamily: F.regular, fontSize: 14, color: C.ink, textAlignVertical: 'top' }} />
           <Btn label={tr('إرسال', 'Send')} loading={sending} onPress={sendReview} />
           <Divider />
           <T size={12} color={C.muted}>{tr('التقييم متاح للطلبات المستلمة فقط، ويظهر بعد المراجعة.', 'Only delivered orders can be reviewed. Reviews appear after approval.')}</T>

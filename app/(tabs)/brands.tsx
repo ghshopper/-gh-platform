@@ -37,8 +37,8 @@ export default function BrandsTab() {
         <T size={26} w="medium">{tr('البراندات', 'Brands')}</T>
         <View style={{ height: 46, backgroundColor: C.surface, flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 14 }}>
           <Icon name="search" size={18} />
-          <TextInput value={q} onChangeText={setQ} placeholder={tr('ابحث عن براند', 'Search brands')} placeholderTextColor="#8F8F8F"
-            style={{ flex: 1, fontFamily: F.regular, fontSize: 14, color: C.ink, textAlign: isAr ? 'right' : 'left' }} />
+          <TextInput value={q} onChangeText={setQ} placeholder={tr('ابحث عن براند', 'Search brands')} placeholderTextColor={C.faint}
+            style={{ flex: 1, fontFamily: F.regular, fontSize: 14, color: C.ink }} />
         </View>
       </View>
       <SectionList
