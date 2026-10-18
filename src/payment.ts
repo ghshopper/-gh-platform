@@ -47,7 +47,8 @@ export async function payWithAmwal(amount: number, wallet: boolean, isAr: boolea
     terminalId: String(s.terminal_id ?? ''),
     locale: isAr ? 'ar' : 'en',
     customerId: null,
-    transactionType: wallet ? (Platform.OS === 'ios' ? TransactionType.APPLE_PAY : TransactionType.GOOGLE_PAY) : TransactionType.CARD_WALLET,
+    // APPLE_PAY is the SDK's wallet type on both platforms (Google Pay on Android).
+    transactionType: wallet ? TransactionType.APPLE_PAY : TransactionType.CARD_WALLET,
     transactionId,
     merchantReference: transactionId,
     additionValues: {

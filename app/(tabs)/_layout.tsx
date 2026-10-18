@@ -1,5 +1,4 @@
 import { Tabs } from 'expo-router';
-import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useCart } from '@/cart';
@@ -16,7 +15,15 @@ const TABS: { name: string; icon: IconName; ar: string; en: string }[] = [
   { name: 'account', icon: 'user', ar: 'حسابي', en: 'Account' },
 ];
 
-function TabBar({ state, navigation }: BottomTabBarProps) {
+// The tab bar props changed shape across expo-router versions, so only the
+// parts used here are typed.
+interface TabBarProps {
+  state: { index: number; routes: { key: string; name: string }[] };
+  navigation?: { emit: (e: { type: 'tabPress'; target: string; canPreventDefault: true }) => { defaultPrevented: boolean }; navigate: (name: string) => void };
+  navigateToTab?: (routeKey: string) => void;
+}
+
+function TabBar({ state, navigation, navigateToTab }: TabBarProps) {
   const insets = useSafeAreaInsets();
   const { tr } = useLang();
   const { count } = useCart();
@@ -34,8 +41,13 @@ function TabBar({ state, navigation }: BottomTabBarProps) {
             accessibilityState={{ selected: on }}
             accessibilityLabel={tr(tab.ar, tab.en)}
             onPress={() => {
-              const e = navigation.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
-              if (!on && !e.defaultPrevented) navigation.navigate(route.name);
+              if (on) return;
+              if (navigateToTab) {
+                navigateToTab(route.key);
+                return;
+              }
+              const e = navigation?.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
+              if (!e?.defaultPrevented) navigation?.navigate(route.name);
             }}
             style={{ flex: 1, alignItems: 'center', gap: 4 }}
           >
@@ -57,7 +69,7 @@ function TabBar({ state, navigation }: BottomTabBarProps) {
 
 export default function TabsLayout() {
   return (
-    <Tabs tabBar={(p) => <TabBar {...p} />} screenOptions={{ headerShown: false }}>
+    <Tabs tabBar={(p: unknown) => <TabBar {...(p as TabBarProps)} />} screenOptions={{ headerShown: false }}>
       {TABS.map((t) => (
         <Tabs.Screen key={t.name} name={t.name} />
       ))}

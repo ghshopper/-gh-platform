@@ -35,7 +35,7 @@ function RoundBtn({ icon, label, onPress, color = C.ink, fill }: { icon: 'back' 
 
 function ProductVideo({ url }: { url: string }) {
   const player = useVideoPlayer(url, (p) => { p.muted = true; p.loop = true; });
-  return <VideoView player={player} style={{ width: W, height: 520 }} contentFit="cover" nativeControls allowsFullscreen />;
+  return <VideoView player={player} style={{ width: W, height: 520 }} contentFit="cover" nativeControls />;
 }
 
 function Stars({ value, size = 14, onChange }: { value: number; size?: number; onChange?: (v: number) => void }) {

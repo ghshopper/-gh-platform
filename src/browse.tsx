@@ -261,7 +261,7 @@ export function ProductBrowser({ initial, header, showSearch = true, autoFocus }
           data={items}
           keyExtractor={(p) => String(p.id)}
           numColumns={2}
-          ListHeaderComponent={header ? <>{header}</> : null}
+          ListHeaderComponent={header ? <>{header}</> : undefined}
           columnWrapperStyle={{ gap: 12, paddingHorizontal: S.gutter }}
           contentContainerStyle={{ gap: 24, paddingTop: 18, paddingBottom: 40 }}
           renderItem={({ item }) => <ProductCard product={item} width={cardW} />}
@@ -270,7 +270,7 @@ export function ProductBrowser({ initial, header, showSearch = true, autoFocus }
             if (!more && !loading && page < last) load(filters, page + 1);
           }}
           refreshControl={<RefreshControl refreshing={false} onRefresh={() => load(filters, 1)} />}
-          ListFooterComponent={more ? <ActivityIndicator style={{ margin: 20 }} color={C.ink} /> : null}
+          ListFooterComponent={more ? <ActivityIndicator style={{ margin: 20 }} color={C.ink} /> : undefined}
           ListEmptyComponent={<Empty icon="search" title={tr('لا توجد منتجات مطابقة', 'No matching products')} text={tr('جرب تغيير البحث أو الفلاتر', 'Try a different search or filter')} />}
         />
       )}

@@ -1,7 +1,7 @@
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
-import { useMemo, useRef, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Alert, Dimensions, FlatList, Pressable, RefreshControl, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { api, imageUrl, listOf } from '@/api';
@@ -98,7 +98,6 @@ export default function Home() {
   const { user, loggedIn } = useAuth();
   const app = useAppData();
   const sections = app.home?.sections ?? {};
-  const scroll = useRef<ScrollView>(null);
 
   const featured = useLoad(async () => listOf<Product>(await api.get<unknown>('/customer/products/featured')), []);
   const latest = useLoad(async () => listOf<Product>(await api.get<unknown>('/customer/products', { per_page: 40 })), []);
@@ -135,7 +134,6 @@ export default function Home() {
   return (
     <View style={{ flex: 1, backgroundColor: C.white }}>
       <ScrollView
-        ref={scroll}
         contentContainerStyle={{ paddingBottom: 40 }}
         refreshControl={
           <RefreshControl

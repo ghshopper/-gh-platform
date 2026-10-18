@@ -1,9 +1,12 @@
 import * as Location from 'expo-location';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useRef, useState } from 'react';
+import { type ComponentType, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { WebView } from 'react-native-webview';
+import { WebView as RNWebView } from 'react-native-webview';
+
+// The package's typings don't line up with React 19's yet.
+const WebView = RNWebView as unknown as ComponentType<Record<string, unknown>>;
 import { Icon } from '@/icons';
 import { useLang } from '@/lang';
 import { setPickedLocation } from '@/location-store';
@@ -36,7 +39,7 @@ export default function LocationPicker() {
   const start = { lat: Number(params.lat) || 23.588, lng: Number(params.lng) || 58.3829 }; // Muscat
   const [center, setCenter] = useState(start);
   const [locating, setLocating] = useState(false);
-  const web = useRef<WebView>(null);
+  const web = useRef<{ postMessage: (m: string) => void } | null>(null);
 
   const locate = async () => {
     setLocating(true);
@@ -59,7 +62,7 @@ export default function LocationPicker() {
           ref={web}
           originWhitelist={['*']}
           source={{ html: mapHtml(start.lat, start.lng) }}
-          onMessage={(e) => {
+          onMessage={(e: { nativeEvent: { data: string } }) => {
             try {
               const d = JSON.parse(e.nativeEvent.data) as { lat: number; lng: number };
               if (Number.isFinite(d.lat) && Number.isFinite(d.lng)) setCenter(d);
