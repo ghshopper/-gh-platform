@@ -288,6 +288,9 @@ p { margin: 0; }
   .footer-base { flex-direction: column; gap: 6px; }
 }
 
+/* Server-written page content for search engines; React replaces it on load. */
+.seo-ssr { opacity: 0; }
+
 /* Pages */
 .page { padding-block: 34px 20px; }
 .page.narrow { max-width: 820px; }

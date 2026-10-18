@@ -135,7 +135,7 @@ export function ProductCard({ product }: { product: Product }) {
   return (
     <article className="pcard">
       <Link to={`/product/${product.id}`} className="pcard-media" aria-label={`${brandOf(product)} ${pick(product, 'name')}`}>
-        {imgs[0] ? <img src={imageUrl(imgs[0])} alt="" loading="lazy" /> : <span className="ph">{brandOf(product).toUpperCase()}</span>}
+        {imgs[0] ? <img src={imageUrl(imgs[0])} alt={`${brandOf(product)} ${pick(product, 'name')}`.trim()} loading="lazy" /> : <span className="ph">{brandOf(product).toUpperCase()}</span>}
         {imgs[1] ? <img src={imageUrl(imgs[1])} alt="" loading="lazy" className="alt" /> : null}
         {out ? <span className="badge soft">{tr('نفدت الكمية', 'Sold out')}</span> : off >= 5 ? <span className="badge">-{off}%</span> : null}
       </Link>
