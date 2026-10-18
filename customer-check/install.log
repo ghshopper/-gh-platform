@@ -1,7 +1,7 @@
 npm warn deprecated crypto-js@4.2.0: Active development of CryptoJS has been discontinued. This library is no longer maintained.
 npm warn deprecated uuid@7.0.3: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
 
-added 615 packages, and audited 616 packages in 37s
+added 615 packages, and audited 616 packages in 42s
 
 53 packages are looking for funding
   run `npm fund` for details
@@ -32,15 +32,3 @@ To address all issues (including breaking changes), run:
   npm audit fix --force
 
 Run `npm audit` for details.
-Error: `ios.deploymentTarget` needs to be at least version 16.4.
-Error: `ios.deploymentTarget` needs to be at least version 16.4.
-    at maybeThrowInvalidVersions (/home/runner/work/-gh-platform/-gh-platform/node_modules/expo-build-properties/build/pluginConfig.js:577:19)
-    at validateConfig (/home/runner/work/-gh-platform/-gh-platform/node_modules/expo-build-properties/build/pluginConfig.js:610:5)
-    at withBuildProperties (/home/runner/work/-gh-platform/-gh-platform/node_modules/expo-build-properties/build/withBuildProperties.js:29:59)
-    at withStaticPlugin (/home/runner/work/-gh-platform/-gh-platform/node_modules/@expo/config-plugins/build/plugins/withStaticPlugin.js:129:14)
-    at /home/runner/work/-gh-platform/-gh-platform/node_modules/@expo/config-plugins/build/plugins/withPlugins.js:26:82
-    at Array.reduce (<anonymous>)
-    at withPlugins (/home/runner/work/-gh-platform/-gh-platform/node_modules/@expo/config-plugins/build/plugins/withPlugins.js:26:20)
-    at withConfigPlugins (/home/runner/work/-gh-platform/-gh-platform/node_modules/@expo/config/build/plugins/withConfigPlugins.js:27:51)
-    at fillAndReturnConfig (/home/runner/work/-gh-platform/-gh-platform/node_modules/@expo/config/build/Config.js:221:80)
-    at getConfig (/home/runner/work/-gh-platform/-gh-platform/node_modules/@expo/config/build/Config.js:267:16)
