@@ -168,6 +168,8 @@ export interface ShippingCountry {
 export interface DeliveryOptions {
   home_fee: number;
   branch_fee: number;
+  /** Genacom offices for pickup (from the server). */
+  branches?: import('./genacom').GenacomBranch[];
 }
 
 /** One order as the customer sees it (from /ps/my-orders). */

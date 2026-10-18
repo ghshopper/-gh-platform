@@ -14,6 +14,7 @@ import { Icon } from '@/icons';
 import { useLang } from '@/lang';
 import { pickedLocation, clearPickedLocation } from '@/location-store';
 import { type Carrier, deliveryKey, GOVERNORATES } from '@/oman';
+import { GENACOM_BRANCHES } from '@/genacom';
 import { AMWAL_CODES, payWithAmwal } from '@/payment';
 import { C, S } from '@/theme';
 import type { Address, PaymentGateway } from '@/types';
@@ -61,8 +62,12 @@ export default function Checkout() {
   const [giftPhone, setGiftPhone] = useState('');
   const [giftMessage, setGiftMessage] = useState('');
   // Delivery
-  const [carrier, setCarrier] = useState<Carrier>('own');
-  const [branch, setBranch] = useState(false);
+  // Muscat & Barka: our driver or a Genacom office. Rest of Oman: Genacom door or office.
+  const [zone, setZone] = useState<'local' | 'oman'>('local');
+  const [mode, setMode] = useState<'door' | 'office'>('door');
+  const [branchId, setBranchId] = useState<string | null>(null);
+  const carrier: Carrier = zone === 'local' && mode === 'door' ? 'own' : 'genacom';
+  const branch = mode === 'office';
   const [saved, setSaved] = useState<Address[]>([]);
   const [addressId, setAddressId] = useState<number | 'new'>('new');
   const [gov, setGov] = useState(GOVERNORATES[0].ar);
@@ -139,6 +144,9 @@ export default function Checkout() {
 
   const chosenAddress = addressId === 'new' ? null : saved.find((a) => a.id === addressId) ?? null;
   const branchOnly = carrier !== 'own' && branch;
+  const allBranches = app.delivery.branches?.length ? app.delivery.branches : GENACOM_BRANCHES;
+  const branches = allBranches.filter((b) => (zone === 'local' ? b.local : !b.local));
+  const pickedBranch = branchOnly ? allBranches.find((b) => b.id === branchId) ?? null : null;
 
   const locate = async () => {
     setLocating(true);
@@ -166,7 +174,7 @@ export default function Checkout() {
     if (!chosenAddress && !branchOnly) {
       if (!city.trim()) e.city = req;
     }
-    if (!chosenAddress && branchOnly && !city.trim()) e.city = tr('اكتب الولاية عشان نحدد الفرع', 'Enter your wilayat so we pick the branch');
+    if (branchOnly && !pickedBranch) e.branch = tr('اختر مكتب جيناكم اللي بتستلم منه', 'Choose the Genacom office to pick up from');
     if (!payment) e.payment = tr('اختر طريقة الدفع', 'Choose a payment method');
     setErrors(e);
     return Object.keys(e).length === 0;
@@ -175,23 +183,24 @@ export default function Checkout() {
   const addressPayload = () => {
     const methodKey = deliveryKey(carrier, branch);
     const methodText =
-      carrier === 'own' ? 'مندوب GH لباب البيت' : `${carrier === 'nool' ? 'نول' : 'جيناكم'} — ${branch ? 'استلام من الفرع' : 'لباب البيت'}`;
-    const a = chosenAddress;
+      carrier === 'own' ? 'مندوب GH لباب البيت' : pickedBranch ? `جيناكم — استلام من مكتب ${pickedBranch.name}` : 'جيناكم — لباب البيت';
+    const a = branchOnly ? null : chosenAddress;
     const parts = a
       ? [a.governorate, a.city, a.street, a.building, a.details].filter(Boolean)
       : [gov, city, street, building, landmark].filter(Boolean);
     return {
       delivery_method: methodKey,
+      pickup_branch: pickedBranch?.id ?? null,
       delivery_label: methodText,
       recipient_name: gift ? giftName.trim() : a?.recipient_name ?? name.trim(),
       phone: gift && giftPhone.trim() ? giftPhone.trim() : a?.phone ?? phone.trim(),
       country: 'عُمان',
-      area: a?.governorate ?? gov,
-      city: a?.city ?? city.trim(),
+      area: pickedBranch ? pickedBranch.gov : a?.governorate ?? gov,
+      city: pickedBranch ? pickedBranch.name : a?.city ?? city.trim(),
       street: a?.street ?? street.trim(),
       building: a?.building ?? building.trim(),
       notes: [methodText, a?.details ?? landmark.trim()].filter(Boolean).join(' · '),
-      text: parts.join('، '),
+      text: pickedBranch ? `مكتب جيناكم ${pickedBranch.name} — ${pickedBranch.where}` : parts.join('، '),
       lat: coords?.lat ?? null,
       lng: coords?.lng ?? null,
       latitude: coords?.lat ?? null,
@@ -328,32 +337,40 @@ export default function Checkout() {
           </Section>
 
           <Section title={tr('DELIVERY · التوصيل', 'DELIVERY')}>
-            <View style={{ flexDirection: 'row', gap: 8 }}>
-              {([['own', tr('مندوبنا', 'Our driver'), tr('مسقط · لبابك', 'Muscat · door')], ['nool', tr('نول', 'Nool'), tr('كل عُمان', 'All Oman')], ['genacom', tr('جيناكم', 'Genacom'), tr('كل عُمان', 'All Oman')]] as const).map(([k, t, d]) => {
-                const on = carrier === k;
-                return (
-                  <Pressable key={k} onPress={() => { setCarrier(k); if (k === 'own') setBranch(false); }} accessibilityRole="radio" accessibilityState={{ checked: on }}
-                    style={{ flex: 1, height: 64, borderWidth: 1, borderColor: on ? C.ink : C.lineStrong, backgroundColor: on ? C.white : C.surface2, alignItems: 'center', justifyContent: 'center' }}>
-                    <T size={13.5} w="medium" center>{t}</T>
-                    <T size={11} color={C.muted} center>{d}</T>
-                  </Pressable>
-                );
-              })}
+            <Segments
+              value={zone}
+              onChange={(z) => { setZone(z); setBranchId(null); }}
+              options={[
+                { key: 'local', label: tr('مسقط أو بركاء', 'Muscat or Barka') },
+                { key: 'oman', label: tr('باقي ولايات السلطنة', 'Rest of Oman') },
+              ]}
+            />
+            <View style={{ gap: 8 }}>
+              <Choice on={mode === 'door'} onPress={() => setMode('door')}
+                title={zone === 'local' ? tr('مندوبنا لباب البيت', 'Our driver to your door') : tr('جيناكم لباب البيت', 'Genacom to your door')}
+                sub={zone === 'local' ? tr('توصيل خاص من GH Shopper', 'Delivered by GH Shopper') : tr('شركة جيناكم توصل لعنوانك', 'Genacom delivers to your address')}
+                right={omr(app.delivery.home_fee)} />
+              <Choice on={mode === 'office'} onPress={() => setMode('office')}
+                title={tr('استلام من مكتب جيناكم', 'Pick up from a Genacom office')}
+                sub={tr('تختار المكتب الأقرب لك', 'Choose the office nearest you')}
+                right={omr(app.delivery.branch_fee)} />
             </View>
-            {carrier !== 'own' ? (
-              <Segments
-                value={branch ? 'branch' : 'door'}
-                onChange={(k) => setBranch(k === 'branch')}
-                options={[
-                  { key: 'door', label: tr(`لباب البيت · ${app.delivery.home_fee} ر.ع.`, `To your door · OMR ${app.delivery.home_fee}`) },
-                  { key: 'branch', label: tr(`من الفرع · ${app.delivery.branch_fee} ر.ع.`, `Branch pickup · OMR ${app.delivery.branch_fee}`) },
-                ]}
-              />
-            ) : (
-              <T size={12.5} color={C.sub}>{tr(`مندوبنا يوصل لباب البيت داخل مسقط · ${app.delivery.home_fee} ر.ع.`, `Our driver delivers to your door in Muscat · OMR ${app.delivery.home_fee}`)}</T>
-            )}
+            {branchOnly ? (
+              <View style={{ gap: 8 }}>
+                <T size={13} color={C.sub}>{tr('مكتب الاستلام', 'Pickup office')}</T>
+                {Array.from(new Set(branches.map((b) => b.gov))).map((g) => (
+                  <View key={g} style={{ gap: 6 }}>
+                    {zone === 'oman' ? <T size={12} color={C.muted}>{g}</T> : null}
+                    {branches.filter((b) => b.gov === g).map((b) => (
+                      <Choice key={b.id} on={branchId === b.id} onPress={() => setBranchId(b.id)} title={b.name} sub={b.where} />
+                    ))}
+                  </View>
+                ))}
+                {errors.branch ? <T size={12} color={C.red}>{errors.branch}</T> : null}
+              </View>
+            ) : null}
 
-            {saved.length ? (
+            {!branchOnly && saved.length ? (
               <View style={{ gap: 8 }}>
                 <T size={13} color={C.sub}>{tr('العنوان', 'Address')}</T>
                 {saved.map((a) => (
@@ -364,7 +381,7 @@ export default function Checkout() {
               </View>
             ) : null}
 
-            {addressId === 'new' ? (
+            {!branchOnly && addressId === 'new' ? (
               <View style={{ gap: 14 }}>
                 <View style={{ gap: 8 }}>
                   <T size={12.5} color={C.sub}>{tr('المحافظة', 'Governorate')}</T>
@@ -428,7 +445,7 @@ export default function Checkout() {
           <View style={{ paddingHorizontal: S.gutter, paddingTop: 26, gap: 6 }}>
             <Divider style={{ marginBottom: 10 }} />
             <SummaryRow label={tr(`القطع (${cart.count})`, `Items (${cart.count})`)} value={omr(cart.subtotal)} />
-            <SummaryRow label={carrier === 'own' ? tr('التوصيل · مندوبنا', 'Delivery · our driver') : `${carrier === 'nool' ? tr('نول', 'Nool') : tr('جيناكم', 'Genacom')} · ${branch ? tr('من الفرع', 'branch') : tr('لباب البيت', 'door')}`} value={omr(fee)} />
+            <SummaryRow label={carrier === 'own' ? tr('التوصيل · مندوبنا', 'Delivery · our driver') : branch ? tr(`جيناكم · مكتب ${pickedBranch?.name ?? ''}`, `Genacom · ${pickedBranch?.name ?? 'office'}`) : tr('جيناكم · لباب البيت', 'Genacom · door')} value={omr(fee)} />
             {service > 0 ? <SummaryRow label={tr('رسوم الخدمة وتجهيز الهدايا', 'Service & gift wrapping')} value={omr(service)} /> : null}
             {tax > 0 ? <SummaryRow label={tr('الضريبة', 'Tax')} value={omr(tax)} /> : null}
             {extra > 0 ? <SummaryRow label={tr('رسوم الدفع', 'Payment fee')} value={omr(extra)} /> : null}

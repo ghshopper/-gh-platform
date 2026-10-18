@@ -13,7 +13,7 @@ export const GOVERNORATES: { ar: string; en: string }[] = [
   { ar: 'مسندم', en: 'Musandam' },
 ];
 
-export type Carrier = 'own' | 'nool' | 'genacom';
+export type Carrier = 'own' | 'genacom';
 
 /** Server key for the delivery method (matches the admin app). */
 export function deliveryKey(carrier: Carrier, branch: boolean): string {
