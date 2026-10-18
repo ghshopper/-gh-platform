@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "117052950568",
+    "project_id": "studio-8457104049-8fd3f",
+    "storage_bucket": "studio-8457104049-8fd3f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:117052950568:android:cfdbb96c7ea63566df0d1d",
+        "android_client_info": {
+          "package_name": "com.example.gh_shopper"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBK0F-89RabyLFHhEL0fJEjpcmvAjcRVcA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

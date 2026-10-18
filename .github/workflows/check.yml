@@ -1,0 +1,55 @@
+name: Customer app · check
+
+on:
+  push:
+    branches: [customer]
+    paths-ignore: ['ci/**', 'ci-out/**']
+
+permissions:
+  contents: write
+
+concurrency:
+  group: customer-check
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install
+        shell: bash
+        run: |
+          npm install 2>&1 | tail -20 | tee install.log
+          node -e "require.resolve('@react-navigation/bottom-tabs')" 2>/dev/null || npx expo install @react-navigation/bottom-tabs 2>&1 | tail -5 | tee -a install.log
+      - name: Keep the lock file in the repo
+        shell: bash
+        run: |
+          git config user.name "ci" && git config user.email "ci@users.noreply.github.com"
+          git add package.json package-lock.json
+          git diff --cached --quiet || (git commit -qm "lock file from CI [skip ci]" && git push -q origin HEAD:customer) || true
+      - name: TypeScript
+        shell: bash
+        run: npx tsc --noEmit 2>&1 | tee tsc.log; exit ${PIPESTATUS[0]}
+      - name: Bundle (iOS + Android JavaScript)
+        if: always()
+        shell: bash
+        run: npx expo export --platform ios --platform android --output-dir /tmp/dist 2>&1 | tail -60 | tee export.log; exit ${PIPESTATUS[0]}
+      - name: Expo doctor
+        if: always()
+        shell: bash
+        run: npx expo-doctor 2>&1 | tail -40 | tee doctor.log || true
+      - name: Publish logs
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p /tmp/logs && cp *.log /tmp/logs/ 2>/dev/null || true
+          echo "${{ job.status }} ${{ github.sha }}" > /tmp/logs/status.txt
+          git stash -u -q 2>/dev/null || true
+          git fetch -q origin ci-logs && git checkout -q -B ci-logs origin/ci-logs
+          rm -rf customer-check && mkdir -p customer-check && cp /tmp/logs/* customer-check/
+          git add customer-check && git commit -qm "customer check ${{ github.run_number }}" && git push -q origin ci-logs || true
