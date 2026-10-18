@@ -1,0 +1,67 @@
+name: Customer app · iOS → TestFlight
+
+# Builds only when the code is pushed to the customer-release branch.
+on:
+  push:
+    branches: [customer-release]
+  workflow_dispatch:
+
+permissions:
+  contents: write   # fastlane match keeps the signing files on the certificates branch
+
+concurrency:
+  group: customer-ios
+  cancel-in-progress: true
+
+jobs:
+  testflight:
+    runs-on: macos-26
+    timeout-minutes: 90
+    env:
+      BUNDLE_ID: com.example.ghShopper
+      BUILD_NUMBER: ${{ github.run_number }}
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
+      - name: Install JavaScript packages
+        shell: bash
+        run: (npm ci || npm install) 2>&1 | tail -15
+      - name: Generate the native iOS project
+        shell: bash
+        run: npx expo prebuild --platform ios --clean --no-install 2>&1 | tail -30 | tee prebuild.log; exit ${PIPESTATUS[0]}
+      - name: CocoaPods
+        shell: bash
+        run: cd ios && pod install 2>&1 | tail -40 | tee ../pods.log; exit ${PIPESTATUS[0]}
+      - name: Sign, archive and upload to TestFlight
+        shell: bash
+        run: bundle exec fastlane ios beta 2>&1 | tee fastlane.log; exit ${PIPESTATUS[0]}
+      - name: Publish logs
+        if: always()
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p /tmp/logs
+          cp *.log /tmp/logs/ 2>/dev/null || true
+          cp ~/Library/Logs/gym/*.log /tmp/logs/ 2>/dev/null || true
+          for f in /tmp/logs/*.log; do tail -n 400 "$f" | sed -E 's/(key_content|password|PASSWORD)[^ ]*/\1 [hidden]/g' > "$f.t" && mv "$f.t" "$f"; done
+          echo "${{ job.status }} ${{ github.sha }}" > /tmp/logs/status.txt
+          git clone -q --depth 1 --branch ci-logs "https://x-access-token:$GH_TOKEN@github.com/${{ github.repository }}.git" /tmp/cl
+          cd /tmp/cl && rm -rf customer-ios && mkdir -p customer-ios && cp /tmp/logs/* customer-ios/
+          git config user.name "ci" && git config user.email "ci@users.noreply.github.com"
+          git add customer-ios && git commit -qm "customer-ios ${{ github.run_number }}" && git push -q origin ci-logs

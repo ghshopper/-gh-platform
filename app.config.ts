@@ -16,6 +16,7 @@ const config: ExpoConfig = {
   backgroundColor: '#FFFFFF',
   ios: {
     bundleIdentifier: IOS_BUNDLE_ID,
+    buildNumber: process.env.BUILD_NUMBER ?? '1',
     supportsTablet: false,
     googleServicesFile: './GoogleService-Info.plist',
     infoPlist: {
@@ -34,6 +35,7 @@ const config: ExpoConfig = {
   },
   android: {
     package: ANDROID_PACKAGE,
+    versionCode: Number(process.env.BUILD_NUMBER ?? 1),
     googleServicesFile: './google-services.json',
     adaptiveIcon: { foregroundImage: './assets/icon.png', backgroundColor: '#5A0F1C' },
     permissions: ['CAMERA', 'ACCESS_FINE_LOCATION', 'ACCESS_COARSE_LOCATION', 'POST_NOTIFICATIONS'],

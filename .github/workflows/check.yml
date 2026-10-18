@@ -24,8 +24,9 @@ jobs:
       - name: Install
         shell: bash
         run: |
-          npm install 2>&1 | tail -20 | tee install.log
-          node -e "require.resolve('@react-navigation/bottom-tabs')" 2>/dev/null || npx expo install @react-navigation/bottom-tabs 2>&1 | tail -5 | tee -a install.log
+          set -o pipefail
+          npm install 2>&1 | tee install.log | tail -30
+          node -e "require.resolve('@react-navigation/bottom-tabs')" 2>/dev/null || npx expo install @react-navigation/bottom-tabs 2>&1 | tee -a install.log | tail -10
       - name: Keep the lock file in the repo
         shell: bash
         run: |
@@ -42,14 +43,19 @@ jobs:
       - name: Expo doctor
         if: always()
         shell: bash
-        run: npx expo-doctor 2>&1 | tail -40 | tee doctor.log || true
+        run: npx expo-doctor 2>&1 | tee doctor.log | tail -40 || true
       - name: Publish logs
         if: always()
         shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          mkdir -p /tmp/logs && cp *.log /tmp/logs/ 2>/dev/null || true
+          mkdir -p /tmp/logs
+          cp *.log /tmp/logs/ 2>/dev/null || true
+          cp ~/Library/Logs/gym/*.log /tmp/logs/ 2>/dev/null || true
+          for f in /tmp/logs/*.log; do tail -n 400 "$f" | sed -E 's/(key_content|password|PASSWORD)[^ ]*/\1 [hidden]/g' > "$f.t" && mv "$f.t" "$f"; done
           echo "${{ job.status }} ${{ github.sha }}" > /tmp/logs/status.txt
-          git stash -u -q 2>/dev/null || true
-          git fetch -q origin ci-logs && git checkout -q -B ci-logs origin/ci-logs
-          rm -rf customer-check && mkdir -p customer-check && cp /tmp/logs/* customer-check/
-          git add customer-check && git commit -qm "customer check ${{ github.run_number }}" && git push -q origin ci-logs || true
+          git clone -q --depth 1 --branch ci-logs "https://x-access-token:$GH_TOKEN@github.com/${{ github.repository }}.git" /tmp/cl
+          cd /tmp/cl && rm -rf customer-check && mkdir -p customer-check && cp /tmp/logs/* customer-check/
+          git config user.name "ci" && git config user.email "ci@users.noreply.github.com"
+          git add customer-check && git commit -qm "customer-check ${{ github.run_number }}" && git push -q origin ci-logs

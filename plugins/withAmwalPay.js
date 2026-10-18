@@ -14,6 +14,12 @@ const SNIPPET = `
         end
       end
     end
+    # Pod resource bundles must not ask for a signing team.
+    installer.pods_project.targets.each do |t|
+      if t.respond_to?(:product_type) && t.product_type == 'com.apple.product-type.bundle'
+        t.build_configurations.each { |c| c.build_settings['CODE_SIGNING_ALLOWED'] = 'NO' }
+      end
+    end
     installer.pods_project.build_configurations.each do |c|
       c.build_settings['EXCLUDED_ARCHS[sdk=iphonesimulator*]'] = 'x86_64'
     end
