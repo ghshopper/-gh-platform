@@ -1,0 +1,38 @@
+name: Customer app · remote run
+
+# Runs ci/run.sh on a clean Ubuntu machine (Node + npm), commits what it
+# writes under ci-out/ back to this branch, and saves the log on ci-logs.
+on:
+  push:
+    branches: [customer]
+    paths: [ci/run.sh]
+
+permissions:
+  contents: write
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Run ci/run.sh
+        shell: bash
+        run: |
+          mkdir -p ci-out
+          bash ci/run.sh 2>&1 | tee /tmp/run.log; echo "exit ${PIPESTATUS[0]}" >> /tmp/run.log
+      - name: Commit results and log
+        if: always()
+        shell: bash
+        run: |
+          git config user.name "ci" && git config user.email "ci@users.noreply.github.com"
+          git add ci-out 2>/dev/null || true
+          git commit -qm "ci-out from run ${{ github.run_number }}" && git push -q origin HEAD:customer || true
+          tail -c 200000 /tmp/run.log > /tmp/run-tail.log
+          echo "${{ job.status }} ${{ github.sha }}" > /tmp/status.txt
+          git fetch -q origin ci-logs && git checkout -q -B ci-logs origin/ci-logs
+          mkdir -p customer-run && cp /tmp/run-tail.log customer-run/run.log && cp /tmp/status.txt customer-run/status.txt
+          git add customer-run && git commit -qm "customer run ${{ github.run_number }}" && git push -q origin ci-logs || true
