@@ -1,14 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'config.dart';
+import 'data/api.dart';
 import 'data/lock.dart';
 import 'data/rates.dart';
 import 'data/store.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
 import 'pages/driver_home.dart';
 import 'pages/login_page.dart';
 import 'pages/tabs.dart';
@@ -18,10 +15,7 @@ import 'ui/kit.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-  await Supabase.initialize(
-    url: AppConfig.supabaseUrl,
-    anonKey: AppConfig.supabaseAnonKey,
-  );
+  await Api.i.restore();
   Rates.i.load();
   runApp(const GhApp());
 }
@@ -57,88 +51,31 @@ class AuthGate extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final auth = Supabase.instance.client.auth;
-    return StreamBuilder<AuthState>(
-      stream: auth.onAuthStateChange,
-      builder: (context, snapshot) {
-        if (auth.currentSession == null) {
+    return ListenableBuilder(
+      listenable: Api.i,
+      builder: (context, _) {
+        if (!Api.i.restored) {
+          return const CupertinoPageScaffold(
+            backgroundColor: GH.bg,
+            child: Center(child: CupertinoActivityIndicator()),
+          );
+        }
+        final session = Api.i.session;
+        if (session == null) {
           if (Store.i.ready) {
             WidgetsBinding.instance
                 .addPostFrameCallback((_) => Store.i.clear());
           }
           return const LoginPage();
         }
-        final uid = auth.currentUser!.id;
-        return RoleGate(key: ValueKey(uid), userId: uid);
+        if (session.isDriver) {
+          return LockGate(
+              key: ValueKey(session.token),
+              child: DriverHome(name: session.name));
+        }
+        return LockGate(key: ValueKey(session.token), child: const Tabs());
       },
     );
-  }
-}
-
-/// Sends drivers to their delivery list and the owner to the full app.
-/// The role is cached on the phone so the app opens instantly next time.
-class RoleGate extends StatefulWidget {
-  const RoleGate({super.key, required this.userId});
-
-  final String userId;
-
-  @override
-  State<RoleGate> createState() => _RoleGateState();
-}
-
-class _RoleGateState extends State<RoleGate> {
-  // null = unknown yet, '' = owner, otherwise the driver's name
-  String? _role;
-  Object? _error;
-
-  String get _key => 'gh_role:${widget.userId}';
-
-  @override
-  void initState() {
-    super.initState();
-    _load();
-  }
-
-  Future<void> _load() async {
-    SharedPreferences? prefs;
-    try {
-      prefs = await SharedPreferences.getInstance();
-      final cached = prefs.getString(_key);
-      if (cached != null && mounted) setState(() => _role = cached);
-    } catch (_) {}
-    try {
-      final me = await Supabase.instance.client.rpc('gh_driver_me');
-      final role = me is Map ? (me['name'] ?? 'مندوب').toString() : '';
-      prefs?.setString(_key, role);
-      if (mounted) setState(() => _role = role);
-    } catch (e) {
-      if (mounted && _role == null) setState(() => _error = e);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (_role == null) {
-      return CupertinoPageScaffold(
-        backgroundColor: GH.bg,
-        child: Center(
-          child: _error == null
-              ? const CupertinoActivityIndicator()
-              : Column(mainAxisSize: MainAxisSize.min, children: [
-                  Text(errorText(_error!), style: T.sub),
-                  CupertinoButton(
-                    onPressed: () {
-                      setState(() => _error = null);
-                      _load();
-                    },
-                    child: const Text('حاول مرة ثانية'),
-                  ),
-                ]),
-        ),
-      );
-    }
-    if (_role!.isEmpty) return const LockGate(child: Tabs());
-    return LockGate(child: DriverHome(name: _role!));
   }
 }
 

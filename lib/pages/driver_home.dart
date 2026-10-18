@@ -2,21 +2,18 @@ import 'dart:typed_data';
 
 import 'package:flutter/cupertino.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../data/api.dart';
 import '../format.dart';
 import '../models.dart';
 import '../ui/colors.dart';
 import '../ui/kit.dart';
-import 'item_pages.dart' show PhotoPage, Thumb;
 
-/// Loads the signed-in driver's orders through the secure RPCs.
+/// Loads the signed-in driver's orders (only theirs, without prices).
 class DriverData extends ChangeNotifier {
   DriverData._();
   static final DriverData i = DriverData._();
-
-  SupabaseClient get _db => Supabase.instance.client;
 
   List<DriverOrder> orders = [];
   bool ready = false;
@@ -24,8 +21,8 @@ class DriverData extends ChangeNotifier {
 
   Future<void> refresh() async {
     try {
-      final res = await _db.rpc('gh_driver_orders');
-      final list = (res as List?) ?? const [];
+      final res = await Api.i.get('/ps/driver/orders');
+      final list = ((res as Map)['orders'] as List?) ?? const [];
       orders = list
           .map((e) => DriverOrder.fromMap(Map<String, dynamic>.from(e as Map)))
           .toList();
@@ -40,21 +37,13 @@ class DriverData extends ChangeNotifier {
 
   Future<void> setStatus(DriverOrder o, DriverStatus s,
       {List<int>? photoBytes}) async {
-    String? path;
     if (photoBytes != null) {
-      final uid = _db.auth.currentUser!.id;
-      path = '$uid/delivery-${o.id}-${DateTime.now().millisecondsSinceEpoch}.jpg';
-      await _db.storage.from('gh-photos').uploadBinary(
-            path,
-            Uint8List.fromList(photoBytes),
-            fileOptions: const FileOptions(contentType: 'image/jpeg'),
-          );
+      await Api.i.upload('/ps/driver/orders/${o.id}', 'photo',
+          Uint8List.fromList(photoBytes),
+          fields: {'status': s.name});
+    } else {
+      await Api.i.post('/ps/driver/orders/${o.id}', {'status': s.name});
     }
-    await _db.rpc('gh_driver_update', params: {
-      'p_order': o.id,
-      'p_status': s.name,
-      'p_photo': path,
-    });
     await refresh();
   }
 
@@ -103,7 +92,7 @@ class _DriverHomeState extends State<DriverHome> {
             if (await confirm(context, 'تسجيل خروج؟',
                 ok: 'خروج', destructive: true)) {
               DriverData.i.clear();
-              await Supabase.instance.client.auth.signOut();
+              await Api.i.logout();
             }
           }),
           children: [
@@ -379,16 +368,19 @@ class _DriverOrderPageState extends State<DriverOrderPage> {
                       ))
                   .toList(),
             ),
-            if (order.photoPath != null)
+            if (order.photoUrl != null)
               Section(header: 'صورة التسليم', children: [
+                Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.network(order.photoUrl!, fit: BoxFit.cover),
+                  ),
+                ),
                 Tile(
-                  leading: Thumb(order.photoPath!, size: 52),
                   title: 'تم التسليم',
-                  subtitle: dateStr(order.deliveredAt),
-                  onTap: () => pushPage(
-                      context,
-                      PhotoPage(
-                          path: order.photoPath!, title: 'صورة التسليم')),
+                  value: dateStr(order.deliveredAt),
+                  chevron: false,
                 ),
               ]),
           ],

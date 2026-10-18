@@ -61,7 +61,7 @@ class Customer {
   }
 
   factory Customer.fromMap(Map<String, dynamic> m) => Customer(
-        id: m['id'] as String,
+        id: m['id'].toString(),
         name: (m['name'] ?? '').toString(),
         phone: _s(m['phone']),
         city: _s(m['city']),
@@ -79,6 +79,7 @@ class BusinessSettings {
     this.companyName,
     this.companyNameEn,
     this.crNumber,
+    this.taxNumber,
     this.phone,
     this.instagram,
     this.address,
@@ -89,6 +90,7 @@ class BusinessSettings {
   final String? companyName;
   final String? companyNameEn;
   final String? crNumber;
+  final String? taxNumber;
   final String? phone;
   final String? instagram;
   final String? address;
@@ -99,6 +101,7 @@ class BusinessSettings {
         companyName: _s(m['company_name']),
         companyNameEn: _s(m['company_name_en']),
         crNumber: _s(m['cr_number']),
+        taxNumber: _s(m['tax_number']),
         phone: _s(m['phone']),
         instagram: _s(m['instagram']),
         address: _s(m['address']),
@@ -127,7 +130,7 @@ class Trip {
   final String? notes;
 
   factory Trip.fromMap(Map<String, dynamic> m) => Trip(
-        id: m['id'] as String,
+        id: m['id'].toString(),
         name: (m['name'] ?? '').toString(),
         destination: _s(m['destination']),
         startsOn: _dt(m['starts_on']),
@@ -160,7 +163,7 @@ class TripExpense {
   double get omr => amount * rate;
 
   factory TripExpense.fromMap(Map<String, dynamic> m) => TripExpense(
-        id: m['id'] as String,
+        id: m['id'].toString(),
         tripId: _s(m['trip_id']),
         title: (m['title'] ?? '').toString(),
         amount: _d(m['amount']),
@@ -378,8 +381,8 @@ class OrderItem {
   bool get hasTaxFree => taxFreeAmount > 0;
 
   factory OrderItem.fromMap(Map<String, dynamic> m) => OrderItem(
-        id: m['id'] as String,
-        orderId: m['order_id'] as String,
+        id: m['id'].toString(),
+        orderId: m['order_id'].toString(),
         name: (m['name'] ?? '').toString(),
         brand: _s(m['brand']),
         details: _s(m['details']),
@@ -424,8 +427,8 @@ class Payment {
   final String? note;
 
   factory Payment.fromMap(Map<String, dynamic> m) => Payment(
-        id: m['id'] as String,
-        orderId: m['order_id'] as String,
+        id: m['id'].toString(),
+        orderId: m['order_id'].toString(),
         amount: _d(m['amount']),
         method: _s(m['method']),
         paidOn: _dt(m['paid_on']),
@@ -524,8 +527,8 @@ class Order {
 
   factory Order.fromMap(Map<String, dynamic> m) {
     final n = m['order_no'];
-    final itemsRaw = (m['gh_order_items'] as List?) ?? const [];
-    final paymentsRaw = (m['gh_payments'] as List?) ?? const [];
+    final itemsRaw = (m['items'] ?? m['gh_order_items']) as List? ?? const [];
+    final paymentsRaw = (m['payments'] ?? m['gh_payments']) as List? ?? const [];
     final items = itemsRaw
         .map((e) => OrderItem.fromMap(Map<String, dynamic>.from(e as Map)))
         .toList()
@@ -537,9 +540,9 @@ class Order {
       ..sort((a, b) =>
           (a.paidOn ?? DateTime(2000)).compareTo(b.paidOn ?? DateTime(2000)));
     return Order(
-      id: m['id'] as String,
+      id: m['id'].toString(),
       orderNo: n is num ? n.toInt() : int.tryParse('$n') ?? 0,
-      customerId: m['customer_id'] as String,
+      customerId: m['customer_id'].toString(),
       tripId: _s(m['trip_id']),
       trackingToken: _s(m['tracking_token']),
       trip: _s(m['trip']),
@@ -600,7 +603,7 @@ class Driver {
   final bool active;
 
   factory Driver.fromMap(Map<String, dynamic> m) => Driver(
-        id: m['id'] as String,
+        id: m['id'].toString(),
         name: (m['name'] ?? '').toString(),
         phone: _s(m['phone']),
         userId: _s(m['user_id']),
@@ -622,6 +625,7 @@ class DriverOrder {
     this.status,
     this.note,
     this.photoPath,
+    this.photoUrl,
     this.deliveredAt,
     required this.items,
   });
@@ -637,6 +641,9 @@ class DriverOrder {
   final DriverStatus? status;
   final String? note;
   final String? photoPath;
+
+  /// Temporary link to the delivery photo (from the server).
+  final String? photoUrl;
   final DateTime? deliveredAt;
   final List<({String? brand, String name, String? details})> items;
 
@@ -645,7 +652,7 @@ class DriverOrder {
   factory DriverOrder.fromMap(Map<String, dynamic> m) {
     final n = m['order_no'];
     return DriverOrder(
-      id: m['id'] as String,
+      id: m['id'].toString(),
       invoiceNo: invoiceNumber(
           n is num ? n.toInt() : int.tryParse('$n') ?? 0, _dt(m['created_at'])),
       customerName: (m['customer_name'] ?? '').toString(),
@@ -657,6 +664,7 @@ class DriverOrder {
       status: driverStatusFrom(m['driver_status'] as String?),
       note: _s(m['driver_note']),
       photoPath: _s(m['delivery_photo_path']),
+      photoUrl: _s(m['delivery_photo_url']),
       deliveredAt: _dt(m['driver_delivered_at']),
       items: ((m['items'] as List?) ?? const [])
           .map((e) => Map<String, dynamic>.from(e as Map))
@@ -698,7 +706,7 @@ class PurchaseInvoice {
   double get totalOmr => totalAmount * rate;
 
   factory PurchaseInvoice.fromMap(Map<String, dynamic> m) => PurchaseInvoice(
-        id: m['id'] as String,
+        id: m['id'].toString(),
         store: (m['store'] ?? '').toString(),
         invoiceNo: _s(m['invoice_no']),
         purchasedOn: _dt(m['purchased_on']),

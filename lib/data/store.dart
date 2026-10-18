@@ -3,20 +3,20 @@ import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../models.dart';
+import 'api.dart';
 
 /// Single source of truth for the app.
 ///
-/// Everything is loaded in one parallel batch, kept in memory and cached on
-/// the phone, so every screen opens instantly; after each change the batch is
-/// refreshed in the background and listeners rebuild.
+/// Everything is loaded in one request (`/ps/bootstrap`), kept in memory and
+/// cached on the phone, so every screen opens instantly; after each change
+/// the data is refreshed in the background and listeners rebuild.
 class Store extends ChangeNotifier {
   Store._();
   static final Store i = Store._();
 
-  SupabaseClient get _db => Supabase.instance.client;
+  Api get _api => Api.i;
 
   List<Order> orders = [];
   List<Customer> customers = [];
@@ -34,11 +34,11 @@ class Store extends ChangeNotifier {
   bool syncing = false;
   Object? lastError;
 
-  static const _cacheKey = 'gh_cache_v2';
+  static const _cacheKey = 'gh_cache_v3';
 
   // ───────────── loading ─────────────
 
-  String get _userKey => '$_cacheKey:${_db.auth.currentUser?.id ?? ''}';
+  String get _userKey => '$_cacheKey:${_api.cacheKey}';
 
   /// Shows the cached snapshot immediately, then refreshes from the server.
   Future<void> start() async {
@@ -60,30 +60,7 @@ class Store extends ChangeNotifier {
     syncing = true;
     notifyListeners();
     try {
-      final results = await Future.wait<dynamic>([
-        _db
-            .from('gh_orders')
-            .select('*, gh_order_items(*), gh_payments(*)')
-            .order('created_at', ascending: false),
-        _db.from('gh_customers').select().order('name'),
-        _db.from('gh_trips').select().order('created_at', ascending: false),
-        _db.from('gh_trip_expenses').select().order('spent_on'),
-        _db
-            .from('gh_purchase_invoices')
-            .select()
-            .order('purchased_on', ascending: false),
-        _db.from('gh_settings').select().maybeSingle(),
-        _db.from('gh_drivers').select().order('created_at'),
-      ]);
-      final raw = <String, dynamic>{
-        'orders': results[0],
-        'customers': results[1],
-        'trips': results[2],
-        'expenses': results[3],
-        'invoices': results[4],
-        'settings': results[5],
-        'drivers': results[6],
-      };
+      final raw = Map<String, dynamic>.from(await _api.get('/ps/bootstrap') as Map);
       _apply(raw);
       lastError = null;
       ready = true;
@@ -128,6 +105,7 @@ class Store extends ChangeNotifier {
     _customerById = {};
     _tripById = {};
     _orderById = {};
+    _signed.clear();
     ready = false;
     notifyListeners();
   }
@@ -173,7 +151,6 @@ class Store extends ChangeNotifier {
 
   // ───────────── helpers ─────────────
 
-  static String _now() => DateTime.now().toUtc().toIso8601String();
   static String _day(DateTime d) =>
       '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
 
@@ -209,20 +186,16 @@ class Store extends ChangeNotifier {
         'notes': notes,
         'gender': isMale ? 'm' : 'f',
       };
-      final Map<String, dynamic> row = id == null
-          ? await _db.from('gh_customers').insert(data).select().single()
-          : await _db
-              .from('gh_customers')
-              .update(data)
-              .eq('id', id)
-              .select()
-              .single();
-      return Customer.fromMap(row);
+      final res = id == null
+          ? await _api.post('/ps/customers', data)
+          : await _api.put('/ps/customers/$id', data);
+      return Customer.fromMap(
+          Map<String, dynamic>.from((res as Map)['customer'] as Map));
     });
   }
 
   Future<void> deleteCustomer(String id) =>
-      _write(() async => _db.from('gh_customers').delete().eq('id', id));
+      _write(() => _api.delete('/ps/customers/$id'));
 
   // ───────────── orders ─────────────
 
@@ -236,42 +209,31 @@ class Store extends ChangeNotifier {
     String? depositMethod,
   }) {
     return _write(() async {
-      final row = await _db
-          .from('gh_orders')
-          .insert({
-            'customer_id': customerId,
-            'trip_id': tripId,
-            'delivery_fee': deliveryFee,
-            'notes': notes,
-          })
-          .select('id')
-          .single();
-      final orderId = row['id'] as String;
-      final writes = <Future<dynamic>>[];
-      if (items.isNotEmpty) {
-        writes.add(_db
-            .from('gh_order_items')
-            .insert(items.map((i) => {...i, 'order_id': orderId}).toList()));
-      }
-      if (deposit > 0) {
-        writes.add(_db.from('gh_payments').insert({
-          'order_id': orderId,
-          'amount': deposit,
-          'method': depositMethod,
-          'note': 'عربون',
-          'paid_on': _day(DateTime.now()),
-        }));
-      }
-      await Future.wait(writes);
-      return orderId;
+      final res = await _api.post('/ps/orders', {
+        'customer_id': customerId,
+        'trip_id': tripId,
+        'delivery_fee': deliveryFee,
+        'notes': notes,
+        'items': items,
+        'deposit': deposit,
+        'deposit_method': depositMethod,
+      });
+      return (res as Map)['id'] as String;
     });
   }
 
-  Future<void> updateOrder(String id, Map<String, dynamic> data) =>
-      _write(() async => _db.from('gh_orders').update(data).eq('id', id));
+  /// [data] may contain trip_id, delivery_fee and notes.
+  Future<void> updateOrder(String id, Map<String, dynamic> data) {
+    final o = order(id);
+    return _write(() => _api.put('/ps/orders/$id', {
+          'trip_id': o?.tripId,
+          'notes': o?.notes,
+          ...data,
+        }));
+  }
 
   Future<void> deleteOrder(String id) =>
-      _write(() async => _db.from('gh_orders').delete().eq('id', id));
+      _write(() => _api.delete('/ps/orders/$id'));
 
   // ───────────── items ─────────────
 
@@ -286,6 +248,7 @@ class Store extends ChangeNotifier {
   }) {
     return _write(() async {
       final data = {
+        'order_id': orderId,
         'name': name,
         'brand': brand,
         'details': details,
@@ -293,47 +256,24 @@ class Store extends ChangeNotifier {
         ...pricing,
       };
       if (id == null) {
-        await _db.from('gh_order_items').insert({...data, 'order_id': orderId});
+        await _api.post('/ps/items', data);
       } else {
-        await _db.from('gh_order_items').update(data).eq('id', id);
+        await _api.put('/ps/items/$id', data);
       }
     });
   }
 
   Future<void> deleteItem(String id) =>
-      _write(() async => _db.from('gh_order_items').delete().eq('id', id));
+      _write(() => _api.delete('/ps/items/$id'));
 
-  Map<String, dynamic> _statusData(OrderItem item, ItemStatus status) {
-    final data = <String, dynamic>{'status': status.name};
-    final now = _now();
-    if (status.index >= ItemStatus.purchased.index &&
-        status != ItemStatus.cancelled &&
-        item.purchasedAt == null) {
-      data['purchased_at'] = now;
-    }
-    if ((status == ItemStatus.arrived || status == ItemStatus.delivered) &&
-        item.arrivedAt == null) {
-      data['arrived_at'] = now;
-    }
-    if (status == ItemStatus.delivered && item.deliveredAt == null) {
-      data['delivered_at'] = now;
-    }
-    return data;
-  }
-
-  Future<void> setItemStatus(OrderItem item, ItemStatus status) => _write(
-      () async => _db
-          .from('gh_order_items')
-          .update(_statusData(item, status))
-          .eq('id', item.id));
+  Future<void> setItemStatus(OrderItem item, ItemStatus status) =>
+      setItemsStatus([item], status);
 
   Future<void> setItemsStatus(List<OrderItem> items, ItemStatus status) =>
-      _write(() async {
-        await Future.wait(items.map((i) => _db
-            .from('gh_order_items')
-            .update(_statusData(i, status))
-            .eq('id', i.id)));
-      });
+      _write(() => _api.post('/ps/items/status', {
+            'ids': items.map((i) => i.id).toList(),
+            'status': status.name,
+          }));
 
   /// Records where an item was bought and for how much, and marks it bought.
   /// The amount is deducted from the customer's balance automatically.
@@ -344,26 +284,17 @@ class Store extends ChangeNotifier {
     required String currency,
     required double rate,
   }) {
-    return _write(() async {
-      final data = <String, dynamic>{
-        'purchase_place': place.key,
-        'cost_amount': price,
-        'cost_currency': currency,
-        'cost_rate': rate,
-        'tax_free_pct': place.taxFreePct,
-      };
-      if (item.status == ItemStatus.requested) {
-        data['status'] = ItemStatus.purchased.name;
-      }
-      if (item.purchasedAt == null) data['purchased_at'] = _now();
-      await _db.from('gh_order_items').update(data).eq('id', item.id);
-    });
+    return _write(() => _api.put('/ps/items/${item.id}/purchase', {
+          'place': place.key,
+          'price': price,
+          'currency': currency,
+          'rate': rate,
+          'tax_free_pct': place.taxFreePct,
+        }));
   }
 
-  Future<void> setTaxFreeReceived(String itemId, bool received) =>
-      _write(() async => _db
-          .from('gh_order_items')
-          .update({'tax_free_received': received}).eq('id', itemId));
+  Future<void> setTaxFreeReceived(String itemId, bool received) => _write(
+      () => _api.put('/ps/items/$itemId/tax-free', {'received': received}));
 
   // ───────────── photos ─────────────
 
@@ -372,79 +303,47 @@ class Store extends ChangeNotifier {
   /// Uploads a photo for an item. [kind] is 'photo' or 'receipt'.
   Future<void> uploadItemPhoto(OrderItem item, String kind, Uint8List bytes) {
     return _write(() async {
-      final uid = _db.auth.currentUser!.id;
-      final path = '$uid/${item.id}-$kind-${DateTime.now().millisecondsSinceEpoch}.jpg';
-      await _db.storage.from('gh-photos').uploadBinary(
-            path,
-            bytes,
-            fileOptions: const FileOptions(contentType: 'image/jpeg'),
-          );
-      await _db
-          .from('gh_order_items')
-          .update({'${kind}_path': path}).eq('id', item.id);
-      final old = kind == 'photo' ? item.photoPath : item.receiptPath;
-      if (old != null) {
-        _db.storage.from('gh-photos').remove([old]).ignore();
+      final res = await _api.upload('/ps/items/${item.id}/photo', 'file', bytes,
+          fields: {'kind': kind});
+      if (res is Map && res['path'] != null && res['url'] != null) {
+        _signed[res['path'] as String] = res['url'] as String;
       }
     });
   }
 
-  Future<void> removeItemPhoto(OrderItem item, String kind) {
-    return _write(() async {
-      final old = kind == 'photo' ? item.photoPath : item.receiptPath;
-      await _db
-          .from('gh_order_items')
-          .update({'${kind}_path': null}).eq('id', item.id);
-      if (old != null) await _db.storage.from('gh-photos').remove([old]);
-    });
-  }
+  Future<void> removeItemPhoto(OrderItem item, String kind) => _write(
+      () => _api.delete('/ps/items/${item.id}/photo', {'kind': kind}));
 
+  /// A temporary link (24 h) to show a private photo.
   Future<String> photoUrl(String path) async {
     final cached = _signed[path];
     if (cached != null) return cached;
-    final url =
-        await _db.storage.from('gh-photos').createSignedUrl(path, 60 * 60 * 24);
+    final res = await _api.post('/ps/files/url', {'path': path});
+    final url = (res as Map)['url'] as String;
     _signed[path] = url;
     return url;
   }
 
   // ───────────── drivers ─────────────
 
-  Future<Map<String, dynamic>> _driverAdmin(Map<String, dynamic> body) async {
-    try {
-      final res =
-          await _db.functions.invoke('gh-driver-admin', body: body);
-      final data = res.data;
-      if (data is Map && data['error'] != null) {
-        throw Exception(data['error']);
-      }
-      return data is Map ? Map<String, dynamic>.from(data) : {};
-    } on FunctionException catch (e) {
-      final d = e.details;
-      if (d is Map && d['error'] != null) throw Exception(d['error']);
-      rethrow;
-    }
-  }
-
   Future<void> createDriver(
           {required String name,
           required String phone,
           required String password}) =>
-      _write(() => _driverAdmin(
-          {'action': 'create', 'name': name, 'phone': phone, 'password': password}));
+      _write(() => _api.post('/ps/drivers',
+          {'name': name, 'phone': phone, 'password': password}));
 
   Future<void> setDriverPassword(String driverId, String password) =>
-      _driverAdmin(
-          {'action': 'password', 'driver_id': driverId, 'password': password});
+      _api.put('/ps/drivers/$driverId', {'password': password});
 
   Future<void> deleteDriver(String driverId) =>
-      _write(() => _driverAdmin({'action': 'delete', 'driver_id': driverId}));
+      _write(() => _api.delete('/ps/drivers/$driverId'));
 
   Future<void> saveDriver(String id, {String? name, bool? active}) =>
-      _write(() async => _db.from('gh_drivers').update({
+      _write(() => _api.put('/ps/drivers/$id', {
             if (name != null) 'name': name,
             if (active != null) 'active': active,
-          }).eq('id', id));
+          }));
 
   /// Hands an order to a driver (or takes it back when [driverId] is null).
   Future<void> setDelivery(
@@ -454,25 +353,19 @@ class Store extends ChangeNotifier {
     bool? collect,
     String? note,
   }) {
-    return _write(() async {
-      final changedDriver = driverId != o.driverId;
-      await _db.from('gh_orders').update({
-        'driver_id': driverId,
-        'delivery_address': address,
-        if (collect != null) 'delivery_collect': collect,
-        'driver_note': note,
-        if (changedDriver)
-          'driver_status': driverId == null ? null : 'assigned',
-        if (changedDriver) 'driver_delivered_at': null,
-      }).eq('id', o.id);
-    });
+    return _write(() => _api.put('/ps/orders/${o.id}/delivery', {
+          'driver_id': driverId,
+          'address': address,
+          'collect': collect,
+          'note': note,
+        }));
   }
 
   // ───────────── payments ─────────────
 
   Future<void> addPayment(String orderId,
       {required double amount, String? method, DateTime? paidOn, String? note}) {
-    return _write(() async => _db.from('gh_payments').insert({
+    return _write(() => _api.post('/ps/payments', {
           'order_id': orderId,
           'amount': amount,
           'method': method,
@@ -482,7 +375,7 @@ class Store extends ChangeNotifier {
   }
 
   Future<void> deletePayment(String id) =>
-      _write(() async => _db.from('gh_payments').delete().eq('id', id));
+      _write(() => _api.delete('/ps/payments/$id'));
 
   // ───────────── trips ─────────────
 
@@ -502,18 +395,15 @@ class Store extends ChangeNotifier {
         'ends_on': endsOn == null ? null : _day(endsOn),
         'notes': notes,
       };
-      if (id == null) {
-        final row =
-            await _db.from('gh_trips').insert(data).select('id').single();
-        return row['id'] as String;
-      }
-      await _db.from('gh_trips').update(data).eq('id', id);
-      return id;
+      final res = id == null
+          ? await _api.post('/ps/trips', data)
+          : await _api.put('/ps/trips/$id', data);
+      return (res as Map)['id'] as String;
     });
   }
 
   Future<void> deleteTrip(String id) =>
-      _write(() async => _db.from('gh_trips').delete().eq('id', id));
+      _write(() => _api.delete('/ps/trips/$id'));
 
   Future<void> addExpense({
     String? tripId,
@@ -523,7 +413,7 @@ class Store extends ChangeNotifier {
     required double rate,
     DateTime? spentOn,
   }) {
-    return _write(() async => _db.from('gh_trip_expenses').insert({
+    return _write(() => _api.post('/ps/expenses', {
           'trip_id': tripId,
           'title': title,
           'amount': amount,
@@ -534,7 +424,7 @@ class Store extends ChangeNotifier {
   }
 
   Future<void> deleteExpense(String id) =>
-      _write(() async => _db.from('gh_trip_expenses').delete().eq('id', id));
+      _write(() => _api.delete('/ps/expenses/$id'));
 
   // ───────────── purchase invoices ─────────────
 
@@ -560,63 +450,25 @@ class Store extends ChangeNotifier {
         'exchange_rate': rate,
         'total_amount': totalAmount,
         'notes': notes,
+        'link': link.entries
+            .map((e) => {'item_id': e.key.id, 'cost': e.value})
+            .toList(),
       };
-      String invoiceId;
-      if (id == null) {
-        final row = await _db
-            .from('gh_purchase_invoices')
-            .insert(data)
-            .select('id')
-            .single();
-        invoiceId = row['id'] as String;
-      } else {
-        invoiceId = id;
-        await _db.from('gh_purchase_invoices').update(data).eq('id', id);
-        await _db
-            .from('gh_order_items')
-            .update({'cost_currency': currency, 'cost_rate': rate}).eq(
-                'purchase_invoice_id', id);
-      }
-      await Future.wait(link.entries.map((e) {
-        final item = e.key;
-        final upd = <String, dynamic>{
-          'purchase_invoice_id': invoiceId,
-          'cost_amount': e.value,
-          'cost_currency': currency,
-          'cost_rate': rate,
-        };
-        if (item.status == ItemStatus.requested) {
-          upd['status'] = ItemStatus.purchased.name;
-        }
-        if (item.purchasedAt == null) {
-          upd['purchased_at'] = purchasedOn.toUtc().toIso8601String();
-        }
-        return _db.from('gh_order_items').update(upd).eq('id', item.id);
-      }));
-      return invoiceId;
+      final res = id == null
+          ? await _api.post('/ps/purchase-invoices', data)
+          : await _api.put('/ps/purchase-invoices/$id', data);
+      return (res as Map)['id'] as String;
     });
   }
 
-  Future<void> deletePurchaseInvoice(String id) {
-    return _write(() async {
-      await _db.from('gh_order_items').update({
-        'purchase_invoice_id': null,
-      }).eq('purchase_invoice_id', id);
-      await _db.from('gh_purchase_invoices').delete().eq('id', id);
-    });
-  }
+  Future<void> deletePurchaseInvoice(String id) =>
+      _write(() => _api.delete('/ps/purchase-invoices/$id'));
 
-  Future<void> unlinkItem(String itemId) => _write(() async => _db
-      .from('gh_order_items')
-      .update({'purchase_invoice_id': null}).eq('id', itemId));
+  Future<void> unlinkItem(String itemId) =>
+      _write(() => _api.put('/ps/items/$itemId/unlink'));
 
   // ───────────── settings ─────────────
 
-  Future<void> saveSettings(Map<String, dynamic> data) {
-    return _write(() async => _db.from('gh_settings').upsert({
-          ...data,
-          'owner': _db.auth.currentUser!.id,
-          'updated_at': _now(),
-        }));
-  }
+  Future<void> saveSettings(Map<String, dynamic> data) =>
+      _write(() => _api.put('/ps/settings', data));
 }

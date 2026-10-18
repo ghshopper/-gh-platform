@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import '../data/api.dart';
 
 import '../data/lock.dart';
 import '../data/rates.dart';
@@ -10,6 +10,7 @@ import '../models.dart';
 import '../ui/colors.dart';
 import '../ui/kit.dart';
 import 'drivers_pages.dart';
+import 'import_page.dart';
 import 'purchases_pages.dart';
 import 'trips_page.dart' show ExpenseFormPage;
 
@@ -67,7 +68,7 @@ class _MorePageState extends State<MorePage> {
 
   @override
   Widget build(BuildContext context) {
-    final email = Supabase.instance.client.auth.currentUser?.email ?? '';
+    final email = Api.i.session?.name ?? '';
     return GHPage(
       title: 'المزيد',
       children: [
@@ -102,6 +103,13 @@ class _MorePageState extends State<MorePage> {
             subtitle: 'تطلع في الفاتورة',
             onTap: () => pushPage(context, const SettingsPage()),
           ),
+          Tile(
+            leading: const IconBox(CupertinoIcons.arrow_down_doc_fill,
+                color: GH.teal),
+            title: 'نقل البيانات القديمة',
+            subtitle: 'مرة وحدة بعد التحديث',
+            onTap: () => pushPage(context, const ImportPage()),
+          ),
           if (_faceIdAvailable)
             SwitchRow(
               label: 'قفل بالـ Face ID',
@@ -130,7 +138,7 @@ class _MorePageState extends State<MorePage> {
               onTap: () async {
                 if (await confirm(context, 'تسجيل خروج؟',
                     ok: 'خروج', destructive: true)) {
-                  await Supabase.instance.client.auth.signOut();
+                  await Api.i.logout();
                 }
               },
             ),
@@ -459,6 +467,7 @@ class _SettingsPageState extends State<SettingsPage> {
   late final _name = TextEditingController(text: _s.companyName);
   late final _nameEn = TextEditingController(text: _s.companyNameEn);
   late final _cr = TextEditingController(text: _s.crNumber);
+  late final _tax = TextEditingController(text: _s.taxNumber);
   late final _phone = TextEditingController(text: _s.phone);
   late final _insta = TextEditingController(text: _s.instagram);
   late final _address = TextEditingController(text: _s.address);
@@ -468,7 +477,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   void dispose() {
-    for (final c in [_name, _nameEn, _cr, _phone, _insta, _address, _bank, _note]) {
+    for (final c in [_name, _nameEn, _cr, _tax, _phone, _insta, _address, _bank, _note]) {
       c.dispose();
     }
     super.dispose();
@@ -484,6 +493,7 @@ class _SettingsPageState extends State<SettingsPage> {
         'company_name': _v(_name),
         'company_name_en': _v(_nameEn),
         'cr_number': _v(_cr),
+        'tax_number': _v(_tax),
         'phone': _v(_phone),
         'instagram': _v(_insta),
         'address': _v(_address),
@@ -517,6 +527,7 @@ class _SettingsPageState extends State<SettingsPage> {
             FieldRow(label: 'اسم الشركة', controller: _name, placeholder: 'GH Shopper'),
             FieldRow(label: 'بالإنجليزي', controller: _nameEn, placeholder: 'GH Shopper', ltr: true),
             FieldRow(label: 'السجل التجاري', controller: _cr, placeholder: 'رقم السجل', ltr: true),
+            FieldRow(label: 'الرقم الضريبي', controller: _tax, placeholder: 'اختياري', ltr: true),
             FieldRow(label: 'الجوال', controller: _phone, keyboard: TextInputType.phone, ltr: true),
             FieldRow(label: 'الانستقرام', controller: _insta, placeholder: '@ghshopper', ltr: true),
             FieldRow(label: 'العنوان', controller: _address, placeholder: 'مسقط، عُمان'),

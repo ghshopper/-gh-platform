@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import '../data/api.dart';
 
 import '../format.dart';
 import '../ui/colors.dart';
@@ -16,7 +16,6 @@ class _LoginPageState extends State<LoginPage> {
   final _email = TextEditingController();
   final _password = TextEditingController();
   bool _busy = false;
-  bool _signUp = false;
 
   @override
   void dispose() {
@@ -25,43 +24,16 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-  /// Drivers sign in with their phone; it maps to their private e-mail.
-  String _loginEmail(String input) {
-    final t = normalizeDigits(input.trim());
-    if (t.contains('@')) return t;
-    var d = t.replaceAll(RegExp(r'\D'), '');
-    if (d.length == 8) d = '968$d';
-    return 'd$d@drivers.ghshopper.com';
-  }
-
   Future<void> _submit() async {
-    final email = _loginEmail(_email.text);
+    final id = normalizeDigits(_email.text.trim());
     final password = _password.text;
-    if (_email.text.trim().isEmpty || password.length < 6) {
+    if (id.isEmpty || password.length < 6) {
       toast(context, 'اكتب الإيميل أو رقمك وكلمة المرور', error: true);
       return;
     }
     setState(() => _busy = true);
-    final auth = Supabase.instance.client.auth;
     try {
-      if (_signUp) {
-        final res = await auth.signUp(email: email, password: password);
-        if (res.session == null && mounted) {
-          toast(context, 'تم إنشاء الحساب. أكّد الإيميل ثم سجّل دخول');
-          setState(() => _signUp = false);
-        }
-      } else {
-        await auth.signInWithPassword(email: email, password: password);
-      }
-    } on AuthException catch (e) {
-      if (mounted) {
-        toast(
-            context,
-            e.message.contains('Invalid login')
-                ? 'البيانات أو كلمة المرور غلط'
-                : e.message,
-            error: true);
-      }
+      await Api.i.login(id, password);
     } catch (e) {
       if (mounted) toast(context, errorText(e), error: true);
     } finally {
@@ -102,7 +74,7 @@ class _LoginPageState extends State<LoginPage> {
                   Image.asset('assets/images/logo.png', height: 120),
                   const SizedBox(height: 28),
                   Text(
-                    _signUp ? 'إنشاء حساب' : 'تسجيل الدخول',
+                    'تسجيل الدخول',
                     textAlign: TextAlign.center,
                     style: T.big,
                   ),
@@ -111,8 +83,7 @@ class _LoginPageState extends State<LoginPage> {
                     borderRadius: BorderRadius.circular(12),
                     child: Column(
                       children: [
-                        _field(_email,
-                            _signUp ? 'الإيميل' : 'الإيميل أو رقم الجوال',
+                        _field(_email, 'الإيميل أو رقم الجوال',
                             keyboard: TextInputType.emailAddress),
                         Container(height: 0.5, color: GH.separator),
                         _field(_password, 'كلمة المرور', obscure: true),
@@ -120,16 +91,13 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  PrimaryButton(_signUp ? 'إنشاء الحساب' : 'دخول',
+                  PrimaryButton('دخول',
                       busy: _busy, onPressed: _submit),
-                  const SizedBox(height: 8),
-                  CupertinoButton(
-                    onPressed: _busy
-                        ? null
-                        : () => setState(() => _signUp = !_signUp),
-                    child: Text(_signUp
-                        ? 'عندي حساب، أبي أسجّل دخول'
-                        : 'أول مرة؟ أنشئ حساب'),
+                  const SizedBox(height: 14),
+                  const Text(
+                    'نفس حسابك في لوحة الإدارة بالموقع. المناديب يدخلون برقم الجوال.',
+                    textAlign: TextAlign.center,
+                    style: T.small,
                   ),
                 ],
               ),

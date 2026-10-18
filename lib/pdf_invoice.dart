@@ -91,6 +91,7 @@ Future<Uint8List> buildInvoicePdf(
               [
                 company,
                 if (biz.crNumber != null) 'س.ت ${biz.crNumber}',
+                if (biz.taxNumber != null) 'الرقم الضريبي ${biz.taxNumber}',
                 if (biz.address != null) biz.address!,
               ].join('  ·  '),
               style: st(7, color: _muted),
