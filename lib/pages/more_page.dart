@@ -540,11 +540,11 @@ class _SettingsPageState extends State<SettingsPage> {
           ],
         ),
         Section(
-          header: 'أسعار التوصيل داخل مسقط',
-          footer: 'تنحط تلقائياً لما تختار طريقة التوصيل في الطلب. نول وجيناكم تكتب سعرها لكل طلب.',
+          header: 'أسعار التوصيل',
+          footer: 'تنحط تلقائياً لما تختار طريقة التوصيل في الطلب. لباب البيت: مندوبنا أو نول أو جيناكم. من الفرع: العميل يستلم من فرع نول أو جيناكم.',
           children: [
-            AmountRow(label: 'إلى البيت', controller: _homeFee),
-            AmountRow(label: 'إلى المكتب', controller: _officeFee),
+            AmountRow(label: 'لباب البيت', controller: _homeFee),
+            AmountRow(label: 'من فرع الشركة', controller: _officeFee),
           ],
         ),
         Section(

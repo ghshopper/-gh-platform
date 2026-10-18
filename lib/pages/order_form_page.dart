@@ -4,6 +4,7 @@ import '../data/store.dart';
 import '../format.dart';
 import '../models.dart';
 import '../ui/colors.dart';
+import '../ui/delivery_picker.dart';
 import '../ui/kit.dart';
 import 'customers_page.dart';
 import 'price_entry.dart';
@@ -72,8 +73,7 @@ class _OrderFormPageState extends State<OrderFormPage> {
   void _chooseDelivery(DeliveryMethod m) {
     setState(() {
       _deliveryMethod = m;
-      _delivery.text =
-          m.isCourier ? '' : _fee(Store.i.settings.feeFor(m));
+      _delivery.text = _fee(Store.i.settings.feeFor(m));
     });
   }
 
@@ -122,7 +122,7 @@ class _OrderFormPageState extends State<OrderFormPage> {
         customerId: _customer!.id,
         tripId: _tripId,
         deliveryFee: parseAmount(_delivery.text) ?? 0,
-        deliveryMethod: _deliveryMethod.name,
+        deliveryMethod: _deliveryMethod.key,
         notes: _notes.text.trim().isEmpty ? null : _notes.text.trim(),
         items: items,
         deposit: parseAmount(_deposit.text) ?? 0,
@@ -198,12 +198,11 @@ class _OrderFormPageState extends State<OrderFormPage> {
         Section(
           header: 'التوصيل والعربون',
           footer: _deliveryMethod.isCourier
-              ? 'شحن خارج مسقط: اكتب سعر الشحن، ورقم الشحنة تضيفه من الطلب بعدين.'
-              : 'سعر ثابت، تقدر تغيّره من بيانات الشركة.',
+              ? 'رابط تتبّع ${_deliveryMethod.carrierName} تضيفه من الطلب بعدين. الأسعار تتغيّر من بيانات الشركة.'
+              : 'مندوبنا يوصل لباب البيت. الأسعار تتغيّر من بيانات الشركة.',
           children: [
-            Segments<DeliveryMethod>(
+            DeliveryPicker(
               value: _deliveryMethod,
-              options: {for (final m in DeliveryMethod.values) m: m.label},
               onChanged: _chooseDelivery,
             ),
             AmountRow(

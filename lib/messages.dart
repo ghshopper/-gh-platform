@@ -67,9 +67,11 @@ final List<MsgTemplate> messageTemplates = [
         '${trackingLink(o)}';
   }),
   MsgTemplate('تم الشحن (نول / جيناكم)', (o, c) {
-    final company = o.deliveryMethod?.label ?? 'شركة الشحن';
+    final company = o.deliveryMethod?.carrierName ?? 'شركة الشحن';
+    final branch = o.deliveryMethod?.toBranch == true;
     return '${_hi(c)}\n'
         'تم شحن ${_g(c, 'طلبكِ', 'طلبك')} ${o.invoiceNo} مع $company 📦\n'
+        '${branch ? 'تقدر${_g(c, 'ين', '')} ${_g(c, 'تستلمينه', 'تستلمه')} من فرع $company أول ما يوصل.\n' : ''}'
         '${o.carrierTracking == null ? '' : o.carrierIsLink ? 'تتبّع الشحنة مع $company:\n${o.carrierTracking}\n\n' : 'رقم الشحنة: ${o.carrierTracking}\n'}'
         'تتبّع${_g(c, 'ي', '')} ${_g(c, 'طلبكِ', 'طلبك')} من هنا:\n'
         '${trackingLink(o)}';

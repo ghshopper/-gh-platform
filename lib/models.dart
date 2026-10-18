@@ -103,11 +103,13 @@ class BusinessSettings {
   final double deliveryHomeFee;
   final double deliveryOfficeFee;
 
-  double feeFor(DeliveryMethod? m) => switch (m) {
-        DeliveryMethod.home => deliveryHomeFee,
-        DeliveryMethod.office => deliveryOfficeFee,
-        _ => 0,
-      };
+  /// Door delivery (our driver or a courier) uses the home fee; pickup at a
+  /// courier's branch uses the branch fee.
+  double feeFor(DeliveryMethod? m) {
+    if (m == null) return 0;
+    if (m == DeliveryMethod.office || m.toBranch) return deliveryOfficeFee;
+    return deliveryHomeFee;
+  }
 
   factory BusinessSettings.fromMap(Map<String, dynamic> m) => BusinessSettings(
         companyName: _s(m['company_name']),
@@ -126,26 +128,73 @@ class BusinessSettings {
 }
 
 /// How an order reaches the customer.
-enum DeliveryMethod { home, office, nool, genacom }
+/// home = our driver to the door (Muscat). Couriers (Nool, Genacom) either
+/// deliver to the door or the customer picks up at their branch.
+/// [office] is legacy (old orders only, not offered any more).
+enum DeliveryMethod { home, office, nool, noolOffice, genacom, genacomOffice }
+
+/// Who carries the parcel.
+enum Carrier { own, nool, genacom }
+
+extension CarrierX on Carrier {
+  String get label => switch (this) {
+        Carrier.own => 'مندوبنا',
+        Carrier.nool => 'نول',
+        Carrier.genacom => 'جيناكم',
+      };
+}
 
 DeliveryMethod? deliveryMethodFrom(String? v) {
   for (final m in DeliveryMethod.values) {
-    if (m.name == v) return m;
+    if (m.key == v) return m;
   }
   return null;
 }
 
+/// The method for a carrier and destination (branch pickup or door).
+DeliveryMethod deliveryMethodOf(Carrier c, {required bool branch}) =>
+    switch (c) {
+      Carrier.own => DeliveryMethod.home,
+      Carrier.nool => branch ? DeliveryMethod.noolOffice : DeliveryMethod.nool,
+      Carrier.genacom =>
+        branch ? DeliveryMethod.genacomOffice : DeliveryMethod.genacom,
+    };
+
 extension DeliveryMethodX on DeliveryMethod {
-  String get label => switch (this) {
-        DeliveryMethod.home => 'إلى البيت',
-        DeliveryMethod.office => 'إلى المكتب',
-        DeliveryMethod.nool => 'نول',
-        DeliveryMethod.genacom => 'جيناكم',
+  /// Value stored on the server.
+  String get key => switch (this) {
+        DeliveryMethod.noolOffice => 'nool_office',
+        DeliveryMethod.genacomOffice => 'genacom_office',
+        _ => name,
       };
 
-  /// A shipping company for outside Muscat (own shipment number, own price).
-  bool get isCourier =>
-      this == DeliveryMethod.nool || this == DeliveryMethod.genacom;
+  Carrier get carrier => switch (this) {
+        DeliveryMethod.nool || DeliveryMethod.noolOffice => Carrier.nool,
+        DeliveryMethod.genacom ||
+        DeliveryMethod.genacomOffice =>
+          Carrier.genacom,
+        _ => Carrier.own,
+      };
+
+  /// Customer collects from the courier's branch.
+  bool get toBranch =>
+      this == DeliveryMethod.noolOffice ||
+      this == DeliveryMethod.genacomOffice;
+
+  /// Carrier name only (for "شحن مع …").
+  String get carrierName => carrier.label;
+
+  String get label => switch (this) {
+        DeliveryMethod.home => 'مندوبنا · للبيت',
+        DeliveryMethod.office => 'إلى المكتب',
+        DeliveryMethod.nool => 'نول · للبيت',
+        DeliveryMethod.noolOffice => 'نول · من الفرع',
+        DeliveryMethod.genacom => 'جيناكم · للبيت',
+        DeliveryMethod.genacomOffice => 'جيناكم · من الفرع',
+      };
+
+  /// A shipping company (own shipment number / tracking link, no driver).
+  bool get isCourier => carrier != Carrier.own;
 }
 
 // ───────────────────────── Trips ─────────────────────────

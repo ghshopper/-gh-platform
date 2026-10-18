@@ -472,7 +472,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                   leading: IconBox(CupertinoIcons.car_detailed,
                       color: o.driverStatus?.color ?? GH.tertiary),
                   title: o.deliveryMethod?.isCourier == true
-                      ? 'شحن مع ${o.deliveryMethod!.label}'
+                      ? 'شحن مع ${o.deliveryMethod!.carrierName}${o.deliveryMethod!.toBranch ? ' · من الفرع' : ' · للبيت'}'
                       : Store.i.driver(o.driverId)?.name ??
                           '${o.deliveryMethod?.label ?? 'التوصيل'} · أسند لمندوب',
                   titleStyle: o.driverId == null && o.deliveryMethod?.isCourier != true

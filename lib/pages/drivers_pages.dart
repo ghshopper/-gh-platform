@@ -8,6 +8,7 @@ import '../data/store.dart';
 import '../format.dart';
 import '../models.dart';
 import '../ui/colors.dart';
+import '../ui/delivery_picker.dart';
 import '../ui/kit.dart';
 import 'item_pages.dart' show PhotoPage, Thumb;
 import 'order_detail_page.dart';
@@ -365,7 +366,7 @@ class _DeliveryPageState extends State<DeliveryPage> {
   void _chooseMethod(DeliveryMethod m) {
     setState(() {
       _method = m;
-      if (!m.isCourier) _fee.text = plainFee(Store.i.settings.feeFor(m));
+      _fee.text = plainFee(Store.i.settings.feeFor(m));
       if (m.isCourier) _driverId = null;
     });
   }
@@ -404,7 +405,7 @@ class _DeliveryPageState extends State<DeliveryPage> {
       final link = RegExp(r'https?://\S+').firstMatch(raw)?.group(0);
       final trk = link ?? raw;
       await Store.i.updateOrder(_o.id, {
-        'delivery_method': _method.name,
+        'delivery_method': _method.key,
         'delivery_fee': parseAmount(_fee.text) ?? 0,
         'carrier_tracking': _method.isCourier && trk.isNotEmpty ? trk : null,
       });
@@ -442,9 +443,8 @@ class _DeliveryPageState extends State<DeliveryPage> {
         Section(
           header: 'طريقة التوصيل',
           children: [
-            Segments<DeliveryMethod>(
+            DeliveryPicker(
               value: _method,
-              options: {for (final m in DeliveryMethod.values) m: m.label},
               onChanged: _chooseMethod,
             ),
             AmountRow(label: 'رسوم التوصيل', controller: _fee),
@@ -452,7 +452,7 @@ class _DeliveryPageState extends State<DeliveryPage> {
               FieldRow(
                 label: 'رابط التتبّع',
                 controller: _tracking,
-                placeholder: 'الصق رسالة ${_method.label} أو الرابط',
+                placeholder: 'الصق رسالة ${_method.carrierName} أو الرابط',
                 ltr: true,
               ),
           ],
