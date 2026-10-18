@@ -6,6 +6,7 @@ import '../models.dart';
 import '../ui/colors.dart';
 import '../ui/kit.dart';
 import 'order_detail_page.dart';
+import 'scanner_page.dart';
 import 'order_form_page.dart';
 
 enum OrderFilter { all, requested, purchased, arrived, delivered, balance }
@@ -75,6 +76,19 @@ class _OrdersPageState extends State<OrdersPage> {
     }
   }
 
+  /// Opens an order by scanning its waybill.
+  Future<void> _scan() async {
+    final code = await scanCode(context);
+    if (code == null || !mounted) return;
+    final token = tokenFromCode(code);
+    final o = token == null ? null : Store.i.orderByToken(token);
+    if (o == null) {
+      toast(context, 'ما لقينا طلب لهذي البوليصة', error: true);
+      return;
+    }
+    pushPage(context, OrderDetailPage(orderId: o.id));
+  }
+
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
@@ -86,6 +100,7 @@ class _OrdersPageState extends State<OrdersPage> {
         return GHPage(
           title: 'الطلبات',
           onRefresh: store.refresh,
+          leading: NavIcon(CupertinoIcons.qrcode_viewfinder, onPressed: _scan),
           trailing: NavIcon(CupertinoIcons.add_circled_solid, onPressed: _new),
           children: [
             Padding(

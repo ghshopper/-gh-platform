@@ -7,6 +7,7 @@ import '../format.dart';
 import '../messages.dart';
 import '../models.dart';
 import '../pdf_invoice.dart';
+import '../pdf_waybill.dart';
 import '../ui/colors.dart';
 import '../ui/kit.dart';
 import 'customers_page.dart';
@@ -176,6 +177,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
 
   Future<void> _orderActions(Order o) async {
     final a = await actionSheet<String>(context, title: o.invoiceNo, actions: [
+      const SheetAction('طباعة البوليصة', 'waybill'),
       const SheetAction('الرحلة', 'trip'),
       const SheetAction('رسوم التوصيل', 'delivery'),
       const SheetAction('ملاحظات الطلب', 'notes'),
@@ -184,6 +186,9 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
     ]);
     if (a == null || !mounted) return;
     switch (a) {
+      case 'waybill':
+        await printOrderWaybill(context, o);
+        break;
       case 'trip':
         final id = await pickTrip(context, current: o.tripId);
         if (id != null) {
@@ -449,6 +454,9 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
             ),
             Section(
               header: 'التوصيل',
+              trailing: HeaderButton('البوليصة',
+                  icon: CupertinoIcons.barcode,
+                  onPressed: () => printOrderWaybill(context, o)),
               children: [
                 Tile(
                   leading: IconBox(CupertinoIcons.car_detailed,
@@ -473,6 +481,22 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                 ),
               ],
             ),
+            if (o.events.isNotEmpty)
+              Section(
+                header: 'سجل الطلب',
+                children: o.events.reversed
+                    .take(12)
+                    .map((e) => Tile(
+                          leading: IconBox(e.icon, color: e.color, size: 28),
+                          title: e.label,
+                          subtitle: e.note,
+                          value: e.at == null ? null : dateTimeStr(e.at!),
+                          valueStyle:
+                              const TextStyle(fontSize: 12.5, color: GH.secondary),
+                          chevron: false,
+                        ))
+                    .toList(),
+              ),
             Section(
               header: 'الدفعات',
               trailing: HeaderButton('دفعة',
@@ -628,5 +652,17 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
         ),
       ),
     );
+  }
+}
+
+
+/// Prints the shipping label for an order and records it on the server.
+Future<void> printOrderWaybill(BuildContext context, Order o) async {
+  try {
+    await printWaybill(o, Store.i.customer(o.customerId), Store.i.settings,
+        driverName: Store.i.driver(o.driverId)?.name);
+    await Store.i.markLabelPrinted(o.id);
+  } catch (e) {
+    if (context.mounted) toast(context, errorText(e), error: true);
   }
 }

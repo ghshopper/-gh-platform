@@ -16,6 +16,11 @@ String money(num v, String currency) => '${_cur.format(v)} $currency';
 
 String dateStr(DateTime? d) => d == null ? '—' : _date.format(d.toLocal());
 
+final _time = DateFormat('d/M  h:mm a');
+
+/// 18/10  3:45 PM
+String dateTimeStr(DateTime d) => _time.format(d.toLocal());
+
 /// Converts Arabic-Indic / Persian digits and separators to ASCII so that
 /// numbers typed on an Arabic keyboard parse correctly.
 String normalizeDigits(String input) {

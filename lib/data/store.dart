@@ -232,6 +232,20 @@ class Store extends ChangeNotifier {
         }));
   }
 
+  /// Records that the shipping label was printed (first time only).
+  Future<void> markLabelPrinted(String orderId) async {
+    if (order(orderId)?.labelPrintedAt != null) return;
+    await _write(() => _api.post('/ps/orders/$orderId/label'));
+  }
+
+  /// Finds an order from a scanned waybill QR (tracking link).
+  Order? orderByToken(String token) {
+    for (final o in orders) {
+      if (o.trackingToken == token) return o;
+    }
+    return null;
+  }
+
   Future<void> deleteOrder(String id) =>
       _write(() => _api.delete('/ps/orders/$id'));
 

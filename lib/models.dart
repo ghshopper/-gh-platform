@@ -458,6 +458,8 @@ class Order {
     this.driverNote,
     this.deliveryPhotoPath,
     this.driverDeliveredAt,
+    this.labelPrintedAt,
+    this.events = const [],
   });
 
   final String id;
@@ -484,6 +486,13 @@ class Order {
   final String? driverNote;
   final String? deliveryPhotoPath;
   final DateTime? driverDeliveredAt;
+  final DateTime? labelPrintedAt;
+
+  /// What happened to the order, oldest first.
+  final List<OrderEvent> events;
+
+  /// Shipping label number, e.g. GH-000123.
+  String get waybillNo => 'GH-${orderNo.toString().padLeft(6, '0')}';
 
   String get invoiceNo => invoiceNumber(orderNo, createdAt);
 
@@ -558,8 +567,62 @@ class Order {
       driverNote: _s(m['driver_note']),
       deliveryPhotoPath: _s(m['delivery_photo_path']),
       driverDeliveredAt: _dt(m['driver_delivered_at']),
+      labelPrintedAt: _dt(m['label_printed_at']),
+      events: ((m['events'] as List?) ?? const [])
+          .map((e) => OrderEvent.fromMap(Map<String, dynamic>.from(e as Map)))
+          .toList(),
     );
   }
+}
+
+/// One step in an order's history (created, purchased, picked up…).
+class OrderEvent {
+  OrderEvent({required this.type, this.note, this.at});
+
+  final String type;
+  final String? note;
+  final DateTime? at;
+
+  String get label => switch (type) {
+        'created' => 'تم إنشاء الطلب',
+        'purchased' => 'تم الشراء',
+        'arrived' => 'وصل مسقط',
+        'label' => 'طُبعت البوليصة',
+        'assigned' => 'سُلّم للمندوب',
+        'unassigned' => 'سُحب من المندوب',
+        'picked' => 'المندوب استلم الطلب',
+        'delivered' => 'تم التسليم',
+        'cancelled' => 'إلغاء',
+        'requested' => 'رجع لانتظار الشراء',
+        _ => type,
+      };
+
+  IconData get icon => switch (type) {
+        'created' => CupertinoIcons.doc_text_fill,
+        'purchased' => CupertinoIcons.bag_fill,
+        'arrived' => CupertinoIcons.airplane,
+        'label' => CupertinoIcons.barcode,
+        'assigned' || 'unassigned' => CupertinoIcons.person_fill,
+        'picked' => CupertinoIcons.car_detailed,
+        'delivered' => CupertinoIcons.checkmark_seal_fill,
+        'cancelled' => CupertinoIcons.xmark_circle_fill,
+        _ => CupertinoIcons.circle_fill,
+      };
+
+  Color get color => switch (type) {
+        'purchased' => GH.statusPurchased,
+        'arrived' => GH.statusArrived,
+        'assigned' || 'picked' => GH.blue,
+        'delivered' => GH.statusDelivered,
+        'cancelled' => GH.red,
+        _ => GH.secondary,
+      };
+
+  factory OrderEvent.fromMap(Map<String, dynamic> m) => OrderEvent(
+        type: (m['type'] ?? '').toString(),
+        note: _s(m['note']),
+        at: _dt(m['at']),
+      );
 }
 
 // ───────────────────────── Drivers ─────────────────────────
@@ -627,6 +690,7 @@ class DriverOrder {
     this.photoPath,
     this.photoUrl,
     this.deliveredAt,
+    this.waybillNo,
     required this.items,
   });
 
@@ -645,6 +709,7 @@ class DriverOrder {
   /// Temporary link to the delivery photo (from the server).
   final String? photoUrl;
   final DateTime? deliveredAt;
+  final String? waybillNo;
   final List<({String? brand, String name, String? details})> items;
 
   bool get isDone => status == DriverStatus.delivered;
@@ -665,6 +730,7 @@ class DriverOrder {
       note: _s(m['driver_note']),
       photoPath: _s(m['delivery_photo_path']),
       photoUrl: _s(m['delivery_photo_url']),
+      waybillNo: _s(m['waybill_no']),
       deliveredAt: _dt(m['driver_delivered_at']),
       items: ((m['items'] as List?) ?? const [])
           .map((e) => Map<String, dynamic>.from(e as Map))

@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../data/api.dart';
+import 'scanner_page.dart';
 import '../format.dart';
 import '../models.dart';
 import '../ui/colors.dart';
@@ -73,6 +74,22 @@ class _DriverHomeState extends State<DriverHome> {
     DriverData.i.refresh();
   }
 
+  /// Pick-up: scanning the label hands the parcel to this driver.
+  Future<void> _scan() async {
+    final code = await scanCode(context);
+    if (code == null || !mounted) return;
+    try {
+      final res = await Api.i.post('/ps/driver/scan', {'code': code});
+      await DriverData.i.refresh();
+      if (!mounted) return;
+      final id = (res as Map)['id'] as String;
+      toast(context, res['status'] == 'delivered' ? 'الطلب متسلّم من قبل' : 'استلمت الطلب ✓');
+      pushPage(context, DriverOrderPage(orderId: id));
+    } catch (e) {
+      if (mounted) toast(context, errorText(e), error: true);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
@@ -88,6 +105,8 @@ class _DriverHomeState extends State<DriverHome> {
         return GHPage(
           title: 'توصيلاتي',
           onRefresh: data.refresh,
+          bottom: PrimaryButton('امسح بوليصة واستلم الطلب',
+              icon: CupertinoIcons.qrcode_viewfinder, onPressed: _scan),
           trailing: NavButton('خروج', onPressed: () async {
             if (await confirm(context, 'تسجيل خروج؟',
                 ok: 'خروج', destructive: true)) {
@@ -282,7 +301,7 @@ class _DriverOrderPageState extends State<DriverOrderPage> {
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
               child: Row(children: [
-                Text(order.invoiceNo, style: T.sub),
+                Text(order.waybillNo ?? order.invoiceNo, style: T.sub),
                 const Spacer(),
                 if (order.status != null)
                   Badge(order.status!.label, color: order.status!.color),
