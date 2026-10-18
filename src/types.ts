@@ -24,6 +24,8 @@ export interface Product {
   price: number | string;
   compare_price?: number | string | null;
   sale_price?: number | string | null;
+  discount_expires_at?: string | null;
+  availability?: 'instant' | 'on_order' | string | null;
   stock_quantity?: number | null;
   primary_image?: string | null;
   gallery_images?: string | string[] | null;

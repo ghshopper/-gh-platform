@@ -15,6 +15,7 @@ import { ProductCard } from '@/product-card';
 import { C, S } from '@/theme';
 import type { Category, HeroSlide, Product, SectionSetting } from '@/types';
 import { Btn, IconBtn, Kicker, Photo, SectionTitle, T } from '@/ui';
+import { CategoryArt } from '@/category-art';
 
 const W = Dimensions.get('window').width;
 
@@ -191,10 +192,9 @@ export default function Home() {
               onAction={() => router.push('/categories')}
             />
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: S.gutter, gap: 10 }}>
-              {app.categories.slice(0, num(sections.categories?.items_count, 12) || 12).map((c: Category) => (
-                <Pressable key={c.id} onPress={() => router.push({ pathname: '/products', params: { category_id: String(c.id), title: pick(c, 'name') } })} style={{ width: 112, gap: 8 }} accessibilityRole="button">
-                  <Photo path={c.image || c.icon} label={c.name_en ?? ''} style={{ height: 146 }} />
-                  <T size={13.5}>{pick(c, 'name')}</T>
+              {app.categories.slice(0, num(sections.categories?.items_count, 12) || 12).map((c: Category, i: number) => (
+                <Pressable key={c.id} onPress={() => router.push({ pathname: '/products', params: { category_id: String(c.id), title: pick(c, 'name') } })} style={{ width: 124 }} accessibilityRole="button">
+                  <CategoryArt c={c} index={i} width={124} height={156} compact />
                 </Pressable>
               ))}
             </ScrollView>
@@ -209,11 +209,7 @@ export default function Home() {
               {app.brands.slice(0, brandCount).map((b) => (
                 <Pressable key={b.id} onPress={() => router.push({ pathname: '/brand/[id]', params: { id: String(b.id) } })} accessibilityRole="button"
                   style={{ width: '33.333%', height: 76, borderRightWidth: 1, borderBottomWidth: 1, borderColor: C.line, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 6 }}>
-                  {b.logo ? (
-                    <Image source={{ uri: imageUrl(b.logo) }} style={{ width: '80%', height: 40 }} contentFit="contain" accessibilityLabel={b.name_en ?? ''} />
-                  ) : (
-                    <T latin w="medium" size={11.5} spacing={1.8} center lines={2}>{(b.name_en ?? b.name_ar ?? '').toUpperCase()}</T>
-                  )}
+                  <T latin w="medium" size={11.5} spacing={1.8} center lines={2}>{(b.name_en ?? b.name_ar ?? '').toUpperCase()}</T>
                 </Pressable>
               ))}
             </View>

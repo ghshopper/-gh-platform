@@ -8,7 +8,8 @@ import { useLang } from '@/lang';
 import { ProductCard } from '@/product-card';
 import { C } from '@/theme';
 import type { Category, Paginated, Product } from '@/types';
-import { Empty, Header, Photo, T } from '@/ui';
+import { Empty, Header, T } from '@/ui';
+import { BRAND, CategoryArt, CategoryIcon, kindOf } from '@/category-art';
 
 const W = Dimensions.get('window').width;
 const RAIL = 92;
@@ -66,12 +67,12 @@ export default function Categories() {
                   onPress={() => { setSelected(c.id); setSub(null); }}
                   accessibilityRole="tab"
                   accessibilityState={{ selected: on }}
-                  style={{ paddingVertical: 14, paddingHorizontal: 6, alignItems: 'center', gap: 8, backgroundColor: on ? C.bg : 'transparent', borderStartWidth: 3, borderStartColor: on ? C.maroon : 'transparent' }}
+                  style={{ paddingVertical: 14, paddingHorizontal: 6, alignItems: 'center', gap: 8, backgroundColor: on ? C.bg : 'transparent', borderStartWidth: 3, borderStartColor: on ? BRAND.gold : 'transparent' }}
                 >
-                  <View style={{ width: 50, height: 50, borderRadius: 25, overflow: 'hidden', borderWidth: on ? 1.5 : 0, borderColor: C.gold, backgroundColor: C.surface }}>
-                    <Photo path={c.icon || c.image} style={{ flex: 1 }} />
+                  <View style={{ width: 50, height: 50, borderRadius: 25, alignItems: 'center', justifyContent: 'center', backgroundColor: on ? BRAND.maroon : C.surface, borderWidth: on ? 1 : 0, borderColor: BRAND.gold }}>
+                    <CategoryIcon kind={kindOf(c)} size={30} color={on ? BRAND.gold : C.sub} stroke={1.3} />
                   </View>
-                  <T size={11.5} w={on ? 'semibold' : 'regular'} color={on ? C.maroon : C.sub} center lines={2} lh={15}>{pick(c, 'name')}</T>
+                  <T size={11.5} w={on ? 'semibold' : 'regular'} color={on ? C.ink : C.sub} center lines={2} lh={15}>{pick(c, 'name')}</T>
                 </Pressable>
               );
             })}
@@ -90,13 +91,13 @@ export default function Categories() {
                 <View style={{ gap: 14 }}>
                   {/* Banner of the chosen category */}
                   <Pressable onPress={() => openAll(showing ?? current)} style={{ marginHorizontal: 16, marginTop: 16 }} accessibilityRole="button">
-                    <Photo path={current.image || current.icon} label={current.name_en ?? ''} style={{ height: contentW * 0.5 }} />
+                    <CategoryArt c={showing ?? current} index={Math.max(0, categories.findIndex((x) => x.id === current.id))} width={contentW - 32} height={(contentW - 32) * 0.52} compact />
                   </Pressable>
                   <View style={{ paddingHorizontal: 16, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                     <T size={17} w="semibold" style={{ flex: 1 }} lines={1}>{pick(showing ?? current, 'name')}</T>
                     <Pressable onPress={() => openAll(showing ?? current)} hitSlop={8} style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                      <T size={12.5} color={C.maroon}>{tr('عرض الكل', 'View all')}</T>
-                      <Icon name="forward" size={13} color={C.maroon} flip={isAr} />
+                      <T size={12.5} color={C.gold}>{tr('عرض الكل', 'View all')}</T>
+                      <Icon name="forward" size={13} color={C.gold} flip={isAr} />
                     </Pressable>
                   </View>
                   {children.length ? (

@@ -8,7 +8,7 @@ import { api, imageUrl, listOf, SITE_BASE } from '@/api';
 import { useAuth } from '@/auth';
 import { useCart } from '@/cart';
 import { useAppData } from '@/appdata';
-import { inStock, num, productAttributes, productImages, productPrice, productWasPrice, waNumber } from '@/format';
+import { inStock, isOnOrder, num, productAttributes, productImages, productPrice, productWasPrice, waNumber } from '@/format';
 import { useLoad } from '@/hooks';
 import { knownProduct, rememberProduct } from '@/product-cache';
 import { Icon } from '@/icons';
@@ -209,8 +209,8 @@ export default function ProductScreen() {
           ) : null}
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 10 }}>
             <View style={{ backgroundColor: C.surface, paddingHorizontal: 10, paddingVertical: 6, flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-              <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: available ? C.green : C.red }} />
-              <T size={12}>{available ? tr('متوفر', 'In stock') : tr('نفدت الكمية', 'Sold out')}</T>
+              <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: !available ? C.red : isOnOrder(p) ? C.amber : C.green }} />
+              <T size={12}>{!available ? tr('نفدت الكمية', 'Sold out') : isOnOrder(p) ? tr('بالطلب · نجيبها لك بعد الطلب', 'On order · we source it for you') : tr('تسليم فوري', 'Ready to deliver')}</T>
             </View>
             <View style={{ backgroundColor: C.surface, paddingHorizontal: 10, paddingVertical: 6 }}>
               <T size={12}>{tr('منتج أصلي ١٠٠٪', '100% authentic')}</T>

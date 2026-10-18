@@ -14,19 +14,35 @@ export function omr(v: unknown): string {
   return `OMR ${num(v).toFixed(3)}`;
 }
 
-/** The price the customer pays (sale price when set). */
+/**
+ * The dashboard's "discount price" is stored in compare_price. When it is
+ * lower than the price (and not expired) it is what the customer pays;
+ * a compare_price above the price is an old price shown crossed out.
+ */
+function discountActive(p: Product): boolean {
+  const compare = num(p.compare_price, 0);
+  if (!(compare > 0 && compare < num(p.price))) return false;
+  const until = p.discount_expires_at ? Date.parse(p.discount_expires_at) : NaN;
+  return Number.isNaN(until) || until > Date.now();
+}
+
+/** The price the customer pays. */
 export function productPrice(p: Product): number {
   const sale = num(p.sale_price, 0);
-  return sale > 0 ? sale : num(p.price);
+  if (sale > 0) return sale;
+  return discountActive(p) ? num(p.compare_price) : num(p.price);
 }
 
 /** The crossed-out price, only when it is higher than what they pay. */
 export function productWasPrice(p: Product): number | null {
   const price = productPrice(p);
-  const base = num(p.price);
-  const compare = num(p.compare_price, 0);
-  const was = Math.max(compare, num(p.sale_price, 0) > 0 ? base : 0);
+  const was = Math.max(num(p.price), num(p.compare_price, 0));
   return was > price ? was : null;
+}
+
+/** "instant" = with us now; "on_order" = we bring it after the order. */
+export function isOnOrder(p: Product): boolean {
+  return p.availability === 'on_order';
 }
 
 function parseJsonList<T>(v: unknown): T[] {
@@ -55,6 +71,7 @@ export function productAttributes(p: Product): ProductAttribute[] {
 }
 
 export function inStock(p: Product): boolean {
+  if (isOnOrder(p)) return true;
   return p.stock_quantity === undefined || p.stock_quantity === null || num(p.stock_quantity) > 0;
 }
 

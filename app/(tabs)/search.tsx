@@ -9,7 +9,8 @@ import { Icon } from '@/icons';
 import { useLang } from '@/lang';
 import { C, F, S } from '@/theme';
 import type { Brand, Category } from '@/types';
-import { Kicker, Photo, T } from '@/ui';
+import { Kicker, T } from '@/ui';
+import { CategoryArt } from '@/category-art';
 
 const W = Dimensions.get('window').width;
 const RECENT = 'search_recent_v1';
@@ -18,16 +19,11 @@ function brandName(b: Brand) {
   return (b.name_en || b.name_ar || '').trim();
 }
 
-/** Big editorial picture with the category name under it. */
-function Tile({ c, width, height, onPress }: { c: Category; width: number; height: number; onPress: () => void }) {
-  const { pick, tr } = useLang();
+/** Big tile drawn in the brand colours, with the category name on it. */
+function Tile({ c, index, width, height, onPress }: { c: Category; index: number; width: number; height: number; onPress: () => void }) {
   return (
     <Pressable onPress={onPress} accessibilityRole="button" style={({ pressed }) => ({ width, opacity: pressed ? 0.85 : 1 })}>
-      <Photo path={c.image || c.icon} label={c.name_en ?? ''} style={{ width, height }} />
-      <View style={{ paddingTop: 10, paddingBottom: 4, gap: 2 }}>
-        <T size={15} w="medium" lines={1}>{pick(c, 'name')}</T>
-        <T size={12} color={C.muted} style={{ textDecorationLine: 'underline' }}>{tr('تسوّق الآن', 'Shop now')}</T>
-      </View>
+      <CategoryArt c={c} index={index} width={width} height={height} />
     </Pressable>
   );
 }
@@ -154,9 +150,9 @@ export default function SearchTab() {
           {first ? (
             <View style={{ paddingHorizontal: S.gutter, gap: 18 }}>
               <Kicker>{tr('SHOP BY CATEGORY · تسوّق حسب الفئة', 'SHOP BY CATEGORY')}</Kicker>
-              <Tile c={first} width={W - S.gutter * 2} height={(W - S.gutter * 2) * 0.62} onPress={() => openCategory(first)} />
+              <Tile c={first} index={0} width={W - S.gutter * 2} height={(W - S.gutter * 2) * 0.62} onPress={() => openCategory(first)} />
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12, rowGap: 18 }}>
-                {rest.map((c) => <Tile key={c.id} c={c} width={half} height={half * 1.25} onPress={() => openCategory(c)} />)}
+                {rest.map((c, i) => <Tile key={c.id} c={c} index={i + 1} width={half} height={half * 1.15} onPress={() => openCategory(c)} />)}
               </View>
             </View>
           ) : null}

@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Alert, Animated, Modal, Pressable, ScrollView, View, type StyleProp, type ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useCart } from './cart';
-import { inStock, omr, productAttributes, productImages, productPrice, productWasPrice } from './format';
+import { inStock, isOnOrder, omr, productAttributes, productImages, productPrice, productWasPrice } from './format';
 import { Icon } from './icons';
 import { useLang } from './lang';
 import { rememberProduct } from './product-cache';
@@ -270,6 +270,12 @@ export function ProductCard({ product, width, style }: { product: Product; width
           <T latin size={13} w="medium" color={off ? C.red : C.ink}>{omr(price)}</T>
           {off ? <T latin size={11.5} color={C.faint} style={{ textDecorationLine: 'line-through' }}>{omr(was ?? 0)}</T> : null}
         </View>
+        {!out ? (
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 3 }}>
+            <View style={{ width: 5, height: 5, borderRadius: 3, backgroundColor: isOnOrder(product) ? C.amber : C.green }} />
+            <T size={10.5} color={C.muted}>{isOnOrder(product) ? tr('بالطلب', 'On order') : tr('تسليم فوري', 'Ready to deliver')}</T>
+          </View>
+        ) : null}
       </View>
     </Pressable>
   );

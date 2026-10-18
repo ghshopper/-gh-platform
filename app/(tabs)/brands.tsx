@@ -1,9 +1,7 @@
-import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { Pressable, RefreshControl, SectionList, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { imageUrl } from '@/api';
 import { useAppData } from '@/appdata';
 import { Icon } from '@/icons';
 import { useLang } from '@/lang';
@@ -55,9 +53,6 @@ export default function BrandsTab() {
         renderItem={({ item }) => (
           <Pressable onPress={() => router.push({ pathname: '/brand/[id]', params: { id: String(item.id) } })} accessibilityRole="button"
             style={({ pressed }) => ({ marginHorizontal: S.gutter, minHeight: 58, flexDirection: 'row', alignItems: 'center', gap: 14, borderBottomWidth: 1, borderBottomColor: C.line, opacity: pressed ? 0.6 : 1 })}>
-            <View style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}>
-              {item.logo ? <Image source={{ uri: imageUrl(item.logo) }} style={{ width: 40, height: 40 }} contentFit="contain" /> : null}
-            </View>
             <View style={{ flex: 1 }}>
               <T latin w="medium" size={13} spacing={1.8}>{(item.name_en ?? '').toUpperCase()}</T>
               {item.name_ar ? <T size={12} color={C.muted}>{item.name_ar}</T> : null}
