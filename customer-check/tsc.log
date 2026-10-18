@@ -1,1 +1,29 @@
-tsconfig.json(5,24): error TS5090: Non-relative paths are not allowed when 'baseUrl' is not set. Did you forget a leading './'?
+app/(tabs)/_layout.tsx(25,26): error TS7006: Parameter 'route' implicitly has an 'any' type.
+app/(tabs)/_layout.tsx(25,33): error TS7006: Parameter 'i' implicitly has an 'any' type.
+app/(tabs)/_layout.tsx(60,27): error TS2741: Property 'navigation' is missing in type '{ state: BottomTabViewState; descriptors: BottomTabDescriptorMap; emitter: { emit<EventName extends keyof BottomTabNavigationEventMap>(options: { ...; } & ... 1 more ... & DataField<...>): NavigatorEventArg<...>; }; navigateToTab: (routeKey: string) => void; insets: EdgeInsets; }' but required in type 'BottomTabBarProps'.
+app/(tabs)/index.tsx(138,9): error TS2322: Type 'RefObject<(((props: Omit<ScrollViewProps, "ref"> & { ref?: Ref<ScrollViewInstance> | undefined; }) => ReactNode) & Readonly<...>) | null>' is not assignable to type 'Ref<ScrollViewInstance> | undefined'.
+  Type 'RefObject<(((props: Omit<ScrollViewProps, "ref"> & { ref?: Ref<ScrollViewInstance> | undefined; }) => ReactNode) & Readonly<...>) | null>' is not assignable to type 'RefObject<ScrollViewInstance | null>'.
+    Type '(((props: Omit<ScrollViewProps, "ref"> & { ref?: Ref<ScrollViewInstance> | undefined; }) => ReactNode) & Readonly<{ ...; }>) | null' is not assignable to type 'ScrollViewInstance | null'.
+      Type '((props: Omit<ScrollViewProps, "ref"> & { ref?: Ref<ScrollViewInstance> | undefined; }) => ReactNode) & Readonly<{ Context: Context<...>; }>' is not assignable to type 'ScrollViewInstance | null'.
+app/location.tsx(58,10): error TS2769: No overload matches this call.
+  Overload 2 of 2, '(props: never, context: any): WebView<undefined>', gave the following error.
+    Type 'RefObject<WebView<undefined> | null>' is not assignable to type 'never'.
+  Overload 2 of 2, '(props: never, context: any): WebView<undefined>', gave the following error.
+    Type 'string[]' is not assignable to type 'never'.
+  Overload 2 of 2, '(props: never, context: any): WebView<undefined>', gave the following error.
+    Type '{ html: string; }' is not assignable to type 'never'.
+  Overload 2 of 2, '(props: never, context: any): WebView<undefined>', gave the following error.
+    Type '(e: any) => void' is not assignable to type 'never'.
+app/location.tsx(62,23): error TS7006: Parameter 'e' implicitly has an 'any' type.
+app/product/[id].tsx(38,105): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(props: VideoViewProps): VideoView', gave the following error.
+    Type '{ player: VideoPlayer; style: { width: number; height: number; }; contentFit: "cover"; nativeControls: true; allowsFullscreen: true; }' is not assignable to type 'IntrinsicAttributes & IntrinsicClassAttributes<VideoView> & Readonly<VideoViewProps>'.
+      Property 'allowsFullscreen' does not exist on type 'IntrinsicAttributes & IntrinsicClassAttributes<VideoView> & Readonly<VideoViewProps>'.
+  Overload 2 of 2, '(props: VideoViewProps, context: any): VideoView', gave the following error.
+    Type '{ player: VideoPlayer; style: { width: number; height: number; }; contentFit: "cover"; nativeControls: true; allowsFullscreen: true; }' is not assignable to type 'IntrinsicAttributes & IntrinsicClassAttributes<VideoView> & Readonly<VideoViewProps>'.
+      Property 'allowsFullscreen' does not exist on type 'IntrinsicAttributes & IntrinsicClassAttributes<VideoView> & Readonly<VideoViewProps>'.
+src/browse.tsx(264,11): error TS2322: Type 'Element | null' is not assignable to type 'Element | ComponentType<any> | undefined'.
+  Type 'null' is not assignable to type 'Element | ComponentType<any> | undefined'.
+src/browse.tsx(273,11): error TS2322: Type 'Element | null' is not assignable to type 'Element | ComponentType<any> | undefined'.
+  Type 'null' is not assignable to type 'Element | ComponentType<any> | undefined'.
+src/payment.ts(50,100): error TS2339: Property 'GOOGLE_PAY' does not exist on type 'typeof TransactionType'.
