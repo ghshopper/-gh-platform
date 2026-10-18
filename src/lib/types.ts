@@ -183,6 +183,9 @@ export interface MyOrder {
   tracking_token?: string | null;
   store_order_number?: string | null;
   driver?: { name: string; phone?: string | null } | null;
+  discount?: number | null;
+  discount_label?: string | null;
+  tax?: number | null;
   items: {
     brand?: string | null;
     name: string;
