@@ -20,11 +20,25 @@ Future<void> main() async {
   runApp(const GhApp());
 }
 
+const ghFont = 'IBMPlexSansArabic';
+
+/// The app's look: brand maroon, warm cream and the brand font everywhere.
 const ghTheme = CupertinoThemeData(
   brightness: Brightness.light,
   primaryColor: GH.burgundy,
   scaffoldBackgroundColor: GH.bg,
-  barBackgroundColor: Color(0xF0F9F9F9),
+  barBackgroundColor: Color(0xF2F7F3EE),
+  textTheme: CupertinoTextThemeData(
+    primaryColor: GH.burgundy,
+    textStyle: TextStyle(fontFamily: ghFont, fontSize: 16, color: GH.label),
+    actionTextStyle: TextStyle(fontFamily: ghFont, fontSize: 16, color: GH.burgundy),
+    tabLabelTextStyle: TextStyle(fontFamily: ghFont, fontSize: 10.5, fontWeight: FontWeight.w500),
+    navTitleTextStyle: TextStyle(fontFamily: ghFont, fontSize: 17, fontWeight: FontWeight.w600, color: GH.label),
+    navLargeTitleTextStyle: TextStyle(fontFamily: ghFont, fontSize: 32, fontWeight: FontWeight.w700, color: GH.label, letterSpacing: -0.3),
+    navActionTextStyle: TextStyle(fontFamily: ghFont, fontSize: 16.5, color: GH.burgundy),
+    pickerTextStyle: TextStyle(fontFamily: ghFont, fontSize: 21, color: GH.label),
+    dateTimePickerTextStyle: TextStyle(fontFamily: ghFont, fontSize: 21, color: GH.label),
+  ),
 );
 
 class GhApp extends StatelessWidget {

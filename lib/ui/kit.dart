@@ -64,7 +64,7 @@ class GHPage extends StatelessWidget {
                   trailing: trailing,
                   leading: leading,
                   previousPageTitle: previousPageTitle,
-                  backgroundColor: const Color(0xF0F2F2F7),
+                  backgroundColor: const Color(0xF2F7F3EE),
                   border: null,
                   transitionBetweenRoutes: false,
                 ),
@@ -269,7 +269,7 @@ class _PressableState extends State<Pressable> {
       onLongPress: widget.onLongPress,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 90),
-        color: _down ? const Color(0xFFE9E9EE) : const Color(0x00FFFFFF),
+        color: _down ? const Color(0xFFF1EAE1) : const Color(0x00FFFFFF),
         child: widget.child,
       ),
     );
@@ -491,21 +491,16 @@ class StatCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          gradient: hero
-              ? GH.brandGradient
-              : LinearGradient(
-                  begin: AlignmentDirectional.topStart,
-                  end: AlignmentDirectional.bottomEnd,
-                  colors: [color.withAlpha(34), color.withAlpha(10)],
-                ),
+          gradient: hero ? GH.brandGradient : null,
           color: hero ? null : GH.card,
           borderRadius: BorderRadius.circular(18),
+          border: hero ? null : Border.all(color: GH.separator),
           boxShadow: hero
               ? [
                   BoxShadow(
-                      color: GH.burgundy.withAlpha(70),
-                      blurRadius: 16,
-                      offset: const Offset(0, 6))
+                      color: GH.burgundyDeep.withAlpha(60),
+                      blurRadius: 18,
+                      offset: const Offset(0, 8))
                 ]
               : null,
         ),
@@ -519,21 +514,21 @@ class StatCard extends StatelessWidget {
                     width: 28,
                     height: 28,
                     decoration: BoxDecoration(
-                      color: hero ? CupertinoColors.white.withAlpha(40) : color,
+                      color: hero ? CupertinoColors.white.withAlpha(30) : color.withAlpha(24),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(icon,
-                        size: 16,
-                        color: hero ? GH.goldLight : CupertinoColors.white),
+                        size: 15,
+                        color: hero ? GH.goldLight : color),
                   ),
                 if (icon != null) const SizedBox(width: 8),
                 Expanded(
                     child: Text(label,
                         style: T.sub.copyWith(
                             color: hero
-                                ? CupertinoColors.white.withAlpha(210)
-                                : color.withAlpha(230),
-                            fontWeight: FontWeight.w600))),
+                                ? GH.goldLight
+                                : GH.secondary,
+                            fontWeight: FontWeight.w500))),
               ],
             ),
             const SizedBox(height: 10),
@@ -568,7 +563,7 @@ class PrimaryButton extends StatelessWidget {
       child: DecoratedBox(
         decoration: BoxDecoration(
           gradient: onPressed == null || busy ? null : GH.brandGradient,
-          color: onPressed == null || busy ? const Color(0xFFD9C3C8) : null,
+          color: onPressed == null || busy ? const Color(0xFFD8CBC3) : null,
           borderRadius: BorderRadius.circular(14),
           boxShadow: onPressed == null || busy
               ? null
@@ -619,7 +614,7 @@ class SecondaryButton extends StatelessWidget {
       height: 50,
       child: CupertinoButton(
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        color: const Color(0xFFF1E7E8),
+        color: const Color(0xFFF2EAE0),
         borderRadius: BorderRadius.circular(12),
         onPressed: onPressed,
         child: Row(

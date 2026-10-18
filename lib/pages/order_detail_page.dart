@@ -684,7 +684,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                         CupertinoButton(
                           padding: const EdgeInsets.symmetric(horizontal: 10),
                           minSize: 30,
-                          color: const Color(0xFFF1E7E8),
+                          color: const Color(0xFFF2EAE0),
                           borderRadius: BorderRadius.circular(8),
                           onPressed: _busy
                               ? null

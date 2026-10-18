@@ -612,7 +612,7 @@ class Order {
 
   /// 'app' or 'web' for online orders.
   final String? storeSource;
-  String get sourceLabel => storeSource == 'app' ? '📱 التطبيق' : '🌐 الموقع';
+  String get sourceLabel => storeSource == 'app' ? 'من التطبيق' : 'من الموقع';
 
   /// Paid online by card / Apple Pay (Amwal).
   final bool paidOnline;

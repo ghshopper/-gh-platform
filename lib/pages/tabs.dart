@@ -47,6 +47,7 @@ class _TabsState extends State<Tabs> {
             activeColor: GH.burgundy,
             inactiveColor: GH.tertiary,
             backgroundColor: const Color(0xF7FFFFFF),
+            border: const Border(top: BorderSide(color: GH.separator, width: 0.5)),
             onTap: (i) => setState(() => _index = i),
             items: const [
               BottomNavigationBarItem(
