@@ -116,13 +116,13 @@ export default function Categories() {
                 </View>
               }
               renderItem={({ item }) => (loading ? null : <ProductCard product={item} width={cardW} />)}
-              ListEmptyComponent={loading ? null : <Empty icon="box" title={tr('لا توجد قطع في هذا القسم حالياً', 'No pieces here yet')} />}
+              ListEmptyComponent={loading ? undefined : <Empty icon="box" title={tr('لا توجد قطع في هذا القسم حالياً', 'No pieces here yet')} />}
               ListFooterComponent={
                 !loading && items.length >= 20 ? (
                   <Pressable onPress={() => openAll(showing ?? current)} style={{ marginHorizontal: 16, marginTop: 4, height: 46, borderWidth: 1, borderColor: C.ink, alignItems: 'center', justifyContent: 'center' }}>
                     <T size={14}>{tr('عرض كل القطع', 'See all pieces')}</T>
                   </Pressable>
-                ) : null
+                ) : undefined
               }
             />
           ) : null}

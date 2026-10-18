@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Dimensions, Keyboard, Pressable, ScrollView, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppData } from '@/appdata';
@@ -39,7 +39,6 @@ export default function SearchTab() {
   const [query, setQuery] = useState('');
   const [focused, setFocused] = useState(false);
   const [recent, setRecent] = useState<string[]>([]);
-  const input = useRef<TextInput>(null);
 
   useEffect(() => {
     AsyncStorage.getItem(RECENT)
@@ -105,7 +104,6 @@ export default function SearchTab() {
         <View style={{ flex: 1, height: 50, borderWidth: 1, borderColor: focused ? C.ink : C.lineStrong, flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 14 }}>
           <Icon name="search" size={19} />
           <TextInput
-            ref={input}
             value={query}
             onChangeText={setQuery}
             onFocus={() => setFocused(true)}
@@ -124,7 +122,7 @@ export default function SearchTab() {
           ) : null}
         </View>
         {focused || query ? (
-          <Pressable onPress={() => { setQuery(''); Keyboard.dismiss(); input.current?.blur(); }} hitSlop={8}>
+          <Pressable onPress={() => { setQuery(''); Keyboard.dismiss(); }} hitSlop={8}>
             <T size={14}>{tr('إلغاء', 'Cancel')}</T>
           </Pressable>
         ) : null}
