@@ -426,10 +426,10 @@ class IconBox extends StatelessWidget {
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(size * 0.24),
+        color: color.withAlpha(26),
+        borderRadius: BorderRadius.circular(size * 0.3),
       ),
-      child: Icon(icon, size: size * 0.6, color: CupertinoColors.white),
+      child: Icon(icon, size: size * 0.56, color: color),
     );
   }
 }
