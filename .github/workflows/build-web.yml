@@ -1,0 +1,30 @@
+name: Build website
+on:
+  push:
+    branches: [web-src]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm install --no-audit --no-fund
+      - run: (npx tsc --noEmit -p . && npx vite build) 2>&1 | tee build.log; exit ${PIPESTATUS[0]}
+        shell: bash
+      - name: Publish build to the web-dist branch
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p /tmp/out && cp -r dist/. /tmp/out/ 2>/dev/null || true
+          cp build.log /tmp/out/build.log 2>/dev/null || true
+          echo "${{ job.status }} ${{ github.sha }}" > /tmp/out/status.txt
+          git config user.name ci && git config user.email ci@users.noreply.github.com
+          git checkout --orphan web-dist
+          git rm -rfq . && git clean -fdxq
+          cp -r /tmp/out/. .
+          git add -A && git commit -qm "web build ${{ github.sha }}" && git push -f -q origin web-dist
