@@ -45,13 +45,13 @@ export default function Shipping() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 16 }}>
         <div style={card}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 700, marginBottom: 6 }}><RiHome4Line /> لباب البيت</div>
-          <div style={{ color: '#6B7280', fontSize: 13, marginBottom: 12 }}>مندوبنا، أو نول / جيناكم للبيت</div>
+          <div style={{ color: '#6B7280', fontSize: 13, marginBottom: 12 }}>مسقط وبركاء: مندوبنا · باقي السلطنة: جيناكم للبيت</div>
           <input type="number" step="0.1" min="0" value={home} onChange={(e) => setHome(e.target.value)} style={input} />
           <div style={{ color: '#9CA3AF', fontSize: 12, marginTop: 6 }}>ر.ع.</div>
         </div>
         <div style={card}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 700, marginBottom: 6 }}><RiStore2Line /> استلام من فرع شركة التوصيل</div>
-          <div style={{ color: '#6B7280', fontSize: 13, marginBottom: 12 }}>نول أو جيناكم — العميل يستلم من فرعهم</div>
+          <div style={{ color: '#6B7280', fontSize: 13, marginBottom: 12 }}>العميل يستلم من مكتب جيناكم اللي يختاره</div>
           <input type="number" step="0.1" min="0" value={branch} onChange={(e) => setBranch(e.target.value)} style={input} />
           <div style={{ color: '#9CA3AF', fontSize: 12, marginTop: 6 }}>ر.ع.</div>
         </div>
