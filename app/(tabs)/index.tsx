@@ -12,7 +12,7 @@ import { useLoad } from '@/hooks';
 import { Icon, type IconName } from '@/icons';
 import { useLang } from '@/lang';
 import { ProductCard } from '@/product-card';
-import { C, S } from '@/theme';
+import { C, S, gridCardW } from '@/theme';
 import type { Category, HeroSlide, Product, SectionSetting } from '@/types';
 import { Btn, IconBtn, Kicker, Photo, SectionTitle, T } from '@/ui';
 import { CategoryArt } from '@/category-art';
@@ -54,7 +54,7 @@ function Hero({ slides }: { slides: HeroSlide[] }) {
             <Pressable onPress={() => item && openSlide(item, tr)} style={{ width: W }} accessibilityRole="button">
               <Image
                 source={item?.full_image_url ? { uri: imageUrl(item.full_image_url) } : require('../../assets/hero.jpg')}
-                style={{ width: W, height: 440 }}
+                style={{ width: W, height: W >= 700 ? Math.min(W * 0.62, 640) : 440 }}
                 contentFit="cover"
                 contentPosition={{ top: '30%' }}
                 transition={250}
@@ -127,7 +127,7 @@ export default function Home() {
   const loyalty = sections.loyalty_program;
   const loyaltySub = (loyalty?.card_settings as { subtitle_ar?: string; subtitle_en?: string } | undefined) ?? undefined;
 
-  const cardW = (W - S.gutter * 2 - 12) / 2;
+  const cardW = gridCardW(W, S.gutter);
   const products = (featured.data ?? []).slice(0, featuredCount);
   const sectionTitle = (s: SectionSetting | undefined, ar: string, en: string) => (s ? pick(s, 'title') : '') || tr(ar, en);
   const sectionAction = (s: SectionSetting | undefined) => (s ? pick(s, 'action_text') : '') || tr('عرض الكل', 'View all');

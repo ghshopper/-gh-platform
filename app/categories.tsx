@@ -6,7 +6,7 @@ import { useAppData } from '@/appdata';
 import { Icon } from '@/icons';
 import { useLang } from '@/lang';
 import { ProductCard } from '@/product-card';
-import { C } from '@/theme';
+import { C, gridCardW, gridCols } from '@/theme';
 import type { Category, Paginated, Product } from '@/types';
 import { Empty, Header, T } from '@/ui';
 import { BRAND, CategoryArt, CategoryIcon, kindOf } from '@/category-art';
@@ -46,7 +46,7 @@ export default function Categories() {
 
   const openAll = (c: Category) => router.push({ pathname: '/products', params: { category_id: String(c.id), title: pick(c, 'name') } });
   const contentW = W - RAIL;
-  const cardW = (contentW - 16 * 2 - 10) / 2;
+  const cardW = gridCardW(contentW, 16, 10);
   const children = current?.children ?? [];
   const showing = children.find((c) => c.id === sub) ?? current;
 
@@ -84,7 +84,7 @@ export default function Categories() {
               style={{ flex: 1 }}
               data={items}
               keyExtractor={(p) => String(p.id)}
-              numColumns={2}
+              numColumns={gridCols(contentW)}
               columnWrapperStyle={{ gap: 10, paddingHorizontal: 16 }}
               contentContainerStyle={{ gap: 20, paddingBottom: 40 }}
               ListHeaderComponent={

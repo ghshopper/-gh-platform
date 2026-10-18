@@ -6,7 +6,7 @@ import { useAppData } from './appdata';
 import { Icon } from './icons';
 import { useLang } from './lang';
 import { ProductCard } from './product-card';
-import { C, F, S } from './theme';
+import { C, F, S, gridCardW, gridCols } from './theme';
 import type { Paginated, Product } from './types';
 import { Btn, Empty, ErrorBox, Loader, T } from './ui';
 
@@ -229,7 +229,7 @@ export function ProductBrowser({ initial, header, showSearch = true, autoFocus, 
     (filters.max_price ? 1 : 0) +
     (filters.sort && filters.sort !== 'new' ? 1 : 0);
 
-  const cardW = (W - S.gutter * 2 - 12) / 2;
+  const cardW = gridCardW(W, S.gutter);
 
   return (
     <View style={{ flex: 1 }}>
@@ -271,7 +271,7 @@ export function ProductBrowser({ initial, header, showSearch = true, autoFocus, 
         <FlatList
           data={items}
           keyExtractor={(p) => String(p.id)}
-          numColumns={2}
+          numColumns={gridCols(W)}
           ListHeaderComponent={header ? <>{header}</> : undefined}
           columnWrapperStyle={{ gap: 12, paddingHorizontal: S.gutter }}
           contentContainerStyle={{ gap: 24, paddingTop: 18, paddingBottom: 40 }}

@@ -3,7 +3,7 @@ import { Dimensions, FlatList, RefreshControl, View } from 'react-native';
 import { useAuth } from '@/auth';
 import { useLang } from '@/lang';
 import { ProductCard } from '@/product-card';
-import { C, S } from '@/theme';
+import { C, S, gridCardW, gridCols } from '@/theme';
 import { Empty, Header } from '@/ui';
 import { useWishlist } from '@/wishlist';
 
@@ -13,7 +13,7 @@ export default function Wishlist() {
   const { tr } = useLang();
   const { loggedIn } = useAuth();
   const wish = useWishlist();
-  const cardW = (W - S.gutter * 2 - 12) / 2;
+  const cardW = gridCardW(W, S.gutter);
   return (
     <View style={{ flex: 1, backgroundColor: C.white }}>
       <Header title={tr('المفضلة', 'Wishlist')} />
@@ -23,7 +23,7 @@ export default function Wishlist() {
         <FlatList
           data={wish.products}
           keyExtractor={(p) => String(p.id)}
-          numColumns={2}
+          numColumns={gridCols(W)}
           columnWrapperStyle={{ gap: 12, paddingHorizontal: S.gutter }}
           contentContainerStyle={{ gap: 24, paddingVertical: 18 }}
           refreshControl={<RefreshControl refreshing={false} onRefresh={wish.reload} />}

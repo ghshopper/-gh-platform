@@ -20,6 +20,8 @@ import { BrandText, Btn, Divider, ErrorBox, Loader, Photo, Price, T } from '@/ui
 import { useWishlist } from '@/wishlist';
 
 const W = Dimensions.get('window').width;
+// Photo height: tall on iPhone, not taller than the screen allows on iPad.
+const PH = W >= 700 ? Math.min(W * 0.95, 860) : 520;
 const COMPANY_WA = '96877246972';
 
 interface Review { id: number; user_name: string; rating: number; comment?: string | null; date: string }
@@ -36,7 +38,7 @@ function RoundBtn({ icon, label, onPress, color = C.ink, fill }: { icon: 'back' 
 
 function ProductVideo({ url }: { url: string }) {
   const player = useVideoPlayer(url, (p) => { p.muted = true; p.loop = true; });
-  return <VideoView player={player} style={{ width: W, height: 520 }} contentFit="cover" nativeControls />;
+  return <VideoView player={player} style={{ width: W, height: PH }} contentFit="cover" nativeControls />;
 }
 
 function Stars({ value, size = 14, onChange }: { value: number; size?: number; onChange?: (v: number) => void }) {
@@ -172,7 +174,7 @@ export default function ProductScreen() {
                 <ProductVideo url={item.url} />
               ) : (
                 <Pressable onPress={() => item.path && setZoom(item.path)} accessibilityRole="imagebutton" accessibilityLabel={name}>
-                  <Photo path={item.path} label={brand} style={{ width: W, height: 520 }} />
+                  <Photo path={item.path} label={brand} style={{ width: W, height: PH }} />
                 </Pressable>
               )
             }
