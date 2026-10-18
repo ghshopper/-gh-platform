@@ -1,0 +1,99 @@
+name: Customer app · App Store screenshots
+
+# Builds the app for the iOS Simulator and takes App Store screenshots on the
+# largest iPhone and iPad (real app, live data). Runs on the customer-shots branch.
+on:
+  push:
+    branches: [customer-shots]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  shots:
+    runs-on: macos-26
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install JavaScript packages
+        run: (npm ci || npm install) 2>&1 | tail -5
+      - name: Generate the native iOS project
+        run: npx expo prebuild --platform ios --clean --no-install 2>&1 | tail -10
+      - name: CocoaPods
+        run: cd ios && pod install 2>&1 | tail -5
+      - name: Build for the Simulator
+        shell: bash
+        run: |
+          set -o pipefail
+          WS=$(ls -d ios/*.xcworkspace | head -1); SCHEME=$(basename "$WS" .xcworkspace)
+          xcodebuild -workspace "$WS" -scheme "$SCHEME" -configuration Release -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO ONLY_ACTIVE_ARCH=NO 2>&1 | tee build.log | grep -E "error:|BUILD (SUCCEEDED|FAILED)" | tail -30
+      - name: Take screenshots
+        shell: bash
+        run: |
+          set -x
+          APP=$(find build/Build/Products -name "*.app" -maxdepth 3 | head -1)
+          BID=$(/usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' "$APP/Info.plist")
+          PID=$(curl -s 'https://ghshopper.com/api/customer/products?per_page=40&sort_by=created_at&sort_order=desc' | python3 -c "
+          import sys,json
+          d=json.load(sys.stdin); rows=d.get('data',d) if isinstance(d,dict) else d
+          rows=rows.get('data',rows) if isinstance(rows,dict) else rows
+          pick=[p for p in rows if p.get('images')] or rows
+          print(pick[0]['id'] if pick else '')" || true)
+          echo "product: $PID"
+          xcrun simctl list devicetypes
+          mkdir -p shots
+          shoot() { # device-type-pattern folder
+            local TYPE=$(xcrun simctl list devicetypes | grep -E "$1" | tail -1 | sed -E 's/.*\((com\.apple[^)]*)\).*/\1/')
+            local RT=$(xcrun simctl list runtimes | grep -E '^iOS' | tail -1 | sed -E 's/.* - (com\.apple[^ ]*).*/\1/')
+            echo "$2 → $TYPE on $RT"
+            local UDID=$(xcrun simctl create "$2" "$TYPE" "$RT")
+            xcrun simctl boot "$UDID"; xcrun simctl bootstatus "$UDID" -b
+            xcrun simctl spawn "$UDID" defaults write -g AppleLanguages -array ar en
+            xcrun simctl spawn "$UDID" defaults write -g AppleLocale ar_OM
+            xcrun simctl status_bar "$UDID" override --time 9:41 --dataNetwork wifi --wifiBars 3 --cellularMode active --cellularBars 4 --batteryState charged --batteryLevel 100
+            xcrun simctl ui "$UDID" appearance light
+            xcrun simctl install "$UDID" "$APP"
+            xcrun simctl privacy "$UDID" grant all "$BID" || true
+            xcrun simctl launch "$UDID" "$BID"; sleep 25
+            # first launch switches the layout to right-to-left and reloads once
+            xcrun simctl terminate "$UDID" "$BID"; xcrun simctl launch "$UDID" "$BID"; sleep 25
+            mkdir -p "shots/$2"
+            xcrun simctl io "$UDID" screenshot "shots/$2/1-home.png"
+            for pair in "2-categories|ghshopper://categories" "3-product|ghshopper://product/$PID" "4-search|ghshopper://search" "5-brands|ghshopper://brands" "6-account|ghshopper://account" "7-bag|ghshopper://bag"; do
+              n=${pair%%|*}; u=${pair#*|}
+              xcrun simctl openurl "$UDID" "$u"; sleep 12
+              xcrun simctl io "$UDID" screenshot "shots/$2/$n.png"
+            done
+            xcrun simctl ui "$UDID" appearance dark
+            xcrun simctl openurl "$UDID" "ghshopper://"; sleep 10
+            xcrun simctl io "$UDID" screenshot "shots/$2/8-home-dark.png"
+            xcrun simctl openurl "$UDID" "ghshopper://product/$PID"; sleep 10
+            xcrun simctl io "$UDID" screenshot "shots/$2/9-product-dark.png"
+            xcrun simctl shutdown "$UDID"
+          }
+          shoot 'iPhone 1[0-9] Pro Max' iphone
+          shoot 'iPad Pro 13' ipad
+          ls -R shots
+      - name: Publish screenshots
+        if: always()
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p /tmp/out && cp -r shots/. /tmp/out/ 2>/dev/null || true
+          tail -n 300 build.log > /tmp/out/build.log 2>/dev/null || true
+          echo "${{ job.status }} ${{ github.sha }}" > /tmp/out/status.txt
+          git config user.name ci && git config user.email ci@users.noreply.github.com
+          git checkout --orphan customer-shots-out
+          git rm -rfq . && git clean -fdxq
+          cp -r /tmp/out/. .
+          git add -A && git commit -qm "shots ${{ github.sha }}" && git push -f -q origin customer-shots-out
