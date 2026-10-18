@@ -3,6 +3,9 @@ node -v; npm -v
 cd /tmp
 npx --yes create-expo-app@latest gh --template blank-typescript --yes
 cd gh
+echo 'legacy-peer-deps=true' > .npmrc
+npx expo --version
+grep '"react-native"\|"expo"\|"react"' package.json
 npx expo install expo-router react-native-safe-area-context react-native-screens expo-linking expo-constants expo-status-bar \
   expo-image expo-secure-store @react-native-async-storage/async-storage expo-image-picker expo-location react-native-webview \
   expo-font expo-splash-screen expo-localization expo-haptics expo-clipboard expo-sharing expo-web-browser expo-file-system \
@@ -22,3 +25,4 @@ mkdir -p "$GITHUB_WORKSPACE/ci-out/amwal-types" && find node_modules/react-amwal
 cp node_modules/react-amwal-pay/package.json "$GITHUB_WORKSPACE/ci-out/amwal-package.json" || true
 ls node_modules/react-amwal-pay/*.podspec node_modules/react-amwal-pay/ios 2>/dev/null | head
 cat node_modules/react-amwal-pay/*.podspec 2>/dev/null | head -60
+# rerun 1792327856
