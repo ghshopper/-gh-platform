@@ -399,7 +399,10 @@ class _DeliveryPageState extends State<DeliveryPage> {
     setState(() => _saving = true);
     try {
       final addr = _address.text.trim();
-      final trk = _tracking.text.trim();
+      // Accepts the courier's whole SMS: keeps just the link if there is one.
+      final raw = _tracking.text.trim();
+      final link = RegExp(r'https?://\S+').firstMatch(raw)?.group(0);
+      final trk = link ?? raw;
       await Store.i.updateOrder(_o.id, {
         'delivery_method': _method.name,
         'delivery_fee': parseAmount(_fee.text) ?? 0,
@@ -447,9 +450,9 @@ class _DeliveryPageState extends State<DeliveryPage> {
             AmountRow(label: 'رسوم التوصيل', controller: _fee),
             if (_method.isCourier)
               FieldRow(
-                label: 'رقم الشحنة',
+                label: 'رابط التتبّع',
                 controller: _tracking,
-                placeholder: 'من ${_method.label}',
+                placeholder: 'الصق رسالة ${_method.label} أو الرابط',
                 ltr: true,
               ),
           ],

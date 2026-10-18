@@ -480,8 +480,10 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                       : null,
                   subtitle: o.deliveryMethod?.isCourier == true
                       ? (o.carrierTracking == null
-                          ? 'أضف رقم الشحنة'
-                          : 'رقم الشحنة ${o.carrierTracking}')
+                          ? 'أضف رابط التتبّع'
+                          : o.carrierIsLink
+                              ? 'رابط التتبّع محفوظ ✓'
+                              : 'رقم الشحنة ${o.carrierTracking}')
                       : o.driverId == null
                       ? null
                       : [

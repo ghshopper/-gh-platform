@@ -540,8 +540,11 @@ class Order {
   final DateTime? labelPrintedAt;
   final DeliveryMethod? deliveryMethod;
 
-  /// Shipment number from Nool / Genacom.
+  /// Shipment number or tracking link from Nool / Genacom.
   final String? carrierTracking;
+
+  bool get carrierIsLink =>
+      carrierTracking != null && carrierTracking!.startsWith(RegExp(r'https?://'));
 
   /// What happened to the order, oldest first.
   final List<OrderEvent> events;

@@ -164,7 +164,7 @@ Future<Uint8List> buildWaybillPdf(
                   pw.Text('التوصيل: ${o.deliveryMethod!.label}',
                       style: st(10, font: bold)),
                   pw.Spacer(),
-                  if (o.carrierTracking != null)
+                  if (o.carrierTracking != null && !o.carrierIsLink)
                     pw.Text(o.carrierTracking!,
                         textDirection: pw.TextDirection.ltr,
                         style: st(9, font: medium)),

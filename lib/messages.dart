@@ -70,7 +70,7 @@ final List<MsgTemplate> messageTemplates = [
     final company = o.deliveryMethod?.label ?? 'شركة الشحن';
     return '${_hi(c)}\n'
         'تم شحن ${_g(c, 'طلبكِ', 'طلبك')} ${o.invoiceNo} مع $company 📦\n'
-        '${o.carrierTracking == null ? '' : 'رقم الشحنة: ${o.carrierTracking}\n'}'
+        '${o.carrierTracking == null ? '' : o.carrierIsLink ? 'تتبّع الشحنة مع $company:\n${o.carrierTracking}\n\n' : 'رقم الشحنة: ${o.carrierTracking}\n'}'
         'تتبّع${_g(c, 'ي', '')} ${_g(c, 'طلبكِ', 'طلبك')} من هنا:\n'
         '${trackingLink(o)}';
   }),
