@@ -30,6 +30,23 @@ export default function Products() {
   const [currentPage, setCurrentPage] = useState(1)
   const [lastPage, setLastPage] = useState(1)
   const [totalItems, setTotalItems] = useState(0)
+  const [selected, setSelected] = useState([])
+  const [bulkBusy, setBulkBusy] = useState(false)
+
+  const setAvailability = async (availability) => {
+    if (!selected.length) return
+    setBulkBusy(true)
+    try {
+      await api.post('/admin/products/bulk-availability', { ids: selected, availability })
+      setProducts(list => list.map(p => selected.includes(p.id) ? { ...p, availability } : p))
+      toast.success(`تم تحديث ${selected.length} منتج`)
+      setSelected([])
+    } catch {
+      toast.error('تعذّر التحديث')
+    } finally {
+      setBulkBusy(false)
+    }
+  }
 
   const emptyForm = {
     name_ar: '', name_en: '',
@@ -42,7 +59,8 @@ export default function Products() {
     gallery_images: [],
     attributes: [],
     is_featured: 0,
-    delivery_badge: ''
+    delivery_badge: '',
+    availability: 'instant'
   }
   const [formData, setFormData] = useState(emptyForm)
   const [imgPreview, setImgPreview] = useState('')
@@ -66,7 +84,7 @@ export default function Products() {
   const fetchProducts = async (page = 1) => {
     try {
       setLoading(true)
-      const prodRes = await api.get(`/admin/products?page=${page}&per_page=10`)
+      const prodRes = await api.get(`/admin/products?page=${page}&per_page=50`)
       setProducts(prodRes.data.data || prodRes.data || [])
       setCurrentPage(prodRes.data.current_page || 1)
       setLastPage(prodRes.data.last_page || 1)
@@ -228,6 +246,7 @@ export default function Products() {
       })(),
       is_featured: product.is_featured || 0,
       delivery_badge: product.delivery_badge || '',
+      availability: product.availability || 'instant',
       discount_expires_at: product.discount_expires_at ? product.discount_expires_at.slice(0, 16) : ''
     })
     setImgPreview(getImageUrl(product.primary_image))
@@ -455,6 +474,17 @@ export default function Products() {
                     <option value="">بدون ماركة</option>
                     {brands.map(b => <option key={b.id} value={b.id}>{b.name_ar}</option>)}
                   </select>
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#6B7280', marginBottom: 8 }}>التوفر (يظهر في التطبيق)</label>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    {[['instant', '⚡ تسليم فوري'], ['on_order', '🕓 بالطلب']].map(([k, l]) => (
+                      <button type="button" key={k} onClick={() => setFormData(f => ({ ...f, availability: k }))}
+                        style={{ flex: 1, padding: '11px 10px', borderRadius: 10, fontSize: 14, fontFamily: 'inherit', cursor: 'pointer', fontWeight: 700,
+                          border: formData.availability === k ? '1.5px solid var(--color-primary)' : '1.5px solid #E5E7EB',
+                          background: formData.availability === k ? 'rgba(74,13,23,0.06)' : '#fff', color: formData.availability === k ? 'var(--color-primary)' : '#374151' }}>{l}</button>
+                    ))}
+                  </div>
                 </div>
                 <div>
                   <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#6B7280', marginBottom: 8 }}>شارة التوصيل (Delivery Badge)</label>
@@ -741,6 +771,17 @@ export default function Products() {
         </select>
       </div>
 
+      {/* Bulk actions */}
+      {selected.length > 0 && (
+        <div style={{ position: 'sticky', top: 12, zIndex: 20, background: '#111', color: '#fff', borderRadius: 12, padding: '12px 18px', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', boxShadow: '0 8px 24px rgba(0,0,0,0.18)' }}>
+          <strong style={{ fontSize: 14 }}>{selected.length} منتج محدد</strong>
+          <span style={{ opacity: 0.6, fontSize: 13 }}>غيّر التوفر إلى:</span>
+          <button disabled={bulkBusy} onClick={() => setAvailability('instant')} style={{ background: '#16804A', color: '#fff', border: 'none', borderRadius: 8, padding: '8px 14px', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>⚡ تسليم فوري</button>
+          <button disabled={bulkBusy} onClick={() => setAvailability('on_order')} style={{ background: '#C26A00', color: '#fff', border: 'none', borderRadius: 8, padding: '8px 14px', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>🕓 بالطلب</button>
+          <button onClick={() => setSelected([])} style={{ marginInlineStart: 'auto', background: 'transparent', color: '#fff', border: '1px solid rgba(255,255,255,0.3)', borderRadius: 8, padding: '7px 12px', cursor: 'pointer', fontFamily: 'inherit' }}>إلغاء التحديد</button>
+        </div>
+      )}
+
       {/* Table */}
       <div className="table-container" style={{ background: '#fff', borderRadius: 16, boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1px solid #F3F4F6' }}>
         {loading ? (
@@ -749,21 +790,27 @@ export default function Products() {
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ background: '#FAFAFA', borderBottom: '1px solid #F3F4F6' }}>
-                <th style={{ width: 44, padding: '14px 20px' }}><input type="checkbox" /></th>
-                {['المنتج', 'الفئة', 'السعر (OMR)', 'المخزون', 'الحالة', 'الإجراءات'].map(h => (
+                <th style={{ width: 44, padding: '14px 20px' }}>
+                  <input type="checkbox" checked={filteredProducts.length > 0 && filteredProducts.every(p => selected.includes(p.id))}
+                    onChange={e => setSelected(e.target.checked ? filteredProducts.map(p => p.id) : [])} />
+                </th>
+                {['المنتج', 'الفئة', 'السعر (OMR)', 'المخزون', 'التوفر', 'الحالة', 'الإجراءات'].map(h => (
                   <th key={h} style={{ padding: '14px 20px', fontSize: 12, fontWeight: 700, color: '#9CA3AF', textAlign: 'right', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {filteredProducts.length === 0 ? (
-                <tr><td colSpan={7} style={{ textAlign: 'center', padding: 80, color: '#9CA3AF', fontSize: 15 }}>لا توجد منتجات مطابقة.</td></tr>
+                <tr><td colSpan={8} style={{ textAlign: 'center', padding: 80, color: '#9CA3AF', fontSize: 15 }}>لا توجد منتجات مطابقة.</td></tr>
               ) : filteredProducts.map(p => (
                 <tr key={p.id} style={{ borderBottom: '1px solid #F9FAFB', transition: 'background 0.15s' }}
                   onMouseEnter={e => e.currentTarget.style.background = '#FAFAFA'}
                   onMouseLeave={e => e.currentTarget.style.background = '#fff'}
                 >
-                  <td style={{ padding: '14px 20px' }}><input type="checkbox" /></td>
+                  <td style={{ padding: '14px 20px' }}>
+                    <input type="checkbox" checked={selected.includes(p.id)}
+                      onChange={e => setSelected(s => e.target.checked ? [...s, p.id] : s.filter(x => x !== p.id))} />
+                  </td>
                   <td style={{ padding: '14px 20px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
                       <div style={{ width: 52, height: 52, borderRadius: 10, background: '#F3F4F6', overflow: 'hidden', flexShrink: 0 }}>
@@ -804,6 +851,13 @@ export default function Products() {
                   <td style={{ padding: '14px 20px' }}>
                     <span style={{ fontWeight: 700, color: p.stock_quantity > 0 ? '#10B981' : '#EF4444', fontFamily: 'sans-serif', fontSize: 14 }}>
                       {p.stock_quantity > 0 ? p.stock_quantity : 'نفذ'}
+                    </span>
+                  </td>
+                  <td style={{ padding: '14px 20px' }}>
+                    <span style={{ padding: '5px 12px', borderRadius: 20, fontSize: 11, fontWeight: 700, whiteSpace: 'nowrap',
+                      background: p.availability === 'on_order' ? 'rgba(194,106,0,0.1)' : 'rgba(16,128,74,0.1)',
+                      color: p.availability === 'on_order' ? '#C26A00' : '#16804A' }}>
+                      {p.availability === 'on_order' ? 'بالطلب' : 'تسليم فوري'}
                     </span>
                   </td>
                   <td style={{ padding: '14px 20px' }}>
