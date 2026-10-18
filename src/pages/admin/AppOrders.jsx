@@ -24,6 +24,7 @@ const DRIVER_STATUS = {
   picked:   { label: 'في الطريق', color: '#C26A00' },
   delivered:{ label: 'سلّمها المندوب', color: '#16804A' },
 }
+const METHOD = { home: 'إلى البيت', office: 'إلى المكتب', nool: 'نول', genacom: 'جيناكم' }
 const EVENT_LABEL = {
   created: 'تم إنشاء الطلب', purchased: 'تم الشراء', arrived: 'وصل مسقط', out_for_delivery: 'خرج للتوصيل',
   label: 'طُبعت البوليصة', assigned: 'سُلّم للمندوب', unassigned: 'سُحب من المندوب',
@@ -208,7 +209,7 @@ export default function AppOrders() {
                       <td style={{ ...td, fontWeight: 700 }}>{omr(t.total)}</td>
                       <td style={{ ...td, color: t.remaining > 0.0005 ? '#E5383B' : '#16804A', fontWeight: 600 }}>{t.remaining > 0.0005 ? omr(t.remaining) : 'مدفوع'}</td>
                       <td style={td}><Pill {...st} /></td>
-                      <td style={td}>{ds ? <span style={{ color: ds.color, fontWeight: 600, fontSize: 13 }}>{ds.label} · {drivers[o.driver_id]?.name || ''}</span> : <span style={{ color: '#cbd5e1' }}>—</span>}</td>
+                      <td style={td}>{['nool', 'genacom'].includes(o.delivery_method) ? <span style={{ color: '#A8833F', fontWeight: 600, fontSize: 13 }}>شحن {METHOD[o.delivery_method]}{o.carrier_tracking ? ` · ${o.carrier_tracking}` : ''}</span> : ds ? <span style={{ color: ds.color, fontWeight: 600, fontSize: 13 }}>{ds.label} · {drivers[o.driver_id]?.name || ''}</span> : <span style={{ color: '#cbd5e1' }}>—</span>}</td>
                       <td style={td} onClick={(e) => e.stopPropagation()}>
                         <button title="طباعة البوليصة" onClick={() => printWaybill(o)} style={iconBtn}><RiPrinterLine size={18} /></button>
                       </td>
@@ -295,7 +296,9 @@ function OrderDetail({ o, c, driver, busy, onStatus, onPrint }) {
       </Card>
 
       <Card title="التوصيل" icon={<RiTruckLine />}>
-        <Row k="المندوب" v={driver?.name || 'ما أُسند'} />
+        {o.delivery_method && <Row k="الطريقة" v={METHOD[o.delivery_method]} />}
+        {o.carrier_tracking && <Row k="رقم الشحنة" v={o.carrier_tracking} />}
+        {!['nool', 'genacom'].includes(o.delivery_method) && <Row k="المندوب" v={driver?.name || 'ما أُسند'} />}
         {o.driver_status && <Row k="الحالة" v={DRIVER_STATUS[o.driver_status]?.label} />}
         <Row k="رسوم التوصيل" v={o.delivery_collect ? `يحصّلها المندوب (${omr(o.delivery_fee)})` : 'مدفوعة مسبقاً'} />
         {o.delivery_address && <Row k="العنوان" v={o.delivery_address} />}
@@ -421,6 +424,7 @@ async function printLabel(o, c, biz, driverName) {
   <div style="text-align:center"><img src="${qr}" style="width:27mm;height:27mm"><div class="en">امسح للتتبّع</div></div>
 </div>
 <div class="box row ${collect ? 'cod' : ''}"><div><div style="font-size:10pt;font-weight:800">${collect ? 'حصّل عند التسليم' : 'التوصيل مدفوع'}</div><div class="en" style="${collect ? 'color:#fff' : ''}">${collect ? 'CASH ON DELIVERY' : 'PREPAID'}</div></div><div class="sp"></div>${collect ? `<div class="big num">${Number(o.delivery_fee).toFixed(3)} OMR</div>` : ''}</div>
+${o.delivery_method ? `<div class="box row"><div class="sp" style="font-size:10pt;font-weight:800">التوصيل: ${METHOD[o.delivery_method]}</div>${o.carrier_tracking ? `<div class="num" style="font-size:9pt;font-weight:600">${esc(o.carrier_tracking)}</div>` : ''}</div>` : ''}
 <div class="box"><div class="row"><div class="sp lbl">الفاتورة <span class="en num">${esc(invoiceNo(o))}</span></div><div style="font-size:8pt;font-weight:600">${pieces} قطعة</div></div>
 <div class="row" style="font-size:7.5pt;color:#555;margin-top:1mm"><div class="sp">التاريخ ${dateStr(o.created_at)}</div>${driverName ? `<div style="color:#000;font-weight:600">المندوب: ${esc(driverName)}</div>` : ''}</div>
 ${o.driver_note ? `<div style="font-size:8pt;font-weight:600;margin-top:1mm">ملاحظة: ${esc(o.driver_note)}</div>` : ''}</div>
