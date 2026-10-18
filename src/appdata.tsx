@@ -59,9 +59,10 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
         next.delivery = {
           home_fee: num(delivery.value.home_fee, DEFAULT_DELIVERY.home_fee),
           branch_fee: num(delivery.value.branch_fee, DEFAULT_DELIVERY.branch_fee),
-          branches: Array.isArray((delivery.value as { genacom_branches?: unknown }).genacom_branches)
-            ? ((delivery.value as { genacom_branches: GenacomBranch[] }).genacom_branches)
-            : GENACOM_BRANCHES,
+          branches: (() => {
+            const gb = (delivery.value as unknown as { genacom_branches?: unknown }).genacom_branches;
+            return Array.isArray(gb) && gb.length ? (gb as GenacomBranch[]) : GENACOM_BRANCHES;
+          })(),
         };
       }
       if (fp.status === 'fulfilled') {
