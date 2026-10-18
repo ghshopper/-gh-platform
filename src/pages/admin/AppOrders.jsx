@@ -93,6 +93,10 @@ export default function AppOrders() {
       arrived: items.filter((i) => i.status === 'arrived').length,
       withDrivers: orders.filter((o) => o.driver_id && o.driver_status !== 'delivered').length,
       owed: orders.reduce((s, o) => s + Math.max(0, totals(o).remaining), 0),
+      monthSales: orders.filter((o) => {
+        const d = new Date(o.created_at); const n = new Date()
+        return d.getFullYear() === n.getFullYear() && d.getMonth() === n.getMonth()
+      }).reduce((s, o) => s + totals(o).items, 0),
     }
   }, [orders])
 
@@ -101,7 +105,8 @@ export default function AppOrders() {
     return orders.filter((o) => {
       const st = overall(o)
       if (filter === 'open' && (st === 'delivered' || st === 'cancelled')) return false
-      if (filter !== 'open' && filter !== 'all' && filter !== 'unpaid' && st !== filter) return false
+      if (filter === 'website' && o.source !== 'store') return false
+      if (!['open', 'all', 'unpaid', 'website'].includes(filter) && st !== filter) return false
       if (filter === 'unpaid' && totals(o).remaining <= 0.0005) return false
       if (!q) return true
       const c = customers[o.customer_id]
@@ -133,7 +138,7 @@ export default function AppOrders() {
   }
 
   const tabs = [
-    ['open', 'المفتوحة'], ['requested', 'بانتظار الشراء'], ['purchased', 'تم الشراء'],
+    ['open', 'المفتوحة'], ['website', 'من الموقع'], ['requested', 'بانتظار الشراء'], ['purchased', 'تم الشراء'],
     ['arrived', 'وصلت'], ['out_for_delivery', 'خرجت للتوصيل'], ['unpaid', 'عليها مبالغ'], ['delivered', 'المسلّمة'], ['all', 'الكل'],
   ]
 
@@ -141,9 +146,9 @@ export default function AppOrders() {
     <div style={{ direction: 'rtl' }}>
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, marginBottom: 24, flexWrap: 'wrap' }}>
         <div>
-          <h1 style={{ fontSize: 28, fontWeight: 900, color: '#1e293b', margin: 0 }}>طلبات التطبيق</h1>
+          <h1 style={{ fontSize: 28, fontWeight: 900, color: '#1e293b', margin: 0 }}>كل الطلبات</h1>
           <p style={{ color: '#64748b', margin: '8px 0 0', fontSize: 14 }}>
-            الطلبات الخاصة من تطبيق الإدارة: القطع، الشراء، الدفعات والتوصيل
+            طلبات الموقع وتطبيق العملاء وتطبيق الإدارة في مكان واحد: الشراء، الدفعات والتوصيل
           </p>
         </div>
         <button onClick={load} style={btn('#fff', 'var(--color-primary)', true)}>
@@ -152,7 +157,8 @@ export default function AppOrders() {
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 14, marginBottom: 24 }}>
-        <Stat label="طلبات مفتوحة" value={stats.open} color="#4A0D17" hero />
+        <Stat label="مبيعات الشهر" value={omr(stats.monthSales)} color="#4A0D17" hero />
+        <Stat label="طلبات مفتوحة" value={stats.open} color="#7A1530" />
         <Stat label="قطع تنتظر الشراء" value={stats.toBuy} color="#2F7CF6" />
         <Stat label="قطع وصلت" value={stats.arrived} color="#16804A" />
         <Stat label="مع المناديب" value={stats.withDrivers} color="#C26A00" />
@@ -203,7 +209,7 @@ export default function AppOrders() {
                     <tr key={o.id} onClick={() => setOpenId(o.id)} style={{ borderTop: '1px solid #f4efe9', cursor: 'pointer' }}
                       onMouseEnter={(e) => (e.currentTarget.style.background = '#fffaf6')}
                       onMouseLeave={(e) => (e.currentTarget.style.background = '')}>
-                      <td style={td}><div style={{ fontWeight: 700, direction: 'ltr', textAlign: 'right' }}>{invoiceNo(o)}</div><div style={{ color: '#94a3b8', fontSize: 12 }}>{dateStr(o.created_at)}</div></td>
+                      <td style={td}><div style={{ fontWeight: 700, direction: 'ltr', textAlign: 'right' }}>{invoiceNo(o)}</div>{o.source === 'store' && <div style={{ fontSize: 11, fontWeight: 700, color: '#2F7CF6' }}>🌐 الموقع {o.store_order_number}</div>}<div style={{ color: '#94a3b8', fontSize: 12 }}>{dateStr(o.created_at)}</div></td>
                       <td style={td}><div style={{ fontWeight: 600 }}>{c?.name || '—'}</div><div style={{ color: '#94a3b8', fontSize: 12, direction: 'ltr', textAlign: 'right' }}>{c?.phone || ''}</div></td>
                       <td style={td}>{o.items.filter((i) => i.status !== 'cancelled').length}</td>
                       <td style={{ ...td, fontWeight: 700 }}>{omr(t.total)}</td>
@@ -402,7 +408,8 @@ async function printLabel(o, c, biz, driverName) {
   const canvas = document.createElement('canvas')
   JsBarcode(canvas, o.waybill_no, { format: 'CODE128', displayValue: false, height: 70, margin: 0, width: 2.4 })
   const barcode = canvas.toDataURL('image/png')
-  const collect = o.delivery_collect && o.delivery_fee > 0
+  const codAmount = o.cod_amount != null ? o.cod_amount : (o.delivery_collect && o.delivery_fee > 0 ? o.delivery_fee : 0)
+  const collect = codAmount > 0
   const pieces = o.items.filter((i) => i.status !== 'cancelled').length
   const address = o.delivery_address || c?.address || ''
   const html = `<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>${esc(o.waybill_no)}</title>
@@ -425,7 +432,7 @@ async function printLabel(o, c, biz, driverName) {
     <div style="font-size:8pt">${esc(address)}</div></div>
   <div style="text-align:center"><img src="${qr}" style="width:27mm;height:27mm"><div class="en">امسح للتتبّع</div></div>
 </div>
-<div class="box row ${collect ? 'cod' : ''}"><div><div style="font-size:10pt;font-weight:800">${collect ? 'حصّل عند التسليم' : 'التوصيل مدفوع'}</div><div class="en" style="${collect ? 'color:#fff' : ''}">${collect ? 'CASH ON DELIVERY' : 'PREPAID'}</div></div><div class="sp"></div>${collect ? `<div class="big num">${Number(o.delivery_fee).toFixed(3)} OMR</div>` : ''}</div>
+<div class="box row ${collect ? 'cod' : ''}"><div><div style="font-size:10pt;font-weight:800">${collect ? 'حصّل عند التسليم' : 'التوصيل مدفوع'}</div><div class="en" style="${collect ? 'color:#fff' : ''}">${collect ? 'CASH ON DELIVERY' : 'PREPAID'}</div></div><div class="sp"></div>${collect ? `<div class="big num">${Number(codAmount).toFixed(3)} OMR</div>` : ''}</div>
 ${o.delivery_method ? `<div class="box row"><div class="sp" style="font-size:10pt;font-weight:800">التوصيل: ${METHOD[o.delivery_method]}</div>${o.carrier_tracking && !/^https?:/.test(o.carrier_tracking) ? `<div class="num" style="font-size:9pt;font-weight:600">${esc(o.carrier_tracking)}</div>` : ''}</div>` : ''}
 <div class="box"><div class="row"><div class="sp lbl">الفاتورة <span class="en num">${esc(invoiceNo(o))}</span></div><div style="font-size:8pt;font-weight:600">${pieces} قطعة</div></div>
 <div class="row" style="font-size:7.5pt;color:#555;margin-top:1mm"><div class="sp">التاريخ ${dateStr(o.created_at)}</div>${driverName ? `<div style="color:#000;font-weight:600">المندوب: ${esc(driverName)}</div>` : ''}</div>

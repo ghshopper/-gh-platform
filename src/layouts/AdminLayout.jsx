@@ -34,7 +34,7 @@ import {
 const navItems = [
   { label: 'الرئيسية',    icon: RiHome5Line, path: '/admin/dashboard' },
   { label: 'الطلبات',     icon: RiFileList3Line, path: '/admin/orders' },
-  { label: 'طلبات التطبيق', icon: RiShoppingBag3Line, path: '/admin/app-orders' },
+  { label: 'كل الطلبات', icon: RiShoppingBag3Line, path: '/admin/app-orders' },
   { label: 'العملاء',     icon: RiGroupLine, path: '/admin/customers' },
   { label: 'إرسال إشعارات', icon: RiNotification3Fill, path: '/admin/notify-users' },
   { 
