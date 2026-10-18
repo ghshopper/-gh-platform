@@ -7,7 +7,7 @@ import {
 } from '@expo-google-fonts/ibm-plex-sans-arabic';
 import { Jost_400Regular, Jost_500Medium } from '@expo-google-fonts/jost';
 import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
+import { router, Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
@@ -18,7 +18,8 @@ import { AppearanceProvider, useAppearance } from '@/appearance';
 import { AuthProvider, useAuth } from '@/auth';
 import { CartProvider } from '@/cart';
 import { LangProvider, useLang } from '@/lang';
-import { QuickAddHost } from '@/product-card';
+import { QuickAddHost, showToast } from '@/product-card';
+import { listenForPushes } from '@/push';
 import { BrandSplash } from '@/splash';
 import { C } from '@/theme';
 import { WishlistProvider } from '@/wishlist';
@@ -33,6 +34,19 @@ function Shell() {
 
   useEffect(() => {
     if (ready) SplashScreen.hideAsync().catch(() => undefined);
+  }, [ready]);
+
+  // Order updates: tapping the notification opens My orders.
+  useEffect(() => {
+    if (!ready) return;
+    return listenForPushes(
+      (data) => {
+        const t = data.type ?? '';
+        if (data.order_id || t.startsWith('order')) router.push('/orders');
+        else router.push('/notifications');
+      },
+      (title, body) => showToast([title, body].filter(Boolean).join(' · '), false),
+    );
   }, [ready]);
 
   return (

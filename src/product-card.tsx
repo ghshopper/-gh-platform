@@ -32,14 +32,15 @@ export function openProduct(p: Product) {
 
 type Listener = (p: Product | null) => void;
 let sheetListener: Listener | null = null;
-let toastListener: ((text: string) => void) | null = null;
+let toastListener: ((text: string, bagLink: boolean) => void) | null = null;
 
 export function quickAdd(p: Product) {
   sheetListener?.(p);
 }
 
-export function showToast(text: string) {
-  toastListener?.(text);
+/** Small dark bar at the bottom; `bagLink` adds "View bag". */
+export function showToast(text: string, bagLink = true) {
+  toastListener?.(text, bagLink);
 }
 
 function selectableOf(p: Product) {
@@ -75,6 +76,7 @@ export function QuickAddHost() {
   const [chosen, setChosen] = useState<Record<string, string>>({});
   const [missing, setMissing] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
+  const [bagLink, setBagLink] = useState(true);
   const fade = useRef(new Animated.Value(0)).current;
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -84,8 +86,9 @@ export function QuickAddHost() {
       setMissing(null);
       setProduct(p);
     };
-    toastListener = (text) => {
+    toastListener = (text, link) => {
       setToast(text);
+      setBagLink(link);
       if (timer.current) clearTimeout(timer.current);
       Animated.timing(fade, { toValue: 1, duration: 180, useNativeDriver: true }).start();
       timer.current = setTimeout(() => {
@@ -169,11 +172,13 @@ export function QuickAddHost() {
       {toast ? (
         <Animated.View pointerEvents="box-none" style={[{ position: 'absolute', left: 16, right: 16, bottom: S.tabBar + insets.bottom * 0.4, opacity: fade, transform: [{ translateY: fade.interpolate({ inputRange: [0, 1], outputRange: [12, 0] }) }] }, dir]}>
           <View style={{ backgroundColor: C.ink, paddingHorizontal: 16, minHeight: 52, flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-            <Icon name="check" size={18} color={C.white} stroke={1.8} />
-            <T size={14} color={C.white} style={{ flex: 1 }}>{toast}</T>
-            <Pressable onPress={() => router.navigate('/bag')} hitSlop={10} accessibilityRole="button">
-              <T size={13} color={C.white} w="medium" style={{ textDecorationLine: 'underline' }}>{tr('عرض السلة', 'View bag')}</T>
-            </Pressable>
+            <Icon name={bagLink ? 'check' : 'bell'} size={18} color={C.white} stroke={1.8} />
+            <T size={14} color={C.white} style={{ flex: 1 }} lines={3}>{toast}</T>
+            {bagLink ? (
+              <Pressable onPress={() => router.navigate('/bag')} hitSlop={10} accessibilityRole="button">
+                <T size={13} color={C.white} w="medium" style={{ textDecorationLine: 'underline' }}>{tr('عرض السلة', 'View bag')}</T>
+              </Pressable>
+            ) : null}
           </View>
         </Animated.View>
       ) : null}

@@ -4,7 +4,10 @@ import {
   AuthorizationStatus,
   deleteToken,
   getMessaging,
+  getInitialNotification,
   getToken,
+  onMessage,
+  onNotificationOpenedApp,
   onTokenRefresh,
   registerDeviceForRemoteMessages,
   requestPermission,
@@ -59,4 +62,36 @@ export async function registerPushToken(): Promise<boolean> {
     });
   }
   return true;
+}
+
+type Opened = (data: Record<string, string>) => void;
+type Shown = (title: string, body: string) => void;
+
+/**
+ * Taps on a notification open the right screen; a notification arriving while
+ * the app is open shows as a small bar (iOS shows no banner then).
+ * Returns a function that stops listening.
+ */
+export function listenForPushes(onOpen: Opened, onForeground: Shown): () => void {
+  try {
+    const messaging = getMessaging(getApp());
+    const asData = (d: unknown) => (d && typeof d === 'object' ? (d as Record<string, string>) : {});
+    getInitialNotification(messaging)
+      .then((m) => {
+        if (m) onOpen(asData(m.data));
+      })
+      .catch(() => undefined);
+    const offOpen = onNotificationOpenedApp(messaging, (m) => onOpen(asData(m.data)));
+    const offMsg = onMessage(messaging, async (m) => {
+      const title = m.notification?.title ?? '';
+      const body = m.notification?.body ?? '';
+      if (title || body) onForeground(title, body);
+    });
+    return () => {
+      offOpen();
+      offMsg();
+    };
+  } catch {
+    return () => undefined;
+  }
 }
