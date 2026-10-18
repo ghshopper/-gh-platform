@@ -45,6 +45,36 @@ export default function Settings() {
     smtp_from_address: '',
     smtp_from_name: 'GH Shopper',
   })
+  const [pushPhone, setPushPhone] = useState('')
+  const [pushResult, setPushResult] = useState(null)
+  const [pushBusy, setPushBusy] = useState(false)
+  const runPushTest = async () => {
+    setPushBusy(true)
+    setPushResult(null)
+    try {
+      const r = await adminApi.testPush(pushPhone.trim())
+      setPushResult(r.data || r)
+    } catch (e) {
+      setPushResult({ sent: false, error: e?.response?.data?.message || 'تعذّر الفحص' })
+    } finally {
+      setPushBusy(false)
+    }
+  }
+  const loadKeyFile = (file) => {
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = () => {
+      try {
+        const j = JSON.parse(String(reader.result))
+        if (!j.private_key || !j.client_email) throw new Error()
+        setFirebaseSettings((s) => ({ ...s, fcm_server_key: JSON.stringify(j) }))
+        toast.success('تم تحميل الملف (' + (j.project_id || '') + ') — اضغط حفظ المفتاح')
+      } catch {
+        toast.error('هذا مب ملف حساب خدمة من Firebase')
+      }
+    }
+    reader.readAsText(file)
+  }
   const [firebaseSettings, setFirebaseSettings] = useState({
     fcm_server_key: '',
   })
@@ -829,16 +859,47 @@ export default function Settings() {
 
               <div className="settings-glass-card" style={{ padding: '24px' }}>
                 <div className="settings-input-group" style={{ marginBottom: '20px' }}>
-                  <label>مفتاح الخادم (FCM Server Key)</label>
-                  <textarea className="settings-input" style={{ height: '120px' }} value={firebaseSettings.fcm_server_key || ''} onChange={e => setFirebaseSettings({...firebaseSettings, fcm_server_key: e.target.value})} placeholder="AAAA..."></textarea>
-                  <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '8px' }}>يمكنك الحصول على المفتاح من Firebase Console {'>'} إعدادات المشروع {'>'} Cloud Messaging.</p>
+                  <label>ملف حساب الخدمة (Service account JSON)</label>
+                  <input type="file" accept=".json,application/json" onChange={e => loadKeyFile(e.target.files?.[0])} className="settings-input" style={{ padding: '10px' }} />
+                  <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '8px', lineHeight: 1.8 }}>
+                    من Firebase Console ← إعدادات المشروع ← حسابات الخدمة (Service accounts) ← «إنشاء مفتاح خاص جديد»، ثم اختر الملف هنا واضغط حفظ.
+                    المفتاح القديم (AAAA…) ما عاد يشتغل من 2024.
+                  </p>
+                  <p style={{ fontSize: '12.5px', marginTop: '6px' }}>
+                    {(() => {
+                      const v = (firebaseSettings.fcm_server_key || '').trim()
+                      if (!v) return <span style={{ color: '#b3261e' }}>● ما في مفتاح محفوظ</span>
+                      if (!v.startsWith('{')) return <span style={{ color: '#b3261e' }}>● المحفوظ مفتاح قديم (Server Key) — لازم ملف JSON</span>
+                      try { const j = JSON.parse(v); return <span style={{ color: '#1f7a4d' }}>● ملف حساب خدمة للمشروع: {j.project_id}</span> } catch { return <span style={{ color: '#b3261e' }}>● النص المحفوظ غير صالح</span> }
+                    })()}
+                  </p>
                 </div>
-                
+
                 <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                   <button onClick={() => handleSaveSettings('firebase', firebaseSettings)} className="btn btn-primary">
                     <RiCheckLine size={18} /> حفظ المفتاح
                   </button>
                 </div>
+              </div>
+
+              <div className="settings-glass-card" style={{ padding: '24px', marginTop: '16px' }}>
+                <h4 style={{ margin: '0 0 6px' }}>فحص الإشعارات</h4>
+                <p style={{ margin: '0 0 14px', color: 'var(--text-secondary)', fontSize: '13px' }}>يرسل إشعار تجريبي ويقولك بالضبط وين المشكلة إذا ما وصل. اكتب رقم عميل (أو رقمك) أو اتركه فاضي لآخر جهاز مسجل.</p>
+                <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                  <input className="settings-input" style={{ flex: '1 1 200px', direction: 'ltr', textAlign: 'right' }} placeholder="9xxxxxxx" value={pushPhone} onChange={e => setPushPhone(e.target.value)} />
+                  <button className="btn btn-primary" disabled={pushBusy} onClick={runPushTest}>{pushBusy ? '...' : 'إرسال إشعار تجريبي'}</button>
+                </div>
+                {pushResult && (
+                  <div style={{ marginTop: '16px', padding: '14px 16px', borderRadius: '10px', background: pushResult.sent ? '#E8F5EE' : '#FDECEC', color: pushResult.sent ? '#1f7a4d' : '#8c1d18', lineHeight: 1.9, fontSize: '13.5px' }}>
+                    <b>{pushResult.sent ? '✓ انرسل الإشعار — تأكد إنه وصل الجهاز' : '✗ ما انرسل'}</b>
+                    {pushResult.error ? <div>{pushResult.error}</div> : null}
+                    <div style={{ color: 'var(--text-secondary)', marginTop: '6px' }}>
+                      {pushResult.phones_registered != null ? <>أجهزة مسجلة للإشعارات: {pushResult.phones_registered}</> : null}
+                      {pushResult.target ? <> · العميل: {pushResult.target.name} ({pushResult.target.phone || '—'})</> : null}
+                      {pushResult.project_id ? <> · مشروع المفتاح: {pushResult.project_id}</> : null}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           )}

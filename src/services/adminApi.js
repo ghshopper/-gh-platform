@@ -68,6 +68,7 @@ export const adminApi = {
   getSettings: (group) => api.get('/admin/settings', { params: { group } }),
   updateSettings: (group, data) => api.post(`/admin/settings?group=${group}`, data),
   testEmail: (email) => api.post('/admin/settings/test-email', { email }),
+  testPush: (phone) => api.post('/admin/settings/test-push', { phone: phone || null }),
 
   // AI Import
   importProductAi: (data) => api.post('/admin/products/import-ai', data),
