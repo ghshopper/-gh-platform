@@ -627,12 +627,21 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                     ),
                   if (i.hasTaxFree)
                     Padding(
-                      padding: const EdgeInsets.only(top: 2),
-                      child: Text(
-                        'تاكس فري ${money(i.taxFreeAmount, i.costCurrency ?? '')} · ${i.taxFreeReceived ? 'استلمته ✓' : 'ما استلمته'}',
-                        style: T.small.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: i.taxFreeReceived ? GH.green : GH.amber),
+                      padding: const EdgeInsets.only(top: 6),
+                      child: _TaxFreeChip(
+                        amount: money(i.taxFreeAmount, i.costCurrency ?? ''),
+                        received: i.taxFreeReceived,
+                        onTap: _busy
+                            ? null
+                            : () {
+                                HapticFeedback.selectionClick();
+                                _run(
+                                    () => Store.i.setTaxFreeReceived(
+                                        i.id, !i.taxFreeReceived),
+                                    done: i.taxFreeReceived
+                                        ? 'رجّعته: ما استلمته'
+                                        : 'استلمت التاكس فري ✓');
+                              },
                       ),
                     ),
                   const SizedBox(height: 8),
@@ -683,5 +692,55 @@ Future<void> printOrderWaybill(BuildContext context, Order o) async {
     await Store.i.markLabelPrinted(o.id);
   } catch (e) {
     if (context.mounted) toast(context, errorText(e), error: true);
+  }
+}
+
+/// One tap marks the item's tax-free refund as received (tap again to undo).
+class _TaxFreeChip extends StatelessWidget {
+  const _TaxFreeChip(
+      {required this.amount, required this.received, required this.onTap});
+
+  final String amount;
+  final bool received;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = received ? GH.green : GH.amber;
+    return Align(
+      alignment: AlignmentDirectional.centerStart,
+      child: CupertinoButton(
+        padding: EdgeInsets.zero,
+        minSize: 36,
+        onPressed: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+          decoration: BoxDecoration(
+            color: color.withAlpha(31),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: color.withAlpha(115)),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                  received
+                      ? CupertinoIcons.checkmark_circle_fill
+                      : CupertinoIcons.circle,
+                  size: 18,
+                  color: color),
+              const SizedBox(width: 7),
+              Text(
+                received
+                    ? 'تاكس فري $amount · استلمته'
+                    : 'تاكس فري $amount · اضغط إذا استلمته',
+                style: T.small.copyWith(
+                    fontWeight: FontWeight.w600, color: color),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
