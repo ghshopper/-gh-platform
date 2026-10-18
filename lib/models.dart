@@ -753,6 +753,7 @@ class DriverOrder {
     this.photoUrl,
     this.deliveredAt,
     this.waybillNo,
+    this.customerIsMale = false,
     required this.items,
   });
 
@@ -772,6 +773,7 @@ class DriverOrder {
   final String? photoUrl;
   final DateTime? deliveredAt;
   final String? waybillNo;
+  final bool customerIsMale;
   final List<({String? brand, String name, String? details})> items;
 
   bool get isDone => status == DriverStatus.delivered;
@@ -793,6 +795,7 @@ class DriverOrder {
       photoPath: _s(m['delivery_photo_path']),
       photoUrl: _s(m['delivery_photo_url']),
       waybillNo: _s(m['waybill_no']),
+      customerIsMale: m['customer_gender'] == 'm',
       deliveredAt: _dt(m['driver_delivered_at']),
       items: ((m['items'] as List?) ?? const [])
           .map((e) => Map<String, dynamic>.from(e as Map))

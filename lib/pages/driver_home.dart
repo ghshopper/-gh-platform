@@ -254,6 +254,41 @@ class _DriverOrderPageState extends State<DriverOrderPage> {
     }
   }
 
+  /// Ready-made WhatsApp messages from the driver to the customer.
+  Future<void> _sendTemplate(DriverOrder o, String phone) async {
+    final m = o.customerIsMale;
+    String g(String f, String male) => m ? male : f;
+    final first = o.customerName.trim().split(' ').first;
+    final me = Api.i.session?.name ?? 'المندوب';
+    final collect = o.collect && o.deliveryFee > 0;
+    final pay = collect
+        ? '\nرسوم التوصيل ${omr(o.deliveryFee)} تندفع عند الاستلام.'
+        : '';
+    final templates = <String, String>{
+      'أنا في الطريق 🚗':
+          'هلا $first 👋\nمعك $me مندوب GH Shopper.\n${g('طلبكِ', 'طلبك')} في الطريق ${g('إليكِ', 'إليك')}، بوصل خلال حوالي ٢٠ دقيقة إن شاء الله.$pay',
+      'وصلت عند الموقع 📍':
+          'هلا $first، وصلت عند موقع${g('كِ', 'ك')} 📍\nأنا تحت مع ${g('طلبكِ', 'طلبك')} من GH Shopper.$pay',
+      'ما رد على الاتصال 📞':
+          'هلا $first، حاولت أتصل ${g('فيكِ', 'فيك')} بخصوص توصيل ${g('طلبكِ', 'طلبك')} من GH Shopper.\nمتى يناسب${g('كِ', 'ك')} أوصله؟',
+      'أبي الموقع على الخريطة 🗺️':
+          'هلا $first، معك $me مندوب GH Shopper.\nممكن ${g('ترسلين', 'ترسل')} لي موقع${g('كِ', 'ك')} على الخريطة عشان أوصل ${g('طلبكِ', 'طلبك')}؟',
+      'نأجل التوصيل ⏰':
+          'هلا $first، معك $me من GH Shopper.\nبنأجل توصيل ${g('طلبكِ', 'طلبك')} لوقت ثاني، ${g('تبين', 'تبي')} اليوم ولا بكرة؟',
+      'تم التسليم ✨':
+          'شكراً $first 🤍\nتم تسليم ${g('طلبكِ', 'طلبك')} من GH Shopper، إن شاء الله ${g('يعجبكِ', 'يعجبك')}.',
+    };
+    final pick = await actionSheet<String>(context,
+        title: 'رسالة للعميل',
+        message: 'تنفتح في واتساب، وتقدر تعدّلها قبل الإرسال',
+        actions: templates.keys.map((k) => SheetAction(k, k)).toList());
+    if (pick == null) return;
+    await launchUrl(
+        Uri.parse(
+            'https://wa.me/$phone?text=${Uri.encodeComponent(templates[pick]!)}'),
+        mode: LaunchMode.externalApplication);
+  }
+
   void _openMaps(String address) {
     final link = RegExp(r'https?://\S+').firstMatch(address)?.group(0);
     final uri = link != null
@@ -349,6 +384,14 @@ class _DriverOrderPageState extends State<DriverOrderPage> {
                   title: 'اتصال',
                   value: order.customerPhone,
                   onTap: () => launchUrl(Uri.parse('tel:+$phone')),
+                ),
+              if (phone != null)
+                Tile(
+                  leading: const IconBox(CupertinoIcons.chat_bubble_text_fill,
+                      color: Color(0xFF25D366)),
+                  title: 'رسائل جاهزة للعميل',
+                  subtitle: 'في الطريق، وصلت، ما رديت…',
+                  onTap: () => _sendTemplate(order, phone),
                 ),
               if (phone != null)
                 Tile(
