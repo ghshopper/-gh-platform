@@ -1,0 +1,40 @@
+Installing React-perflogger (0.88.0)
+Installing React-performancecdpmetrics (0.88.0)
+Installing React-performancetimeline (0.88.0)
+Installing React-rendererconsistency (0.88.0)
+Installing React-renderercss (0.88.0)
+Installing React-rendererdebug (0.88.0)
+Installing React-resizeobservernativemodule (0.88.0)
+Installing React-runtimeexecutor (0.88.0)
+Installing React-runtimescheduler (0.88.0)
+Installing React-timing (0.88.0)
+Installing React-utils (0.88.0)
+Installing React-viewtransitionnativemodule (0.88.0)
+Installing React-webperformancenativemodule (0.88.0)
+Installing ReactAmwalPay (0.1.19)
+Installing ReactAppDependencyProvider (0.88.0)
+Installing ReactCodegen (0.88.0)
+Installing ReactCommon (0.88.0)
+Installing ReactNativeDependencies (0.88.0)
+Installing SocketRocket (0.7.1)
+Installing Yoga (0.0.0)
+Installing amwalsdk (1.1.93)
+Installing boost (1.84.0)
+Installing fast_float (8.0.0)
+Installing fmt (12.1.0)
+Installing glog (0.3.5)
+Installing hermes-engine (260318099.0.4)
+Installing react-native-safe-area-context (5.10.1)
+Installing react-native-webview (14.0.1)
+[Expo] Ensuring required slices in ExpoModulesJSI.xcframework
+[Expo] Staged 5/5 shared SPM xcframework(s) (debug)
+[Expo] Disabling USE_FRAMEWORKS for 87 pods (ExpoModulesCore, ExpoModulesJSI, Expo, ReactAppDependencyProvider, expo-dev-menu, ExpoFileSystem, ExpoFont, ExpoImage, ExpoLogBox, ExpoModulesWorklets, ExpoVideo, FBLazyVector, RCTDeprecation, RCTRequired, RCTTypeSafety, RNCAsyncStorage, RNCMaskedView, RNFBApp, RNFBMessaging, RNSVG, RNScreens, React, React-Core, React-Core-prebuilt, React-CoreModules, React-Fabric, React-FabricComponents, React-FabricImage, React-ImageManager, React-Mapbuffer, React-NativeModulesApple, React-RCTActionSheet, React-RCTAnimatedModuleProvider, React-RCTAnimation, React-RCTAppDelegate, React-RCTBlob, React-RCTFBReactNativeSpec, React-RCTFabric, React-RCTImage, React-RCTLinking, React-RCTNetwork, React-RCTRuntime, React-RCTSettings, React-RCTText, React-RCTVibration, React-RuntimeApple, React-RuntimeCore, React-RuntimeHermes, React-bridging, React-cxxreact, React-defaultsnativemodule, React-domnativemodule, React-featureflags, React-featureflagsnativemodule, React-graphics, React-hermes, React-idlecallbacksnativemodule, React-intersectionobservernativemodule, React-jserrorhandler, React-jsi, React-jsiexecutor, React-jsinspector, React-jsinspectorcdp, React-jsinspectornetwork, React-jsinspectortracing, React-jsitooling, React-logger, React-microtasksnativemodule, React-mutationobservernativemodule, React-networking, React-perflogger, React-performancecdpmetrics, React-performancetimeline, React-rendererdebug, React-resizeobservernativemodule, React-runtimeexecutor, React-runtimescheduler, React-utils, React-viewtransitionnativemodule, React-webperformancenativemodule, ReactAmwalPay, ReactCodegen, ReactCommon, ReactNativeDependencies, Yoga, react-native-safe-area-context, react-native-webview)
+[Expo] Disabling USE_FRAMEWORKS for modules ExpoModulesCore, ExpoModulesJSI, Expo, ReactAppDependencyProvider, expo-dev-menu
+Generating Pods project
+[!] [react-native-firebase] SPM + static linkage is not supported (target(s): Pods-GHShopper).
+
+firebase-ios-sdk's Swift Package products are automatic libraries (not `type: .dynamic`), so each react-native-firebase pod that resolves Firebase via SPM embeds its own copy. With `use_frameworks! :linkage => :static` those copies collide at link time as duplicate-symbol errors.
+
+Fix one of the following in your Podfile, then run `pod install` again:
+  - Use dynamic linkage: `use_frameworks! :linkage => :dynamic`
+  - Opt out of SPM: set `$RNFirebaseDisableSPM = true` before any target block, then use the static or dynamic linkage your project requires.
