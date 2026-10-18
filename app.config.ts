@@ -16,7 +16,8 @@ const config: ExpoConfig = {
   ios: {
     bundleIdentifier: IOS_BUNDLE_ID,
     buildNumber: process.env.BUILD_NUMBER ?? '1',
-    supportsTablet: false,
+    // The App Store version also ran on iPad, so updates must keep iPad.
+    supportsTablet: true,
     googleServicesFile: './GoogleService-Info.plist',
     infoPlist: {
       CFBundleDevelopmentRegion: 'ar',
@@ -26,6 +27,7 @@ const config: ExpoConfig = {
       NSPhotoLibraryUsageDescription: 'لاختيار صورة القطعة اللي تبي نطلبها لك',
       NSLocationWhenInUseUsageDescription: 'لتحديد موقع التوصيل على الخريطة',
       UIBackgroundModes: ['remote-notification'],
+      UIRequiresFullScreen: true,
     },
     entitlements: {
       'aps-environment': 'production',
