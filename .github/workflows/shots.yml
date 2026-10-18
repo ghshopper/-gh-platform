@@ -35,7 +35,7 @@ jobs:
           WS=$(ls -d ios/*.xcworkspace | head -1); SCHEME=$(basename "$WS" .xcworkspace)
           xcodebuild -workspace "$WS" -scheme "$SCHEME" -configuration Release -sdk iphonesimulator \
             -destination 'generic/platform=iOS Simulator' -derivedDataPath build \
-            CODE_SIGNING_ALLOWED=NO ONLY_ACTIVE_ARCH=NO 2>&1 | tee build.log | grep -E "error:|BUILD (SUCCEEDED|FAILED)" | tail -30
+            CODE_SIGNING_ALLOWED=NO ARCHS=arm64 ONLY_ACTIVE_ARCH=YES SWIFT_ENABLE_EXPLICIT_MODULES=NO 2>&1 | tee build.log | grep -E "error:|BUILD (SUCCEEDED|FAILED)" | tail -30
       - name: Take screenshots
         shell: bash
         run: |
