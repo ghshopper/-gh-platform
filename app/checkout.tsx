@@ -208,6 +208,7 @@ export default function Checkout() {
     setBusy(true);
     let paidNote = '';
     let paidSure = false;
+    let amwalTx = '';
     try {
       // The code's amount is checked again by the server; make sure it still
       // matches before any money moves.
@@ -221,6 +222,7 @@ export default function Checkout() {
       if (AMWAL_CODES.includes(payment)) {
         const wallet = payment === 'amwal_apple' || payment === 'amwal_google';
         const r = await payWithAmwal(total, wallet, isAr);
+        if (r.ok !== false) amwalTx = r.transactionId;
         const via = `أموال${wallet ? (Platform.OS === 'ios' ? ' (Apple Pay)' : ' (Google Pay)') : ''}`;
         if (r.ok === 'unknown') {
           // Amwal answered in a shape we could not read: keep the order so a
@@ -251,6 +253,8 @@ export default function Checkout() {
         // Loyalty only: the server adds the code's discount itself.
         discount_amount: Number(loyaltyValue.toFixed(3)),
         coupon_code: cart.coupon?.code ?? null,
+        // The server asks Amwal about this transaction before marking it paid.
+        amwal_transaction_id: amwalTx || null,
         tax_amount: Number(tax.toFixed(3)),
         total_amount: Number(total.toFixed(3)),
         notes: [paidNote, notes.trim()].filter(Boolean).join('\n') || null,
