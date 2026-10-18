@@ -21,6 +21,7 @@ import NotifyUsers from './pages/admin/NotifyUsers'
 import Login from './pages/admin/Login'
 import ProductRequests from './pages/admin/ProductRequests'
 import AppOrders from './pages/admin/AppOrders'
+import Coupons from './pages/admin/Coupons'
 import CustomizeApp from './pages/admin/CustomizeApp'
 import Profile from './pages/admin/Profile'
 import './index.css'
@@ -55,6 +56,7 @@ export default function App() {
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="orders" element={<Orders />} />
           <Route path="app-orders" element={<AppOrders />} />
+          <Route path="coupons" element={<Coupons />} />
           <Route path="products" element={<Products />} />
           <Route path="reviews" element={<Reviews />} />
           <Route path="customers" element={<Customers />} />

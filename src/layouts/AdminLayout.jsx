@@ -29,12 +29,14 @@ import {
   RiSmartphoneLine,
   RiLogoutBoxRLine,
   RiEdit2Line,
+  RiCoupon3Line,
 } from 'react-icons/ri'
 
 const navItems = [
   { label: 'الرئيسية',    icon: RiHome5Line, path: '/admin/dashboard' },
   { label: 'الطلبات',     icon: RiFileList3Line, path: '/admin/orders' },
   { label: 'كل الطلبات', icon: RiShoppingBag3Line, path: '/admin/app-orders' },
+  { label: 'كوبونات الخصم', icon: RiCoupon3Line, path: '/admin/coupons' },
   { label: 'العملاء',     icon: RiGroupLine, path: '/admin/customers' },
   { label: 'إرسال إشعارات', icon: RiNotification3Fill, path: '/admin/notify-users' },
   { 
