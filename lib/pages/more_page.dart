@@ -468,6 +468,10 @@ class _SettingsPageState extends State<SettingsPage> {
   late final _nameEn = TextEditingController(text: _s.companyNameEn);
   late final _cr = TextEditingController(text: _s.crNumber);
   late final _tax = TextEditingController(text: _s.taxNumber);
+  late final _homeFee =
+      TextEditingController(text: _s.deliveryHomeFee.toString());
+  late final _officeFee =
+      TextEditingController(text: _s.deliveryOfficeFee.toString());
   late final _phone = TextEditingController(text: _s.phone);
   late final _insta = TextEditingController(text: _s.instagram);
   late final _address = TextEditingController(text: _s.address);
@@ -477,7 +481,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   void dispose() {
-    for (final c in [_name, _nameEn, _cr, _tax, _phone, _insta, _address, _bank, _note]) {
+    for (final c in [_homeFee, _officeFee, _name, _nameEn, _cr, _tax, _phone, _insta, _address, _bank, _note]) {
       c.dispose();
     }
     super.dispose();
@@ -494,6 +498,8 @@ class _SettingsPageState extends State<SettingsPage> {
         'company_name_en': _v(_nameEn),
         'cr_number': _v(_cr),
         'tax_number': _v(_tax),
+        'delivery_home_fee': parseAmount(_homeFee.text),
+        'delivery_office_fee': parseAmount(_officeFee.text),
         'phone': _v(_phone),
         'instagram': _v(_insta),
         'address': _v(_address),
@@ -531,6 +537,14 @@ class _SettingsPageState extends State<SettingsPage> {
             FieldRow(label: 'الجوال', controller: _phone, keyboard: TextInputType.phone, ltr: true),
             FieldRow(label: 'الانستقرام', controller: _insta, placeholder: '@ghshopper', ltr: true),
             FieldRow(label: 'العنوان', controller: _address, placeholder: 'مسقط، عُمان'),
+          ],
+        ),
+        Section(
+          header: 'أسعار التوصيل داخل مسقط',
+          footer: 'تنحط تلقائياً لما تختار طريقة التوصيل في الطلب. نول وجيناكم تكتب سعرها لكل طلب.',
+          children: [
+            AmountRow(label: 'إلى البيت', controller: _homeFee),
+            AmountRow(label: 'إلى المكتب', controller: _officeFee),
           ],
         ),
         Section(

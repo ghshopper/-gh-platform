@@ -66,6 +66,14 @@ final List<MsgTemplate> messageTemplates = [
         'تتبّع${_g(c, 'ي', '')} ${_g(c, 'طلبكِ', 'طلبك')} من هنا:\n'
         '${trackingLink(o)}';
   }),
+  MsgTemplate('تم الشحن (نول / جيناكم)', (o, c) {
+    final company = o.deliveryMethod?.label ?? 'شركة الشحن';
+    return '${_hi(c)}\n'
+        'تم شحن ${_g(c, 'طلبكِ', 'طلبك')} ${o.invoiceNo} مع $company 📦\n'
+        '${o.carrierTracking == null ? '' : 'رقم الشحنة: ${o.carrierTracking}\n'}'
+        'تتبّع${_g(c, 'ي', '')} ${_g(c, 'طلبكِ', 'طلبك')} من هنا:\n'
+        '${trackingLink(o)}';
+  }),
   MsgTemplate('تذكير بالمبلغ المتبقي', (o, c) {
     return '${_hi(c)}\n'
         'تذكير لطيف بالمبلغ المتبقي على ${_g(c, 'طلبكِ', 'طلبك')} ${o.invoiceNo}:\n'

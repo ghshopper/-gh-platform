@@ -85,6 +85,8 @@ class BusinessSettings {
     this.address,
     this.bankDetails,
     this.invoiceNote,
+    this.deliveryHomeFee = 2,
+    this.deliveryOfficeFee = 1,
   });
 
   final String? companyName;
@@ -97,6 +99,16 @@ class BusinessSettings {
   final String? bankDetails;
   final String? invoiceNote;
 
+  /// Fixed delivery prices inside Muscat.
+  final double deliveryHomeFee;
+  final double deliveryOfficeFee;
+
+  double feeFor(DeliveryMethod? m) => switch (m) {
+        DeliveryMethod.home => deliveryHomeFee,
+        DeliveryMethod.office => deliveryOfficeFee,
+        _ => 0,
+      };
+
   factory BusinessSettings.fromMap(Map<String, dynamic> m) => BusinessSettings(
         companyName: _s(m['company_name']),
         companyNameEn: _s(m['company_name_en']),
@@ -107,7 +119,33 @@ class BusinessSettings {
         address: _s(m['address']),
         bankDetails: _s(m['bank_details']),
         invoiceNote: _s(m['invoice_note']),
+        deliveryHomeFee: m['delivery_home_fee'] == null ? 2 : _d(m['delivery_home_fee']),
+        deliveryOfficeFee:
+            m['delivery_office_fee'] == null ? 1 : _d(m['delivery_office_fee']),
       );
+}
+
+/// How an order reaches the customer.
+enum DeliveryMethod { home, office, nool, genacom }
+
+DeliveryMethod? deliveryMethodFrom(String? v) {
+  for (final m in DeliveryMethod.values) {
+    if (m.name == v) return m;
+  }
+  return null;
+}
+
+extension DeliveryMethodX on DeliveryMethod {
+  String get label => switch (this) {
+        DeliveryMethod.home => 'إلى البيت',
+        DeliveryMethod.office => 'إلى المكتب',
+        DeliveryMethod.nool => 'نول',
+        DeliveryMethod.genacom => 'جيناكم',
+      };
+
+  /// A shipping company for outside Muscat (own shipment number, own price).
+  bool get isCourier =>
+      this == DeliveryMethod.nool || this == DeliveryMethod.genacom;
 }
 
 // ───────────────────────── Trips ─────────────────────────
@@ -471,6 +509,8 @@ class Order {
     this.driverDeliveredAt,
     this.labelPrintedAt,
     this.events = const [],
+    this.deliveryMethod,
+    this.carrierTracking,
   });
 
   final String id;
@@ -498,6 +538,10 @@ class Order {
   final String? deliveryPhotoPath;
   final DateTime? driverDeliveredAt;
   final DateTime? labelPrintedAt;
+  final DeliveryMethod? deliveryMethod;
+
+  /// Shipment number from Nool / Genacom.
+  final String? carrierTracking;
 
   /// What happened to the order, oldest first.
   final List<OrderEvent> events;
@@ -579,6 +623,8 @@ class Order {
       deliveryPhotoPath: _s(m['delivery_photo_path']),
       driverDeliveredAt: _dt(m['driver_delivered_at']),
       labelPrintedAt: _dt(m['label_printed_at']),
+      deliveryMethod: deliveryMethodFrom(m['delivery_method'] as String?),
+      carrierTracking: _s(m['carrier_tracking']),
       events: ((m['events'] as List?) ?? const [])
           .map((e) => OrderEvent.fromMap(Map<String, dynamic>.from(e as Map)))
           .toList(),

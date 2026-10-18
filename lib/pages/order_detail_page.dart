@@ -471,11 +471,18 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                 Tile(
                   leading: IconBox(CupertinoIcons.car_detailed,
                       color: o.driverStatus?.color ?? GH.tertiary),
-                  title: Store.i.driver(o.driverId)?.name ?? 'أسند لمندوب',
-                  titleStyle: o.driverId == null
+                  title: o.deliveryMethod?.isCourier == true
+                      ? 'شحن مع ${o.deliveryMethod!.label}'
+                      : Store.i.driver(o.driverId)?.name ??
+                          '${o.deliveryMethod?.label ?? 'التوصيل'} · أسند لمندوب',
+                  titleStyle: o.driverId == null && o.deliveryMethod?.isCourier != true
                       ? const TextStyle(fontSize: 16, color: GH.burgundy)
                       : null,
-                  subtitle: o.driverId == null
+                  subtitle: o.deliveryMethod?.isCourier == true
+                      ? (o.carrierTracking == null
+                          ? 'أضف رقم الشحنة'
+                          : 'رقم الشحنة ${o.carrierTracking}')
+                      : o.driverId == null
                       ? null
                       : [
                           if (o.deliveryFee > 0)

@@ -157,6 +157,19 @@ Future<Uint8List> buildWaybillPdf(
         box(pw.Column(
           crossAxisAlignment: pw.CrossAxisAlignment.start,
           children: [
+            if (o.deliveryMethod != null)
+              pw.Padding(
+                padding: const pw.EdgeInsets.only(bottom: 3),
+                child: pw.Row(children: [
+                  pw.Text('التوصيل: ${o.deliveryMethod!.label}',
+                      style: st(10, font: bold)),
+                  pw.Spacer(),
+                  if (o.carrierTracking != null)
+                    pw.Text(o.carrierTracking!,
+                        textDirection: pw.TextDirection.ltr,
+                        style: st(9, font: medium)),
+                ]),
+              ),
             pw.Row(children: [
               pw.Expanded(child: label('الفاتورة', o.invoiceNo)),
               pw.Text('$pieces قطعة', style: st(8, font: medium)),

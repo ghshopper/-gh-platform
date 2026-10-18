@@ -44,12 +44,14 @@ class _OrderFormPageState extends State<OrderFormPage> {
   final _notes = TextEditingController();
   final List<_ItemDraft> _items = [_ItemDraft()];
   String _method = paymentMethods.first;
+  DeliveryMethod _deliveryMethod = DeliveryMethod.home;
   bool _saving = false;
 
   @override
   void initState() {
     super.initState();
     _customer = widget.customer;
+    _delivery.text = _fee(Store.i.settings.deliveryHomeFee);
     _tripId = widget.tripId ??
         (Store.i.trips.isNotEmpty ? Store.i.trips.first.id : null);
   }
@@ -63,6 +65,16 @@ class _OrderFormPageState extends State<OrderFormPage> {
       i.dispose();
     }
     super.dispose();
+  }
+
+  String _fee(double v) => v == v.roundToDouble() ? v.toStringAsFixed(0) : v.toString();
+
+  void _chooseDelivery(DeliveryMethod m) {
+    setState(() {
+      _deliveryMethod = m;
+      _delivery.text =
+          m.isCourier ? '' : _fee(Store.i.settings.feeFor(m));
+    });
   }
 
   double get _itemsTotal =>
@@ -110,6 +122,7 @@ class _OrderFormPageState extends State<OrderFormPage> {
         customerId: _customer!.id,
         tripId: _tripId,
         deliveryFee: parseAmount(_delivery.text) ?? 0,
+        deliveryMethod: _deliveryMethod.name,
         notes: _notes.text.trim().isEmpty ? null : _notes.text.trim(),
         items: items,
         deposit: parseAmount(_deposit.text) ?? 0,
@@ -184,9 +197,17 @@ class _OrderFormPageState extends State<OrderFormPage> {
         ),
         Section(
           header: 'التوصيل والعربون',
+          footer: _deliveryMethod.isCourier
+              ? 'شحن خارج مسقط: اكتب سعر الشحن، ورقم الشحنة تضيفه من الطلب بعدين.'
+              : 'سعر ثابت، تقدر تغيّره من بيانات الشركة.',
           children: [
+            Segments<DeliveryMethod>(
+              value: _deliveryMethod,
+              options: {for (final m in DeliveryMethod.values) m: m.label},
+              onChanged: _chooseDelivery,
+            ),
             AmountRow(
-                label: 'التوصيل',
+                label: 'رسوم التوصيل',
                 controller: _delivery,
                 onChanged: (_) => setState(() {})),
             AmountRow(label: 'العربون', controller: _deposit),

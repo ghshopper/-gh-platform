@@ -354,12 +354,28 @@ class _DeliveryPageState extends State<DeliveryPage> {
   late bool _collect = _o.driverId == null
       ? _o.deliveryFee > 0 && _o.hasBalance
       : _o.deliveryCollect;
+  late DeliveryMethod _method = _o.deliveryMethod ?? DeliveryMethod.home;
+  late final _fee = TextEditingController(text: plainFee(_o.deliveryFee));
+  late final _tracking = TextEditingController(text: _o.carrierTracking);
   bool _saving = false;
+
+  static String plainFee(double v) =>
+      v == v.roundToDouble() ? v.toStringAsFixed(0) : v.toString();
+
+  void _chooseMethod(DeliveryMethod m) {
+    setState(() {
+      _method = m;
+      if (!m.isCourier) _fee.text = plainFee(Store.i.settings.feeFor(m));
+      if (m.isCourier) _driverId = null;
+    });
+  }
 
   @override
   void dispose() {
     _address.dispose();
     _note.dispose();
+    _fee.dispose();
+    _tracking.dispose();
     super.dispose();
   }
 
@@ -383,6 +399,12 @@ class _DeliveryPageState extends State<DeliveryPage> {
     setState(() => _saving = true);
     try {
       final addr = _address.text.trim();
+      final trk = _tracking.text.trim();
+      await Store.i.updateOrder(_o.id, {
+        'delivery_method': _method.name,
+        'delivery_fee': parseAmount(_fee.text) ?? 0,
+        'carrier_tracking': _method.isCourier && trk.isNotEmpty ? trk : null,
+      });
       await Store.i.setDelivery(
         _o,
         driverId: _driverId,
@@ -414,7 +436,25 @@ class _DeliveryPageState extends State<DeliveryPage> {
           child: Text(
               '${Store.i.customerName(_o)} · ${_o.invoiceNo}', style: T.sub),
         ),
-        Section(children: [
+        Section(
+          header: 'طريقة التوصيل',
+          children: [
+            Segments<DeliveryMethod>(
+              value: _method,
+              options: {for (final m in DeliveryMethod.values) m: m.label},
+              onChanged: _chooseMethod,
+            ),
+            AmountRow(label: 'رسوم التوصيل', controller: _fee),
+            if (_method.isCourier)
+              FieldRow(
+                label: 'رقم الشحنة',
+                controller: _tracking,
+                placeholder: 'من ${_method.label}',
+                ltr: true,
+              ),
+          ],
+        ),
+        if (!_method.isCourier) Section(children: [
           PickerRow(
             label: 'المندوب',
             value: Store.i.driver(_driverId)?.name,
@@ -437,8 +477,8 @@ class _DeliveryPageState extends State<DeliveryPage> {
                 placeholder: 'الحي، السكة، رقم المنزل، أو رابط الموقع'),
           ],
         ),
-        Section(
-          header: 'رسوم التوصيل ${omr(_o.deliveryFee)}',
+        if (!_method.isCourier) Section(
+          header: 'الدفع',
           children: [
             Segments<bool>(
               value: _collect,
@@ -450,7 +490,7 @@ class _DeliveryPageState extends State<DeliveryPage> {
             ),
           ],
         ),
-        Section(
+        if (!_method.isCourier) Section(
           header: 'ملاحظة للمندوب',
           children: [
             NotesRow(
