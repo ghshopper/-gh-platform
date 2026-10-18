@@ -3,6 +3,7 @@ import { Alert, Pressable, View, type StyleProp, type ViewStyle } from 'react-na
 import { inStock, productImages, productPrice, productWasPrice } from './format';
 import { Icon } from './icons';
 import { useLang } from './lang';
+import { rememberProduct } from './product-cache';
 import { C } from './theme';
 import type { Product } from './types';
 import { BrandText, Photo, Price, T } from './ui';
@@ -28,7 +29,10 @@ export function ProductCard({ product, width, style }: { product: Product; width
   const out = !inStock(product);
   return (
     <Pressable
-      onPress={() => router.push({ pathname: '/product/[id]', params: { id: String(product.id) } })}
+      onPress={() => {
+        rememberProduct(product);
+        router.push({ pathname: '/product/[id]', params: { id: String(product.id) } });
+      }}
       accessibilityRole="button"
       accessibilityLabel={`${brand} ${pick(product, 'name')}`}
       style={[{ width, gap: 2 }, style]}

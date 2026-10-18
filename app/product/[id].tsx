@@ -10,6 +10,7 @@ import { useCart } from '@/cart';
 import { useAppData } from '@/appdata';
 import { inStock, num, productAttributes, productImages, productPrice, productWasPrice, waNumber } from '@/format';
 import { useLoad } from '@/hooks';
+import { knownProduct, rememberProduct } from '@/product-cache';
 import { Icon } from '@/icons';
 import { useLang } from '@/lang';
 import { askToSignIn, brandOf, ProductCard } from '@/product-card';
@@ -59,10 +60,20 @@ export default function ProductScreen() {
   const wish = useWishlist();
   const app = useAppData();
 
-  const product = useLoad(async () => (await api.get<{ data: Product }>(`/customer/products/${id}`)).data, [id]);
+  const cached = knownProduct(Number(id));
+  const product = useLoad(async () => {
+    try {
+      const fresh = (await api.get<{ data: Product }>(`/customer/products/${id}`)).data;
+      if (fresh) rememberProduct(fresh);
+      return fresh ?? cached ?? null;
+    } catch (e) {
+      if (cached) return cached;
+      throw e;
+    }
+  }, [id]);
   const reviews = useLoad(async () => listOf<Review>(await api.get<unknown>(`/customer/products/${id}/reviews`)), [id]);
   const related = useLoad(async () => {
-    const p = product.data;
+    const p = product.data ?? cached ?? null;
     if (!p?.category_id) return [] as Product[];
     const rows = listOf<Product>(await api.get<unknown>('/customer/products', { category_id: p.category_id, per_page: 10 }));
     return rows.filter((x) => x.id !== p.id).slice(0, 8);
@@ -78,13 +89,13 @@ export default function ProductScreen() {
   const [comment, setComment] = useState('');
   const [sending, setSending] = useState(false);
 
-  const p = product.data;
+  const p = product.data ?? cached ?? null;
   const images = useMemo(() => (p ? productImages(p) : []), [p]);
   const attrs = useMemo(() => (p ? productAttributes(p) : []), [p]);
   const selectable = attrs.filter((a) => a.is_selectable !== false);
   const specs = attrs.filter((a) => a.is_selectable === false);
 
-  if (product.loading) return <View style={{ flex: 1, backgroundColor: C.white, paddingTop: insets.top }}><Loader /></View>;
+  if (product.loading && !cached) return <View style={{ flex: 1, backgroundColor: C.white, paddingTop: insets.top }}><Loader /></View>;
   if (!p) {
     return (
       <View style={{ flex: 1, backgroundColor: C.white, paddingTop: insets.top + 40 }}>
