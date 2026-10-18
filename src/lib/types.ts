@@ -166,6 +166,7 @@ export interface ShippingCountry {
 }
 
 export interface DeliveryOptions {
+  branches?: import('./genacom').GenacomBranch[];
   home_fee: number;
   branch_fee: number;
 }

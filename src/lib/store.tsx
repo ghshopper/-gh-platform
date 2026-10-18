@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { GENACOM_BRANCHES, type GenacomBranch } from './genacom';
 import { api, ApiError, hasToken, listOf, setToken, setUnauthorizedHandler } from './api';
 import { num } from './format';
 import type { Brand, CartItem, Category, DeliveryOptions, HomeConfig, Policy, Product, User } from './types';
@@ -26,7 +27,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
     } catch {
       // ignore
     }
-    return { home: null, categories: [], brands: [], serviceFee: 0, taxPercent: 0, delivery: { home_fee: 2, branch_fee: 1 }, policies: [], ready: false };
+    return { home: null, categories: [], brands: [], serviceFee: 0, taxPercent: 0, delivery: { home_fee: 2, branch_fee: 1, branches: GENACOM_BRANCHES }, policies: [], ready: false };
   });
 
   useEffect(() => {
@@ -50,7 +51,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
           next.taxPercent = num(s.tax_percentage);
         }
         if (delivery.status === 'fulfilled' && delivery.value) {
-          next.delivery = { home_fee: num(delivery.value.home_fee, 2), branch_fee: num(delivery.value.branch_fee, 1) };
+          const gb = (delivery.value as { genacom_branches?: unknown }).genacom_branches;
+          next.delivery = { home_fee: num(delivery.value.home_fee, 2), branch_fee: num(delivery.value.branch_fee, 1), branches: Array.isArray(gb) ? (gb as GenacomBranch[]) : GENACOM_BRANCHES };
         }
         if (fp.status === 'fulfilled') next.policies = fp.value?.policies ?? [];
         try {
