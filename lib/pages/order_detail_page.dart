@@ -537,6 +537,9 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                     )),
                 KV('مجموع القطع', omr(o.itemsTotal)),
                 KV('التوصيل', omr(o.deliveryFee)),
+                if (o.tax > 0) KV('الضريبة', omr(o.tax)),
+                if (o.discount > 0)
+                  KV(o.discountLabel ?? 'خصم', '- ${omr(o.discount)}', color: GH.green),
                 KV('الإجمالي', omr(o.total), strong: true),
                 KV('المدفوع', omr(o.paid), color: GH.green),
                 KV('المتبقي', omr(o.remaining),

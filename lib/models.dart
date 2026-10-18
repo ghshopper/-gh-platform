@@ -562,6 +562,9 @@ class Order {
     this.carrierTracking,
     this.storeOrderNumber,
     this.codAmount,
+    this.discount = 0,
+    this.discountLabel,
+    this.tax = 0,
   });
 
   final String id;
@@ -598,6 +601,12 @@ class Order {
   /// Cash the driver collects for a cash-on-delivery website order.
   final double? codAmount;
 
+  /// Discount code / loyalty discount and tax from the website or app order
+  /// (kept on the order, not as item lines).
+  final double discount;
+  final String? discountLabel;
+  final double tax;
+
   /// What the driver collects at the door.
   double get toCollect =>
       codAmount ?? (deliveryCollect && deliveryFee > 0 ? deliveryFee : 0);
@@ -621,7 +630,7 @@ class Order {
 
   double get itemsTotal =>
       activeItems.fold<double>(0, (sum, i) => sum + i.price);
-  double get total => itemsTotal + deliveryFee;
+  double get total => itemsTotal + deliveryFee + tax - discount;
   double get paid => payments.fold<double>(0, (sum, p) => sum + p.amount);
   double get remaining => total - paid;
   bool get hasBalance => remaining > 0.0005;
@@ -692,6 +701,9 @@ class Order {
       carrierTracking: _s(m['carrier_tracking']),
       storeOrderNumber: _s(m['store_order_number']),
       codAmount: m['cod_amount'] == null ? null : _d(m['cod_amount']),
+      discount: _d(m['discount']),
+      discountLabel: _s(m['discount_label']),
+      tax: _d(m['tax']),
       events: ((m['events'] as List?) ?? const [])
           .map((e) => OrderEvent.fromMap(Map<String, dynamic>.from(e as Map)))
           .toList(),

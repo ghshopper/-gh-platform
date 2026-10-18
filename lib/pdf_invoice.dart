@@ -248,6 +248,9 @@ Future<Uint8List> buildInvoicePdf(
                   amountRow('مجموع القطع', 'Subtotal', o.itemsTotal),
                   if (o.deliveryFee > 0)
                     amountRow('التوصيل', 'Delivery', o.deliveryFee),
+                  if (o.tax > 0) amountRow('الضريبة', 'Tax', o.tax),
+                  if (o.discount > 0)
+                    amountRow(o.discountLabel ?? 'خصم', 'Discount', -o.discount),
                   pw.Divider(color: _line, thickness: 0.6, height: 8),
                   amountRow('الإجمالي', 'Total', o.total, strong: true),
                   if (o.paid > 0) amountRow('المدفوع', 'Paid', o.paid),
