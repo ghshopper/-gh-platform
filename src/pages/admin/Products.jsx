@@ -1,0 +1,859 @@
+import { useState, useEffect, useRef } from 'react'
+import {
+  RiAddLine, RiSearchLine, RiPencilLine, RiDeleteBinLine,
+  RiUpload2Line, RiVideoLine, RiSaveLine, RiCloseLine,
+  RiImageAddLine, RiArrowLeftLine, RiMagicLine
+} from 'react-icons/ri'
+import api, { getImageUrl } from '../../services/api'
+import toast from 'react-hot-toast'
+import AiImportModal from './AiImportModal'
+import GHPagination from '../../components/GHPagination'
+
+export default function Products() {
+  const [view, setView] = useState('list')
+  const [products, setProducts] = useState([])
+  const [categories, setCategories] = useState([])
+  const [brands, setBrands] = useState([])
+  const [globalAttributes, setGlobalAttributes] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const isSubmittingRef = useRef(false)
+  const [activeLang, setActiveLang] = useState('ar')
+  const fileRef = useRef(null)
+
+  const [editingProduct, setEditingProduct] = useState(null)
+  const [isAiModalOpen, setIsAiModalOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [categoryFilter, setCategoryFilter] = useState('all')
+  const [statusFilter, setStatusFilter] = useState('all')
+
+  const [currentPage, setCurrentPage] = useState(1)
+  const [lastPage, setLastPage] = useState(1)
+  const [totalItems, setTotalItems] = useState(0)
+
+  const emptyForm = {
+    name_ar: '', name_en: '',
+    category_id: '', brand_id: '',
+    price: '', discount_price: '',
+    discount_expires_at: '',
+    quantity: '',
+    description_ar: '', description_en: '',
+    primary_image: '', size_guide_image: '', video_url: '',
+    gallery_images: [],
+    attributes: [],
+    is_featured: 0,
+    delivery_badge: ''
+  }
+  const [formData, setFormData] = useState(emptyForm)
+  const [imgPreview, setImgPreview] = useState('')
+  const [sizeGuidePreview, setSizeGuidePreview] = useState('')
+
+  const [autoImportKey, setAutoImportKey] = useState(null)
+
+  useEffect(() => { 
+    fetchData() 
+    
+    // Check for bookmarklet redirect
+    const urlParams = new URLSearchParams(window.location.search)
+    const importKey = urlParams.get('import_key')
+    if (importKey) {
+      setAutoImportKey(importKey)
+      setIsAiModalOpen(true)
+      // Remove it from URL cleanly
+      window.history.replaceState({}, document.title, window.location.pathname)
+    }
+  }, [])
+  const fetchProducts = async (page = 1) => {
+    try {
+      setLoading(true)
+      const prodRes = await api.get(`/admin/products?page=${page}&per_page=10`)
+      setProducts(prodRes.data.data || prodRes.data || [])
+      setCurrentPage(prodRes.data.current_page || 1)
+      setLastPage(prodRes.data.last_page || 1)
+      setTotalItems(prodRes.data.total || (prodRes.data.data || prodRes.data || []).length || 0)
+    } catch {
+      toast.error('خطأ في جلب المنتجات')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const fetchData = async () => {
+    try {
+      setLoading(true)
+      const [catRes, brandRes, attrRes] = await Promise.all([
+        api.get('/admin/categories'),
+        api.get('/admin/brands'),
+        api.get('/admin/attributes')
+      ])
+      await fetchProducts(1)
+      setCategories(catRes.data.data || catRes.data || [])
+      setBrands(brandRes.data.data || brandRes.data || [])
+      setGlobalAttributes(attrRes.data.data || attrRes.data || [])
+    } catch {
+      toast.error('حدث خطأ أثناء تحميل البيانات')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const compressImage = (file) => {
+    return new Promise((resolve) => {
+      const reader = new FileReader()
+      reader.onload = (event) => {
+        const img = new Image()
+        img.onload = () => {
+          const canvas = document.createElement('canvas')
+          const MAX_WIDTH = 1200
+          const MAX_HEIGHT = 1200
+          let width = img.width
+          let height = img.height
+
+          if (width > height) {
+            if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+          } else {
+            if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
+          }
+
+          canvas.width = width
+          canvas.height = height
+          const ctx = canvas.getContext('2d')
+          ctx.drawImage(img, 0, 0, width, height)
+          resolve(canvas.toDataURL('image/jpeg', 0.85))
+        }
+        img.src = event.target.result
+      }
+      reader.readAsDataURL(file)
+    })
+  }
+
+  const handleFileChange = async (e, field) => {
+    const file = e.target.files[0]
+    if (!file) return
+    const compressed = await compressImage(file)
+    
+    if (field === 'primary_image') {
+      setImgPreview(compressed)
+    } else if (field === 'size_guide_image') {
+      setSizeGuidePreview(compressed)
+    }
+    setFormData(f => ({ ...f, [field]: compressed }))
+  }
+
+  const dataURLtoFile = (dataurl, filename) => {
+    if (!dataurl || !dataurl.startsWith('data:')) return dataurl;
+    try {
+      let arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+          bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+      while(n--){ u8arr[n] = bstr.charCodeAt(n); }
+      let ext = mime.split('/')[1] || 'jpg';
+      return new File([u8arr], filename + '.' + ext, {type:mime});
+    } catch(e) { return dataurl; }
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    if (isSubmittingRef.current) return;
+    
+    isSubmittingRef.current = true;
+    setIsSubmitting(true)
+    
+    try {
+      const payload = new FormData();
+      Object.keys(formData).forEach(key => {
+        if (key === 'primary_image' || key === 'size_guide_image') {
+          const fileOrStr = dataURLtoFile(formData[key], key);
+          if (fileOrStr) payload.append(key, fileOrStr);
+        } else if (key === 'gallery_images') {
+          if (Array.isArray(formData[key])) {
+            formData[key].forEach((img, i) => {
+              const f = dataURLtoFile(img, `gallery_${i}`);
+              if (f) payload.append(`gallery_images[${i}]`, f);
+            });
+          }
+        } else if (key === 'attributes') {
+          payload.append('attributes', JSON.stringify(formData[key] || []));
+        } else {
+          payload.append(key, formData[key] === null || formData[key] === undefined ? '' : formData[key]);
+        }
+      });
+
+      const promise = editingProduct
+        ? api.post(`/admin/products/${editingProduct.id}?_method=PUT`, payload, { headers: { 'Content-Type': 'multipart/form-data' } })
+        : api.post('/admin/products', payload, { headers: { 'Content-Type': 'multipart/form-data' } })
+
+      await toast.promise(promise, {
+        loading: 'جاري الحفظ...',
+        success: editingProduct ? 'تم تعديل المنتج بنجاح!' : 'تم إضافة المنتج بنجاح!',
+        error: 'خطأ في الحفظ'
+      })
+      setView('list')
+      setFormData(emptyForm)
+      setImgPreview('')
+      setSizeGuidePreview('')
+      setEditingProduct(null)
+      fetchData()
+    } catch { 
+    } finally {
+      isSubmittingRef.current = false;
+      setIsSubmitting(false)
+    }
+  }
+
+  const openEdit = (product) => {
+    setEditingProduct(product)
+    setFormData({
+      name_ar: product.name_ar || '',
+      name_en: product.name_en || '',
+      category_id: product.category_id || '',
+      brand_id: product.brand_id || '',
+      price: product.price || '',
+      discount_price: product.compare_price || product.discount_price || '',
+      quantity: product.stock_quantity || product.quantity || '',
+      description_ar: product.description_ar || '',
+      description_en: product.description_en || '',
+      primary_image: product.primary_image || '',
+      size_guide_image: product.size_guide_image || '',
+      video_url: product.video_url || '',
+      gallery_images: Array.isArray(product.gallery_images) ? product.gallery_images : (JSON.parse(product.gallery_images || '[]')),
+      attributes: (() => {
+        try {
+          const decoded = typeof product.attributes === 'string' ? JSON.parse(product.attributes) : (product.attributes || [])
+          if (Array.isArray(decoded)) return decoded.map(a => ({...a, is_selectable: a.is_selectable ?? true}))
+          const arr = []
+          if (decoded.colors && decoded.colors.length > 0) arr.push({ name_ar: 'اللون', name_en: 'Color', type: 'color', is_selectable: true, values: decoded.colors.map(c => ({ value_ar: c, value_en: c })) })
+          if (decoded.sizes && decoded.sizes.length > 0) arr.push({ name_ar: 'المقاس', name_en: 'Size', type: 'size', is_selectable: true, values: decoded.sizes.map(s => ({ value_ar: s, value_en: s })) })
+          return arr
+        } catch(e) { return [] }
+      })(),
+      is_featured: product.is_featured || 0,
+      delivery_badge: product.delivery_badge || '',
+      discount_expires_at: product.discount_expires_at ? product.discount_expires_at.slice(0, 16) : ''
+    })
+    setImgPreview(getImageUrl(product.primary_image))
+    setSizeGuidePreview(product.size_guide_image ? getImageUrl(product.size_guide_image) : '')
+    setView('add')
+  }
+
+  const handleDelete = async (id) => {
+    if (!confirm('حذف هذا المنتج؟')) return
+    try {
+      await api.delete(`/admin/products/${id}`)
+      toast.success('تم الحذف')
+      fetchData()
+    } catch { toast.error('خطأ في الحذف') }
+  }
+
+  // --- AI Import Management ---
+  const handleAiImportSuccess = (aiData) => {
+    setFormData(prev => ({
+      ...prev,
+      category_id: aiData.category_id || prev.category_id,
+      brand_id: aiData.brand_id || prev.brand_id,
+      name_en: aiData.name_en || prev.name_en,
+      name_ar: aiData.name_ar || prev.name_ar,
+      description_en: aiData.description_en || prev.description_en,
+      description_ar: aiData.description_ar || prev.description_ar,
+      price: aiData.price || prev.price,
+      gallery_images: aiData.images && aiData.images.length > 0 ? aiData.images : prev.gallery_images,
+      primary_image: aiData.primary_image || prev.primary_image,
+      attributes: [
+        ...(Array.isArray(aiData.attributes) ? aiData.attributes.map(attr => ({
+            name_ar: attr.name_ar || '',
+            name_en: attr.name_en || '',
+            type: attr.type || 'text',
+            icon: '',
+            is_selectable: attr.is_selectable ?? true,
+            values: Array.isArray(attr.values) ? attr.values.map(v => ({ value_ar: v.value_ar || '', value_en: v.value_en || '', color_code: '', image: '' })) : []
+        })) : [])
+      ]
+    }))
+    
+    if (aiData.primary_image) {
+      setImgPreview(getImageUrl(aiData.primary_image))
+    }
+    
+    setView('add')
+  }
+
+  // --- Attributes Management ---
+  const addGlobalAttribute = (e) => {
+    const attrId = e.target.value
+    if (!attrId) return
+    const globalAttr = globalAttributes.find(a => a.id == attrId)
+    if (!globalAttr) return
+    
+    // Check if already added
+    if (formData.attributes.some(a => a.name_ar === globalAttr.name_ar)) {
+      toast.error('هذه الخاصية مضافة مسبقاً')
+      e.target.value = ""
+      return
+    }
+
+    setFormData(f => ({
+      ...f,
+      attributes: [...f.attributes, {
+        name_ar: globalAttr.name_ar,
+        name_en: globalAttr.name_en,
+        type: globalAttr.type,
+        icon: globalAttr.icon,
+        is_selectable: true,
+        values: globalAttr.values.map(v => ({ ...v })) // deep copy values
+      }]
+    }))
+    e.target.value = ""
+  }
+
+  const addCustomAttribute = () => {
+    setFormData(f => ({
+      ...f,
+      attributes: [...f.attributes, { name_ar: '', name_en: '', type: 'text', icon: '', is_selectable: true, values: [] }]
+    }))
+  }
+
+  const removeAttribute = (index) => {
+    const newAttrs = [...formData.attributes]
+    newAttrs.splice(index, 1)
+    setFormData(f => ({ ...f, attributes: newAttrs }))
+  }
+
+  const updateAttribute = (index, field, value) => {
+    const newAttrs = [...formData.attributes]
+    newAttrs[index][field] = value
+    setFormData(f => ({ ...f, attributes: newAttrs }))
+  }
+
+  const addAttributeValue = (attrIndex) => {
+    const newAttrs = [...formData.attributes]
+    newAttrs[attrIndex].values.push({ value_ar: '', value_en: '', color_code: '', image: '' })
+    setFormData(f => ({ ...f, attributes: newAttrs }))
+  }
+
+  const removeAttributeValue = (attrIndex, valIndex) => {
+    const newAttrs = [...formData.attributes]
+    newAttrs[attrIndex].values.splice(valIndex, 1)
+    setFormData(f => ({ ...f, attributes: newAttrs }))
+  }
+
+  const updateAttributeValue = (attrIndex, valIndex, field, value) => {
+    const newAttrs = [...formData.attributes]
+    newAttrs[attrIndex].values[valIndex][field] = value
+    setFormData(f => ({ ...f, attributes: newAttrs }))
+  }
+
+  const handleAttributeImageUpload = (attrIndex, valIndex, e) => {
+    const file = e.target.files[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onloadend = () => {
+      updateAttributeValue(attrIndex, valIndex, 'image', reader.result)
+    }
+    reader.readAsDataURL(file)
+  }
+
+  // =================== ADD FORM VIEW ===================
+  if (view === 'add') {
+    return (
+      <div style={{ padding: '28px 32px', maxWidth: 1400, margin: '0 auto' }}>
+        {/* Header */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 28 }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 6 }}>
+              <button onClick={() => setView('list')} style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#9CA3AF', fontSize: 13, background: 'none', border: 'none', cursor: 'pointer' }}>
+                <RiArrowLeftLine size={16} /> العودة للمنتجات
+              </button>
+            </div>
+            <h1 style={{ fontSize: 26, fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>إضافة منتج جديد</h1>
+            <p style={{ color: '#9CA3AF', fontSize: 13, marginTop: 4 }}>أدخل كافة تفاصيل المنتج بدقة قبل النشر</p>
+          </div>
+          <button onClick={() => { setView('list'); setEditingProduct(null); }} style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#F3F4F6', color: '#6B7280', border: 'none', borderRadius: 10, padding: '10px 20px', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
+            <RiCloseLine size={18} /> إلغاء
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: 24, alignItems: 'start' }}>
+          
+          {/* === LEFT COLUMN === */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+
+            {/* Language Content Card */}
+            <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #F3F4F6', boxShadow: '0 2px 12px rgba(0,0,0,0.04)', overflow: 'hidden' }}>
+              {/* Tabs */}
+              <div style={{ display: 'flex', borderBottom: '1px solid #F3F4F6', background: '#FAFAFA', padding: '0 24px' }}>
+                {[{ key: 'ar', label: 'المحتوى العربي', flag: '🇸🇦' }, { key: 'en', label: 'English Content', flag: '🇬🇧' }].map(lang => (
+                  <button key={lang.key} type="button" onClick={() => setActiveLang(lang.key)}
+                    style={{ padding: '16px 22px', fontSize: 13, fontWeight: 700, background: 'transparent', border: 'none', borderBottom: activeLang === lang.key ? '2px solid var(--color-gold)' : '2px solid transparent', color: activeLang === lang.key ? 'var(--color-gold)' : '#9CA3AF', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ fontSize: 18 }}>{lang.flag}</span> {lang.label}
+                  </button>
+                ))}
+              </div>
+
+              <div style={{ padding: '24px 28px' }}>
+                {activeLang === 'ar' ? (
+                  <div>
+                    <div style={{ marginBottom: 20 }}>
+                      <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#6B7280', marginBottom: 8, textTransform: 'uppercase' }}>اسم المنتج بالعربية *</label>
+                      <input required value={formData.name_ar} onChange={e => setFormData(f => ({...f, name_ar: e.target.value}))}
+                        style={{ width: '100%', padding: '13px 16px', border: '1.5px solid #E5E7EB', borderRadius: 10, fontSize: 15, fontFamily: 'inherit', outline: 'none', transition: 'border 0.2s' }}
+                        placeholder="مثال: عطر ديور سوفاج، ساعة رولكس سابماريز..."
+                        onFocus={e => e.target.style.borderColor = 'var(--color-gold)'}
+                        onBlur={e => e.target.style.borderColor = '#E5E7EB'}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#6B7280', marginBottom: 8, textTransform: 'uppercase' }}>الوصف التفصيلي والمميزات (عربي)</label>
+                      <textarea value={formData.description_ar} onChange={e => setFormData(f => ({...f, description_ar: e.target.value}))} rows={5}
+                        style={{ width: '100%', padding: '13px 16px', border: '1.5px solid #E5E7EB', borderRadius: 10, fontSize: 14, fontFamily: 'inherit', outline: 'none', resize: 'vertical', lineHeight: 1.7 }}
+                        placeholder="اكتب وصفاً دقيقاً وجذاباً يشرح مميزات المنتج..."
+                        onFocus={e => e.target.style.borderColor = 'var(--color-gold)'}
+                        onBlur={e => e.target.style.borderColor = '#E5E7EB'}
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <div style={{ marginBottom: 20 }}>
+                      <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#6B7280', marginBottom: 8, textTransform: 'uppercase' }}>Product Name (English) *</label>
+                      <input required value={formData.name_en} onChange={e => setFormData(f => ({...f, name_en: e.target.value}))}
+                        style={{ width: '100%', padding: '13px 16px', border: '1.5px solid #E5E7EB', borderRadius: 10, fontSize: 15, fontFamily: 'sans-serif', outline: 'none', direction: 'ltr' }}
+                        placeholder="Ex: Dior Sauvage Parfum 200ml..."
+                        onFocus={e => e.target.style.borderColor = 'var(--color-gold)'}
+                        onBlur={e => e.target.style.borderColor = '#E5E7EB'}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#6B7280', marginBottom: 8, textTransform: 'uppercase' }}>Description & Features (English)</label>
+                      <textarea value={formData.description_en} onChange={e => setFormData(f => ({...f, description_en: e.target.value}))} rows={5}
+                        style={{ width: '100%', padding: '13px 16px', border: '1.5px solid #E5E7EB', borderRadius: 10, fontSize: 14, fontFamily: 'sans-serif', outline: 'none', resize: 'vertical', direction: 'ltr', lineHeight: 1.7 }}
+                        placeholder="Describe the product features in detail..."
+                        onFocus={e => e.target.style.borderColor = 'var(--color-gold)'}
+                        onBlur={e => e.target.style.borderColor = '#E5E7EB'}
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* General Info */}
+            <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #F3F4F6', boxShadow: '0 2px 12px rgba(0,0,0,0.04)', padding: '24px 28px' }}>
+              <p style={{ fontSize: 11, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 20 }}>معلومات المنتج الأساسية</p>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 20 }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#6B7280', marginBottom: 8 }}>التصنيف (Category) *</label>
+                  <select required value={formData.category_id} onChange={e => setFormData(f => ({...f, category_id: e.target.value}))}
+                    style={{ width: '100%', padding: '12px 16px', border: '1.5px solid #E5E7EB', borderRadius: 10, fontSize: 14, fontFamily: 'inherit', outline: 'none', background: '#fff' }}>
+                    <option value="">اختر التصنيف...</option>
+                    {categories.map(c => <option key={c.id} value={c.id}>{c.name_ar}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#6B7280', marginBottom: 8 }}>الماركة (Brand)</label>
+                  <select value={formData.brand_id} onChange={e => setFormData(f => ({...f, brand_id: e.target.value}))}
+                    style={{ width: '100%', padding: '12px 16px', border: '1.5px solid #E5E7EB', borderRadius: 10, fontSize: 14, fontFamily: 'inherit', outline: 'none', background: '#fff' }}>
+                    <option value="">بدون ماركة</option>
+                    {brands.map(b => <option key={b.id} value={b.id}>{b.name_ar}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#6B7280', marginBottom: 8 }}>شارة التوصيل (Delivery Badge)</label>
+                  <select value={formData.delivery_badge} onChange={e => setFormData(f => ({...f, delivery_badge: e.target.value}))}
+                    style={{ width: '100%', padding: '12px 16px', border: '1.5px solid #E5E7EB', borderRadius: 10, fontSize: 14, fontFamily: 'inherit', outline: 'none', background: '#fff' }}>
+                    <option value="">بدون شارة</option>
+                    <option value="2h">توصيل خلال ساعتين</option>
+                    <option value="3d">توصيل خلال 3 أيام</option>
+                    <option value="5_7d">توصيل خلال 5 - 7 أيام</option>
+                    <option value="preorder">طلب مسبق</option>
+                  </select>
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 20 }}>
+                {[
+                  { key: 'price', label: 'السعر الأساسي (OMR) *', required: true, placeholder: '0.000' },
+                  { key: 'discount_price', label: 'سعر التخفيض (OMR)', required: false, placeholder: '0.000' },
+                  { key: 'quantity', label: 'الكمية المتوفرة *', required: true, placeholder: '0' },
+                ].map(field => (
+                  <div key={field.key}>
+                    <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#6B7280', marginBottom: 8 }}>{field.label}</label>
+                    <input type="number" required={field.required} min="0" step="0.001"
+                      value={formData[field.key]} onChange={e => setFormData(f => ({...f, [field.key]: e.target.value}))}
+                      style={{ width: '100%', padding: '12px 16px', border: '1.5px solid #E5E7EB', borderRadius: 10, fontSize: 14, fontFamily: 'sans-serif', outline: 'none' }}
+                      placeholder={field.placeholder}
+                      onFocus={e => e.target.style.borderColor = 'var(--color-gold)'}
+                      onBlur={e => e.target.style.borderColor = '#E5E7EB'}
+                    />
+                  </div>
+                ))}
+              </div>
+
+              {/* تاريخ انتهاء الخصم */}
+              {formData.discount_price !== undefined && formData.discount_price !== '' && (
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginTop: 16 }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#6B7280', marginBottom: 8 }}>تاريخ انتهاء الخصم (اختياري - للعد التنازلي)</label>
+                    <input type="datetime-local"
+                      value={formData.discount_expires_at}
+                      onChange={e => setFormData(f => ({...f, discount_expires_at: e.target.value}))}
+                      style={{ width: '100%', padding: '12px 16px', border: '1.5px solid #E5E7EB', borderRadius: 10, fontSize: 14, fontFamily: 'sans-serif', outline: 'none', direction: 'ltr' }}
+                      onFocus={e => e.target.style.borderColor = 'var(--color-gold)'}
+                      onBlur={e => e.target.style.borderColor = '#E5E7EB'}
+                    />
+                    <p style={{ fontSize: 11, color: '#9CA3AF', marginTop: 4 }}>يحدد متى ينتهي العد التنازلي في قسم Flash Sale على الموقع</p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Video */}
+            <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #F3F4F6', boxShadow: '0 2px 12px rgba(0,0,0,0.04)', padding: '24px 28px' }}>
+              <p style={{ fontSize: 11, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 16 }}>رابط فيديو المنتج (اختياري)</p>
+              <div style={{ position: 'relative' }}>
+                <RiVideoLine style={{ position: 'absolute', right: 16, top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF' }} size={20} />
+                <input value={formData.video_url} onChange={e => setFormData(f => ({...f, video_url: e.target.value}))}
+                  style={{ width: '100%', padding: '13px 48px 13px 16px', border: '1.5px solid #E5E7EB', borderRadius: 10, fontSize: 14, fontFamily: 'sans-serif', outline: 'none', direction: 'ltr' }}
+                  placeholder="https://www.youtube.com/watch?v=..."
+                  onFocus={e => e.target.style.borderColor = 'var(--color-gold)'}
+                  onBlur={e => e.target.style.borderColor = '#E5E7EB'}
+                />
+              </div>
+            </div>
+            
+            {/* Attributes */}
+            <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #F3F4F6', boxShadow: '0 2px 12px rgba(0,0,0,0.04)', padding: '24px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+                <p style={{ fontSize: 13, fontWeight: 800, color: '#374151', textTransform: 'uppercase', letterSpacing: '0.5px', margin: 0 }}>خصائص المنتج (Attributes)</p>
+                <div style={{ display: 'flex', gap: 10 }}>
+                  <select onChange={addGlobalAttribute} style={{ padding: '8px 12px', border: '1.5px solid #E5E7EB', borderRadius: 8, fontSize: 12, outline: 'none' }}>
+                    <option value="">+ استيراد خاصية عامة</option>
+                    {globalAttributes.map(a => <option key={a.id} value={a.id}>{a.name_ar}</option>)}
+                  </select>
+                  <button type="button" onClick={addCustomAttribute} style={{ padding: '8px 12px', border: 'none', background: 'var(--color-primary)', color: '#fff', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>+ خاصية مخصصة</button>
+                </div>
+              </div>
+
+              {formData.attributes.map((attr, attrIdx) => (
+                <div key={attrIdx} style={{ background: '#FAFAFA', border: '1px solid #F3F4F6', borderRadius: 12, padding: 16, marginBottom: 16 }}>
+                  <div style={{ display: 'flex', gap: 12, marginBottom: 12, flexWrap: 'wrap' }}>
+                    <input value={attr.name_ar} onChange={e => updateAttribute(attrIdx, 'name_ar', e.target.value)} placeholder="اسم الخاصية (عربي)" style={{ flex: 1, minWidth: 150, padding: '8px 12px', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 13 }} />
+                    <input value={attr.name_en} onChange={e => updateAttribute(attrIdx, 'name_en', e.target.value)} placeholder="الاسم (إنجليزي)" style={{ flex: 1, minWidth: 150, padding: '8px 12px', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 13, direction: 'ltr' }} />
+                    <select value={attr.type} onChange={e => updateAttribute(attrIdx, 'type', e.target.value)} style={{ width: 100, padding: '8px', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 13 }}>
+                      <option value="text">نص</option>
+                      <option value="color">لون/صورة</option>
+                      <option value="size">مقاس</option>
+                    </select>
+                    <select value={attr.icon || ''} onChange={e => updateAttribute(attrIdx, 'icon', e.target.value)} style={{ width: 130, padding: '8px', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 13, fontFamily: 'monospace' }}>
+                      <option value="">-- بدون أيقونة --</option>
+                      <option value="diamond_outlined">💎 Diamond</option>
+                      <option value="settings_outlined">⚙️ Settings</option>
+                      <option value="water_drop_outlined">💧 Water</option>
+                      <option value="straighten">📏 Size/Ruler</option>
+                      <option value="scale">⚖️ Weight</option>
+                      <option value="verified_outlined">✔️ Verified</option>
+                      <option value="star_outline">⭐ Star</option>
+                      <option value="favorite_border">❤️ Heart</option>
+                    </select>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 600, color: '#4B5563', cursor: 'pointer', background: '#fff', padding: '6px 10px', borderRadius: 8, border: '1px solid #E5E7EB' }}>
+                      <input type="checkbox" checked={attr.is_selectable !== false} onChange={e => updateAttribute(attrIdx, 'is_selectable', e.target.checked)} style={{ cursor: 'pointer' }} />
+                      قابل للاختيار
+                    </label>
+                    <button type="button" onClick={() => removeAttribute(attrIdx)} style={{ background: '#FEF2F2', color: '#EF4444', border: 'none', borderRadius: 8, width: 36, height: 36, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><RiDeleteBinLine size={16}/></button>
+                  </div>
+                  
+                  <div style={{ paddingLeft: 12, borderRight: '2px solid #E5E7EB', marginRight: 12 }}>
+                    {attr.values.map((val, valIdx) => (
+                      <div key={valIdx} style={{ display: 'flex', gap: 8, marginBottom: 8, alignItems: 'center' }}>
+                        <input value={val.value_ar} onChange={e => updateAttributeValue(attrIdx, valIdx, 'value_ar', e.target.value)} placeholder="القيمة (عربي)" style={{ flex: 1, padding: '6px 10px', border: '1px solid #E5E7EB', borderRadius: 6, fontSize: 12 }} />
+                        <input value={val.value_en} onChange={e => updateAttributeValue(attrIdx, valIdx, 'value_en', e.target.value)} placeholder="القيمة (إنجليزي)" style={{ flex: 1, padding: '6px 10px', border: '1px solid #E5E7EB', borderRadius: 6, fontSize: 12, direction: 'ltr' }} />
+                        
+                        {attr.type === 'color' && (
+                          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                            <input type="color" value={val.color_code || '#000000'} onChange={e => updateAttributeValue(attrIdx, valIdx, 'color_code', e.target.value)} style={{ width: 32, height: 32, padding: 0, border: 'none', borderRadius: 4, cursor: 'pointer' }} />
+                            <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 32, height: 32, border: '1px dashed #D1D5DB', borderRadius: 4, cursor: 'pointer', background: val.image ? 'transparent' : '#fff', overflow: 'hidden' }}>
+                              {val.image ? <img src={val.image.startsWith('data') ? val.image : getImageUrl(val.image)} alt="color" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <RiImageAddLine size={14} color="#9CA3AF" />}
+                              <input type="file" style={{ display: 'none' }} accept="image/*" onChange={e => handleAttributeImageUpload(attrIdx, valIdx, e)} />
+                            </label>
+                          </div>
+                        )}
+                        <button type="button" onClick={() => removeAttributeValue(attrIdx, valIdx)} style={{ background: 'transparent', color: '#EF4444', border: 'none', cursor: 'pointer', padding: 4 }}><RiCloseLine size={16}/></button>
+                      </div>
+                    ))}
+                    <button type="button" onClick={() => addAttributeValue(attrIdx)} style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-primary)', background: 'transparent', border: 'none', cursor: 'pointer', padding: 0, marginTop: 4 }}>+ إضافة قيمة</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+          </div>
+
+          {/* === RIGHT COLUMN === */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+
+            {/* Image Upload */}
+            <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #F3F4F6', boxShadow: '0 2px 12px rgba(0,0,0,0.04)', padding: '24px' }}>
+              <p style={{ fontSize: 11, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 16, textAlign: 'center' }}>الصورة الرئيسية للمنتج</p>
+
+              {/* Upload area */}
+              <div onClick={() => fileRef.current?.click()}
+                style={{ border: '2px dashed #E5E7EB', borderRadius: 14, minHeight: 180, cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', transition: 'all 0.2s', marginBottom: 16 }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--color-gold)'; e.currentTarget.style.background = '#FBF5EE' }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = '#E5E7EB'; e.currentTarget.style.background = '' }}
+              >
+                {imgPreview ? (
+                  <img src={imgPreview} alt="preview" style={{ width: '100%', height: 200, objectFit: 'cover' }} />
+                ) : (
+                  <>
+                    <RiImageAddLine size={40} color="#D1D5DB" style={{ marginBottom: 12 }} />
+                    <p style={{ fontSize: 14, fontWeight: 600, color: '#6B7280', margin: 0 }}>ارفع صورة المنتج</p>
+                    <p style={{ fontSize: 12, color: '#9CA3AF', marginTop: 6 }}>JPG, PNG, WebP - حتى 10MB</p>
+                  </>
+                )}
+              </div>
+              <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={e => handleFileChange(e, 'primary_image')} />
+
+              <p style={{ fontSize: 11, color: '#9CA3AF', textAlign: 'center', marginBottom: 10 }}>أو أدخل رابط الصورة مباشرة</p>
+              <input value={formData.primary_image} onChange={e => { setFormData(f => ({...f, primary_image: e.target.value})); setImgPreview(e.target.value) }}
+                style={{ width: '100%', padding: '11px 14px', border: '1.5px solid #E5E7EB', borderRadius: 10, fontSize: 12, fontFamily: 'sans-serif', outline: 'none', direction: 'ltr' }}
+                placeholder="https://..."
+              />
+            </div>
+
+            {/* Size Guide Image Upload */}
+            <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #F3F4F6', boxShadow: '0 2px 12px rgba(0,0,0,0.04)', padding: '24px' }}>
+              <p style={{ fontSize: 11, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 16, textAlign: 'center' }}>صورة دليل المقاسات (اختياري)</p>
+              <div onClick={() => document.getElementById('size_guide_upload').click()}
+                style={{ border: '2px dashed #E5E7EB', borderRadius: 14, minHeight: 120, cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', transition: 'all 0.2s', marginBottom: 16 }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--color-gold)'; e.currentTarget.style.background = '#FBF5EE' }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = '#E5E7EB'; e.currentTarget.style.background = '' }}
+              >
+                {sizeGuidePreview ? (
+                  <img src={sizeGuidePreview} alt="size-guide" style={{ width: '100%', height: 120, objectFit: 'contain' }} />
+                ) : (
+                  <>
+                    <RiImageAddLine size={24} color="#D1D5DB" style={{ marginBottom: 8 }} />
+                    <p style={{ fontSize: 13, fontWeight: 600, color: '#6B7280', margin: 0 }}>ارفع دليل المقاسات</p>
+                  </>
+                )}
+              </div>
+              <input id="size_guide_upload" type="file" accept="image/*" style={{ display: 'none' }} onChange={e => handleFileChange(e, 'size_guide_image')} />
+            </div>
+
+            {/* Gallery Upload */}
+            <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #F3F4F6', boxShadow: '0 2px 12px rgba(0,0,0,0.04)', padding: '24px' }}>
+              <p style={{ fontSize: 11, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 16, textAlign: 'center' }}>معرض الصور (Gallery)</p>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginBottom: 16 }}>
+                {formData.gallery_images.map((img, i) => (
+                  <div key={i} style={{ position: 'relative', aspectRatio: '1', borderRadius: 8, overflow: 'hidden', border: '1px solid #E5E7EB' }}>
+                    <img src={getImageUrl(img)} alt={`gallery-${i}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <button type="button" onClick={() => setFormData(f => ({ ...f, gallery_images: f.gallery_images.filter((_, idx) => idx !== i) }))} style={{ position: 'absolute', top: 4, right: 4, background: 'rgba(255,255,255,0.9)', border: 'none', borderRadius: '50%', padding: 4, cursor: 'pointer', color: 'red' }}><RiCloseLine size={14}/></button>
+                  </div>
+                ))}
+                <label style={{ aspectRatio: '1', borderRadius: 8, border: '2px dashed #E5E7EB', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', background: '#FAFAFA' }}>
+                  <input type="file" multiple accept="image/*" style={{ display: 'none' }} onChange={async (e) => {
+                    const files = Array.from(e.target.files);
+                    for (let file of files) {
+                      const compressed = await compressImage(file);
+                      setFormData(f => ({ ...f, gallery_images: [...f.gallery_images, compressed] }));
+                    }
+                  }} />
+                  <RiAddLine size={24} color="#D1D5DB" />
+                </label>
+              </div>
+            </div>
+
+            {/* Publish Card */}
+            <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #F3F4F6', boxShadow: '0 2px 12px rgba(0,0,0,0.04)', padding: '24px' }}>
+              <p style={{ fontSize: 11, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 16 }}>إعدادات النشر</p>
+
+              <label style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', background: '#FAFAFA', borderRadius: 10, cursor: 'pointer', marginBottom: 20 }}>
+                <input type="checkbox" checked={formData.is_featured === 1} onChange={e => setFormData(f => ({...f, is_featured: e.target.checked ? 1 : 0}))}
+                  style={{ width: 18, height: 18, accentColor: 'var(--color-primary)', cursor: 'pointer' }} />
+                <div>
+                  <p style={{ fontWeight: 700, fontSize: 14, color: 'var(--text-primary)', margin: 0 }}>منتج مميز ⭐</p>
+                  <p style={{ fontSize: 12, color: '#9CA3AF', marginTop: 2 }}>سيظهر في قسم المنتجات المميزة</p>
+                </div>
+              </label>
+
+              <button type="submit" disabled={isSubmitting} style={{ width: '100%', padding: '15px', background: isSubmitting ? '#9CA3AF' : 'linear-gradient(135deg, var(--color-primary), var(--color-primary-med))', color: '#fff', border: 'none', borderRadius: 12, fontSize: 15, fontWeight: 800, cursor: isSubmitting ? 'not-allowed' : 'pointer', pointerEvents: isSubmitting ? 'none' : 'auto', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, boxShadow: isSubmitting ? 'none' : '0 6px 20px rgba(74,13,23,0.3)' }}>
+                <RiSaveLine size={20} /> {isSubmitting ? 'جاري الحفظ...' : 'حفظ وإضافة للكتالوج'}
+              </button>
+            </div>
+          </div>
+        </form>
+
+        {/* Blocking Overlay during submit */}
+        {isSubmitting && (
+          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 999999, cursor: 'not-allowed', background: 'transparent' }} />
+        )}
+      </div>
+    )
+  }
+
+  const filteredProducts = products.filter(p => {
+    const matchSearch = (p.name_ar || '').includes(searchQuery) || (p.name_en || '').includes(searchQuery);
+    const matchCat = categoryFilter === 'all' || p.category_id == categoryFilter;
+    const matchStatus = statusFilter === 'all' || p.status == statusFilter || (statusFilter === '1' && p.status === 'active') || (statusFilter === '0' && p.status !== 'active');
+    return matchSearch && matchCat && matchStatus;
+  });
+
+  // =================== LIST VIEW ===================
+  return (
+    <div className="page-inner" style={{ padding: '32px', maxWidth: 1400, margin: '0 auto' }}>
+      <div className="flex-mobile-col" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 32 }}>
+        <div>
+          <h1 className="page-title-main" style={{ fontSize: 28, fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>المنتجات</h1>
+          <p style={{ color: '#9CA3AF', fontSize: 14, marginTop: 4 }}>{products.length} منتج في الكتالوج</p>
+        </div>
+        <div className="flex-mobile-col flex-wrap" style={{ display: 'flex', gap: '12px' }}>
+          <button onClick={() => { setIsAiModalOpen(true) }}
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, background: 'linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%)', color: '#fff', border: 'none', borderRadius: 10, padding: '12px 24px', fontSize: 14, fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 12px rgba(109, 40, 217, 0.3)' }}>
+            <RiMagicLine size={18} /> إضافة عبر رابط (AI)
+          </button>
+          <button onClick={() => { setFormData(emptyForm); setImgPreview(''); setEditingProduct(null); setView('add') }}
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, background: 'var(--color-primary)', color: '#fff', border: 'none', borderRadius: 10, padding: '12px 24px', fontSize: 14, fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 12px rgba(74,13,23,0.25)' }}>
+            <RiAddLine size={18} /> إضافة يدوية
+          </button>
+        </div>
+      </div>
+      
+      <AiImportModal 
+        isOpen={isAiModalOpen} 
+        onClose={() => { setIsAiModalOpen(false); setAutoImportKey(null); }} 
+        onImportSuccess={handleAiImportSuccess} 
+        autoImportKey={autoImportKey}
+      />
+
+      {/* Filters */}
+      <div className="filters-row flex-mobile-col" style={{ background: '#fff', borderRadius: 12, padding: '16px 20px', marginBottom: 24, boxShadow: '0 2px 8px rgba(0,0,0,0.04)', display: 'flex', alignItems: 'center', gap: 16, border: '1px solid #F3F4F6' }}>
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 12 }}>
+          <RiSearchLine size={20} color="#9CA3AF" />
+          <input value={searchQuery} onChange={e => setSearchQuery(e.target.value)} style={{ flex: 1, border: 'none', outline: 'none', fontSize: 14, background: 'transparent' }} placeholder="بحث عن منتج..." />
+        </div>
+        <select value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)} style={{ padding: '9px 14px', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 13, fontFamily: 'inherit', background: '#FAFAFA', outline: 'none' }}>
+          <option value="all">كل التصنيفات</option>
+          {categories.map(c => <option key={c.id} value={c.id}>{c.name_ar}</option>)}
+        </select>
+        <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} style={{ padding: '9px 14px', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 13, fontFamily: 'inherit', background: '#FAFAFA', outline: 'none' }}>
+          <option value="all">كل الحالات</option>
+          <option value="1">نشط</option>
+          <option value="0">مسودة</option>
+        </select>
+      </div>
+
+      {/* Table */}
+      <div className="table-container" style={{ background: '#fff', borderRadius: 16, boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1px solid #F3F4F6' }}>
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: 80, color: '#9CA3AF' }}>جاري التحميل...</div>
+        ) : (
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr style={{ background: '#FAFAFA', borderBottom: '1px solid #F3F4F6' }}>
+                <th style={{ width: 44, padding: '14px 20px' }}><input type="checkbox" /></th>
+                {['المنتج', 'الفئة', 'السعر (OMR)', 'المخزون', 'الحالة', 'الإجراءات'].map(h => (
+                  <th key={h} style={{ padding: '14px 20px', fontSize: 12, fontWeight: 700, color: '#9CA3AF', textAlign: 'right', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {filteredProducts.length === 0 ? (
+                <tr><td colSpan={7} style={{ textAlign: 'center', padding: 80, color: '#9CA3AF', fontSize: 15 }}>لا توجد منتجات مطابقة.</td></tr>
+              ) : filteredProducts.map(p => (
+                <tr key={p.id} style={{ borderBottom: '1px solid #F9FAFB', transition: 'background 0.15s' }}
+                  onMouseEnter={e => e.currentTarget.style.background = '#FAFAFA'}
+                  onMouseLeave={e => e.currentTarget.style.background = '#fff'}
+                >
+                  <td style={{ padding: '14px 20px' }}><input type="checkbox" /></td>
+                  <td style={{ padding: '14px 20px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                      <div style={{ width: 52, height: 52, borderRadius: 10, background: '#F3F4F6', overflow: 'hidden', flexShrink: 0 }}>
+                        {p.primary_image ? (
+                          <img src={getImageUrl(p.primary_image)} alt={p.name_ar} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        ) : (
+                          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <RiImageAddLine size={20} color="#D1D5DB" />
+                          </div>
+                        )}
+                      </div>
+                      <div>
+                        <p style={{ fontWeight: 700, fontSize: 14, color: 'var(--text-primary)', margin: 0 }}>{p.name_ar || '-'}</p>
+                        <p style={{ fontSize: 11, color: '#9CA3AF', marginTop: 2, fontFamily: 'sans-serif' }}>{p.sku || '-'}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td style={{ padding: '14px 20px', color: 'var(--color-gold)', fontWeight: 600, fontSize: 13 }}>{p.category_name || '-'}</td>
+                  <td style={{ padding: '14px 20px' }}>
+                    {p.compare_price ? (
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                          <span style={{ fontWeight: 800, color: 'var(--color-primary)', fontFamily: 'sans-serif', fontSize: 14 }}>{p.compare_price}</span>
+                          <span style={{ fontSize: 11, color: 'var(--color-primary)', fontWeight: 700 }}>OMR</span>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 2 }}>
+                           <span style={{ fontSize: 11, color: '#9CA3AF', textDecoration: 'line-through', fontFamily: 'sans-serif' }}>{p.price}</span>
+                           <span style={{ fontSize: 9, color: '#9CA3AF' }}>OMR</span>
+                        </div>
+                      </div>
+                    ) : (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <span style={{ fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'sans-serif', fontSize: 14 }}>{p.price}</span>
+                        <span style={{ fontSize: 11, color: 'var(--text-primary)', fontWeight: 700 }}>OMR</span>
+                      </div>
+                    )}
+                  </td>
+                  <td style={{ padding: '14px 20px' }}>
+                    <span style={{ fontWeight: 700, color: p.stock_quantity > 0 ? '#10B981' : '#EF4444', fontFamily: 'sans-serif', fontSize: 14 }}>
+                      {p.stock_quantity > 0 ? p.stock_quantity : 'نفذ'}
+                    </span>
+                  </td>
+                  <td style={{ padding: '14px 20px' }}>
+                    <span style={{ padding: '5px 14px', borderRadius: 20, fontSize: 11, fontWeight: 700, background: p.status === 'active' ? 'rgba(16,185,129,0.1)' : 'rgba(107,114,128,0.1)', color: p.status === 'active' ? '#10B981' : '#6B7280' }}>
+                      {p.status === 'active' ? 'نشط' : 'مسودة'}
+                    </span>
+                  </td>
+                  <td style={{ padding: '14px 20px' }}>
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <button onClick={() => openEdit(p)} style={{ width: 34, height: 34, borderRadius: 8, background: '#F3F4F6', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                        <RiPencilLine size={15} color="#6B7280" />
+                      </button>
+                      <button onClick={() => handleDelete(p.id)} style={{ width: 34, height: 34, borderRadius: 8, background: '#FEF2F2', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                        <RiDeleteBinLine size={15} color="#EF4444" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+
+        {/* Footer Pagination */}
+        {!loading && products.length > 0 && (
+          <div style={{
+            padding:'14px 20px',
+            borderTop:`1px solid rgba(74,13,23,0.06)`,
+            background:'#FAFAFA',
+            borderBottomLeftRadius: 16,
+            borderBottomRightRadius: 16
+          }}>
+            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom: lastPage > 1 ? '16px' : '0' }}>
+              <span style={{ fontSize:13, color:'#9CA3AF' }}>عرض {products.length} منتج في هذه الصفحة</span>
+              <span style={{ fontSize:13, color: 'var(--primary-color, #4A0E1B)', fontWeight:600 }}>إجمالي المنتجات: {totalItems}</span>
+            </div>
+            
+            {lastPage > 1 && (
+              <div style={{ display: 'flex', justifyContent: 'center' }}>
+                <GHPagination 
+                  currentPage={currentPage} 
+                  lastPage={lastPage} 
+                  total={totalItems} 
+                  onPageChange={(p) => fetchProducts(p)} 
+                />
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
