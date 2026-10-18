@@ -141,6 +141,8 @@ export default function OrderDetail() {
           ))}
           <View style={{ gap: 6, paddingTop: 14 }}>
             {o.delivery_fee > 0 ? <SummaryRow label={tr('التوصيل', 'Delivery')} value={omr(o.delivery_fee)} /> : null}
+            {(o.tax ?? 0) > 0 ? <SummaryRow label={tr('الضريبة', 'Tax')} value={omr(o.tax)} /> : null}
+            {(o.discount ?? 0) > 0 ? <SummaryRow label={o.discount_label || tr('خصم', 'Discount')} value={`-${omr(o.discount)}`} color={C.green} /> : null}
             <SummaryRow label={tr('الإجمالي', 'Total')} value={omr(o.total)} strong />
             {o.paid > 0 ? <SummaryRow label={tr('المدفوع', 'Paid')} value={omr(o.paid)} /> : null}
             {o.remaining > 0
@@ -221,6 +223,8 @@ export default function OrderDetail() {
             <Divider />
             <SummaryRow label={tr('مجموع القطع', 'Subtotal')} value={omr(o.items_total)} />
             {o.delivery_fee > 0 ? <SummaryRow label={tr('التوصيل', 'Delivery')} value={omr(o.delivery_fee)} /> : null}
+            {(o.tax ?? 0) > 0 ? <SummaryRow label={tr('الضريبة', 'Tax')} value={omr(o.tax)} /> : null}
+            {(o.discount ?? 0) > 0 ? <SummaryRow label={o.discount_label || tr('خصم', 'Discount')} value={`-${omr(o.discount)}`} color={C.green} /> : null}
             <SummaryRow label={tr('الإجمالي', 'Total')} value={omr(o.total)} strong />
             {o.payments.map((p, k) => <SummaryRow key={k} label={`${tr('دفعة', 'Payment')} ${p.paid_on ?? ''}`} value={omr(p.amount)} />)}
             <View style={{ backgroundColor: C.maroon, padding: 12, flexDirection: 'row', justifyContent: 'space-between' }}>

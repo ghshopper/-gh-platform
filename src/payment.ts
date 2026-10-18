@@ -23,9 +23,9 @@ export type PayResult =
   /** The SDK answered but in a shape we could not read: let the shop check it. */
   | { ok: 'unknown'; transactionId: string; reference: string; raw: string };
 
-const SUCCESS = ['success', 'succeeded', 'successful', 'paid', 'completed', 'approved', 'captured'];
+const SUCCESS = ['success', 'succeeded', 'successful', 'paid', 'completed', 'approved', 'captured', 'authorized', 'authorised'];
 const FAILURE = /fail|declin|reject|cancel|error|denied|invalid|expired|timeout/i;
-const STATUS_KEYS = ['status', 'transactionstatus', 'paymentstatus', 'state', 'result', 'responsestatus'];
+const STATUS_KEYS = ['status', 'transactionstatus', 'paymentstatus', 'state', 'result', 'responsestatus', 'message'];
 const REF_KEYS = ['transactionid', 'referencenumber', 'reference', 'rrn', 'hostreference', 'systemtraceauditnumber', 'merchantreference', 'id'];
 
 /** Flatten the SDK's answer: nested objects and JSON-in-a-string included. */
@@ -75,7 +75,7 @@ export function readAmwalResponse(r: unknown): { verdict: 'ok' | 'fail' | 'cance
     if ((k === 'success' || k === 'issuccess' || k === 'issuccessful') && (val === 'true' || val === '1')) good = true;
     if ((k === 'success' || k === 'issuccess') && val === 'false') bad = true;
     if ((k === 'responsecode' || k === 'hostresponsecode') && (val === '00' || val === '000')) good = true;
-    if (k === 'message' && /approved|success|ناجح|تمت/.test(val) && !FAILURE.test(val)) good = true;
+    if (k === 'message' && /approved|authori[sz]ed|success|ناجح|تمت/.test(val) && !FAILURE.test(val)) good = true;
   }
   const refPair = REF_KEYS.map((rk) => pairs.find(([k, v]) => k === rk && v.length > 3)).find(Boolean);
   const reference = refPair ? refPair[1] : '';

@@ -194,6 +194,9 @@ export interface MyOrder {
   }[];
   items_total: number;
   delivery_fee: number;
+  discount?: number;
+  discount_label?: string | null;
+  tax?: number;
   total: number;
   paid: number;
   remaining: number;
@@ -230,9 +233,14 @@ export interface AppNotification {
 
 export interface LoyaltyTier {
   id: number;
+  name?: string | null;
   name_ar?: string | null;
   name_en?: string | null;
   min_points: number | string;
+  reward_multiplier?: number | string | null;
+  color?: string | null;
+  benefits_ar?: string | null;
+  benefits_en?: string | null;
 }
 
 export interface Policy {
