@@ -9,7 +9,7 @@ import 'order_detail_page.dart';
 import 'scanner_page.dart';
 import 'order_form_page.dart';
 
-enum OrderFilter { all, requested, purchased, arrived, delivered, balance }
+enum OrderFilter { all, requested, purchased, arrived, outForDelivery, delivered, balance }
 
 extension OrderFilterX on OrderFilter {
   String get label {
@@ -22,6 +22,8 @@ extension OrderFilterX on OrderFilter {
         return 'تم الشراء';
       case OrderFilter.arrived:
         return 'وصلت';
+      case OrderFilter.outForDelivery:
+        return 'خرجت للتوصيل';
       case OrderFilter.delivered:
         return 'تم التسليم';
       case OrderFilter.balance:
@@ -39,6 +41,8 @@ extension OrderFilterX on OrderFilter {
         return o.overallStatus == ItemStatus.purchased;
       case OrderFilter.arrived:
         return o.overallStatus == ItemStatus.arrived;
+      case OrderFilter.outForDelivery:
+        return o.overallStatus == ItemStatus.outForDelivery;
       case OrderFilter.delivered:
         return o.overallStatus == ItemStatus.delivered;
       case OrderFilter.balance:

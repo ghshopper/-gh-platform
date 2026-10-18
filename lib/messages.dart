@@ -59,6 +59,13 @@ final List<MsgTemplate> messageTemplates = [
         '${o.deliveryFee > 0 ? ' (شامل التوصيل ${omr(o.deliveryFee)})' : ''}\n'
         'متى ${_g(c, 'يناسبكِ', 'يناسبك')} نوصّله ${_g(c, 'لكِ', 'لك')}؟';
   }),
+  MsgTemplate('خرج للتوصيل', (o, c) {
+    return '${_hi(c)}\n'
+        '${_g(c, 'طلبكِ', 'طلبك')} ${o.invoiceNo} طلع للتوصيل 🚗\n'
+        'بنتواصل ${_g(c, 'معكِ', 'معك')} قبل لا نوصل.\n'
+        'تتبّع${_g(c, 'ي', '')} ${_g(c, 'طلبكِ', 'طلبك')} من هنا:\n'
+        '${trackingLink(o)}';
+  }),
   MsgTemplate('تذكير بالمبلغ المتبقي', (o, c) {
     return '${_hi(c)}\n'
         'تذكير لطيف بالمبلغ المتبقي على ${_g(c, 'طلبكِ', 'طلبك')} ${o.invoiceNo}:\n'

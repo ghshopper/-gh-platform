@@ -175,14 +175,17 @@ class TripExpense {
 
 // ───────────────────────── Items ─────────────────────────
 
-enum ItemStatus { requested, purchased, arrived, delivered, cancelled }
+enum ItemStatus { requested, purchased, arrived, outForDelivery, delivered, cancelled }
 
 ItemStatus itemStatusFrom(String? s) => ItemStatus.values.firstWhere(
-      (e) => e.name == s,
+      (e) => e.key == s,
       orElse: () => ItemStatus.requested,
     );
 
 extension ItemStatusX on ItemStatus {
+  /// Name used by the server.
+  String get key => this == ItemStatus.outForDelivery ? 'out_for_delivery' : name;
+
   String get label {
     switch (this) {
       case ItemStatus.requested:
@@ -191,6 +194,8 @@ extension ItemStatusX on ItemStatus {
         return 'تم الشراء';
       case ItemStatus.arrived:
         return 'وصلت مسقط';
+      case ItemStatus.outForDelivery:
+        return 'خرجت للتوصيل';
       case ItemStatus.delivered:
         return 'تم التسليم';
       case ItemStatus.cancelled:
@@ -206,6 +211,8 @@ extension ItemStatusX on ItemStatus {
         return GH.statusPurchased;
       case ItemStatus.arrived:
         return GH.statusArrived;
+      case ItemStatus.outForDelivery:
+        return GH.teal;
       case ItemStatus.delivered:
         return GH.statusDelivered;
       case ItemStatus.cancelled:
@@ -221,6 +228,8 @@ extension ItemStatusX on ItemStatus {
       case ItemStatus.purchased:
         return ItemStatus.arrived;
       case ItemStatus.arrived:
+        return ItemStatus.outForDelivery;
+      case ItemStatus.outForDelivery:
         return ItemStatus.delivered;
       case ItemStatus.delivered:
       case ItemStatus.cancelled:
@@ -237,6 +246,8 @@ extension ItemStatusX on ItemStatus {
         return 'اشتريتها';
       case ItemStatus.arrived:
         return 'وصلت مسقط';
+      case ItemStatus.outForDelivery:
+        return 'طلعت للتوصيل';
       case ItemStatus.delivered:
         return 'سلّمتها';
       case ItemStatus.cancelled:
@@ -587,6 +598,7 @@ class OrderEvent {
         'created' => 'تم إنشاء الطلب',
         'purchased' => 'تم الشراء',
         'arrived' => 'وصل مسقط',
+        'out_for_delivery' => 'خرج للتوصيل',
         'label' => 'طُبعت البوليصة',
         'assigned' => 'سُلّم للمندوب',
         'unassigned' => 'سُحب من المندوب',
@@ -603,7 +615,7 @@ class OrderEvent {
         'arrived' => CupertinoIcons.airplane,
         'label' => CupertinoIcons.barcode,
         'assigned' || 'unassigned' => CupertinoIcons.person_fill,
-        'picked' => CupertinoIcons.car_detailed,
+        'picked' || 'out_for_delivery' => CupertinoIcons.car_detailed,
         'delivered' => CupertinoIcons.checkmark_seal_fill,
         'cancelled' => CupertinoIcons.xmark_circle_fill,
         _ => CupertinoIcons.circle_fill,
@@ -613,6 +625,7 @@ class OrderEvent {
         'purchased' => GH.statusPurchased,
         'arrived' => GH.statusArrived,
         'assigned' || 'picked' => GH.blue,
+        'out_for_delivery' => GH.teal,
         'delivered' => GH.statusDelivered,
         'cancelled' => GH.red,
         _ => GH.secondary,

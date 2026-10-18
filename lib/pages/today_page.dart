@@ -42,6 +42,9 @@ class TodayPage extends StatelessWidget {
             items.where((e) => e.value.status == ItemStatus.requested).toList();
         final toDeliver =
             items.where((e) => e.value.status == ItemStatus.arrived).toList();
+        final outForDelivery = items
+            .where((e) => e.value.status == ItemStatus.outForDelivery)
+            .toList();
         final unpaid = store.orders.where((o) => o.hasBalance).toList();
         final taxFree = <String, double>{};
         for (final o in store.orders) {
@@ -121,11 +124,16 @@ class TodayPage extends StatelessWidget {
                   ]),
                 ]),
               ),
-              if (toBuy.isEmpty && toDeliver.isEmpty && unpaid.isEmpty && store.withDrivers.isEmpty)
+              if (toBuy.isEmpty && toDeliver.isEmpty && outForDelivery.isEmpty && unpaid.isEmpty && store.withDrivers.isEmpty)
                 const EmptyState(
                   icon: CupertinoIcons.checkmark_seal,
                   title: 'كل شي تمام',
                   message: 'ما في شي يحتاج منك شغل اليوم.',
+                ),
+              if (outForDelivery.isNotEmpty)
+                Section(
+                  header: 'خرجت للتوصيل · ${outForDelivery.length}',
+                  children: outForDelivery.take(8).map((e) => itemTile(e)).toList(),
                 ),
               if (toDeliver.isNotEmpty)
                 Section(

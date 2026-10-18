@@ -286,7 +286,7 @@ class Store extends ChangeNotifier {
   Future<void> setItemsStatus(List<OrderItem> items, ItemStatus status) =>
       _write(() => _api.post('/ps/items/status', {
             'ids': items.map((i) => i.id).toList(),
-            'status': status.name,
+            'status': status.key,
           }));
 
   /// Records where an item was bought and for how much, and marks it bought.

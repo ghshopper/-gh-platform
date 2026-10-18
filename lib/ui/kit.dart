@@ -1115,7 +1115,7 @@ class Loading extends StatelessWidget {
 class StepDots extends StatelessWidget {
   const StepDots(this.index, {super.key});
 
-  /// 0 = requested … 3 = delivered.
+  /// 0 = requested … 4 = delivered.
   final int index;
 
   @override
@@ -1123,7 +1123,7 @@ class StepDots extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        for (var k = 0; k < 4; k++) ...[
+        for (var k = 0; k < 5; k++) ...[
           Container(
             width: 8,
             height: 8,
@@ -1132,9 +1132,9 @@ class StepDots extends StatelessWidget {
               color: index >= k ? GH.burgundy : GH.separator,
             ),
           ),
-          if (k < 3)
+          if (k < 4)
             Container(
-                width: 14,
+                width: 11,
                 height: 2,
                 color: index > k ? GH.burgundy : GH.separator),
         ],

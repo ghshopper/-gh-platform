@@ -162,13 +162,22 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
     }
     await _run(() => Store.i.setItemsStatus(targets, status),
         done: 'تم: ${status.label}');
-    if (status == ItemStatus.arrived && mounted) {
-      final send = await confirm(context, 'ترسل رسالة إن الطلب وصل؟',
-          ok: 'أرسل', destructive: false);
+    final ask = switch (status) {
+      ItemStatus.arrived => ('ترسل رسالة إن الطلب وصل؟', 'وصل الطلب'),
+      ItemStatus.outForDelivery => ('ترسل رسالة إن الطلب خرج للتوصيل؟', 'خرج للتوصيل'),
+      _ => null,
+    };
+    if (ask != null && mounted) {
+      final send =
+          await confirm(context, ask.$1, ok: 'أرسل', destructive: false);
       if (send && mounted) {
         final updated = Store.i.order(o.id) ?? o;
-        presentForm(context,
-            MessagePage(order: updated, template: messageTemplates[2]));
+        presentForm(
+            context,
+            MessagePage(
+                order: updated,
+                template:
+                    messageTemplates.firstWhere((t) => t.title == ask.$2)));
       }
     }
   }
@@ -430,6 +439,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                     for (final s in const [
                       ItemStatus.purchased,
                       ItemStatus.arrived,
+                      ItemStatus.outForDelivery,
                       ItemStatus.delivered
                     ])
                       if (o.activeItems.any((i) => i.status.index < s.index))
