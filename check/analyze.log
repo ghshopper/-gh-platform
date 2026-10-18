@@ -5,7 +5,8 @@ Analyzing -gh-platform...
    info • 'anonKey' is deprecated and shouldn't be used. Use publishableKey instead. anonKey will be removed in a future major version. Try replacing the use of the deprecated member with the replacement • lib/pages/import_page.dart:16:7 • deprecated_member_use
    info • The 'children' argument should be last in widget constructor invocations. Try moving the argument to the end of the argument list • lib/pages/item_pages.dart:221:11 • sort_child_properties_last
    info • The 'children' argument should be last in widget constructor invocations. Try moving the argument to the end of the argument list • lib/pages/item_pages.dart:243:11 • sort_child_properties_last
-   info • 'minSize' is deprecated and shouldn't be used. Use minimumSize instead. This feature was deprecated after v3.28.0-3.0.pre. Try replacing the use of the deprecated member with the replacement • lib/pages/order_detail_page.dart:653:27 • deprecated_member_use
+   info • 'minSize' is deprecated and shouldn't be used. Use minimumSize instead. This feature was deprecated after v3.28.0-3.0.pre. Try replacing the use of the deprecated member with the replacement • lib/pages/order_detail_page.dart:662:27 • deprecated_member_use
+   info • 'minSize' is deprecated and shouldn't be used. Use minimumSize instead. This feature was deprecated after v3.28.0-3.0.pre. Try replacing the use of the deprecated member with the replacement • lib/pages/order_detail_page.dart:714:9 • deprecated_member_use
 warning • The '!' will have no effect because the receiver can't be null. Try removing the '!' operator • lib/pages/purchases_pages.dart:82:37 • unnecessary_non_null_assertion
 warning • The '!' will have no effect because the receiver can't be null. Try removing the '!' operator • lib/pages/purchases_pages.dart:159:60 • unnecessary_non_null_assertion
 warning • The '!' will have no effect because the receiver can't be null. Try removing the '!' operator • lib/pages/purchases_pages.dart:162:49 • unnecessary_non_null_assertion
@@ -20,4 +21,4 @@ warning • The '!' will have no effect because the receiver can't be null. Try 
    info • The type parameter name 'T' matches a visible type name. Try changing the type parameter name to not match an existing type • lib/ui/kit.dart:1147:24 • avoid_types_as_parameter_names
    info • The type parameter name 'T' matches a visible type name. Try changing the type parameter name to not match an existing type • lib/ui/kit.dart:1153:21 • avoid_types_as_parameter_names
 
-19 issues found. (ran in 17.8s)
+20 issues found. (ran in 14.8s)
