@@ -1,6 +1,6 @@
 import * as Location from 'expo-location';
 import { router, useFocusEffect } from 'expo-router';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { type ReactNode, useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, Switch, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { api, listOf } from '@/api';
@@ -18,7 +18,7 @@ import { C, S } from '@/theme';
 import type { Address, PaymentGateway } from '@/types';
 import { Btn, Check, Divider, Field, Header, Segments, SummaryRow, T } from '@/ui';
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
     <View style={{ paddingHorizontal: S.gutter, paddingTop: 26, gap: 14 }}>
       <T latin w="medium" size={12} spacing={2.2}>{title}</T>

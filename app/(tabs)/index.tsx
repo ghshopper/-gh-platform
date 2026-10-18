@@ -210,7 +210,7 @@ export default function Home() {
             <View style={{ marginHorizontal: S.gutter, flexDirection: 'row', flexWrap: 'wrap', borderTopWidth: 1, borderLeftWidth: 1, borderColor: C.line }}>
               {app.brands.slice(0, brandCount).map((b) => (
                 <Pressable key={b.id} onPress={() => router.push({ pathname: '/brand/[id]', params: { id: String(b.id) } })} accessibilityRole="button"
-                  style={{ width: `${100 / 3}%`, height: 76, borderRightWidth: 1, borderBottomWidth: 1, borderColor: C.line, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 6 }}>
+                  style={{ width: '33.333%', height: 76, borderRightWidth: 1, borderBottomWidth: 1, borderColor: C.line, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 6 }}>
                   {b.logo ? (
                     <Image source={{ uri: imageUrl(b.logo) }} style={{ width: '80%', height: 40 }} contentFit="contain" accessibilityLabel={b.name_en ?? ''} />
                   ) : (

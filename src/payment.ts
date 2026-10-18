@@ -46,6 +46,7 @@ export async function payWithAmwal(amount: number, wallet: boolean, isAr: boolea
     merchantId: String(s.merchant_id),
     terminalId: String(s.terminal_id ?? ''),
     locale: isAr ? 'ar' : 'en',
+    customerId: null,
     transactionType: wallet ? (Platform.OS === 'ios' ? TransactionType.APPLE_PAY : TransactionType.GOOGLE_PAY) : TransactionType.CARD_WALLET,
     transactionId,
     merchantReference: transactionId,
@@ -80,7 +81,7 @@ export async function payWithAmwal(amount: number, wallet: boolean, isAr: boolea
     try {
       if (token) {
         sub = onResponse(handle);
-        initiate({ ...config, sessionToken: token });
+        initiate({ ...config, sessionToken: token, onResponse: () => undefined, onCustomerId: () => undefined });
       } else {
         // Same fallback as before: let the SDK fetch the session token itself.
         AmwalPaySDK.getInstance()

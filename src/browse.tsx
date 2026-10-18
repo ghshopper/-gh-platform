@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { type ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Dimensions, FlatList, Modal, Pressable, RefreshControl, ScrollView, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { api, listOf } from './api';
@@ -150,7 +150,7 @@ function FilterSheet({ visible, value, onClose, onApply }: { visible: boolean; v
 }
 
 /** Product grid with search, filters, sorting and endless scroll. */
-export function ProductBrowser({ initial, header, showSearch = true, autoFocus }: { initial: BrowseFilters; header?: React.ReactNode; showSearch?: boolean; autoFocus?: boolean }) {
+export function ProductBrowser({ initial, header, showSearch = true, autoFocus }: { initial: BrowseFilters; header?: ReactNode; showSearch?: boolean; autoFocus?: boolean }) {
   const { tr, isAr } = useLang();
   const [filters, setFilters] = useState<BrowseFilters>(initial);
   const [query, setQuery] = useState(initial.search ?? '');

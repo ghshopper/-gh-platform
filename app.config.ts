@@ -64,7 +64,7 @@ const config: ExpoConfig = {
     [
       'expo-build-properties',
       {
-        ios: { useFrameworks: 'static', deploymentTarget: '15.1' },
+        ios: { useFrameworks: 'static', deploymentTarget: '16.4' },
         android: { minSdkVersion: 24 },
       },
     ],
