@@ -1,9 +1,0 @@
-app/(tabs)/search.tsx(108,13): error TS2322: Type 'RefObject<TextInputType | null>' is not assignable to type 'Ref<_TextInputInstance> | undefined'.
-  Type 'RefObject<TextInputType | null>' is not assignable to type 'RefObject<_TextInputInstance | null>'.
-    Type 'TextInputType | null' is not assignable to type '_TextInputInstance | null'.
-      Type 'TextInputType' is not assignable to type '_TextInputInstance | null'.
-app/(tabs)/search.tsx(127,88): error TS2339: Property 'blur' does not exist on type 'TextInputType'.
-app/categories.tsx(119,15): error TS2322: Type 'Element | null' is not assignable to type 'Element | ComponentType<any> | undefined'.
-  Type 'null' is not assignable to type 'Element | ComponentType<any> | undefined'.
-app/categories.tsx(120,15): error TS2322: Type 'Element | null' is not assignable to type 'Element | ComponentType<any> | undefined'.
-  Type 'null' is not assignable to type 'Element | ComponentType<any> | undefined'.
