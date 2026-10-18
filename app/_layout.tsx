@@ -12,7 +12,6 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
 import { View } from 'react-native';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AppDataProvider } from '@/appdata';
 import { AuthProvider, useAuth } from '@/auth';
@@ -59,7 +58,6 @@ export default function RootLayout() {
   });
   if (!fontsLoaded) return null;
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <LangProvider>
           <AuthProvider>
@@ -73,6 +71,5 @@ export default function RootLayout() {
           </AuthProvider>
         </LangProvider>
       </SafeAreaProvider>
-    </GestureHandlerRootView>
   );
 }
