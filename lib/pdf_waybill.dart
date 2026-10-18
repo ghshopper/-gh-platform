@@ -33,7 +33,7 @@ Future<Uint8List> buildWaybillPdf(
   final trackUrl = o.trackingToken == null
       ? 'https://ghshopper.com'
       : '${AppConfig.trackingBaseUrl}${o.trackingToken}';
-  final collect = o.deliveryCollect && o.deliveryFee > 0;
+  final collect = o.toCollect > 0;
   final address = o.deliveryAddress ?? customer?.address;
   final pieces = o.activeItems.length;
 
@@ -146,7 +146,7 @@ Future<Uint8List> buildWaybillPdf(
             ),
             pw.Spacer(),
             if (collect)
-              pw.Text(omrLatin(o.deliveryFee),
+              pw.Text(omrLatin(o.toCollect),
                   textDirection: pw.TextDirection.ltr,
                   style: st(15, font: bold, color: PdfColors.white)),
           ]),

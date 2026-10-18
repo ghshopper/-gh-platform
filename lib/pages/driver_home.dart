@@ -100,8 +100,7 @@ class _DriverHomeState extends State<DriverHome> {
         final done = data.orders.where((o) => o.isDone).toList();
         final list = _showDone ? done : open;
         final collect = open
-            .where((o) => o.collect)
-            .fold<double>(0, (s, o) => s + o.deliveryFee);
+            .fold<double>(0, (s, o) => s + o.toCollect);
         return GHPage(
           title: 'توصيلاتي',
           onRefresh: data.refresh,
@@ -178,8 +177,8 @@ class _DriverHomeState extends State<DriverHome> {
                           ].join(' · '),
                           trailing: o.isDone
                               ? Badge('تم ✓', color: GH.green)
-                              : o.collect && o.deliveryFee > 0
-                                  ? Badge('حصّل ${omr(o.deliveryFee)}',
+                              : o.toCollect > 0
+                                  ? Badge('حصّل ${omr(o.toCollect)}',
                                       color: GH.amber)
                                   : Badge('مدفوع', color: GH.blue),
                           onTap: () => pushPage(
@@ -232,8 +231,8 @@ class _DriverOrderPageState extends State<DriverOrderPage> {
     final file = await ImagePicker()
         .pickImage(source: source, maxWidth: 1600, imageQuality: 75);
     if (file == null) return;
-    if (o.collect && o.deliveryFee > 0 && mounted) {
-      final ok = await confirm(context, 'حصّلت ${omr(o.deliveryFee)}؟',
+    if (o.toCollect > 0 && mounted) {
+      final ok = await confirm(context, 'حصّلت ${omr(o.toCollect)}؟',
           message: 'رسوم التوصيل من الزبون.', ok: 'إي حصّلتها',
           destructive: false);
       if (!ok) return;
@@ -260,9 +259,9 @@ class _DriverOrderPageState extends State<DriverOrderPage> {
     String g(String f, String male) => m ? male : f;
     final first = o.customerName.trim().split(' ').first;
     final me = Api.i.session?.name ?? 'المندوب';
-    final collect = o.collect && o.deliveryFee > 0;
+    final collect = o.toCollect > 0;
     final pay = collect
-        ? '\nرسوم التوصيل ${omr(o.deliveryFee)} تندفع عند الاستلام.'
+        ? '\nالمبلغ ${omr(o.toCollect)} يندفع عند الاستلام.'
         : '';
     final templates = <String, String>{
       'أنا في الطريق 🚗':
@@ -347,7 +346,7 @@ class _DriverOrderPageState extends State<DriverOrderPage> {
               child: Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  gradient: order.collect && order.deliveryFee > 0
+                  gradient: order.toCollect > 0
                       ? const LinearGradient(
                           colors: [Color(0xFFF08C00), Color(0xFFD9480F)])
                       : const LinearGradient(
@@ -356,7 +355,7 @@ class _DriverOrderPageState extends State<DriverOrderPage> {
                 ),
                 child: Row(children: [
                   Icon(
-                      order.collect && order.deliveryFee > 0
+                      order.toCollect > 0
                           ? CupertinoIcons.money_dollar_circle_fill
                           : CupertinoIcons.checkmark_seal_fill,
                       color: CupertinoColors.white,
@@ -364,8 +363,8 @@ class _DriverOrderPageState extends State<DriverOrderPage> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      order.collect && order.deliveryFee > 0
-                          ? 'حصّل رسوم التوصيل ${omr(order.deliveryFee)} عند التسليم'
+                      order.toCollect > 0
+                          ? 'حصّل ${omr(order.toCollect)} عند التسليم${order.isCod ? ' (قيمة الطلب)' : ''}'
                           : 'التوصيل مدفوع، لا تحصّل شي',
                       style: const TextStyle(
                           fontSize: 17,

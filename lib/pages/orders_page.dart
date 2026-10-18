@@ -9,7 +9,7 @@ import 'order_detail_page.dart';
 import 'scanner_page.dart';
 import 'order_form_page.dart';
 
-enum OrderFilter { all, requested, purchased, arrived, outForDelivery, delivered, balance }
+enum OrderFilter { all, requested, purchased, arrived, outForDelivery, delivered, balance, website }
 
 extension OrderFilterX on OrderFilter {
   String get label {
@@ -28,6 +28,8 @@ extension OrderFilterX on OrderFilter {
         return 'تم التسليم';
       case OrderFilter.balance:
         return 'عليها مبلغ';
+      case OrderFilter.website:
+        return 'من الموقع';
     }
   }
 
@@ -47,6 +49,8 @@ extension OrderFilterX on OrderFilter {
         return o.overallStatus == ItemStatus.delivered;
       case OrderFilter.balance:
         return o.hasBalance;
+      case OrderFilter.website:
+        return o.fromStore;
     }
   }
 }
@@ -198,6 +202,7 @@ class OrderRow extends StatelessWidget {
                   const SizedBox(height: 3),
                   Text(
                     [
+                      if (o.fromStore) '🌐 الموقع',
                       if (showCustomer) o.invoiceNo,
                       dateStr(o.createdAt),
                       '${o.activeItems.length} قطعة',

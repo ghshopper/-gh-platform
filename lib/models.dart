@@ -511,6 +511,8 @@ class Order {
     this.events = const [],
     this.deliveryMethod,
     this.carrierTracking,
+    this.storeOrderNumber,
+    this.codAmount,
   });
 
   final String id;
@@ -539,6 +541,17 @@ class Order {
   final DateTime? driverDeliveredAt;
   final DateTime? labelPrintedAt;
   final DeliveryMethod? deliveryMethod;
+
+  /// Set when the order came from the website / customer app.
+  final String? storeOrderNumber;
+  bool get fromStore => storeOrderNumber != null;
+
+  /// Cash the driver collects for a cash-on-delivery website order.
+  final double? codAmount;
+
+  /// What the driver collects at the door.
+  double get toCollect =>
+      codAmount ?? (deliveryCollect && deliveryFee > 0 ? deliveryFee : 0);
 
   /// Shipment number or tracking link from Nool / Genacom.
   final String? carrierTracking;
@@ -628,6 +641,8 @@ class Order {
       labelPrintedAt: _dt(m['label_printed_at']),
       deliveryMethod: deliveryMethodFrom(m['delivery_method'] as String?),
       carrierTracking: _s(m['carrier_tracking']),
+      storeOrderNumber: _s(m['store_order_number']),
+      codAmount: m['cod_amount'] == null ? null : _d(m['cod_amount']),
       events: ((m['events'] as List?) ?? const [])
           .map((e) => OrderEvent.fromMap(Map<String, dynamic>.from(e as Map)))
           .toList(),
@@ -754,6 +769,7 @@ class DriverOrder {
     this.deliveredAt,
     this.waybillNo,
     this.customerIsMale = false,
+    this.codAmount,
     required this.items,
   });
 
@@ -774,6 +790,11 @@ class DriverOrder {
   final DateTime? deliveredAt;
   final String? waybillNo;
   final bool customerIsMale;
+  final double? codAmount;
+
+  /// What to collect at the door: the order (cash on delivery) or the fee.
+  double get toCollect => codAmount ?? (collect && deliveryFee > 0 ? deliveryFee : 0);
+  bool get isCod => codAmount != null;
   final List<({String? brand, String name, String? details})> items;
 
   bool get isDone => status == DriverStatus.delivered;
@@ -796,6 +817,7 @@ class DriverOrder {
       photoUrl: _s(m['delivery_photo_url']),
       waybillNo: _s(m['waybill_no']),
       customerIsMale: m['customer_gender'] == 'm',
+      codAmount: m['cod_amount'] == null ? null : _d(m['cod_amount']),
       deliveredAt: _dt(m['driver_delivered_at']),
       items: ((m['items'] as List?) ?? const [])
           .map((e) => Map<String, dynamic>.from(e as Map))
