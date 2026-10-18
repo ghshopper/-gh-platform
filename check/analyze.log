@@ -15,13 +15,13 @@ warning • The '!' will have no effect because the receiver can't be null. Try 
    info • 'minSize' is deprecated and shouldn't be used. Use minimumSize instead. This feature was deprecated after v3.28.0-3.0.pre. Try replacing the use of the deprecated member with the replacement • lib/ui/kit.dart:113:7 • deprecated_member_use
    info • 'minSize' is deprecated and shouldn't be used. Use minimumSize instead. This feature was deprecated after v3.28.0-3.0.pre. Try replacing the use of the deprecated member with the replacement • lib/ui/kit.dart:134:7 • deprecated_member_use
    info • 'minSize' is deprecated and shouldn't be used. Use minimumSize instead. This feature was deprecated after v3.28.0-3.0.pre. Try replacing the use of the deprecated member with the replacement • lib/ui/kit.dart:220:7 • deprecated_member_use
-   info • The type parameter name 'T' matches a visible type name. Try changing the type parameter name to not match an existing type • lib/ui/kit.dart:847:16 • avoid_types_as_parameter_names
-   info • The type parameter name 'T' matches a visible type name. Try changing the type parameter name to not match an existing type • lib/ui/kit.dart:1002:19 • avoid_types_as_parameter_names
-   info • The type parameter name 'T' matches a visible type name. Try changing the type parameter name to not match an existing type • lib/ui/kit.dart:1011:24 • avoid_types_as_parameter_names
-   info • The type parameter name 'T' matches a visible type name. Try changing the type parameter name to not match an existing type • lib/ui/kit.dart:1147:24 • avoid_types_as_parameter_names
-   info • The type parameter name 'T' matches a visible type name. Try changing the type parameter name to not match an existing type • lib/ui/kit.dart:1153:21 • avoid_types_as_parameter_names
+   info • The type parameter name 'T' matches a visible type name. Try changing the type parameter name to not match an existing type • lib/ui/kit.dart:842:16 • avoid_types_as_parameter_names
+   info • The type parameter name 'T' matches a visible type name. Try changing the type parameter name to not match an existing type • lib/ui/kit.dart:997:19 • avoid_types_as_parameter_names
+   info • The type parameter name 'T' matches a visible type name. Try changing the type parameter name to not match an existing type • lib/ui/kit.dart:1006:24 • avoid_types_as_parameter_names
+   info • The type parameter name 'T' matches a visible type name. Try changing the type parameter name to not match an existing type • lib/ui/kit.dart:1142:24 • avoid_types_as_parameter_names
+   info • The type parameter name 'T' matches a visible type name. Try changing the type parameter name to not match an existing type • lib/ui/kit.dart:1148:21 • avoid_types_as_parameter_names
    info • Use a function declaration rather than a variable assignment to bind a function to a name. Try rewriting the closure assignment as a function declaration • test_shots/screens_test.dart:23:9 • prefer_function_declarations_over_variables
 warning • The member 'setMockInitialValues' can only be used within 'package:shared_preferences/src/shared_preferences_legacy.dart' or a test • test_shots/screens_test.dart:100:23 • invalid_use_of_visible_for_testing_member
 warning • The member 'loadSnapshot' can only be used within 'package:gh_shopper/data/store.dart' or a test • test_shots/screens_test.dart:121:15 • invalid_use_of_visible_for_testing_member
 
-23 issues found. (ran in 14.9s)
+23 issues found. (ran in 13.1s)
