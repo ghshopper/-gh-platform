@@ -1,60 +1,60 @@
+node_modules/@expo-google-fonts/cormorant-garamond/300Light_Italic/CormorantGaramond_300Light_Italic.ttf (407KB)
+node_modules/@expo-google-fonts/cormorant-garamond/300Light/CormorantGaramond_300Light.ttf (666KB)
+node_modules/@expo-google-fonts/cormorant-garamond/400Regular_Italic/CormorantGaramond_400Regular_Italic.ttf (407KB)
+node_modules/@expo-google-fonts/cormorant-garamond/400Regular/CormorantGaramond_400Regular.ttf (667KB)
+node_modules/@expo-google-fonts/cormorant-garamond/500Medium_Italic/CormorantGaramond_500Medium_Italic.ttf (408KB)
+node_modules/@expo-google-fonts/cormorant-garamond/500Medium/CormorantGaramond_500Medium.ttf (667KB)
+node_modules/@expo-google-fonts/cormorant-garamond/600SemiBold_Italic/CormorantGaramond_600SemiBold_Italic.ttf (408KB)
+node_modules/@expo-google-fonts/cormorant-garamond/600SemiBold/CormorantGaramond_600SemiBold.ttf (667KB)
+node_modules/@expo-google-fonts/cormorant-garamond/700Bold_Italic/CormorantGaramond_700Bold_Italic.ttf (407KB)
+node_modules/@expo-google-fonts/cormorant-garamond/700Bold/CormorantGaramond_700Bold.ttf (666KB)
+node_modules/@expo-google-fonts/ibm-plex-sans-arabic/100Thin/IBMPlexSansArabic_100Thin.ttf (232KB)
+node_modules/@expo-google-fonts/ibm-plex-sans-arabic/200ExtraLight/IBMPlexSansArabic_200ExtraLight.ttf (232KB)
+node_modules/@expo-google-fonts/ibm-plex-sans-arabic/300Light/IBMPlexSansArabic_300Light.ttf (229KB)
+node_modules/@expo-google-fonts/ibm-plex-sans-arabic/400Regular/IBMPlexSansArabic_400Regular.ttf (227KB)
+node_modules/@expo-google-fonts/ibm-plex-sans-arabic/500Medium/IBMPlexSansArabic_500Medium.ttf (232KB)
+node_modules/@expo-google-fonts/ibm-plex-sans-arabic/600SemiBold/IBMPlexSansArabic_600SemiBold.ttf (234KB)
+node_modules/@expo-google-fonts/ibm-plex-sans-arabic/700Bold/IBMPlexSansArabic_700Bold.ttf (236KB)
+node_modules/@expo-google-fonts/jost/100Thin_Italic/Jost_100Thin_Italic.ttf (66KB)
+node_modules/@expo-google-fonts/jost/100Thin/Jost_100Thin.ttf (62KB)
+node_modules/@expo-google-fonts/jost/200ExtraLight_Italic/Jost_200ExtraLight_Italic.ttf (66KB)
+node_modules/@expo-google-fonts/jost/200ExtraLight/Jost_200ExtraLight.ttf (62KB)
+node_modules/@expo-google-fonts/jost/300Light_Italic/Jost_300Light_Italic.ttf (66KB)
+node_modules/@expo-google-fonts/jost/300Light/Jost_300Light.ttf (62KB)
+node_modules/@expo-google-fonts/jost/400Regular_Italic/Jost_400Regular_Italic.ttf (66KB)
+node_modules/@expo-google-fonts/jost/400Regular/Jost_400Regular.ttf (62KB)
+node_modules/@expo-google-fonts/jost/500Medium_Italic/Jost_500Medium_Italic.ttf (66KB)
+node_modules/@expo-google-fonts/jost/500Medium/Jost_500Medium.ttf (62KB)
+node_modules/@expo-google-fonts/jost/600SemiBold_Italic/Jost_600SemiBold_Italic.ttf (66KB)
+node_modules/@expo-google-fonts/jost/600SemiBold/Jost_600SemiBold.ttf (62KB)
+node_modules/@expo-google-fonts/jost/700Bold_Italic/Jost_700Bold_Italic.ttf (66KB)
+node_modules/@expo-google-fonts/jost/700Bold/Jost_700Bold.ttf (62KB)
+node_modules/@expo-google-fonts/jost/800ExtraBold_Italic/Jost_800ExtraBold_Italic.ttf (66KB)
+node_modules/@expo-google-fonts/jost/800ExtraBold/Jost_800ExtraBold.ttf (62KB)
+node_modules/@expo-google-fonts/jost/900Black_Italic/Jost_900Black_Italic.ttf (66KB)
+node_modules/@expo-google-fonts/jost/900Black/Jost_900Black.ttf (62KB)
+node_modules/expo-router/assets/arrow_down.png (9.5KB)
+node_modules/expo-router/assets/arrow_right.xml (307B)
+node_modules/expo-router/assets/checkmark.xml (312B)
+node_modules/expo-router/assets/error.png (469B)
+node_modules/expo-router/assets/file.png (138B)
+node_modules/expo-router/assets/forward.png (188B)
+node_modules/expo-router/assets/pkg.png (364B)
+node_modules/expo-router/assets/react-navigation/elements/back-icon-mask.png (653B)
+node_modules/expo-router/assets/react-navigation/elements/back-icon.png (8 variations | 359B)
+node_modules/expo-router/assets/react-navigation/elements/clear-icon.png (4 variations | 425B)
+node_modules/expo-router/assets/react-navigation/elements/close-icon.png (4 variations | 235B)
+node_modules/expo-router/assets/react-navigation/elements/search-icon.png (7 variations | 592B)
+node_modules/expo-router/assets/sitemap.png (465B)
+node_modules/expo-router/assets/unmatched.png (4.8KB)
 
- node_modules/react-native-gesture-handler/src/handlers/gestures/GestureDetector/index.tsx
- | import "./useAnimatedGesture"
+› ios bundles (1):
+_expo/static/js/ios/entry-1ae79595d1eca4084bb6972198f282bc.hbc (3.2MB)
 
- node_modules/react-native-gesture-handler/src/components/Pressable/Pressable.tsx
- | import "../../handlers/gestures/GestureDetector"
+› android bundles (1):
+_expo/static/js/android/entry-ddad05a59fc126143b66d4e0a6670f39.hbc (3.2MB)
 
- node_modules/react-native-gesture-handler/src/components/Pressable/index.ts
- | import "./Pressable"
+› Files (1):
+metadata.json (8.1KB)
 
- node_modules/react-native-gesture-handler/src/index.ts
- | import "./components/Pressable"
-
- app/_layout.tsx
- | import "react-native-gesture-handler"
-
- app (require.context)
-
-
-Error: Unable to resolve module react-native-worklets from /home/runner/work/-gh-platform/-gh-platform/node_modules/react-native-reanimated/src/initializers.native.ts: react-native-worklets could not be found within the project or in these directories:
-  node_modules
-[0m [90m 4 |[39m   runOnUISync[33m,[39m
- [90m 5 |[39m   toggleSlowAnimationsOnUIRuntime[33m,[39m
-[31m[1m>[22m[39m[90m 6 |[39m } [36mfrom[39m [32m'react-native-worklets'[39m[33m;[39m
- [90m   |[39m         [31m[1m^[22m[39m
- [90m 7 |[39m
- [90m 8 |[39m [36mimport[39m { cssCallbacksRegistry[33m,[39m setCSSEventHandler } [36mfrom[39m [32m'./css/native'[39m[33m;[39m
- [90m 9 |[39m [36mimport[39m { initSvgCssSupport } [36mfrom[39m [32m'./css/svg'[39m[33m;[39m[0m
-
-Import stack:
-
- node_modules/react-native-reanimated/src/initializers.native.ts
- | import "react-native-worklets"
-
- node_modules/react-native-reanimated/src/index.ts
- | import "./initializers"
-
- node_modules/react-native-gesture-handler/src/handlers/gestures/reanimatedWrapper.ts
- | import "react-native-reanimated"
-
- node_modules/react-native-gesture-handler/src/handlers/gestures/GestureDetector/useAnimatedGesture.ts
- | import "../reanimatedWrapper"
-
- node_modules/react-native-gesture-handler/src/handlers/gestures/GestureDetector/index.tsx
- | import "./useAnimatedGesture"
-
- node_modules/react-native-gesture-handler/src/components/Pressable/Pressable.tsx
- | import "../../handlers/gestures/GestureDetector"
-
- node_modules/react-native-gesture-handler/src/components/Pressable/index.ts
- | import "./Pressable"
-
- node_modules/react-native-gesture-handler/src/index.ts
- | import "./components/Pressable"
-
- app/_layout.tsx
- | import "react-native-gesture-handler"
-
- app (require.context)
-
+Exported: /tmp/dist
