@@ -13,7 +13,6 @@ const config: ExpoConfig = {
   orientation: 'portrait',
   icon: './assets/icon.png',
   userInterfaceStyle: 'light',
-  backgroundColor: '#FFFFFF',
   ios: {
     bundleIdentifier: IOS_BUNDLE_ID,
     buildNumber: process.env.BUILD_NUMBER ?? '1',
@@ -69,6 +68,7 @@ const config: ExpoConfig = {
       },
     ],
     './plugins/withAmwalPay',
+    './plugins/withFirebaseSetup',
   ],
   experiments: { typedRoutes: false },
   extra: { apiBase: 'https://ghshopper.com/api', siteBase: 'https://ghshopper.com' },

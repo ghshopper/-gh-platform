@@ -43,10 +43,13 @@ jobs:
         run: (npm ci || npm install) 2>&1 | tail -15
       - name: Generate the native iOS project
         shell: bash
-        run: npx expo prebuild --platform ios --clean --no-install 2>&1 | tail -30 | tee prebuild.log; exit ${PIPESTATUS[0]}
+        run: |
+          set -o pipefail
+          npx expo prebuild --platform ios --clean --no-install 2>&1 | tee prebuild.log | tail -30
+          { echo '--- AppDelegate.swift'; cat ios/*/AppDelegate.swift; echo '--- Podfile head'; head -20 ios/Podfile; } >> prebuild.log
       - name: CocoaPods
         shell: bash
-        run: cd ios && pod install 2>&1 | tail -40 | tee ../pods.log; exit ${PIPESTATUS[0]}
+        run: cd ios && pod install 2>&1 | tee ../pods.log | tail -40; exit ${PIPESTATUS[0]}
       - name: Sign, archive and upload to TestFlight
         shell: bash
         run: bundle exec fastlane ios beta 2>&1 | tee fastlane.log; exit ${PIPESTATUS[0]}
