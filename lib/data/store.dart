@@ -94,6 +94,14 @@ class Store extends ChangeNotifier {
     _orderById = {for (final o in orders) o.id: o};
   }
 
+  /// Loads a bootstrap snapshot directly (screenshots / tests).
+  @visibleForTesting
+  void loadSnapshot(Map<String, dynamic> raw) {
+    _apply(raw);
+    ready = true;
+    notifyListeners();
+  }
+
   void clear() {
     orders = [];
     customers = [];

@@ -20,6 +20,13 @@ Future<void> main() async {
   runApp(const GhApp());
 }
 
+const ghTheme = CupertinoThemeData(
+  brightness: Brightness.light,
+  primaryColor: GH.burgundy,
+  scaffoldBackgroundColor: GH.bg,
+  barBackgroundColor: Color(0xF0F9F9F9),
+);
+
 class GhApp extends StatelessWidget {
   const GhApp({super.key});
 
@@ -28,12 +35,7 @@ class GhApp extends StatelessWidget {
     return const CupertinoApp(
       title: 'GH Shopper',
       debugShowCheckedModeBanner: false,
-      theme: CupertinoThemeData(
-        brightness: Brightness.light,
-        primaryColor: GH.burgundy,
-        scaffoldBackgroundColor: GH.bg,
-        barBackgroundColor: Color(0xF0F9F9F9),
-      ),
+      theme: ghTheme,
       locale: Locale('ar'),
       supportedLocales: [Locale('ar'), Locale('en')],
       localizationsDelegates: [

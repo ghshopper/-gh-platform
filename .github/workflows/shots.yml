@@ -1,0 +1,31 @@
+name: Admin app screenshots
+on:
+  push:
+    branches: [admin-shots]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  shots:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter test test_shots --update-goldens 2>&1 | tee shots.log; exit ${PIPESTATUS[0]}
+        shell: bash
+      - name: Publish screenshots to the admin-shots-out branch
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p /tmp/out && cp test_shots/goldens/*.png /tmp/out/ 2>/dev/null || true
+          cp shots.log /tmp/out/ 2>/dev/null || true
+          echo "${{ job.status }} ${{ github.sha }}" > /tmp/out/status.txt
+          git config user.name ci && git config user.email ci@users.noreply.github.com
+          git checkout --orphan admin-shots-out
+          git rm -rfq . && git clean -fdxq
+          cp -r /tmp/out/. .
+          git add -A && git commit -qm "shots ${{ github.sha }}" && git push -f -q origin admin-shots-out
