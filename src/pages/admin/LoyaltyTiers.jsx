@@ -122,7 +122,7 @@ export default function LoyaltyTiers() {
         <tbody>
           {tiers.map(tier => (
             <tr key={tier.id} style={{ borderBottom: '1px solid #F3F4F6' }}>
-              <td style={{ padding: '16px', fontWeight: 700, color: tier.color }}>{tier.name}</td>
+              <td style={{ padding: '16px', fontWeight: 700, color: tier.color }}>{tier.name}{tier.name_ar ? <span style={{ color: '#6B7280', fontWeight: 500 }}> · {tier.name_ar}</span> : null}</td>
               <td style={{ padding: '16px' }}>{tier.min_points} نقطة</td>
               <td style={{ padding: '16px' }}>x{tier.reward_multiplier}</td>
               <td style={{ padding: '16px' }}>
@@ -142,12 +142,24 @@ export default function LoyaltyTiers() {
 
       {showModal && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div style={{ backgroundColor: 'white', padding: 32, borderRadius: 16, width: 400, maxWidth: '90%' }}>
+          <div style={{ backgroundColor: 'white', padding: 32, borderRadius: 16, width: 460, maxWidth: '92%', maxHeight: '90vh', overflowY: 'auto' }}>
             <h3 style={{ marginTop: 0, marginBottom: 24, fontSize: 18, fontWeight: 800 }}>{editingTier ? 'تعديل المستوى' : 'إضافة مستوى جديد'}</h3>
             <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               <div>
-                <label style={labelStyle}>اسم المستوى (عربي/إنجليزي)</label>
-                <input required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} style={inputStyle} placeholder="مثال: فضي / Silver" />
+                <label style={labelStyle}>اسم المستوى (إنجليزي)</label>
+                <input required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} style={inputStyle} placeholder="Privilege" dir="ltr" />
+              </div>
+              <div>
+                <label style={labelStyle}>اسم المستوى (عربي، يظهر في التطبيق)</label>
+                <input value={formData.name_ar || ''} onChange={e => setFormData({...formData, name_ar: e.target.value})} style={inputStyle} placeholder="بريفيلج" />
+              </div>
+              <div>
+                <label style={labelStyle}>المزايا بالعربي (كل ميزة في سطر)</label>
+                <textarea rows={4} value={formData.benefits_ar || ''} onChange={e => setFormData({...formData, benefits_ar: e.target.value})} style={{ ...inputStyle, height: 'auto', resize: 'vertical' }} placeholder={'نقاط مضاعفة مع كل طلب\nتوصيل مجاني\nأولوية في الطلبات الخاصة'} />
+              </div>
+              <div>
+                <label style={labelStyle}>المزايا بالإنجليزي (كل ميزة في سطر)</label>
+                <textarea rows={3} dir="ltr" value={formData.benefits_en || ''} onChange={e => setFormData({...formData, benefits_en: e.target.value})} style={{ ...inputStyle, height: 'auto', resize: 'vertical' }} />
               </div>
               <div>
                 <label style={labelStyle}>النقاط المطلوبة</label>

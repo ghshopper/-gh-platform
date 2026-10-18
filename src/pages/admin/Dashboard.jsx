@@ -382,7 +382,7 @@ export default function Dashboard() {
         <div className="card mb-0">
           <div className="card-header">
             <span className="card-title">آخر الطلبات المستلمة</span>
-            <button onClick={() => navigate('/admin/orders')} className="btn btn-ghost btn-sm">عرض كل الطلبات</button>
+            <button onClick={() => navigate('/admin/app-orders')} className="btn btn-ghost btn-sm">عرض كل الطلبات</button>
           </div>
           <div className="table-wrap">
             <table>
@@ -403,7 +403,7 @@ export default function Dashboard() {
                   recentOrders.map((o) => {
                     const badge = getStatusBadge(o.status)
                     return (
-                      <tr key={o.id} onClick={() => navigate('/admin/orders')} className="cursor-pointer hover:bg-amber-50/20">
+                      <tr key={o.id} onClick={() => navigate('/admin/app-orders')} className="cursor-pointer hover:bg-amber-50/20">
                         <td style={{ fontWeight: 700, color: 'var(--color-primary)' }} className="font-mono">{o.order_number}</td>
                         <td style={{ fontWeight: 500 }}>{o.customer ? o.customer.name : (o.shipping_address?.name || 'زائر (Guest)')}</td>
                         <td style={{ fontWeight: 700, fontFamily: 'Outfit' }}>

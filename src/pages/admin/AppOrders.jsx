@@ -49,7 +49,8 @@ function overall(o) {
 }
 function totals(o) {
   const items = o.items.filter((i) => i.status !== 'cancelled').reduce((s, i) => s + i.price, 0)
-  const total = items + (o.delivery_fee || 0)
+  // Discount (code / points) and tax are on the order, not item lines.
+  const total = items + (o.delivery_fee || 0) + (o.tax || 0) - (o.discount || 0)
   const paid = o.payments.reduce((s, p) => s + p.amount, 0)
   return { items, total, paid, remaining: total - paid }
 }
@@ -297,6 +298,8 @@ function OrderDetail({ o, c, driver, busy, onStatus, onPrint }) {
       <Card title="المبالغ">
         <Row k="القطع" v={omr(t.items)} />
         <Row k="التوصيل" v={omr(o.delivery_fee)} />
+        {o.tax > 0 && <Row k="الضريبة" v={omr(o.tax)} />}
+        {o.discount > 0 && <Row k={o.discount_label || 'خصم'} v={'− ' + omr(o.discount)} color="#16804A" />}
         <Row k="الإجمالي" v={omr(t.total)} strong />
         {o.payments.map((p) => <Row key={p.id} k={`${p.note || 'دفعة'} · ${p.paid_on}${p.method ? ' · ' + p.method : ''}`} v={'− ' + omr(p.amount)} color="#16804A" />)}
         <Row k="المتبقي" v={omr(Math.max(0, t.remaining))} strong color={t.remaining > 0.0005 ? '#E5383B' : '#16804A'} />

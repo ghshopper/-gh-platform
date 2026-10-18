@@ -34,8 +34,7 @@ import {
 
 const navItems = [
   { label: 'الرئيسية',    icon: RiHome5Line, path: '/admin/dashboard' },
-  { label: 'الطلبات',     icon: RiFileList3Line, path: '/admin/orders' },
-  { label: 'كل الطلبات', icon: RiShoppingBag3Line, path: '/admin/app-orders' },
+  { label: 'الطلبات', icon: RiShoppingBag3Line, path: '/admin/app-orders' },
   { label: 'كوبونات الخصم', icon: RiCoupon3Line, path: '/admin/coupons' },
   { label: 'العملاء',     icon: RiGroupLine, path: '/admin/customers' },
   { label: 'إرسال إشعارات', icon: RiNotification3Fill, path: '/admin/notify-users' },
@@ -300,7 +299,7 @@ export default function AdminLayout() {
   })
 
   return (
-    <div className="app-layout" style={{ display: 'flex', height: '100vh', width: '100vw', direction: 'rtl' }}>
+    <div className="app-layout" style={{ display: 'flex', height: '100dvh', width: '100%', direction: 'rtl' }}>
       
       {/* Mobile Sidebar Overlay */}
       <div 
@@ -671,7 +670,7 @@ export default function AdminLayout() {
                         <button
                           onClick={() => {
                             setIsNotifOpen(false)
-                            navigate('/admin/orders')
+                            navigate('/admin/app-orders')
                           }}
                           style={{ color: '#4B1828', fontWeight: 'bold', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
                         >
@@ -688,7 +687,7 @@ export default function AdminLayout() {
                   )}
                 </div>
 
-                <button className="icon-btn relative" onClick={() => navigate('/admin/orders')}>
+                <button className="icon-btn relative" onClick={() => navigate('/admin/app-orders')}>
                   <RiShoppingBag3Line size={24} style={{ color: 'var(--color-primary)' }} />
                   <span className="badge">1</span>
                 </button>

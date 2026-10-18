@@ -54,7 +54,8 @@ export default function App() {
         <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
           <Route index element={<Navigate to="/admin/dashboard" replace />} />
           <Route path="dashboard" element={<Dashboard />} />
-          <Route path="orders" element={<Orders />} />
+          <Route path="orders" element={<Navigate to="/admin/app-orders" replace />} />
+          <Route path="store-orders" element={<Orders />} />
           <Route path="app-orders" element={<AppOrders />} />
           <Route path="coupons" element={<Coupons />} />
           <Route path="products" element={<Products />} />

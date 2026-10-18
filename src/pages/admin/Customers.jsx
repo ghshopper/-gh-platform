@@ -25,14 +25,30 @@ import toast from 'react-hot-toast'
 import OmrSymbol from '../../components/OmrSymbol'
 import GHPagination from '../../components/GHPagination'
 
-const TIER_CONFIG = {
-  platinum: { label: 'بلاتيني (Platinum)', bg: 'rgba(106, 27, 154, 0.1)', text: '#6A1B9A', border: '#6A1B9A', icon: RiVipDiamondLine },
-  gold:     { label: 'ذهبي (Gold)',         bg: 'var(--color-gold-bg)', text: 'var(--color-gold-dark)', border: 'var(--color-gold)', icon: RiUserStarLine },
-  silver:   { label: 'فضي (Silver)',       bg: 'rgba(96, 125, 139, 0.1)',  text: '#455A64', border: '#78909C', icon: RiMedalLine },
-  bronze:   { label: 'برونزي (Bronze)',     bg: 'rgba(121, 85, 72, 0.1)',   text: '#5D4037', border: '#8D6E63', icon: RiCopperCoinLine },
+// Tier looks by position (entry level first). Names come from the loyalty
+// tiers set in "مستويات الولاء", the same ones the customer app shows.
+const TIER_LOOKS = [
+  { bg: 'rgba(121, 85, 72, 0.1)', text: '#5D4037', border: '#8D6E63', icon: RiCopperCoinLine },
+  { bg: 'rgba(96, 125, 139, 0.1)', text: '#455A64', border: '#78909C', icon: RiMedalLine },
+  { bg: 'var(--color-gold-bg)', text: 'var(--color-gold-dark)', border: 'var(--color-gold)', icon: RiUserStarLine },
+  { bg: 'rgba(106, 27, 154, 0.1)', text: '#6A1B9A', border: '#6A1B9A', icon: RiVipDiamondLine },
+]
+const tierLabel = (t) => (t.name_ar ? `${t.name_ar} (${t.name})` : t.name)
+function tierStyle(tiers, name) {
+  const i = Math.max(0, tiers.findIndex((t) => t.name === name))
+  const t = tiers[i]
+  return { ...TIER_LOOKS[Math.min(i, TIER_LOOKS.length - 1)], label: t ? tierLabel(t) : (name || '—') }
 }
 
 export default function Customers() {
+  const [tiers, setTiers] = useState([])
+  useEffect(() => {
+    fetch(`${import.meta.env.VITE_API_URL}/admin/loyalty-tiers`, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}`, Accept: 'application/json' } })
+      .then((r) => r.json())
+      .then((j) => setTiers((j.data || j || []).slice().sort((a, b) => a.min_points - b.min_points)))
+      .catch(() => {})
+  }, [])
+  const firstTier = tiers[0]?.name || ''
   const [customers, setCustomers] = useState([])
   const [summary, setSummary] = useState({ total: 0, active: 0, gold: 0, platinum: 0 })
   const [loading, setLoading] = useState(true)
@@ -56,7 +72,7 @@ export default function Customers() {
     name: '',
     email: '',
     phone: '',
-    loyalty_tier: 'bronze',
+    loyalty_tier: '',
     loyalty_points: 0,
     status: 'active',
     password: '',
@@ -112,7 +128,7 @@ export default function Customers() {
       name: '',
       email: '',
       phone: '',
-      loyalty_tier: 'bronze',
+      loyalty_tier: '',
       loyalty_points: 0,
       status: 'active',
       password: '',
@@ -126,7 +142,7 @@ export default function Customers() {
       name: customer.name || '',
       email: customer.email || '',
       phone: customer.phone || '',
-      loyalty_tier: customer.loyalty_tier || 'bronze',
+      loyalty_tier: customer.loyalty_tier || firstTier,
       loyalty_points: customer.loyalty_points || 0,
       status: customer.status || 'active',
       password: '',
@@ -267,7 +283,7 @@ export default function Customers() {
         </div>
         <div className="stat-card-new">
           <div className="stat-content-right">
-            <div className="stat-label-new">عملاء ذهبيون (Gold)</div>
+            <div className="stat-label-new">{tiers[tiers.length - 2] ? tierLabel(tiers[tiers.length - 2]) : 'المستوى الثاني'}</div>
             <div className="stat-value-row">
               <span className="stat-number-new font-mono">{summary.gold}</span>
             </div>
@@ -276,7 +292,7 @@ export default function Customers() {
         </div>
         <div className="stat-card-new">
           <div className="stat-content-right">
-            <div className="stat-label-new">بلاتيني (Platinum)</div>
+            <div className="stat-label-new">{tiers[tiers.length - 1] ? tierLabel(tiers[tiers.length - 1]) : 'أعلى مستوى'}</div>
             <div className="stat-value-row">
               <span className="stat-number-new font-mono">{summary.platinum}</span>
             </div>
@@ -306,10 +322,7 @@ export default function Customers() {
               <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)' }}>المستوى:</span>
               <select className="input" style={{ border: 'none', background: 'transparent', height: '30px', padding: 0 }} value={selectedTier} onChange={(e) => setSelectedTier(e.target.value)}>
                 <option value="all">كل المستويات</option>
-                <option value="bronze">برونزي (Bronze)</option>
-                <option value="silver">فضي (Silver)</option>
-                <option value="gold">ذهبي (Gold)</option>
-                <option value="platinum">بلاتيني (Platinum)</option>
+                {tiers.map((t) => <option key={t.id} value={t.name}>{tierLabel(t)}</option>)}
               </select>
             </div>
             
@@ -353,7 +366,7 @@ export default function Customers() {
                 <tr><td colSpan="8" style={{ textAlign: 'center', padding: '32px', color: 'var(--text-light)' }}>لا يوجد عملاء مطابقون لمعايير البحث</td></tr>
               ) : (
                 customers.map((customer) => {
-                  const tier = TIER_CONFIG[customer.loyalty_tier || 'bronze'] || TIER_CONFIG.bronze
+                  const tier = tierStyle(tiers, customer.loyalty_tier)
                   const TierIcon = tier.icon
                   const isActive = customer.status === 'active' || !customer.status
 
@@ -478,7 +491,7 @@ export default function Customers() {
                 
                 <div style={{ background: '#fff', padding: '16px', borderRadius: '16px', border: '1px solid var(--border)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', minWidth: '160px' }}>
                   {(() => {
-                    const t = TIER_CONFIG[currentCustomer.loyalty_tier || 'bronze'] || TIER_CONFIG.bronze
+                    const t = tierStyle(tiers, currentCustomer.loyalty_tier)
                     const Icon = t.icon
                     return (
                       <>
@@ -557,10 +570,7 @@ export default function Customers() {
                   <div className="form-group" style={{ flex: 1 }}>
                     <label className="label">مستوى الولاء</label>
                     <select className="input" value={formData.loyalty_tier} onChange={(e) => setFormData({...formData, loyalty_tier: e.target.value})}>
-                      <option value="bronze">برونزي (Bronze)</option>
-                      <option value="silver">فضي (Silver)</option>
-                      <option value="gold">ذهبي (Gold)</option>
-                      <option value="platinum">بلاتيني (Platinum)</option>
+                      {tiers.map((t) => <option key={t.id} value={t.name}>{tierLabel(t)} · {t.min_points}+</option>)}
                     </select>
                   </div>
                   <div className="form-group" style={{ flex: 1 }}>
