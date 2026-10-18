@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../data/store.dart';
@@ -189,6 +190,32 @@ class CustomerDetailPage extends StatelessWidget {
                       color: balance < -0.0005 ? GH.red : GH.green),
                   chevron: false),
             ]),
+            Section(
+              header: 'صفحة العميل',
+              footer: 'رابط خاص فيه كل طلباته (من التطبيق أو الواتساب أو الموقع) مع الفواتير وإيصالات الشراء.',
+              children: [
+                if (c.phone != null)
+                  Tile(
+                    leading: const IconBox(CupertinoIcons.paperplane_fill,
+                        color: Color(0xFF25D366)),
+                    title: 'أرسل له رابط طلباته',
+                    onTap: () => _sendPortal(context, c),
+                  ),
+                Tile(
+                  leading: const IconBox(CupertinoIcons.doc_on_doc_fill,
+                      color: GH.blue),
+                  title: 'نسخ الرابط',
+                  onTap: () => _copyPortal(context, c),
+                ),
+                Tile(
+                  leading: const IconBox(CupertinoIcons.arrow_2_circlepath,
+                      color: GH.red),
+                  title: 'تغيير الرابط',
+                  subtitle: 'الرابط القديم يتوقف',
+                  onTap: () => _copyPortal(context, c, reset: true),
+                ),
+              ],
+            ),
             if (c.notes != null)
               Section(header: 'ملاحظات', children: [
                 Padding(
@@ -381,5 +408,47 @@ class _CustomerPickerPageState extends State<CustomerPickerPage> {
           ),
       ],
     );
+  }
+}
+
+// ───────────────────────── Customer page link ─────────────────────────
+
+Future<String?> _portalLink(BuildContext context, Customer c,
+    {bool reset = false}) async {
+  try {
+    return await Store.i.customerPortalLink(c.id, reset: reset);
+  } catch (e) {
+    if (context.mounted) toast(context, errorText(e), error: true);
+    return null;
+  }
+}
+
+Future<void> _sendPortal(BuildContext context, Customer c) async {
+  final p = waPhone(c.phone);
+  if (p == null) return;
+  final url = await _portalLink(context, c);
+  if (url == null) return;
+  final first = c.name.trim().split(RegExp(r'\s+')).first;
+  final msg = 'مرحبا $first 🤍\n'
+      'هذي صفحتك الخاصة في GH Shopper، فيها كل طلباتك والفواتير وإيصالات الشراء:\n'
+      '$url\n'
+      'الرابط خاص فيك، لا تشاركه مع أحد.';
+  await launchUrl(
+      Uri.parse('https://wa.me/$p?text=${Uri.encodeComponent(msg)}'),
+      mode: LaunchMode.externalApplication);
+}
+
+Future<void> _copyPortal(BuildContext context, Customer c,
+    {bool reset = false}) async {
+  if (reset &&
+      !await confirm(context, 'تغيير رابط ${c.name}؟ الرابط القديم بيتوقف.')) {
+    return;
+  }
+  if (!context.mounted) return;
+  final url = await _portalLink(context, c, reset: reset);
+  if (url == null) return;
+  await Clipboard.setData(ClipboardData(text: url));
+  if (context.mounted) {
+    toast(context, reset ? 'تغيّر الرابط ونسخته' : 'نسخت الرابط');
   }
 }

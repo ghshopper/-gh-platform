@@ -197,6 +197,14 @@ class Store extends ChangeNotifier {
   Future<void> deleteCustomer(String id) =>
       _write(() => _api.delete('/ps/customers/$id'));
 
+  /// The customer's private page listing all of their orders and invoices.
+  /// [reset] issues a new link and the old one stops working.
+  Future<String> customerPortalLink(String id, {bool reset = false}) async {
+    final res = await _api.post(
+        '/ps/customers/$id/portal-link${reset ? '?reset=1' : ''}');
+    return (res as Map)['url'] as String;
+  }
+
   // ───────────── orders ─────────────
 
   Future<String> createOrder({
