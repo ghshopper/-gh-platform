@@ -21,4 +21,4 @@ warning • The '!' will have no effect because the receiver can't be null. Try 
    info • The type parameter name 'T' matches a visible type name. Try changing the type parameter name to not match an existing type • lib/ui/kit.dart:1147:24 • avoid_types_as_parameter_names
    info • The type parameter name 'T' matches a visible type name. Try changing the type parameter name to not match an existing type • lib/ui/kit.dart:1153:21 • avoid_types_as_parameter_names
 
-20 issues found. (ran in 16.0s)
+20 issues found. (ran in 10.5s)
