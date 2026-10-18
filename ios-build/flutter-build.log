@@ -3,6 +3,11 @@ Building app.ghshopper.com for device (ios-release)...
 Updating minimum iOS deployment target to 15.0.
 Upgrading project.pbxproj
 Upgrading AppFrameworkInfo.plist
+Upgrading Podfile
+The following plugins do not support Swift Package Manager for ios:
+  - flutter_secure_storage
+This will become an error in a future version of Flutter. Please contact the plugin maintainers to request Swift Package Manager adoption.
+Running pod install...                                           1,518ms
 Running Xcode build...                                          
-Xcode build done.                                           114.3s
-✓ Built build/ios/iphoneos/Runner.app (21.9MB)
+Xcode build done.                                           146.1s
+✓ Built build/ios/iphoneos/Runner.app (22.0MB)
