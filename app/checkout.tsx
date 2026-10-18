@@ -207,6 +207,7 @@ export default function Checkout() {
     }
     setBusy(true);
     let paidNote = '';
+    let paidSure = false;
     try {
       // The code's amount is checked again by the server; make sure it still
       // matches before any money moves.
@@ -220,14 +221,21 @@ export default function Checkout() {
       if (AMWAL_CODES.includes(payment)) {
         const wallet = payment === 'amwal_apple' || payment === 'amwal_google';
         const r = await payWithAmwal(total, wallet, isAr);
-        if (!r.ok) {
+        const via = `أموال${wallet ? (Platform.OS === 'ios' ? ' (Apple Pay)' : ' (Google Pay)') : ''}`;
+        if (r.ok === 'unknown') {
+          // Amwal answered in a shape we could not read: keep the order so a
+          // paid customer is never lost, and flag it for the shop to check.
+          paidNote = `⚠️ تحقق من الدفع في لوحة أموال قبل التجهيز · ${via} · المعاملة ${r.transactionId}${r.reference ? ` · المرجع ${r.reference}` : ''}\nرد أموال: ${r.raw.slice(0, 600)}`;
+        } else if (!r.ok) {
           Alert.alert(
             tr('لم تكتمل عملية الدفع', 'Payment not completed'),
             wallet ? tr('جرّب مرة ثانية أو ادفع بالبطاقة', 'Try again or pay by card') : tr('ما انخصم شي. حاول مرة ثانية.', 'Nothing was charged. Please try again.'),
           );
           return;
+        } else {
+          paidSure = true;
+          paidNote = `مدفوع عبر ${via} · رقم العملية ${r.transactionId}${r.reference ? ` · المرجع ${r.reference}` : ''}`;
         }
-        paidNote = `مدفوع عبر أموال${wallet ? (Platform.OS === 'ios' ? ' (Apple Pay)' : ' (Google Pay)') : ''} · رقم العملية ${r.transactionId}`;
       }
       const res = await api.post<{ data?: { id: number; order_number: string; guest_token?: string } }>('/customer/orders', {
         customer_name: name.trim(),
@@ -258,7 +266,7 @@ export default function Checkout() {
       const order = res?.data;
       if (order?.guest_token) await rememberGuestOrder(order.guest_token).catch(() => undefined);
       cart.clear();
-      router.replace({ pathname: '/order-placed', params: { number: order?.order_number ?? '', gift: gift ? giftName : '', paid: paidNote ? '1' : '' } });
+      router.replace({ pathname: '/order-placed', params: { number: order?.order_number ?? '', gift: gift ? giftName : '', paid: paidSure ? '1' : '' } });
     } catch (e) {
       Alert.alert(
         tr('ما قدرنا نرسل الطلب', 'Could not place the order'),

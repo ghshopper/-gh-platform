@@ -17,16 +17,71 @@ interface Session {
   is_live?: boolean | string | number;
 }
 
-export type PayResult = { ok: true; transactionId: string; raw: string } | { ok: false; cancelled?: boolean; raw: string };
+export type PayResult =
+  | { ok: true; transactionId: string; reference: string; raw: string }
+  | { ok: false; cancelled?: boolean; raw: string }
+  /** The SDK answered but in a shape we could not read: let the shop check it. */
+  | { ok: 'unknown'; transactionId: string; reference: string; raw: string };
 
-const SUCCESS = ['success', 'paid', 'completed', 'approved', 'captured'];
+const SUCCESS = ['success', 'succeeded', 'successful', 'paid', 'completed', 'approved', 'captured'];
+const FAILURE = /fail|declin|reject|cancel|error|denied|invalid|expired|timeout/i;
+const STATUS_KEYS = ['status', 'transactionstatus', 'paymentstatus', 'state', 'result', 'responsestatus'];
+const REF_KEYS = ['transactionid', 'referencenumber', 'reference', 'rrn', 'hostreference', 'systemtraceauditnumber', 'merchantreference', 'id'];
 
-/** Only an explicit success counts (same rule as the previous app). */
-function isSuccess(r: AmwalPayResponse | unknown): boolean {
-  const status = String((r as { status?: unknown } | null)?.status ?? '').toLowerCase();
-  if (SUCCESS.includes(status)) return true;
-  const text = JSON.stringify(r ?? '').toLowerCase().replace(/\s/g, '');
-  return SUCCESS.some((s) => text.includes(`"status":"${s}"`));
+/** Flatten the SDK's answer: nested objects and JSON-in-a-string included. */
+function flatten(v: unknown, out: [string, string][], key = '', depth = 0): void {
+  if (depth > 6 || v === null || v === undefined) return;
+  if (typeof v === 'string') {
+    const t = v.trim();
+    if ((t.startsWith('{') && t.endsWith('}')) || (t.startsWith('[') && t.endsWith(']'))) {
+      try {
+        flatten(JSON.parse(t), out, key, depth + 1);
+        return;
+      } catch {
+        // plain text
+      }
+    }
+    out.push([key, t]);
+    return;
+  }
+  if (typeof v === 'number' || typeof v === 'boolean') {
+    out.push([key, String(v)]);
+    return;
+  }
+  if (Array.isArray(v)) {
+    v.forEach((x) => flatten(x, out, key, depth + 1));
+    return;
+  }
+  if (typeof v === 'object') {
+    for (const [k, x] of Object.entries(v as Record<string, unknown>)) flatten(x, out, k.toLowerCase(), depth + 1);
+  }
+}
+
+export function readAmwalResponse(r: unknown): { verdict: 'ok' | 'fail' | 'cancel' | 'unknown'; reference: string } {
+  const pairs: [string, string][] = [];
+  flatten(r, pairs);
+  let good = false;
+  let bad = false;
+  let cancel = false;
+  for (const [k, v] of pairs) {
+    const val = v.toLowerCase();
+    if (STATUS_KEYS.includes(k)) {
+      if (SUCCESS.includes(val)) good = true;
+      else if (FAILURE.test(val)) {
+        bad = true;
+        if (/cancel/.test(val)) cancel = true;
+      }
+    }
+    if ((k === 'success' || k === 'issuccess' || k === 'issuccessful') && (val === 'true' || val === '1')) good = true;
+    if ((k === 'success' || k === 'issuccess') && val === 'false') bad = true;
+    if ((k === 'responsecode' || k === 'hostresponsecode') && (val === '00' || val === '000')) good = true;
+    if (k === 'message' && /approved|success|ناجح|تمت/.test(val) && !FAILURE.test(val)) good = true;
+  }
+  const refPair = REF_KEYS.map((rk) => pairs.find(([k, v]) => k === rk && v.length > 3)).find(Boolean);
+  const reference = refPair ? refPair[1] : '';
+  if (bad) return { verdict: cancel ? 'cancel' : 'fail', reference };
+  if (good) return { verdict: 'ok', reference };
+  return { verdict: 'unknown', reference };
 }
 
 export const AMWAL_CODES = ['amwalpay', 'card', 'amwal_apple', 'amwal_google'];
@@ -75,7 +130,10 @@ export async function payWithAmwal(amount: number, wallet: boolean, isAr: boolea
 
     const handle = (r: AmwalPayResponse) => {
       const raw = JSON.stringify(r ?? {});
-      finish(isSuccess(r) ? { ok: true, transactionId, raw } : { ok: false, raw, cancelled: /cancel/i.test(raw) });
+      const { verdict, reference } = readAmwalResponse(r);
+      if (verdict === 'ok') finish({ ok: true, transactionId, reference, raw });
+      else if (verdict === 'unknown' && raw.length > 2) finish({ ok: 'unknown', transactionId, reference, raw });
+      else finish({ ok: false, raw, cancelled: verdict === 'cancel' });
     };
 
     try {
