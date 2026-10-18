@@ -1,0 +1,192 @@
+v22.23.3
+10.9.9
+Creating gh using the blank-typescript template.
+
+- Locating project files.
+✔ Downloaded and extracted project files.
+> npm install
+npm warn deprecated uuid@7.0.3: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
+
+added 459 packages, and audited 460 packages in 25s
+
+44 packages are looking for funding
+  run `npm fund` for details
+
+22 vulnerabilities (7 moderate, 15 high)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+
+✅ Your project is ready!
+
+To run your project, navigate to the directory and run one of the following npm commands.
+
+- cd gh
+- npm run android
+- npm run ios # you need to use macOS to build the iOS project - use the Expo app if you need to do iOS development without a Mac
+- npm run web
+› Installing 29 SDK 58.0.0 compatible native modules using npm
+> npm install
+npm warn ERESOLVE overriding peer dependency
+
+added 109 packages, removed 5 packages, and audited 564 packages in 14s
+
+54 packages are looking for funding
+  run `npm fund` for details
+
+29 vulnerabilities (9 moderate, 20 high)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+› Added config plugins: expo-router, expo-status-bar, expo-image, expo-secure-store, expo-font, expo-splash-screen, expo-localization, expo-sharing, expo-web-browser, expo-build-properties, expo-video
+› Installing 2 other packages using npm
+> npm install --save @react-native-firebase/app @react-native-firebase/messaging
+npm error code ERESOLVE
+npm error ERESOLVE could not resolve
+npm error
+npm error While resolving: react-dom@19.3.1
+npm error Found: react@19.3.0
+npm error node_modules/react
+npm error   peer react@"*" from @expo/dom-webview@58.0.2
+npm error   node_modules/@expo/dom-webview
+npm error     @expo/dom-webview@"^58.0.2" from @expo/log-box@58.0.12
+npm error     node_modules/@expo/log-box
+npm error       @expo/log-box@"^58.0.12" from expo@58.0.14
+npm error       3 more (expo-router, @expo/metro-runtime, @expo/cli)
+npm error     @expo/dom-webview@"~58.0.2" from expo@58.0.14
+npm error   peer react@"*" from @expo/log-box@58.0.12
+npm error   node_modules/@expo/log-box
+npm error     @expo/log-box@"^58.0.12" from expo@58.0.14
+npm error     @expo/log-box@"^58.0.12" from expo-router@58.0.23
+npm error     2 more (@expo/metro-runtime, @expo/cli)
+npm error   53 more (@radix-ui/react-collection, ...)
+npm error
+npm error Could not resolve dependency:
+npm error peer react@"^19.3.1" from react-dom@19.3.1
+npm error node_modules/react-dom
+npm error   peer react-dom@"^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc" from @radix-ui/react-collection@1.2.0
+npm error   node_modules/@radix-ui/react-collection
+npm error     @radix-ui/react-collection@"1.2.0" from @radix-ui/react-roving-focus@1.2.1
+npm error     node_modules/@radix-ui/react-roving-focus
+npm error       @radix-ui/react-roving-focus@"1.2.1" from @radix-ui/react-tabs@1.2.1
+npm error       node_modules/expo-router/node_modules/@radix-ui/react-tabs
+npm error   peer react-dom@"^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc" from @radix-ui/react-presence@1.1.11
+npm error   node_modules/@radix-ui/react-presence
+npm error     @radix-ui/react-presence@"1.1.11" from @radix-ui/react-tabs@1.2.1
+npm error     node_modules/expo-router/node_modules/@radix-ui/react-tabs
+npm error       @radix-ui/react-tabs@"^1.1.12" from expo-router@58.0.23
+npm error       node_modules/expo-router
+npm error   7 more (@radix-ui/react-primitive, ...)
+npm error
+npm error Conflicting peer dependency: react@19.3.1
+npm error node_modules/react
+npm error   peer react@"^19.3.1" from react-dom@19.3.1
+npm error   node_modules/react-dom
+npm error     peer react-dom@"^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc" from @radix-ui/react-collection@1.2.0
+npm error     node_modules/@radix-ui/react-collection
+npm error       @radix-ui/react-collection@"1.2.0" from @radix-ui/react-roving-focus@1.2.1
+npm error       node_modules/@radix-ui/react-roving-focus
+npm error         @radix-ui/react-roving-focus@"1.2.1" from @radix-ui/react-tabs@1.2.1
+npm error         node_modules/expo-router/node_modules/@radix-ui/react-tabs
+npm error     peer react-dom@"^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc" from @radix-ui/react-presence@1.1.11
+npm error     node_modules/@radix-ui/react-presence
+npm error       @radix-ui/react-presence@"1.1.11" from @radix-ui/react-tabs@1.2.1
+npm error       node_modules/expo-router/node_modules/@radix-ui/react-tabs
+npm error         @radix-ui/react-tabs@"^1.1.12" from expo-router@58.0.23
+npm error         node_modules/expo-router
+npm error     7 more (@radix-ui/react-primitive, ...)
+npm error
+npm error Fix the upstream dependency conflict, or retry
+npm error this command with --force or --legacy-peer-deps
+npm error to accept an incorrect (and potentially broken) dependency resolution.
+npm error
+npm error
+npm error For a full report see:
+npm error /home/runner/.npm/_logs/2026-10-18T12_50_16_075Z-eresolve-report.txt
+npm error A complete log of this run can be found in: /home/runner/.npm/_logs/2026-10-18T12_50_16_075Z-debug-0.log
+Error: npm install --save @react-native-firebase/app @react-native-firebase/messaging exited with non-zero code: 1
+Error: npm install --save @react-native-firebase/app @react-native-firebase/messaging exited with non-zero code: 1
+    at ChildProcess.completionListener (/tmp/gh/node_modules/@expo/spawn-async/build/spawnAsync.js:113:23)
+    at Object.onceWrapper (node:events:634:26)
+    at ChildProcess.emit (node:events:519:28)
+    at ChildProcess._handle.onexit (node:internal/child_process:293:12)
+    ...
+    at spawnAsync (/tmp/gh/node_modules/@expo/spawn-async/build/spawnAsync.js:9:23)
+    at NpmPackageManager.runAsync (/tmp/gh/node_modules/@expo/package-manager/build/node/BasePackageManager.js:75:42)
+    at /tmp/gh/node_modules/@expo/package-manager/build/node/NpmPackageManager.js:71:23
+    at /tmp/gh/node_modules/@expo/package-manager/build/utils/spawn.js:20:34
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+firebase install failed
+npm error code ERESOLVE
+npm error ERESOLVE could not resolve
+npm error
+npm error While resolving: react-dom@19.3.1
+npm error Found: react@19.3.0
+npm error node_modules/react
+npm error   peer react@"*" from @expo/dom-webview@58.0.2
+npm error   node_modules/@expo/dom-webview
+npm error     @expo/dom-webview@"^58.0.2" from @expo/log-box@58.0.12
+npm error     node_modules/@expo/log-box
+npm error       @expo/log-box@"^58.0.12" from expo@58.0.14
+npm error       3 more (expo-router, @expo/metro-runtime, @expo/cli)
+npm error     @expo/dom-webview@"~58.0.2" from expo@58.0.14
+npm error   peer react@"*" from @expo/log-box@58.0.12
+npm error   node_modules/@expo/log-box
+npm error     @expo/log-box@"^58.0.12" from expo@58.0.14
+npm error     @expo/log-box@"^58.0.12" from expo-router@58.0.23
+npm error     2 more (@expo/metro-runtime, @expo/cli)
+npm error   52 more (@radix-ui/react-collection, ...)
+npm error
+npm error Could not resolve dependency:
+npm error peer react@"^19.3.1" from react-dom@19.3.1
+npm error node_modules/react-dom
+npm error   peer react-dom@"^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc" from @radix-ui/react-collection@1.2.0
+npm error   node_modules/@radix-ui/react-collection
+npm error     @radix-ui/react-collection@"1.2.0" from @radix-ui/react-roving-focus@1.2.1
+npm error     node_modules/@radix-ui/react-roving-focus
+npm error       @radix-ui/react-roving-focus@"1.2.1" from @radix-ui/react-tabs@1.2.1
+npm error       node_modules/expo-router/node_modules/@radix-ui/react-tabs
+npm error   peer react-dom@"^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc" from @radix-ui/react-presence@1.1.11
+npm error   node_modules/@radix-ui/react-presence
+npm error     @radix-ui/react-presence@"1.1.11" from @radix-ui/react-tabs@1.2.1
+npm error     node_modules/expo-router/node_modules/@radix-ui/react-tabs
+npm error       @radix-ui/react-tabs@"^1.1.12" from expo-router@58.0.23
+npm error       node_modules/expo-router
+npm error   7 more (@radix-ui/react-primitive, ...)
+npm error
+npm error Conflicting peer dependency: react@19.3.1
+npm error node_modules/react
+npm error   peer react@"^19.3.1" from react-dom@19.3.1
+npm error   node_modules/react-dom
+npm error     peer react-dom@"^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc" from @radix-ui/react-collection@1.2.0
+npm error     node_modules/@radix-ui/react-collection
+npm error       @radix-ui/react-collection@"1.2.0" from @radix-ui/react-roving-focus@1.2.1
+npm error       node_modules/@radix-ui/react-roving-focus
+npm error         @radix-ui/react-roving-focus@"1.2.1" from @radix-ui/react-tabs@1.2.1
+npm error         node_modules/expo-router/node_modules/@radix-ui/react-tabs
+npm error     peer react-dom@"^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc" from @radix-ui/react-presence@1.1.11
+npm error     node_modules/@radix-ui/react-presence
+npm error       @radix-ui/react-presence@"1.1.11" from @radix-ui/react-tabs@1.2.1
+npm error       node_modules/expo-router/node_modules/@radix-ui/react-tabs
+npm error         @radix-ui/react-tabs@"^1.1.12" from expo-router@58.0.23
+npm error         node_modules/expo-router
+npm error     7 more (@radix-ui/react-primitive, ...)
+npm error
+npm error Fix the upstream dependency conflict, or retry
+npm error this command with --force or --legacy-peer-deps
+npm error to accept an incorrect (and potentially broken) dependency resolution.
+npm error
+npm error
+npm error For a full report see:
+npm error /home/runner/.npm/_logs/2026-10-18T12_50_23_438Z-eresolve-report.txt
+npm error A complete log of this run can be found in: /home/runner/.npm/_logs/2026-10-18T12_50_23_438Z-debug-0.log
