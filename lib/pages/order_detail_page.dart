@@ -190,6 +190,8 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
       const SheetAction('الرحلة', 'trip'),
       const SheetAction('رسوم التوصيل', 'delivery'),
       const SheetAction('ملاحظات الطلب', 'notes'),
+      if (o.hasBalance) const SheetAction('إرسال رابط الدفع (أموال)', 'paylink'),
+      if (o.hasBalance) const SheetAction('نسخ رابط الدفع', 'paylink-copy'),
       if (o.trackingToken != null) const SheetAction('نسخ رابط التتبّع', 'track'),
       const SheetAction('حذف الطلب', 'delete', destructive: true),
     ]);
@@ -216,6 +218,23 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
         if (t != null) {
           await _run(() => Store.i
               .updateOrder(o.id, {'notes': t.trim().isEmpty ? null : t.trim()}));
+        }
+        break;
+      case 'paylink':
+      case 'paylink-copy':
+        String url;
+        try {
+          url = await Store.i.orderPayLink(o.id);
+        } catch (e) {
+          if (mounted) toast(context, errorText(e), error: true);
+          break;
+        }
+        if (!mounted) break;
+        if (a == 'paylink-copy') {
+          await Clipboard.setData(ClipboardData(text: url));
+          if (mounted) toast(context, 'نسخت رابط الدفع');
+        } else {
+          presentForm(context, MessagePage(order: o, template: payLinkTemplate(url)));
         }
         break;
       case 'track':
@@ -384,6 +403,8 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                                 Text(
                                   [
                                     dateStr(o.createdAt),
+                                    if (o.fromStore) o.sourceLabel,
+                                    if (o.paidOnline) 'مدفوع أونلاين',
                                     if (trip != null) trip.name
                                     else if (o.trip != null) o.trip!,
                                   ].join(' · '),
@@ -555,7 +576,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                     strong: true,
                     color: o.customerBalance < -0.0005 ? GH.red : GH.green),
                 if (o.costOmr > 0)
-                  KV('ربحك التقديري', omr(o.itemsTotal - o.costOmr),
+                  KV('ربحك التقديري', omr(o.itemProfit),
                       color: GH.burgundy),
                 ...o.taxFreePending.entries.map((e) => KV(
                     'تاكس فري باقي تستلمه', money(e.value, e.key),

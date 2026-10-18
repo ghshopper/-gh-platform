@@ -31,7 +31,7 @@ class TodayPage extends StatelessWidget {
           final d = o.createdAt?.toLocal();
           return d != null && d.year == now.year && d.month == now.month;
         }).toList();
-        final sales = monthOrders.fold<double>(0, (s, o) => s + o.itemsTotal);
+        final sales = monthOrders.fold<double>(0, (s, o) => s + o.netSales);
         final owed = store.orders
             .fold<double>(0, (s, o) => s + (o.remaining > 0 ? o.remaining : 0));
         final held = store.orders.fold<double>(
@@ -46,6 +46,11 @@ class TodayPage extends StatelessWidget {
             .where((e) => e.value.status == ItemStatus.outForDelivery)
             .toList();
         final unpaid = store.orders.where((o) => o.hasBalance).toList();
+        // Online orders (app / website) not bought yet: new work to look at.
+        final newOnline = store.orders
+            .where((o) =>
+                o.fromStore && o.overallStatus == ItemStatus.requested)
+            .toList();
         final taxFree = <String, double>{};
         for (final o in store.orders) {
           o.taxFreePending
@@ -124,11 +129,33 @@ class TodayPage extends StatelessWidget {
                   ]),
                 ]),
               ),
-              if (toBuy.isEmpty && toDeliver.isEmpty && outForDelivery.isEmpty && unpaid.isEmpty && store.withDrivers.isEmpty)
+              if (newOnline.isEmpty && toBuy.isEmpty && toDeliver.isEmpty && outForDelivery.isEmpty && unpaid.isEmpty && store.withDrivers.isEmpty)
                 const EmptyState(
                   icon: CupertinoIcons.checkmark_seal,
                   title: 'كل شي تمام',
                   message: 'ما في شي يحتاج منك شغل اليوم.',
+                ),
+              if (newOnline.isNotEmpty)
+                Section(
+                  header: 'طلبات أونلاين جديدة · ${newOnline.length}',
+                  children: newOnline
+                      .take(8)
+                      .map((o) => Tile(
+                            leading: Avatar(store.customerName(o), size: 32),
+                            title: store.customerName(o),
+                            subtitle: [
+                              o.sourceLabel,
+                              o.invoiceNo,
+                              '${o.activeItems.length} قطعة',
+                            ].join(' · '),
+                            value: omr(o.total),
+                            trailing: o.paidOnline
+                                ? const Badge('مدفوع', color: GH.green)
+                                : null,
+                            onTap: () => pushPage(
+                                context, OrderDetailPage(orderId: o.id)),
+                          ))
+                      .toList(),
                 ),
               if (outForDelivery.isNotEmpty)
                 Section(

@@ -205,6 +205,13 @@ class Store extends ChangeNotifier {
     return (res as Map)['url'] as String;
   }
 
+  /// The order's payment link (card / Apple Pay with Amwal). The customer
+  /// pays what is left; the payment is added to the order by itself.
+  Future<String> orderPayLink(String id, {bool reset = false}) async {
+    final res = await _api.post('/ps/orders/$id/pay-link${reset ? '?reset=1' : ''}');
+    return (res as Map)['url'] as String;
+  }
+
   // ───────────── orders ─────────────
 
   Future<String> createOrder({

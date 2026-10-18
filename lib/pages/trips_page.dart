@@ -31,7 +31,7 @@ class _TripStats {
     final store = Store.i;
     orders = store.ordersOfTrip(t.id);
     expenses = store.expensesOf(t.id);
-    sales = orders.fold<double>(0, (s, o) => s + o.itemsTotal);
+    sales = orders.fold<double>(0, (s, o) => s + o.netSales);
     cost = orders.fold<double>(0, (s, o) => s + o.costOmr);
     spent = expenses.fold<double>(0, (s, e) => s + e.omr);
     toBuy = orders

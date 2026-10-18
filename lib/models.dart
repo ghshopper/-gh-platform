@@ -41,10 +41,16 @@ class Customer {
     this.address,
     this.notes,
     this.isMale = false,
+    this.loyaltyPoints = 0,
+    this.loyaltyTier,
   });
 
   final String id;
   final String name;
+
+  /// Points and tier from the customer app / website (0 / null if none).
+  final int loyaltyPoints;
+  final String? loyaltyTier;
   final String? phone;
   final String? city;
 
@@ -68,6 +74,10 @@ class Customer {
         address: _s(m['address']),
         notes: _s(m['notes']),
         isMale: m['gender'] == 'm',
+        loyaltyPoints: (m['loyalty_points'] is num)
+            ? (m['loyalty_points'] as num).toInt()
+            : int.tryParse('${m['loyalty_points'] ?? ''}') ?? 0,
+        loyaltyTier: _s(m['loyalty_tier']),
       );
 }
 
@@ -565,6 +575,8 @@ class Order {
     this.discount = 0,
     this.discountLabel,
     this.tax = 0,
+    this.storeSource,
+    this.paidOnline = false,
   });
 
   final String id;
@@ -597,6 +609,13 @@ class Order {
   /// Set when the order came from the website / customer app.
   final String? storeOrderNumber;
   bool get fromStore => storeOrderNumber != null;
+
+  /// 'app' or 'web' for online orders.
+  final String? storeSource;
+  String get sourceLabel => storeSource == 'app' ? '📱 التطبيق' : '🌐 الموقع';
+
+  /// Paid online by card / Apple Pay (Amwal).
+  final bool paidOnline;
 
   /// Cash the driver collects for a cash-on-delivery website order.
   final double? codAmount;
@@ -631,6 +650,12 @@ class Order {
   double get itemsTotal =>
       activeItems.fold<double>(0, (sum, i) => sum + i.price);
   double get total => itemsTotal + deliveryFee + tax - discount;
+
+  /// What the pieces sold for after the discount (tax and delivery aside).
+  double get netSales => itemsTotal - discount;
+
+  /// Estimated profit on the pieces, after the discount.
+  double get itemProfit => netSales - costOmr;
   double get paid => payments.fold<double>(0, (sum, p) => sum + p.amount);
   double get remaining => total - paid;
   bool get hasBalance => remaining > 0.0005;
@@ -704,6 +729,8 @@ class Order {
       discount: _d(m['discount']),
       discountLabel: _s(m['discount_label']),
       tax: _d(m['tax']),
+      storeSource: _s(m['store_source']),
+      paidOnline: m['store_paid_online'] == true,
       events: ((m['events'] as List?) ?? const [])
           .map((e) => OrderEvent.fromMap(Map<String, dynamic>.from(e as Map)))
           .toList(),
@@ -731,6 +758,7 @@ class OrderEvent {
         'delivered' => 'تم التسليم',
         'cancelled' => 'إلغاء',
         'requested' => 'رجع لانتظار الشراء',
+        'paid' => 'دفع أونلاين',
         _ => type,
       };
 
@@ -743,6 +771,7 @@ class OrderEvent {
         'picked' || 'out_for_delivery' => CupertinoIcons.car_detailed,
         'delivered' => CupertinoIcons.checkmark_seal_fill,
         'cancelled' => CupertinoIcons.xmark_circle_fill,
+        'paid' => CupertinoIcons.creditcard_fill,
         _ => CupertinoIcons.circle_fill,
       };
 
@@ -753,6 +782,7 @@ class OrderEvent {
         'out_for_delivery' => GH.teal,
         'delivered' => GH.statusDelivered,
         'cancelled' => GH.red,
+        'paid' => GH.green,
         _ => GH.secondary,
       };
 

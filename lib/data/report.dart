@@ -37,6 +37,8 @@ class Report {
         'الرحلة',
         'عدد القطع',
         'مبيعات القطع',
+        'الخصم',
+        'الضريبة',
         'التوصيل',
         'الإجمالي',
         'المدفوع',
@@ -46,6 +48,7 @@ class Report {
       ],
     ];
     var sales = 0.0, delivery = 0.0, paid = 0.0, cost = 0.0;
+    var discount = 0.0, tax = 0.0, total = 0.0;
     for (final o in orders) {
       final trip = store.trip(o.tripId)?.name ?? o.trip ?? '';
       rows.add([
@@ -55,22 +58,27 @@ class Report {
         trip,
         o.activeItems.length,
         _num(o.itemsTotal),
+        _num(o.discount),
+        _num(o.tax),
         _num(o.deliveryFee),
         _num(o.total),
         _num(o.paid),
         _num(o.remaining),
         _num(o.costOmr),
-        _num(o.itemsTotal - o.costOmr),
+        _num(o.itemProfit),
       ]);
       sales += o.itemsTotal;
+      discount += o.discount;
+      tax += o.tax;
+      total += o.total;
       delivery += o.deliveryFee;
       paid += o.paid;
       cost += o.costOmr;
     }
     rows.add([]);
-    rows.add(['المجموع', '', '', '', '', _num(sales), _num(delivery),
-      _num(sales + delivery), _num(paid), _num(sales + delivery - paid),
-      _num(cost), _num(sales - cost)]);
+    rows.add(['المجموع', '', '', '', '', _num(sales), _num(discount), _num(tax),
+      _num(delivery), _num(total), _num(paid), _num(total - paid),
+      _num(cost), _num(sales - discount - cost)]);
 
     // Items sheet section
     rows.add([]);

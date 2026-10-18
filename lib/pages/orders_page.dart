@@ -202,7 +202,7 @@ class OrderRow extends StatelessWidget {
                   const SizedBox(height: 3),
                   Text(
                     [
-                      if (o.fromStore) '🌐 الموقع',
+                      if (o.fromStore) o.sourceLabel,
                       if (showCustomer) o.invoiceNo,
                       dateStr(o.createdAt),
                       '${o.activeItems.length} قطعة',

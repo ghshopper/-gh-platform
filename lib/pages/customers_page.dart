@@ -180,6 +180,16 @@ class CustomerDetailPage extends StatelessWidget {
                   chevron: false),
               if (c.city != null)
                 Tile(title: 'المنطقة', value: c.city, chevron: false),
+              if (c.loyaltyPoints > 0 || c.loyaltyTier != null)
+                Tile(
+                    leading: const IconBox(CupertinoIcons.star_fill,
+                        color: GH.amber),
+                    title: 'نقاط الولاء',
+                    value: [
+                      '${c.loyaltyPoints} نقطة',
+                      if (c.loyaltyTier != null) c.loyaltyTier!,
+                    ].join(' · '),
+                    chevron: false),
               if (c.address != null)
                 Tile(title: 'العنوان', subtitle: c.address, chevron: false),
               Tile(

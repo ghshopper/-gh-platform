@@ -200,7 +200,8 @@ class _SummaryPageState extends State<SummaryPage> {
             .toList();
         final cost = costed.fold<double>(0, (s, i) => s + i.costOmr!);
         final costedSales = costed.fold<double>(0, (s, i) => s + i.price);
-        final itemProfit = costedSales - cost;
+        final discounts = orders.fold<double>(0, (s, o) => s + o.discount);
+        final itemProfit = costedSales - cost - discounts;
         final itemCount = orders.expand((o) => o.activeItems).length;
 
         final expenses =
@@ -309,6 +310,8 @@ class _SummaryPageState extends State<SummaryPage> {
                 KV('عدد القطع', '$itemCount'),
                 KV('مبيعات القطع', omr(sales)),
                 KV('تكلفة الشراء', omr(cost)),
+                if (discounts > 0)
+                  KV('− الخصومات (أكواد ونقاط)', omr(discounts), color: GH.red),
                 KV('ربح القطع', omr(itemProfit), color: GH.green),
                 KV('+ رسوم التوصيل', omr(delivery)),
                 KV('− المصاريف', omr(spent), color: GH.red),

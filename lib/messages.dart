@@ -27,6 +27,18 @@ String _hi(Customer? c) {
   return n.isEmpty ? 'هلا 🤍' : 'هلا $n 🤍';
 }
 
+/// Message with the order's payment link (made when sending).
+MsgTemplate payLinkTemplate(String url) => MsgTemplate('رابط الدفع', (o, c) {
+      return '${_hi(c)}\n'
+          '${_g(c, 'طلبكِ', 'طلبك')} من GH Shopper\n'
+          'رقم الفاتورة: ${o.invoiceNo}\n\n'
+          '${_items(o.activeItems)}\n\n'
+          'المبلغ المطلوب: ${omr(o.remaining)}\n'
+          '${_g(c, 'تقدرين تدفعين', 'تقدر تدفع')} بالبطاقة أو Apple Pay من هذا الرابط:\n'
+          '$url\n\n'
+          'الرابط خاص ${_g(c, 'فيكِ', 'فيك')} 🤍';
+    });
+
 final List<MsgTemplate> messageTemplates = [
   MsgTemplate('تأكيد الطلب', (o, c) {
     return '${_hi(c)}\n'
