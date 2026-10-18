@@ -161,6 +161,7 @@ export default function Checkout() {
         gift_recipient_name: gift ? giftName.trim() : null,
         gift_message: gift ? [giftMessage.trim(), giftPhone.trim() ? `هاتف المستلم: ${giftPhone.trim()}` : ''].filter(Boolean).join('\n') || null : null,
         payment_method: 'amwalpay',
+        source: 'web',
         subtotal: Number(cart.subtotal.toFixed(3)),
         shipping_cost: Number(fee.toFixed(3)),
         service_fee: Number(service.toFixed(3)),
@@ -168,7 +169,7 @@ export default function Checkout() {
         coupon_code: cart.coupon?.code ?? null,
         tax_amount: Number(tax.toFixed(3)),
         total_amount: Number(total.toFixed(3)),
-        notes: ['طلب من الموقع', notes.trim()].filter(Boolean).join('\n'),
+        notes: notes.trim() || null,
         shipping_address: address(),
         items: cart.items.map((i) => ({
           product_id: i.productId,
