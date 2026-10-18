@@ -76,6 +76,7 @@ Downloading packages...
 + material_color_utilities 0.13.0 (0.13.1 available)
 + meta 1.19.0
 + mime 2.1.0
++ mobile_scanner 7.4.2
 + objective_c 9.6.2
 + package_config 3.0.0
 + passkeys_platform_interface 2.10.0
@@ -140,7 +141,7 @@ Downloading packages...
 + xml 7.1.0
 + yaml 3.1.4
 + yet_another_json_isolate 2.1.1
-Changed 140 dependencies!
+Changed 141 dependencies!
 22 packages have newer versions incompatible with dependency constraints.
 Try `flutter pub outdated` for more information.
 Upgrading analysis_options.yaml to exclude build and platform directories.
