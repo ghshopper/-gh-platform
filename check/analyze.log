@@ -31,4 +31,4 @@ warning • The member 'loadSnapshot' can only be used within 'package:gh_shoppe
 warning • The member 'loadSnapshot' can only be used within 'package:gh_shopper/data/store.dart' or a test • test_shots/screens_test.dart:227:15 • invalid_use_of_visible_for_testing_member
 warning • The member 'loadSnapshot' can only be used within 'package:gh_shopper/data/store.dart' or a test • test_shots/screens_test.dart:254:13 • invalid_use_of_visible_for_testing_member
 
-30 issues found. (ran in 10.2s)
+30 issues found. (ran in 15.4s)
