@@ -1070,3 +1070,22 @@ tbody tr:last-child td { border-bottom: none; }
 }
 .table-container th, .table-container td { padding: 12px 12px !important; }
 .table-container table { min-width: 0 !important; }
+
+/* Old banner headers → a plain page header (title, subtitle, actions), like Shopify */
+.gh-hero { background: transparent !important; box-shadow: none !important; padding: 0 !important; border-radius: 0 !important; margin-bottom: 20px !important; overflow: visible !important; }
+.gh-hero > div[style*="absolute"] { display: none !important; }
+.gh-hero, .gh-hero * { color: var(--ink) !important; }
+.gh-hero h1, .gh-hero h2 { font-size: 26px !important; font-weight: 700 !important; letter-spacing: -.2px; }
+.gh-hero p, .gh-hero small { color: var(--text-secondary) !important; }
+.gh-hero [style*="rgba(255, 255, 255"] { background: #fff !important; border-color: var(--border) !important; backdrop-filter: none !important; }
+.gh-hero div[style*="linear-gradient"] { background: var(--color-primary-bg) !important; box-shadow: none !important; }
+.gh-hero div[style*="linear-gradient"] svg { color: var(--accent) !important; }
+.gh-hero button { background: #fff !important; border: 1px solid var(--border) !important; box-shadow: none !important; backdrop-filter: none !important; border-radius: 10px !important; }
+.gh-hero button:last-of-type { background: var(--ink) !important; border-color: var(--ink) !important; }
+.gh-hero button:last-of-type, .gh-hero button:last-of-type * { color: #fff !important; }
+.gh-hero button[style*="DC2626"], .gh-hero button[style*="220, 38, 38"] { background: #fff !important; border-color: #F1C8C4 !important; }
+.gh-hero button[style*="DC2626"] *, .gh-hero button[style*="DC2626"] { color: #B42318 !important; }
+/* Pages that bring their own page-inner sit inside the layout's one: no double padding */
+.page-inner .page-inner { padding: 0 !important; max-width: none !important; }
+.page-container .page-container { overflow: visible !important; }
+@media (max-width: 768px) { .page-container > .page-inner { padding: 16px 14px !important; } }

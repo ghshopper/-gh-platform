@@ -347,15 +347,13 @@ const btn = (bg, color, outline) => ({
 })
 
 function Stat({ label, value, color, hero }) {
+  // Shopify-style tile: white card, label on top, number below; colour only as a small dot.
   return (
-    <div style={{
-      borderRadius: 18, padding: '18px 20px',
-      background: hero ? 'linear-gradient(135deg,#6b0f19,#350304)' : `linear-gradient(135deg, ${color}14, ${color}06)`,
-      border: hero ? 'none' : `1.5px solid ${color}22`,
-      boxShadow: hero ? '0 12px 28px -14px rgba(74,13,23,.6)' : 'none',
-    }}>
-      <div style={{ fontSize: 26, fontWeight: 900, color: hero ? '#fff' : color }}>{value}</div>
-      <div style={{ fontSize: 13, color: hero ? 'rgba(255,255,255,.75)' : '#64748b', marginTop: 4 }}>{label}</div>
+    <div style={{ borderRadius: 14, padding: '14px 16px', background: '#fff', border: '1px solid var(--border)' }}>
+      <div style={{ fontSize: 12.5, color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: 6 }}>
+        <span style={{ width: 7, height: 7, borderRadius: 7, background: hero ? 'var(--accent)' : color }} />{label}
+      </div>
+      <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--ink)', marginTop: 6, letterSpacing: '-.3px' }}>{value}</div>
     </div>
   )
 }

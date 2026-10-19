@@ -243,7 +243,7 @@ export default function Customers() {
   return (
     <div className="page" dir="rtl">
       {/* Luxury Hero Header */}
-      <div className="dashboard-header flex justify-between items-center mb-8" style={{ background: 'linear-gradient(90deg, #1A1A2E, #2B2B4A)', padding: '24px', borderRadius: 'var(--radius-lg)', color: '#fff' }}>
+      <div className="dashboard-header gh-hero flex justify-between items-center mb-8" style={{ background: 'linear-gradient(90deg, #1A1A2E, #2B2B4A)', padding: '24px', borderRadius: 'var(--radius-lg)', color: '#fff' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           <div style={{ width: 64, height: 64, borderRadius: 16, background: 'linear-gradient(135deg, #B5915F, #8B6B3D)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <RiGroupLine size={32} />

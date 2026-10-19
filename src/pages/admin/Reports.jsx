@@ -77,7 +77,7 @@ export default function Reports() {
     <div className="page-container" style={{ direction: 'rtl' }}>
 
       {/* ─── Header ─── */}
-      <div style={{
+      <div className="gh-hero" style={{
         background: `linear-gradient(135deg, ${PRIMARY_DARK} 0%, ${PRIMARY} 50%, ${PRIMARY_LIGHT} 100%)`,
         borderRadius: 16, padding: '24px 28px', marginBottom: 24,
         position: 'relative', overflow: 'hidden',

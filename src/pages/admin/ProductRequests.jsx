@@ -151,18 +151,12 @@ export default function ProductRequests() {
     window.open(`https://wa.me/${cleanPhone}?text=${msg}`, '_blank')
   }
 
-  const StatCard = ({ label, value, color, bg }) => (
-    <div style={{
-      background: bg || '#fff',
-      borderRadius: 16,
-      padding: '20px 24px',
-      border: `1.5px solid ${color}30`,
-      boxShadow: `0 4px 20px ${color}10`,
-      flex: 1,
-      minWidth: 140,
-    }}>
-      <div style={{ fontSize: 28, fontWeight: 900, color }}>{value || 0}</div>
-      <div style={{ fontSize: 13, color: '#64748b', marginTop: 4 }}>{label}</div>
+  const StatCard = ({ label, value, color }) => (
+    <div style={{ background: '#fff', borderRadius: 14, padding: '14px 16px', border: '1px solid var(--border)', flex: 1, minWidth: 140 }}>
+      <div style={{ fontSize: 12.5, color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: 6 }}>
+        <span style={{ width: 7, height: 7, borderRadius: 7, background: color }} />{label}
+      </div>
+      <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--ink)', marginTop: 6 }}>{value || 0}</div>
     </div>
   )
 
@@ -179,7 +173,7 @@ export default function ProductRequests() {
       </div>
 
       {/* Stats */}
-      <div style={{ display: 'flex', gap: 16, marginBottom: 32, flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap: 10, marginBottom: 18, flexWrap: 'wrap' }}>
         <StatCard label="إجمالي الطلبات" value={stats.total} color="#4B1828" bg="#FDF6F0" />
         <StatCard label="قيد الانتظار" value={stats.pending} color="#F59E0B" bg="#FEF3C7" />
         <StatCard label="قيد المراجعة" value={stats.reviewing} color="#3B82F6" bg="#EFF6FF" />
