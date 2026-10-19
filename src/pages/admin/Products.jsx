@@ -578,7 +578,11 @@ export default function Products() {
                       <option value="text">نص</option>
                       <option value="color">لون/صورة</option>
                       <option value="size">مقاس</option>
+                      <option value="engraving">حفر (نص يكتبه العميل)</option>
                     </select>
+                    {attr.type === 'engraving' && (
+                      <input type="number" min="1" max="40" value={attr.max_length || 12} onChange={e => updateAttribute(attrIdx, 'max_length', Number(e.target.value))} title="حد الحروف" style={{ width: 70, padding: '8px', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 13 }} />
+                    )}
                     <select value={attr.icon || ''} onChange={e => updateAttribute(attrIdx, 'icon', e.target.value)} style={{ width: 130, padding: '8px', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 13, fontFamily: 'monospace' }}>
                       <option value="">-- بدون أيقونة --</option>
                       <option value="diamond_outlined">💎 Diamond</option>
@@ -597,6 +601,9 @@ export default function Products() {
                     <button type="button" onClick={() => removeAttribute(attrIdx)} style={{ background: '#FEF2F2', color: '#EF4444', border: 'none', borderRadius: 8, width: 36, height: 36, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><RiDeleteBinLine size={16}/></button>
                   </div>
                   
+                  {attr.type === 'engraving' ? (
+                    <p style={{ fontSize: 12, color: '#6B7280', margin: 0 }}>العميل يكتب النص اللي يبيه ينحفر (اختياري، حتى {attr.max_length || 12} حرف) ويطلع في الطلب.</p>
+                  ) : (
                   <div style={{ paddingLeft: 12, borderRight: '2px solid #E5E7EB', marginRight: 12 }}>
                     {attr.values.map((val, valIdx) => (
                       <div key={valIdx} style={{ display: 'flex', gap: 8, marginBottom: 8, alignItems: 'center' }}>
@@ -617,6 +624,7 @@ export default function Products() {
                     ))}
                     <button type="button" onClick={() => addAttributeValue(attrIdx)} style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-primary)', background: 'transparent', border: 'none', cursor: 'pointer', padding: 0, marginTop: 4 }}>+ إضافة قيمة</button>
                   </div>
+                  )}
                 </div>
               ))}
             </div>

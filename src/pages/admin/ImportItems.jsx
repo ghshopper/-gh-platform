@@ -115,6 +115,50 @@ export default function ImportItems() {
   const splitOf = (it) => colorCount(it) >= 2 && (rows[it.id]?.split ?? true)
   const catOf = (id) => rows[id]?.category_id || items.find((x) => x.id === id)?.category_id || defaultCat
   const setRow = (id, patch) => setRows((r) => ({ ...r, [id]: { ...r[id], ...patch } }))
+
+  // Same original price (e.g. all €1,290) → one OMR price for all of them.
+  const priceKey = (it) => (it.source_price ? `${it.currency || ''}|${Number(it.source_price)}` : null)
+  const priceGroups = useMemo(() => {
+    const g = {}
+    items.forEach((it) => {
+      const k = priceKey(it)
+      if (!k) return
+      ;(g[k] ||= { key: k, price: it.source_price, currency: it.currency, ids: [] }).ids.push(it.id)
+    })
+    return Object.values(g).filter((x) => x.ids.length > 1).sort((a, b) => a.price - b.price)
+  }, [items])
+  const [groupPrice, setGroupPrice] = useState({})
+  const applyGroup = (grp, value) => {
+    setGroupPrice((g) => ({ ...g, [grp.key]: value }))
+    setRows((r) => {
+      const n = { ...r }
+      grp.ids.forEach((id) => { n[id] = { ...n[id], price: value } })
+      return n
+    })
+  }
+  // Typing one price also fills the empty ones with the same original price.
+  const setPrice = (it, value) => {
+    const k = priceKey(it)
+    setRows((r) => {
+      const n = { ...r, [it.id]: { ...r[it.id], price: value } }
+      if (k && value) items.forEach((x) => { if (x.id !== it.id && priceKey(x) === k && !r[x.id]?.price) n[x.id] = { ...r[x.id], price: value, auto: true } })
+      if (k && !value) items.forEach((x) => { if (x.id !== it.id && priceKey(x) === k && r[x.id]?.auto) n[x.id] = { ...r[x.id], price: '', auto: false } })
+      return n
+    })
+  }
+
+  // Options of an item: extra choices (e.g. case) and engraving.
+  const [editing, setEditing] = useState(null)
+  const saveAttrs = async (it, attributes) => {
+    try {
+      await api.put(`/admin/import-items/${it.id}`, { attributes })
+      setItems((list) => list.map((x) => (x.id === it.id ? { ...x, attributes } : x)))
+      setEditing(null)
+      toast.success('انحفظت الخيارات')
+    } catch {
+      toast.error('تعذر الحفظ')
+    }
+  }
   const drop = (ids) => {
     setItems((list) => list.filter((x) => !ids.includes(x.id)))
     setSelected((s) => { const n = { ...s }; ids.forEach((i) => delete n[i]); return n })
@@ -280,6 +324,29 @@ export default function ImportItems() {
         </div>
       </div>
 
+      {priceGroups.length > 0 && (
+        <div className="card imp-groups">
+          <div className="imp-groups-title">نفس السعر الأصلي؟ اكتب السعر بالريال مرة وحدة لكلها</div>
+          <div className="imp-groups-list">
+            {priceGroups.map((g) => (
+              <label key={g.key} className="imp-group">
+                <span className="imp-group-src">{money(g.price)} {CUR_LABEL[g.currency] || g.currency}</span>
+                <span className="imp-group-n">{g.ids.length} منتجات</span>
+                <input
+                  type="number"
+                  inputMode="decimal"
+                  step="0.001"
+                  min="0"
+                  placeholder="ر.ع"
+                  value={groupPrice[g.key] ?? ''}
+                  onChange={(e) => applyGroup(g, e.target.value)}
+                />
+              </label>
+            ))}
+          </div>
+        </div>
+      )}
+
       {loading ? (
         <div className="imp-empty"><RiLoader4Line className="spin" size={28} /></div>
       ) : !items.length ? (
@@ -314,7 +381,7 @@ export default function ImportItems() {
                   <div className="imp-meta">
                     {(it.attributes || []).map((a) => (
                       <span key={a.name_en} className="imp-attr">
-                        {a.name_ar}{(a.values || []).length > 1 ? ` (${a.values.length})` : ''}:
+                        {a.type === 'engraving' ? `✎ ${a.name_ar} (حتى ${a.max_length || 12} حرف)` : <>{a.name_ar}{(a.values || []).length > 1 ? ` (${a.values.length})` : ''}:</>}
                         {a.type === 'color' && (a.values || []).some((v) => v.image || v.color_code) ? (
                           <span className="imp-dots">
                             {(a.values || []).slice(0, 14).map((v) => (
@@ -332,7 +399,11 @@ export default function ImportItems() {
                     {it.source_url && (
                       <a href={it.source_url} target="_blank" rel="noreferrer"><RiExternalLinkLine /> صفحة البراند</a>
                     )}
+                    <button type="button" className="imp-link" onClick={() => setEditing(editing === it.id ? null : it.id)}>
+                      {editing === it.id ? 'إغلاق الخيارات' : '+ خيارات (كفر، حفر…)'}
+                    </button>
                   </div>
+                  {editing === it.id && <OptionsEditor item={it} onSave={(a) => saveAttrs(it, a)} onCancel={() => setEditing(null)} />}
                   {it.existing && (
                     <div className="imp-exist">
                       <RiErrorWarningLine />
@@ -354,7 +425,7 @@ export default function ImportItems() {
                       min="0"
                       placeholder="السعر"
                       value={rows[it.id]?.price ?? ''}
-                      onChange={(e) => setRow(it.id, { price: e.target.value })}
+                      onChange={(e) => setPrice(it, e.target.value)}
                       onKeyDown={(e) => e.key === 'Enter' && publish(it)}
                     />
                     <span>ر.ع</span>
@@ -392,7 +463,79 @@ export default function ImportItems() {
   )
 }
 
+/** Extra choices for one product: rename/edit groups, add a group, engraving. */
+function OptionsEditor({ item, onSave, onCancel }) {
+  const toText = (a) => (a.values || []).map((v) => v.value_ar || v.value_en).join('، ')
+  const [groups, setGroups] = useState(() =>
+    (item.attributes || []).filter((a) => a.type !== 'engraving').map((a) => ({ ...a, text: toText(a) })),
+  )
+  const old = (item.attributes || []).find((a) => a.type === 'engraving')
+  const [engrave, setEngrave] = useState(!!old)
+  const [maxLen, setMaxLen] = useState(old?.max_length || 12)
+
+  const update = (i, patch) => setGroups((g) => g.map((x, k) => (k === i ? { ...x, ...patch } : x)))
+  const save = () => {
+    let id = 1
+    const out = groups
+      .filter((g) => (g.name_ar || '').trim())
+      .map((g) => {
+        const names = g.text.split(/[,،\n]/).map((t) => t.trim()).filter(Boolean)
+        // Keep photos/colours of values that are still there.
+        const values = names.map((n) => {
+          const prev = (g.values || []).find((v) => (v.value_ar || v.value_en) === n)
+          return { ...(prev || {}), id: id++, value_ar: n, value_en: prev?.value_en || n }
+        })
+        const { text, ...rest } = g // eslint-disable-line no-unused-vars
+        return { ...rest, name_en: rest.name_en || rest.name_ar, is_selectable: rest.is_selectable !== false, values }
+      })
+      .filter((g) => g.values.length)
+    if (engrave) out.push({ name_ar: 'الحفر', name_en: 'Engraving', type: 'engraving', is_selectable: true, required: false, max_length: Number(maxLen) || 12, values: [] })
+    onSave(out)
+  }
+
+  return (
+    <div className="imp-opts">
+      {groups.map((g, i) => (
+        <div key={i} className="imp-opt">
+          <input value={g.name_ar || ''} onChange={(e) => update(i, { name_ar: e.target.value })} placeholder="اسم الخيار (مثلاً: الكفر)" />
+          <textarea value={g.text} onChange={(e) => update(i, { text: e.target.value })} placeholder="القيم مفصولة بفاصلة: ذهبي، أسود، فضي" rows={2} />
+          <button type="button" className="imp-x" onClick={() => setGroups((x) => x.filter((_, k) => k !== i))} title="حذف"><RiCloseLine /></button>
+        </div>
+      ))}
+      <button type="button" className="imp-link" onClick={() => setGroups((x) => [...x, { name_ar: '', name_en: '', type: 'text', is_selectable: true, values: [], text: '' }])}>
+        + خيار جديد (كفر، حجم، …)
+      </button>
+      <label className="imp-split">
+        <input type="checkbox" checked={engrave} onChange={(e) => setEngrave(e.target.checked)} />
+        العميل يقدر يطلب حفر (يكتب النص، اختياري)
+        {engrave && (
+          <>
+            · حد الحروف <input type="number" min="1" max="40" value={maxLen} onChange={(e) => setMaxLen(e.target.value)} style={{ width: 60 }} />
+          </>
+        )}
+      </label>
+      <div className="imp-opts-actions">
+        <button type="button" className="btn btn-primary btn-sm" onClick={save}><RiCheckLine /> حفظ الخيارات</button>
+        <button type="button" className="btn btn-ghost btn-sm" onClick={onCancel}>إلغاء</button>
+      </div>
+    </div>
+  )
+}
+
 const CSS = `
+.imp-groups{padding:14px 18px;margin-bottom:16px}
+.imp-groups-title{font-size:13px;font-weight:700;margin-bottom:10px}
+.imp-groups-list{display:flex;flex-wrap:wrap;gap:10px}
+.imp-group{display:flex;align-items:center;gap:8px;border:1px solid var(--border);border-radius:12px;padding:6px 6px 6px 12px;background:var(--bg-body)}
+.imp-group-src{font-weight:800;direction:ltr}
+.imp-group-n{font-size:12px;color:var(--text-secondary)}
+.imp-group input{width:96px;border:1px solid var(--border);border-radius:8px;padding:6px 8px;font:inherit;font-weight:700;direction:ltr;text-align:left;background:var(--bg-card,#fff);color:var(--text-primary)}
+.imp-link{background:none;border:none;padding:0;color:var(--color-primary);font:inherit;font-size:12px;font-weight:700;cursor:pointer}
+.imp-opts{margin-top:10px;padding:12px;border:1px dashed var(--border);border-radius:12px;display:flex;flex-direction:column;gap:8px;max-width:520px}
+.imp-opt{display:grid;grid-template-columns:150px 1fr 28px;gap:8px;align-items:start}
+.imp-opt input,.imp-opt textarea,.imp-opts input[type=number]{border:1px solid var(--border);border-radius:8px;padding:6px 8px;font:inherit;font-size:13px;background:var(--bg-card,#fff);color:var(--text-primary);resize:vertical}
+.imp-x{border:none;background:none;color:#EF4444;cursor:pointer;padding:6px}
+.imp-opts-actions{display:flex;gap:8px}
 .imp-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:20px}
 .imp-sub{color:var(--text-secondary);font-size:14px;margin:6px 0 0}
 .imp-actions{display:flex;gap:8px;flex-wrap:wrap}
