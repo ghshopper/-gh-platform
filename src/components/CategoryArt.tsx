@@ -1,6 +1,5 @@
 import type { Category } from '../lib/types';
 import { usePrefs } from '../lib/prefs';
-import { imageUrl } from '../lib/api';
 
 type Kind = 'bag' | 'shoe' | 'watch' | 'perfume' | 'jewel' | 'glasses' | 'clothes' | 'wallet' | 'beauty' | 'kids' | 'gift' | 'pen' | 'belt' | 'travel' | 'home' | 'other';
 const WORDS: [Kind, RegExp][] = [
@@ -56,15 +55,6 @@ export function CategoryArt({ c, index = 0, compact }: { c: Category; index?: nu
   const { pick } = usePrefs();
   const scheme = ['art-maroon', 'art-sand', 'art-ink'][index % 3];
   const kind = kindOf(c);
-  // A photo set for the category in the dashboard: photo tile with the name on it.
-  if (c.image) {
-    return (
-      <div className={`cat-photo${compact ? ' compact' : ''}`}>
-        <img src={imageUrl(c.image)} alt="" loading="lazy" />
-        <span className="cat-photo-name">{pick(c, 'name')}</span>
-      </div>
-    );
-  }
   return (
     <div className={`cat-art ${scheme}${compact ? ' compact' : ''}`}>
       <span className="cat-art-ghost"><CategoryGlyph kind={kind} size={260} stroke={0.7} /></span>
