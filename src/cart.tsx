@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { api, ApiError } from './api';
+import { api, ApiError, hasToken } from './api';
 import type { CartItem } from './types';
 
 export interface AppliedCoupon {
@@ -65,6 +65,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
       .catch(() => undefined)
       .finally(() => setLoaded(true));
   }, []);
+
+  // Signed in: the bag is kept on the server too, for "your pieces are waiting".
+  useEffect(() => {
+    if (!loaded || !hasToken()) return;
+    const t = setTimeout(() => {
+      api.put('/customer/cart', { items, source: 'app' }).catch(() => undefined);
+    }, 2500);
+    return () => clearTimeout(t);
+  }, [items, loaded]);
 
   useEffect(() => {
     if (loaded) AsyncStorage.setItem(KEY, JSON.stringify(items)).catch(() => undefined);
