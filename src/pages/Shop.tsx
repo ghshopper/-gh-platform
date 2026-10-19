@@ -3,7 +3,7 @@ import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { api, imageUrl, listOf } from '../lib/api';
 import { useTitle } from '../lib/hooks';
 import { usePrefs } from '../lib/prefs';
-import { useData } from '../lib/store';
+import { useAuth, useData, useToast } from '../lib/store';
 import type { Paginated, Product } from '../lib/types';
 import { Icon } from '../components/Icon';
 import { ProductCard } from '../components/ProductCard';
@@ -35,6 +35,9 @@ export default function Shop() {
   const [loading, setLoading] = useState(true);
   const [attrs, setAttrs] = useState<AttributeRow[]>([]);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const { user } = useAuth();
+  const { show } = useToast();
+  const [following, setFollowing] = useState<number[]>([]);
 
   const category = sp.get('category') ?? '';
   const brand = brandParam ?? sp.get('brand') ?? '';
@@ -51,6 +54,21 @@ export default function Shop() {
   const br = brands.find((b) => String(b.id) === brand);
   const title = q ? tr(`نتائج "${q}"`, `Results for "${q}"`) : br ? (br.name_en || br.name_ar || '').toUpperCase() : cat ? pick(cat, 'name') : fast ? tr('توصيل سريع', 'Fast delivery') : tr('وصل حديثاً', 'New in');
   useTitle(title);
+
+  useEffect(() => {
+    if (!user) return setFollowing([]);
+    api.get<{ data?: number[] }>('/customer/brand-follows').then((r) => setFollowing(r?.data ?? [])).catch(() => undefined);
+  }, [user]);
+  const follow = async (id: number) => {
+    if (!user) return show(tr('سجّل دخولك عشان تتابع البراند', 'Sign in to follow designers'), { label: tr('تسجيل الدخول', 'Sign in'), to: '/account' });
+    try {
+      const r = await api.post<{ following: boolean }>(`/customer/brands/${id}/follow`);
+      setFollowing((f) => (r.following ? [...f, id] : f.filter((x) => x !== id)));
+      show(r.following ? tr('بنعلمك أول ما توصل قطع جديدة', "We'll tell you when new pieces arrive") : tr('ألغيت المتابعة', 'Unfollowed'));
+    } catch {
+      show(tr('ما قدرنا، جرّب مرة ثانية', 'Something went wrong'));
+    }
+  };
 
   useEffect(() => {
     api.get<unknown>('/customer/attributes').then((r) => setAttrs(listOf<AttributeRow>(r))).catch(() => undefined);
@@ -174,6 +192,11 @@ export default function Shop() {
       </nav>
       <header className="shop-head">
         <h1 className={br ? 'brand-title' : ''}>{title}</h1>
+        {br ? (
+          <button className={`btn ${following.includes(br.id) ? '' : 'outline '}follow-btn`} onClick={() => follow(br.id)}>
+            <Icon name={following.includes(br.id) ? 'heartFill' : 'heart'} size={16} /> {following.includes(br.id) ? tr('تتابعه', 'Following') : tr('تابع البراند', 'Follow')}
+          </button>
+        ) : null}
         <span className="muted">{loading && !items.length ? '' : tr(`${total} قطعة`, `${total} pieces`)}</span>
       </header>
       <div className="shop-bar">

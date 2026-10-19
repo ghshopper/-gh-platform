@@ -14,7 +14,7 @@ export function Wishlist() {
   const wish = useWishlist();
   return (
     <div className="container page">
-      <header className="page-head center"><span className="kicker">WISHLIST</span><h1>{tr('المفضلة', 'Wishlist')}</h1></header>
+      <header className="page-head center"><span className="kicker">WISHLIST</span><h1>{tr('المفضلة', 'Wishlist')}</h1>{user ? <p className="muted small">{tr('بنعلمك على إيميلك إذا نزل سعر قطعة هنا أو رجعت متوفرة', "We'll email you if a piece here drops in price or is back in stock")}</p> : null}</header>
       {!user ? (
         <div className="empty"><Icon name="heart" size={34} stroke={1.1} /><p>{tr('سجّل دخولك لحفظ القطع', 'Sign in to save pieces')}</p><Link to="/account?next=/wishlist" className="btn">{tr('تسجيل الدخول', 'Sign in')}</Link></div>
       ) : wish.products.length ? (
