@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Alert, Animated, Modal, Pressable, ScrollView, View, type StyleProp, type ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useCart } from './cart';
-import { chosenOptions, inStock, isOnOrder, mustChoose, omr, productAttributes, productImages, productPrice, productWasPrice } from './format';
+import { chosenOptions, inStock, isOnOrder, mustChoose, num, omr, optionsExtra, productAttributes, productImages, productPrice, productWasPrice } from './format';
 import { EngraveInput } from './engrave';
 import { originOf } from './eta';
 import { Icon } from './icons';
@@ -60,8 +60,8 @@ function useAddToBag() {
       name: pick(p, 'name'),
       nameEn: p.name_en,
       brand,
-      price: productPrice(p),
-      comparePrice: productWasPrice(p),
+      price: productPrice(p) + optionsExtra(p, chosen, pick),
+      comparePrice: productWasPrice(p) ? (productWasPrice(p) as number) + optionsExtra(p, chosen, pick) : productWasPrice(p),
       image: productImages(p)[0] ?? '',
       origin: originOf(p),
       options: chosenOptions(chosen),
@@ -156,7 +156,7 @@ export function QuickAddHost() {
                           ) : (
                             <Pressable key={k} onPress={set} accessibilityState={{ selected: on }}
                               style={{ minWidth: 52, height: 42, paddingHorizontal: 12, borderWidth: 1, borderColor: on ? C.ink : C.lineStrong, backgroundColor: on ? C.ink : C.bg, alignItems: 'center', justifyContent: 'center' }}>
-                              <T size={13} color={on ? C.white : C.ink} center>{val}</T>
+                              <T size={13} color={on ? C.white : C.ink} center>{val}{num(v.price_add, 0) ? `  ${num(v.price_add, 0) > 0 ? '+' : '−'}${Math.abs(num(v.price_add, 0))}` : ''}</T>
                             </Pressable>
                           );
                         })}

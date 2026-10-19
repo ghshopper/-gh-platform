@@ -8,7 +8,7 @@ import { api, imageUrl, listOf, SITE_BASE } from '@/api';
 import { useAuth } from '@/auth';
 import { useCart } from '@/cart';
 import { useAppData } from '@/appdata';
-import { chosenOptions, inStock, isOnOrder, mustChoose, num, productAttributes, productImages, productPrice, productWasPrice, waNumber } from '@/format';
+import { chosenOptions, inStock, isOnOrder, mustChoose, num, optionsExtra, productAttributes, productImages, productPrice, productWasPrice, waNumber } from '@/format';
 import { useLoad } from '@/hooks';
 import { knownProduct, rememberProduct } from '@/product-cache';
 import { Icon } from '@/icons';
@@ -111,8 +111,9 @@ export default function ProductScreen() {
 
   const brand = brandOf(p);
   const name = pick(p, 'name');
-  const price = productPrice(p);
-  const was = productWasPrice(p);
+  const extra = optionsExtra(p, chosen, pick);
+  const price = productPrice(p) + extra;
+  const was = productWasPrice(p) ? (productWasPrice(p) as number) + extra : productWasPrice(p);
   const available = inStock(p);
   const saved = wish.has(p.id);
   const avg = num(p.reviews_avg_rating);
@@ -305,7 +306,7 @@ export default function ProductScreen() {
                   ) : (
                     <Pressable key={v.id} onPress={() => { setChosen({ ...chosen, [label]: val }); setMissing(null); }} accessibilityState={{ selected: on }}
                       style={{ minWidth: 48, height: 40, paddingHorizontal: 12, borderWidth: 1, borderColor: on ? C.ink : C.lineStrong, backgroundColor: on ? C.ink : C.white, alignItems: 'center', justifyContent: 'center' }}>
-                      <T size={13} color={on ? C.white : C.ink} center>{val}</T>
+                      <T size={13} color={on ? C.white : C.ink} center>{val}{num(v.price_add, 0) ? `  ${num(v.price_add, 0) > 0 ? '+' : '−'}${Math.abs(num(v.price_add, 0))}` : ''}</T>
                     </Pressable>
                   );
                 })}

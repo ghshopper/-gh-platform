@@ -6,6 +6,8 @@ export interface AttributeValue {
   value_en?: string | null;
   color_code?: string | null;
   image?: string | null;
+  /** Extra price in OMR when this option is chosen (e.g. a gold case). */
+  price_add?: number | string | null;
 }
 
 export interface ProductAttribute {
