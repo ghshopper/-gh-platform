@@ -48,11 +48,11 @@ node_modules/expo-router/assets/react-navigation/elements/search-icon.png (7 var
 node_modules/expo-router/assets/sitemap.png (465B)
 node_modules/expo-router/assets/unmatched.png (4.8KB)
 
-› ios bundles (1):
-_expo/static/js/ios/entry-e9dde47152574e8584e873f1800ec1a4.hbc (3.4MB)
-
 › android bundles (1):
-_expo/static/js/android/entry-4993dbf794c4ef75b8a2b0b4fe3d8cfd.hbc (3.4MB)
+_expo/static/js/android/entry-9fc5becdb42a5805e5c06b62be9b1899.hbc (3.4MB)
+
+› ios bundles (1):
+_expo/static/js/ios/entry-4871d6539c4c706355ef491aead4c843.hbc (3.4MB)
 
 › Files (1):
 metadata.json (8.1KB)
