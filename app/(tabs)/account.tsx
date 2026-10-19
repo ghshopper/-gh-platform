@@ -106,8 +106,7 @@ export default function Account() {
           </LinearGradient>
         </Pressable>
         );
-      })()
-      ) : (
+      })() : (
         <View style={{ marginHorizontal: S.gutter, marginTop: 16, padding: 22, backgroundColor: CARD, gap: 10 }}>
           <T latin size={11} spacing={3} color={CARD_GOLD}>GH MEMBER</T>
           <T size={18} w="medium" color={C.pure}>{tr('أهلاً بك في GH Shopper', 'Welcome to GH Shopper')}</T>
