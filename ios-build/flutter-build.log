@@ -7,7 +7,7 @@ Upgrading Podfile
 The following plugins do not support Swift Package Manager for ios:
   - flutter_secure_storage
 This will become an error in a future version of Flutter. Please contact the plugin maintainers to request Swift Package Manager adoption.
-Running pod install...                                             813ms
+Running pod install...                                           1,083ms
 Running Xcode build...                                          
-Xcode build done.                                           87.6s
-✓ Built build/ios/iphoneos/Runner.app (22.6MB)
+Xcode build done.                                           110.4s
+✓ Built build/ios/iphoneos/Runner.app (24.2MB)
