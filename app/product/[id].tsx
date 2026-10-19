@@ -220,6 +220,37 @@ export default function ProductScreen() {
           </View>
         </View>
 
+        {/* Other colours of this piece: each colour is its own product */}
+        {(p.variants ?? []).length > 1 ? (
+          <View style={{ paddingHorizontal: 22, marginTop: 18, gap: 10 }}>
+            <T size={13} color={C.sub}>{tr('اللون', 'Colour')}{pick(p, 'variant') ? `: ${pick(p, 'variant')}` : ''}</T>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
+              {(p.variants ?? []).map((v) => {
+                const on = v.id === p.id;
+                const label = pick(v, 'variant') || `#${v.id}`;
+                const pic = v.variant_image || (!v.variant_hex ? v.primary_image : null);
+                return (
+                  <Pressable
+                    key={v.id}
+                    accessibilityLabel={label}
+                    accessibilityState={{ selected: on }}
+                    onPress={() => { if (!on) router.replace({ pathname: '/product/[id]', params: { id: String(v.id) } }); }}
+                    style={{ width: 56, height: 68, borderWidth: on ? 2 : 1, borderColor: on ? C.ink : C.lineStrong, backgroundColor: C.white, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}
+                  >
+                    {pic ? (
+                      <Image source={{ uri: imageUrl(pic) }} style={{ width: '100%', height: '100%' }} contentFit="cover" />
+                    ) : v.variant_hex ? (
+                      <View style={{ width: 30, height: 30, borderRadius: 15, backgroundColor: v.variant_hex, borderWidth: 1, borderColor: C.line }} />
+                    ) : (
+                      <T size={11} center>{label}</T>
+                    )}
+                  </Pressable>
+                );
+              })}
+            </ScrollView>
+          </View>
+        ) : null}
+
         {/* Options (size, colour …) */}
         {selectable.map((a) => {
           const label = pick(a, 'name');
@@ -237,7 +268,12 @@ export default function ProductScreen() {
                 {(a.values ?? []).map((v) => {
                   const val = pick(v, 'value');
                   const on = chosen[label] === val;
-                  return v.color_code ? (
+                  return v.image ? (
+                    <Pressable key={v.id} onPress={() => { setChosen({ ...chosen, [label]: val }); setMissing(null); }} accessibilityLabel={val} accessibilityState={{ selected: on }}
+                      style={{ width: 38, height: 38, borderRadius: 19, borderWidth: on ? 2 : 1, borderColor: on ? C.ink : C.lineStrong, padding: 2 }}>
+                      <Image source={{ uri: imageUrl(v.image) }} style={{ flex: 1, borderRadius: 17 }} contentFit="cover" />
+                    </Pressable>
+                  ) : v.color_code ? (
                     <Pressable key={v.id} onPress={() => { setChosen({ ...chosen, [label]: val }); setMissing(null); }} accessibilityLabel={val} accessibilityState={{ selected: on }}
                       style={{ width: 34, height: 34, borderRadius: 17, borderWidth: 1, borderColor: on ? C.ink : C.lineStrong, padding: 3 }}>
                       <View style={{ flex: 1, borderRadius: 14, backgroundColor: v.color_code }} />
