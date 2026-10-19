@@ -46,7 +46,7 @@ export default function LocationPicker() {
           mapType="mutedStandard"
           showsUserLocation
           showsMyLocationButton={false}
-          showsPointsOfInterest
+          showsPointsOfInterests
           showsCompass={false}
           initialRegion={{ latitude: start.lat, longitude: start.lng, latitudeDelta: 0.012, longitudeDelta: 0.012 }}
           onRegionChange={() => !moving && setMoving(true)}
