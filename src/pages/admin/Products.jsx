@@ -292,6 +292,22 @@ export default function Products() {
     } catch { toast.error('خطأ في الحذف') }
   }
 
+  // Copy photos still linked to brand sites onto our server (selected, or all).
+  const fixImages = async (ids) => {
+    setBulkBusy(true)
+    const t = toast.loading('أنسخ الصور على السيرفر…')
+    try {
+      const r = await api.post('/admin/products/fix-images', ids?.length ? { ids } : {})
+      const { fixed = 0, failed = 0 } = r.data || {}
+      toast.success(fixed || failed ? `انصلحت ${fixed} صورة` + (failed ? ` · ${failed} ما قدرت أجيبها` : '') : 'كل الصور على السيرفر', { id: t })
+      fetchProducts(currentPage)
+    } catch {
+      toast.error('تعذّر', { id: t })
+    } finally {
+      setBulkBusy(false)
+    }
+  }
+
   // Delete every selected product.
   const bulkDelete = async () => {
     if (!selected.length) return
@@ -816,6 +832,9 @@ export default function Products() {
           <p style={{ color: 'var(--text-secondary)', fontSize: 14, marginTop: 4 }}>{totalItems || products.length} منتج في المتجر</p>
         </div>
         <div className="flex-mobile-col flex-wrap" style={{ display: 'flex', gap: '12px' }}>
+          <button className="btn btn-ghost" disabled={bulkBusy} onClick={() => window.confirm('أنسخ كل صور المنتجات اللي للحين على مواقع البراندات إلى السيرفر؟ ممكن ياخذ دقيقة.') && fixImages()} style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }} title="صور ما تطلع؟ ينسخها على السيرفر">
+            <RiImageAddLine size={17} /> إصلاح الصور
+          </button>
           <Link to="/admin/import-items" className="btn btn-ghost" style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
             <RiDownloadCloud2Line size={17} /> من مواقع البراندات
           </Link>
@@ -875,7 +894,8 @@ export default function Products() {
             <option value="europe">أوروبا</option>
             <option value="none">تلقائي</option>
           </select>
-          <button disabled={bulkBusy} onClick={bulkDelete} style={{ marginInlineStart: 'auto', background: '#B42318', color: '#fff', border: 'none', borderRadius: 8, padding: '8px 14px', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', display: 'inline-flex', alignItems: 'center', gap: 6 }}><RiDeleteBinLine size={15} /> حذف المحدد ({selected.length})</button>
+          <button disabled={bulkBusy} onClick={() => fixImages(selected)} style={{ marginInlineStart: 'auto', background: 'transparent', color: '#fff', border: '1px solid rgba(255,255,255,0.3)', borderRadius: 8, padding: '7px 12px', cursor: 'pointer', fontFamily: 'inherit' }}>إصلاح الصور</button>
+          <button disabled={bulkBusy} onClick={bulkDelete} style={{ background: '#B42318', color: '#fff', border: 'none', borderRadius: 8, padding: '8px 14px', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', display: 'inline-flex', alignItems: 'center', gap: 6 }}><RiDeleteBinLine size={15} /> حذف المحدد ({selected.length})</button>
           <button onClick={() => setSelected([])} style={{ background: 'transparent', color: '#fff', border: '1px solid rgba(255,255,255,0.3)', borderRadius: 8, padding: '7px 12px', cursor: 'pointer', fontFamily: 'inherit' }}>إلغاء التحديد</button>
         </div>
       )}
