@@ -24,6 +24,7 @@ const lbl = { display: 'block', fontSize: 12.5, fontWeight: 700, color: '#6B7280
 export default function WhatsApp() {
   const [data, setData] = useState(null)
   const [form, setForm] = useState({ driver: '360dialog', api_key: '', token: '', phone_id: '', waba_id: '' })
+  const [app, setApp] = useState({ app_id: '', app_secret: '', config_id: '' })
   const [busy, setBusy] = useState('')
   const [testPhone, setTestPhone] = useState('')
 
@@ -32,6 +33,7 @@ export default function WhatsApp() {
       const r = await api.get('/admin/whatsapp')
       setData(r.data)
       setForm((f) => ({ ...f, ...r.data.settings, driver: r.data.settings.driver || '360dialog' }))
+      setApp({ app_id: r.data.settings.app_id || '', app_secret: r.data.settings.app_secret || '', config_id: r.data.settings.config_id || '' })
     } catch {
       toast.error('تعذّر التحميل')
     }
@@ -41,6 +43,63 @@ export default function WhatsApp() {
   const run = async (key, fn) => {
     setBusy(key)
     try { await fn() } catch (x) { toast.error(x.response?.data?.error || x.response?.data?.message || 'حدث خطأ') } finally { setBusy('') }
+  }
+
+  const saveApp = () => run('app', async () => {
+    await api.post('/admin/whatsapp/app', app)
+    toast.success('انحفظ')
+    await load()
+  })
+
+  // Meta's "Connect WhatsApp" window (Embedded Signup for numbers already on the WhatsApp Business app).
+  const loadSdk = () => new Promise((resolve, reject) => {
+    if (window.FB) return resolve(window.FB)
+    const s = document.createElement('script')
+    s.src = 'https://connect.facebook.net/en_US/sdk.js'
+    s.async = true
+    s.crossOrigin = 'anonymous'
+    s.onload = () => (window.FB ? resolve(window.FB) : reject(new Error('sdk')))
+    s.onerror = () => reject(new Error('sdk'))
+    document.body.appendChild(s)
+  })
+  const connectWa = async () => {
+    if (!app.app_id || !app.config_id) return toast.error('احفظ App ID و Configuration ID أول')
+    setBusy('connect')
+    let FB
+    try { FB = await loadSdk() } catch { setBusy(''); return toast.error('ما قدرنا نفتح نافذة فيسبوك') }
+    FB.init({ appId: app.app_id, autoLogAppEvents: true, xfbml: false, version: 'v21.0' })
+    const info = {}
+    const onMsg = (e) => {
+      try {
+        if (!/(^|\.)facebook\.com$/.test(new URL(e.origin).hostname)) return
+        const d = typeof e.data === 'string' ? JSON.parse(e.data) : e.data
+        if (d?.type === 'WA_EMBEDDED_SIGNUP') {
+          if (d.data?.waba_id) info.waba_id = d.data.waba_id
+          if (d.data?.phone_number_id) info.phone_number_id = d.data.phone_number_id
+          info.event = d.event
+        }
+      } catch { /* other messages */ }
+    }
+    window.addEventListener('message', onMsg)
+    FB.login((resp) => {
+      const code = resp?.authResponse?.code
+      // the window's message can land a moment after the login answer
+      setTimeout(() => {
+        window.removeEventListener('message', onMsg)
+        if (!code) { setBusy(''); toast(info.event === 'CANCEL' ? 'انلغى الربط' : 'ما اكتمل الربط'); return }
+        run('connect', async () => {
+          const r = await api.post('/admin/whatsapp/embedded', { code, waba_id: info.waba_id || null, phone_number_id: info.phone_number_id || null })
+          toast.success('انربط الواتساب ✓')
+          if (r.data?.steps) console.info('whatsapp connect', r.data.steps)
+          await load()
+        })
+      }, 1200)
+    }, {
+      config_id: app.config_id,
+      response_type: 'code',
+      override_default_response_type: true,
+      extras: { setup: {}, featureType: 'whatsapp_business_app_onboarding', sessionInfoVersion: '3' },
+    })
   }
 
   const save = (e) => {
@@ -90,17 +149,28 @@ export default function WhatsApp() {
         {data.connected ? <button className="btn btn-ghost" onClick={disconnect} disabled={!!busy} style={{ color: '#B42318' }}>فصل</button> : null}
       </div>
 
-      {!data.connected ? (
-        <div style={box}>
-          <h3 style={{ marginTop: 0 }}>طريقة الربط (مرة وحدة)</h3>
-          <ol style={{ lineHeight: 2, paddingInlineStart: 20, margin: 0, fontSize: 14 }}>
-            <li>سجّل في 360dialog واختر ربط رقم موجود على تطبيق واتساب للأعمال. <a href="https://hub.360dialog.com" target="_blank" rel="noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>hub.360dialog.com <RiExternalLinkLine /></a></li>
-            <li>سجّل دخول فيسبوك واختر حساب «Shopper GH»، وامسح الـ QR من واتساب الأعمال في جوالك.</li>
-            <li>من صفحة الرقم في 360dialog اضغط «Generate API Key» وانسخه.</li>
-            <li>الصقه تحت واضغط حفظ، وبعدها «إرسال القوالب لميتا».</li>
-          </ol>
+      <div style={box}>
+        <h3 style={{ marginTop: 0 }}>اربط واتساب بنفس رقمك</h3>
+        <p style={{ fontSize: 13.5, color: '#6B7280', margin: '0 0 14px', lineHeight: 1.8 }}>
+          الرقم يظل شغال في تطبيق واتساب للأعمال في جوالك، والنظام يرسل منه رسائل الطلبات. تضغط «اربط واتساب»، تختار رقمك، وتمسح الـ QR من جوالك.
+        </p>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
+          <label><span style={lbl}>App ID</span><input dir="ltr" style={input} value={app.app_id} onChange={(e) => setApp({ ...app, app_id: e.target.value })} /></label>
+          <label><span style={lbl}>App Secret</span><input dir="ltr" style={input} value={app.app_secret} onChange={(e) => setApp({ ...app, app_secret: e.target.value })} autoComplete="off" /></label>
+          <label><span style={lbl}>Configuration ID</span><input dir="ltr" style={input} value={app.config_id} onChange={(e) => setApp({ ...app, config_id: e.target.value })} /></label>
         </div>
-      ) : null}
+        <div style={{ display: 'flex', gap: 8, marginTop: 12, flexWrap: 'wrap' }}>
+          <button type="button" className="btn btn-ghost" onClick={saveApp} disabled={!!busy}>{busy === 'app' ? 'يحفظ…' : 'حفظ'}</button>
+          <button type="button" className="btn btn-primary" onClick={connectWa} disabled={!!busy} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#25D366', borderColor: '#25D366' }}>
+            <RiWhatsappLine /> {busy === 'connect' ? 'يربط…' : 'اربط واتساب'}
+          </button>
+        </div>
+        <div style={{ marginTop: 14, padding: 12, background: '#F9FAFB', borderRadius: 10, fontSize: 12.5, lineHeight: 1.9 }}>
+          <b>Webhook</b> (في تطبيق ميتا ← WhatsApp ← Configuration):<br />
+          Callback URL: <code dir="ltr" style={{ userSelect: 'all' }}>{data.settings.webhook_url}</code><br />
+          Verify token: <code dir="ltr" style={{ userSelect: 'all' }}>{data.settings.verify_token}</code>
+        </div>
+      </div>
 
       <form style={box} onSubmit={save}>
         <h3 style={{ marginTop: 0 }}>الربط</h3>
