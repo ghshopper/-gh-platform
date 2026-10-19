@@ -57,6 +57,7 @@ function Shell() {
       <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: C.bg }, animation: 'slide_from_right' }}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="login" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="forgot-password" options={{ presentation: 'modal' }} />
         <Stack.Screen name="register" options={{ presentation: 'modal' }} />
       </Stack>
       <QuickAddHost />

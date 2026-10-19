@@ -9,6 +9,8 @@ interface AuthCtx {
   loggedIn: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, phone: string, password: string) => Promise<void>;
+  /** Forgot password: the code from the e-mail and a new password; signs in. */
+  resetPassword: (email: string, code: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   refresh: () => Promise<void>;
   updateProfile: (data: { name?: string; email?: string; current_password?: string; new_password?: string }) => Promise<string>;
@@ -86,6 +88,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [finish],
   );
 
+  const resetPassword = useCallback(
+    async (email: string, code: string, password: string) => {
+      const r = await api.post<LoginResponse>('/auth/reset-password', { email: email.trim(), code: code.trim(), password, device: 'app' });
+      await finish(r, 'الرمز غير صحيح أو انتهى');
+    },
+    [finish],
+  );
+
   const updateProfile = useCallback<AuthCtx['updateProfile']>(
     async (data) => {
       const body: Record<string, string> = {};
@@ -105,8 +115,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [logout]);
 
   const value = useMemo<AuthCtx>(
-    () => ({ ready, user, loggedIn: !!user, login, register, logout, refresh, updateProfile, deleteAccount }),
-    [ready, user, login, register, logout, refresh, updateProfile, deleteAccount],
+    () => ({ ready, user, loggedIn: !!user, login, register, resetPassword, logout, refresh, updateProfile, deleteAccount }),
+    [ready, user, login, register, resetPassword, logout, refresh, updateProfile, deleteAccount],
   );
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;

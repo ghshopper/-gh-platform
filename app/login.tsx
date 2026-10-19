@@ -1,7 +1,7 @@
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { KeyboardAvoidingView, Linking, Platform, ScrollView, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
 import { useAuth } from '@/auth';
 import { useLang } from '@/lang';
 import { C } from '@/theme';
@@ -46,7 +46,7 @@ export default function Login() {
           <Field label={tr('كلمة المرور', 'Password')} value={password} onChangeText={setPassword} secureTextEntry autoComplete="password" textContentType="password" onSubmitEditing={submit} />
           {error ? <T size={13} color={C.red}>{error}</T> : null}
           <Btn label={tr('تسجيل الدخول', 'Sign in')} loading={busy} onPress={submit} />
-          <Btn kind="link" label={tr('نسيت كلمة المرور؟ كلمنا على واتساب', 'Forgot password? WhatsApp us')} onPress={() => Linking.openURL(`https://wa.me/96877246972?text=${encodeURIComponent(tr('مرحبا، نسيت كلمة المرور لحسابي في التطبيق', 'Hi, I forgot my app password'))}`).catch(() => undefined)} style={{ alignSelf: 'center' }} />
+          <Btn kind="link" label={tr('نسيت كلمة المرور؟', 'Forgot password?')} onPress={() => router.replace('/forgot-password')} style={{ alignSelf: 'center' }} />
           <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 6, marginTop: 10 }}>
             <T size={13.5} color={C.sub}>{tr('ما عندك حساب؟', 'No account?')}</T>
             <T size={13.5} w="medium" style={{ textDecorationLine: 'underline' }} onPress={() => router.replace('/register')}>{tr('إنشاء حساب', 'Create one')}</T>
