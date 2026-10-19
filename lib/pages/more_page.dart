@@ -9,6 +9,7 @@ import '../format.dart';
 import '../models.dart';
 import '../ui/colors.dart';
 import '../ui/kit.dart';
+import 'delivery_times_page.dart';
 import 'drivers_pages.dart';
 import 'import_page.dart';
 import 'purchases_pages.dart';
@@ -105,6 +106,12 @@ class _MorePageState extends State<MorePage> {
           ),
         ]),
         Section(children: [
+          Tile(
+            leading: const IconBox(CupertinoIcons.clock_fill, color: GH.amber),
+            title: 'مدة التوصيل',
+            subtitle: 'دبي ${Store.i.settings.eta['dubai']!.label} · أوروبا ${Store.i.settings.eta['europe']!.label}',
+            onTap: () => pushPage(context, const DeliveryTimesPage()),
+          ),
           Tile(
             leading: const IconBox(CupertinoIcons.building_2_fill,
                 color: Color(0xFF5856D6)),

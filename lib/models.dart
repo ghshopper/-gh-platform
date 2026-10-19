@@ -97,7 +97,11 @@ class BusinessSettings {
     this.invoiceNote,
     this.deliveryHomeFee = 2,
     this.deliveryOfficeFee = 1,
+    this.eta = EtaRule.defaults,
   });
+
+  /// Delivery time per origin ('oman', 'dubai', 'europe'), shown to customers.
+  final Map<String, EtaRule> eta;
 
   final String? companyName;
   final String? companyNameEn;
@@ -134,7 +138,50 @@ class BusinessSettings {
         deliveryHomeFee: m['delivery_home_fee'] == null ? 2 : _d(m['delivery_home_fee']),
         deliveryOfficeFee:
             m['delivery_office_fee'] == null ? 1 : _d(m['delivery_office_fee']),
+        eta: EtaRule.parse(m['delivery_eta']),
       );
+}
+
+/// How long delivery takes from one origin: [min]–[max] working days
+/// (Sun–Thu) or calendar days.
+class EtaRule {
+  const EtaRule(this.min, this.max, {this.workDays = true});
+
+  final int min;
+  final int max;
+  final bool workDays;
+
+  static const origins = {'dubai': 'من دبي', 'europe': 'من أوروبا', 'oman': 'متوفر في عُمان'};
+
+  static const defaults = {
+    'oman': EtaRule(1, 2),
+    'dubai': EtaRule(4, 4),
+    'europe': EtaRule(7, 12, workDays: false),
+  };
+
+  static Map<String, EtaRule> parse(dynamic raw) {
+    final out = Map<String, EtaRule>.of(defaults);
+    if (raw is Map) {
+      for (final k in defaults.keys) {
+        final v = raw[k];
+        if (v is Map) {
+          final min = int.tryParse('${v['min']}') ?? defaults[k]!.min;
+          final max = int.tryParse('${v['max']}') ?? defaults[k]!.max;
+          out[k] = EtaRule(min, max < min ? min : max, workDays: v['unit'] != 'days');
+        }
+      }
+    }
+    return out;
+  }
+
+  Map<String, dynamic> toJson() => {'min': min, 'max': max, 'unit': workDays ? 'work' : 'days'};
+
+  /// "4 أيام عمل" · "7–12 يوم"
+  String get label {
+    final n = min == max ? '$max' : '$min–$max';
+    if (workDays) return max == 1 ? 'يوم عمل' : '$n أيام عمل';
+    return max == 1 ? 'يوم' : '$n ${max <= 10 ? 'أيام' : 'يوم'}';
+  }
 }
 
 /// How an order reaches the customer.
