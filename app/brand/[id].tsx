@@ -26,9 +26,9 @@ function FollowButton({ brandId }: { brandId: number }) {
     try {
       const r = await api.post<{ following: boolean }>(`/customer/brands/${brandId}/follow`);
       setOn(r.following);
-      showToast(r.following ? tr('بنعلمك أول ما توصل قطع جديدة', "We'll tell you when new pieces arrive") : tr('ألغيت المتابعة', 'Unfollowed'));
+      showToast(r.following ? tr('بنعلمك أول ما توصل قطع جديدة', "We'll tell you when new pieces arrive") : tr('ألغيت المتابعة', 'Unfollowed'), false);
     } catch {
-      showToast(tr('ما قدرنا، جرّب مرة ثانية', 'Something went wrong'));
+      showToast(tr('ما قدرنا، جرّب مرة ثانية', 'Something went wrong'), false);
     }
   };
   return (
