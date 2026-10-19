@@ -5,6 +5,7 @@ export interface AttributeValue {
   value_ar?: string | null;
   value_en?: string | null;
   color_code?: string | null;
+  image?: string | null;
 }
 
 export interface ProductAttribute {
@@ -42,6 +43,20 @@ export interface Product {
   reviews_avg_rating?: number | string | null;
   is_featured?: number | boolean;
   images?: { image_path: string }[];
+  group_key?: string | null;
+  variant_ar?: string | null;
+  variant_en?: string | null;
+  /** Same piece in other colours, each its own product (product page only). */
+  variants?: ProductVariant[];
+}
+
+export interface ProductVariant {
+  id: number;
+  variant_ar?: string | null;
+  variant_en?: string | null;
+  variant_hex?: string | null;
+  variant_image?: string | null;
+  primary_image?: string | null;
 }
 
 export interface Paginated<T> {

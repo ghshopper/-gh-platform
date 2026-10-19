@@ -96,6 +96,15 @@ p { margin: 0; }
 .swatch { width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--line-strong); padding: 3px; }
 .swatch span { display: block; width: 100%; height: 100%; border-radius: 50%; }
 .swatch.on { border-color: var(--ink); box-shadow: 0 0 0 1px var(--ink); }
+.swatch.img { padding: 2px; overflow: hidden; }
+.swatch.img img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; }
+/* Other colours of the same piece (each its own product) */
+.vswatch { width: 56px; height: 68px; border: 1px solid var(--line-strong); display: inline-flex; align-items: center; justify-content: center; overflow: hidden; background: var(--surface); color: var(--ink); text-decoration: none; transition: border-color .15s; }
+.vswatch img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.vswatch span { width: 30px; height: 30px; border-radius: 50%; display: block; border: 1px solid var(--line); }
+.vswatch b { font-weight: 500; font-size: 11px; padding: 4px; text-align: center; line-height: 1.2; }
+.vswatch:hover { border-color: var(--ink); }
+.vswatch.on { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
 
 /* Top bar + header */
 .topbar { background: var(--ink); color: var(--on-ink); text-align: center; font-size: 12.5px; padding: 8px var(--gutter); }

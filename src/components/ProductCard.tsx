@@ -57,7 +57,11 @@ export function OptionPicker({ product, chosen, setChosen }: { product: Product;
               {(a.values ?? []).map((v, k) => {
                 const val = pick(v, 'value');
                 const on = chosen[label] === val;
-                return v.color_code ? (
+                return v.image ? (
+                  <button key={k} type="button" className={`swatch img${on ? ' on' : ''}`} title={val} aria-label={val} aria-pressed={on} onClick={() => setChosen({ ...chosen, [label]: val })}>
+                    <img src={imageUrl(v.image)} alt="" />
+                  </button>
+                ) : v.color_code ? (
                   <button key={k} type="button" className={`swatch${on ? ' on' : ''}`} title={val} aria-label={val} aria-pressed={on} onClick={() => setChosen({ ...chosen, [label]: val })}>
                     <span style={{ background: v.color_code }} />
                   </button>

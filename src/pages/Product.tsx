@@ -94,6 +94,22 @@ export default function ProductPage() {
             <span className="tag">{tr('أصلية ١٠٠٪', '100% authentic')}</span>
             {avg > 0 ? <span className="tag"><Icon name="star" size={14} /> {avg.toFixed(1)} ({num(p.reviews_count)})</span> : null}
           </div>
+          {(p.variants ?? []).length > 1 ? (
+            <div className="opt">
+              <div className="opt-label">{tr('اللون', 'Colour')}{pick(p, 'variant') ? <span>: {pick(p, 'variant')}</span> : null}</div>
+              <div className="opt-values">
+                {(p.variants ?? []).map((v) => {
+                  const label = pick(v, 'variant') || `#${v.id}`;
+                  const pic = v.variant_image || (!v.variant_hex ? v.primary_image : null);
+                  return (
+                    <Link key={v.id} to={`/product/${v.id}`} replace className={`vswatch${v.id === p.id ? ' on' : ''}`} title={label} aria-label={label} aria-current={v.id === p.id ? 'true' : undefined}>
+                      {pic ? <img src={imageUrl(pic)} alt="" /> : v.variant_hex ? <span style={{ background: v.variant_hex }} /> : <b>{label}</b>}
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          ) : null}
           <OptionPicker product={p} chosen={chosen} setChosen={(c) => { setChosen(c); setMissing(null); }} />
           {missing ? <p className="err">{tr(`اختر ${missing} أول`, `Choose ${missing} first`)}</p> : null}
           {p.size_guide_image ? <button className="link small" onClick={() => setGuide(true)}>{tr('دليل المقاسات', 'Size guide')}</button> : null}
