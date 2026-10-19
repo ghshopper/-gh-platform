@@ -23,11 +23,15 @@ function english(msg: string): string {
   return msg;
 }
 
-/** "Have a discount code?" — used in the bag and at checkout. */
+/** Gift card codes look like GH-ABCD-1234. */
+const isGiftCode = (c?: string | null) => /^GH-[A-Z0-9]{4}-[A-Z0-9]{4}$/i.test(c ?? '');
+
+/** "Have a discount code?" / "Use a gift card" — in the bag and at checkout. */
 export function CouponBox() {
   const { tr, isAr } = useLang();
   const cart = useCart();
-  const [open, setOpen] = useState(false);
+  // which box is open: a discount code or a gift card
+  const [open, setOpen] = useState<false | 'code' | 'gift'>(false);
   const [code, setCode] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -37,8 +41,9 @@ export function CouponBox() {
   if (cart.coupon) {
     return (
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12, paddingHorizontal: 14, borderWidth: 1, borderColor: C.green, borderStyle: 'dashed' }}>
-        <Icon name="tag" size={18} color={C.green} stroke={1.5} />
+        <Icon name={isGiftCode(cart.coupon.code) ? 'gift' : 'tag'} size={18} color={C.green} stroke={1.5} />
         <View style={{ flex: 1 }}>
+          {isGiftCode(cart.coupon.code) ? <T size={12} color={C.green}>{tr('بطاقة هدية', 'Gift card')}</T> : null}
           <T latin w="medium" size={13} spacing={1.2} color={C.green}>{cart.coupon.code}</T>
           <T size={12} color={C.sub}>{tr(`وفّرت ${omr(cart.coupon.discount)}`, `You save ${omr(cart.coupon.discount)}`)}</T>
         </View>
@@ -68,15 +73,22 @@ export function CouponBox() {
     <View style={{ gap: 8 }}>
       {cart.couponNote ? <T size={12} color={C.red}>{say(cart.couponNote)}</T> : null}
       {!open ? (
-        <Pressable onPress={() => setOpen(true)} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 44 }} accessibilityRole="button">
-          <Icon name="tag" size={18} stroke={1.4} />
-          <T size={13.5} style={{ flex: 1 }}>{tr('عندك كود خصم؟', 'Have a discount code?')}</T>
-          <Icon name="plus" size={16} color={C.muted} />
-        </Pressable>
+        <>
+          <Pressable onPress={() => setOpen('code')} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 44 }} accessibilityRole="button">
+            <Icon name="tag" size={18} stroke={1.4} />
+            <T size={13.5} style={{ flex: 1 }}>{tr('عندك كود خصم؟', 'Have a discount code?')}</T>
+            <Icon name="plus" size={16} color={C.muted} />
+          </Pressable>
+          <Pressable onPress={() => setOpen('gift')} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 44, borderTopWidth: 1, borderTopColor: C.line }} accessibilityRole="button">
+            <Icon name="gift" size={18} stroke={1.4} />
+            <T size={13.5} style={{ flex: 1 }}>{tr('استخدم بطاقة هدية', 'Use a gift card')}</T>
+            <Icon name="plus" size={16} color={C.muted} />
+          </Pressable>
+        </>
       ) : (
         <View style={{ flexDirection: 'row', gap: 8 }}>
           <View style={{ flex: 1, height: 46, borderWidth: 1, borderColor: error ? C.red : C.lineStrong, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, gap: 8 }}>
-            <Icon name="tag" size={16} color={C.muted} />
+            <Icon name={open === 'gift' ? 'gift' : 'tag'} size={16} color={C.muted} />
             <TextInput
               value={code}
               onChangeText={(t) => { setCode(t.replace(/\s/g, '').toUpperCase()); setError(null); }}
@@ -85,7 +97,7 @@ export function CouponBox() {
               autoFocus
               returnKeyType="done"
               onSubmitEditing={apply}
-              placeholder={tr('كود الخصم', 'Discount code')}
+              placeholder={open === 'gift' ? tr('رقم بطاقة الهدية (GH-XXXX-XXXX)', 'Gift card code (GH-XXXX-XXXX)') : tr('كود الخصم', 'Discount code')}
               placeholderTextColor={C.faint}
               style={{ flex: 1, height: '100%', fontFamily: code ? F.latinMedium : F.regular, fontSize: 14, letterSpacing: code ? 1.2 : 0, color: C.ink }}
             />
