@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../lib/api';
 import { useTitle } from '../lib/hooks';
@@ -110,6 +110,47 @@ export function Policies() {
           <div className="policy-body">{pick(p, 'content')}</div>
         </section>
       ))}
+    </div>
+  );
+}
+
+interface FaqTopic { topic_ar: string; topic_en?: string | null; items: { id: number; question_ar: string; question_en?: string | null; answer_ar: string; answer_en?: string | null }[] }
+
+/** Frequently asked questions: topics, each opens its questions. */
+export function Faq() {
+  const { tr, isAr } = usePrefs();
+  useTitle(tr('الأسئلة الشائعة', 'FAQ'));
+  const [topics, setTopics] = useState<FaqTopic[] | null>(null);
+  const [open, setOpen] = useState<number | null>(0);
+  const [q, setQ] = useState<number | null>(null);
+  useEffect(() => {
+    api.get<{ data?: FaqTopic[] }>('/customer/faqs').then((r) => setTopics(r?.data ?? [])).catch(() => setTopics([]));
+  }, []);
+  const t = (ar: string, en?: string | null) => (isAr ? ar : en || ar);
+  return (
+    <div className="container page narrow">
+      <header className="page-head center"><span className="kicker">FAQ</span><h1>{tr('الأسئلة الشائعة', 'Frequently asked questions')}</h1></header>
+      {topics === null ? <p className="muted center">…</p> : null}
+      <div className="faq">
+        {(topics ?? []).map((tp, i) => (
+          <section key={tp.topic_ar} className={`faq-topic${open === i ? ' on' : ''}`}>
+            <button className="faq-head" onClick={() => { setOpen(open === i ? null : i); setQ(null); }}>
+              <span>{t(tp.topic_ar, tp.topic_en)}</span><Icon name={open === i ? 'minus' : 'plus'} size={18} />
+            </button>
+            {open === i ? (
+              <div className="faq-items">
+                {tp.items.map((it) => (
+                  <div key={it.id} className={`faq-q${q === it.id ? ' on' : ''}`}>
+                    <button onClick={() => setQ(q === it.id ? null : it.id)}><span>{t(it.question_ar, it.question_en)}</span><Icon name="down" size={16} /></button>
+                    {q === it.id ? <p>{t(it.answer_ar, it.answer_en)}</p> : null}
+                  </div>
+                ))}
+              </div>
+            ) : null}
+          </section>
+        ))}
+      </div>
+      <p className="center muted" style={{ marginTop: 28 }}>{tr('ما لقيت جوابك؟', "Didn't find your answer?")} <a href="https://wa.me/96877246972" target="_blank" rel="noreferrer">{tr('كلمنا بالواتساب', 'Message us on WhatsApp')}</a></p>
     </div>
   );
 }

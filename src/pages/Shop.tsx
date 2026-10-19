@@ -38,6 +38,13 @@ export default function Shop() {
   const { user } = useAuth();
   const { show } = useToast();
   const [following, setFollowing] = useState<number[]>([]);
+  // On a designer's page: only the categories this designer has pieces in.
+  const [brandCats, setBrandCats] = useState<Record<string, number> | null>(null);
+  useEffect(() => {
+    setBrandCats(null);
+    if (!brandParam) return;
+    api.get<{ data?: Record<string, number> }>(`/customer/brands/${brandParam}/categories`).then((r) => setBrandCats(r?.data ?? {})).catch(() => setBrandCats(null));
+  }, [brandParam]);
 
   const category = sp.get('category') ?? '';
   const brand = brandParam ?? sp.get('brand') ?? '';
@@ -48,11 +55,22 @@ export default function Shop() {
   const max = sp.get('max') ?? '';
   const fast = sp.get('fast') === '1';
 
-  const allCats = useMemo(() => categories.flatMap((c) => [c, ...(c.children ?? [])]), [categories]);
+  const allCats = useMemo(() => {
+    const flat = (list: typeof categories): typeof categories => list.flatMap((c) => [c, ...flat(c.children ?? [])]);
+    return flat(categories);
+  }, [categories]);
   const cat = allCats.find((c) => String(c.id) === category);
-  const parent = cat?.parent_id ? categories.find((c) => c.id === cat.parent_id) : cat;
+  const parent = cat?.parent_id ? allCats.find((c) => c.id === cat.parent_id) : cat;
   const br = brands.find((b) => String(b.id) === brand);
   const title = q ? tr(`نتائج "${q}"`, `Results for "${q}"`) : br ? (br.name_en || br.name_ar || '').toUpperCase() : cat ? pick(cat, 'name') : fast ? tr('توصيل سريع', 'Fast delivery') : tr('وصل حديثاً', 'New in');
+  // a category's count includes its sub-categories
+  const countOf = (id: number): number => {
+    if (!brandCats) return 0;
+    const own = Number(brandCats[String(id)] ?? 0);
+    const kids = allCats.filter((c) => c.parent_id === id);
+    return own + kids.reduce((t, k) => t + countOf(k.id), 0);
+  };
+  const brandCatList = brandParam && brandCats ? allCats.filter((c) => c.parent_id && countOf(c.id) > 0 && !(c.children ?? []).some((k) => countOf(k.id) === countOf(c.id))) : null;
   useTitle(title);
 
   useEffect(() => {
@@ -116,7 +134,19 @@ export default function Shop() {
 
   const filters = (
     <div className="filters">
-      {parent?.children?.length ? (
+      {brandCatList ? (
+        brandCatList.length ? (
+          <div className="f-group">
+            <h4>{tr('الأقسام', 'Categories')}</h4>
+            <button className={`f-link${!category ? ' on' : ''}`} onClick={() => set('category', null)}>{tr('الكل', 'All')}</button>
+            {brandCatList.map((c) => (
+              <button key={c.id} className={`f-link${String(c.id) === category ? ' on' : ''}`} onClick={() => set('category', String(c.id) === category ? null : String(c.id))}>
+                {pick(c, 'name')} <span className="muted">{countOf(c.id)}</span>
+              </button>
+            ))}
+          </div>
+        ) : null
+      ) : parent?.children?.length ? (
         <div className="f-group">
           <h4>{pick(parent, 'name')}</h4>
           <button className={`f-link${String(parent.id) === category ? ' on' : ''}`} onClick={() => set('category', String(parent.id))}>{tr('الكل', 'All')}</button>
@@ -192,6 +222,7 @@ export default function Shop() {
       </nav>
       <header className="shop-head">
         <h1 className={br ? 'brand-title' : ''}>{title}</h1>
+        {br && cat ? <span className="shop-sub">{pick(cat, 'name')}</span> : null}
         {br ? (
           <button className={`btn ${following.includes(br.id) ? '' : 'outline '}follow-btn`} onClick={() => follow(br.id)}>
             <Icon name={following.includes(br.id) ? 'heartFill' : 'heart'} size={16} /> {following.includes(br.id) ? tr('تتابعه', 'Following') : tr('تابع البراند', 'Follow')}

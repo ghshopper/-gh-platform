@@ -9,7 +9,7 @@ import Brands from './pages/Brands';
 import Categories from './pages/Categories';
 import Checkout from './pages/Checkout';
 import Home from './pages/Home';
-import { NotFound, Policies, Request, Wishlist } from './pages/Misc';
+import { Faq, NotFound, Policies, Request, Wishlist } from './pages/Misc';
 import OrderDone from './pages/OrderDone';
 import ProductPage from './pages/Product';
 import Shop from './pages/Shop';
@@ -42,6 +42,7 @@ export default function App() {
                         <Route path="/request" element={<Request />} />
                         <Route path="/gift-card" element={<GiftCard />} />
                         <Route path="/policies" element={<Policies />} />
+                        <Route path="/faq" element={<Faq />} />
                         <Route path="*" element={<NotFound />} />
                       </Routes>
                     </Layout>

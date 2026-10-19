@@ -255,6 +255,7 @@ function Footer() {
           <Link to="/gift-card">{tr('بطاقات الهدايا', 'Gift cards')}</Link>
           <a href="/track">{tr('تتبع طلب', 'Track an order')}</a>
           <Link to="/account">{tr('حسابي وطلباتي', 'My account & orders')}</Link>
+          <Link to="/faq">{tr('الأسئلة الشائعة', 'FAQ')}</Link>
           <a href={`https://wa.me/${WA}`} target="_blank" rel="noreferrer">{tr('تواصل معنا', 'Contact us')}</a>
         </div>
         <div>

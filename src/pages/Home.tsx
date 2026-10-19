@@ -97,6 +97,14 @@ export default function Home() {
   const fast = useLoad(async () => listOf<Product>(await api.get<unknown>('/customer/products', { per_page: 12, fast: 1, gender: g })), [gender]);
   const sale = (latest.data ?? []).filter((p) => num(p.compare_price) > 0);
   const t = (s: SectionSetting | undefined, ar: string, en: string) => (s ? pick(s, 'title') : '') || tr(ar, en);
+  // Sections (beauty / fashion / gifts) hold the categories: show a mix of them.
+  const homeCats = (() => {
+    const lists = categories.map((c) => (c.children?.length ? c.children : [c]));
+    if (lists.every((l, i) => l[0] === categories[i])) return categories;
+    const out: typeof categories = [];
+    for (let k = 0; out.length < 8 && lists.some((l) => l[k]); k++) lists.forEach((l) => l[k] && out.length < 8 && out.push(l[k]));
+    return out;
+  })();
 
   return (
     <>
@@ -110,7 +118,7 @@ export default function Home() {
             <Link to="/categories" className="link">{tr('كل الأقسام', 'All categories')}</Link>
           </div>
           <div className="cat-grid">
-            {categories.slice(0, 8).map((c, i) => (
+            {homeCats.slice(0, 8).map((c, i) => (
               <Link key={c.id} to={`/shop?category=${c.id}`} className={i === 0 ? 'wide' : ''}><CategoryArt c={c} index={i} /></Link>
             ))}
           </div>

@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { api, imageUrl, listOf } from '../lib/api';
 import { payOrder } from '../lib/amwal';
+import { bankDetails, type BankDetails } from '../lib/bank';
 import { num, omr } from '../lib/format';
 import { useTitle } from '../lib/hooks';
 import { deliveryKey, GOVERNORATES, type Carrier } from '../lib/oman';
@@ -80,6 +81,9 @@ export default function Checkout() {
   const [street, setStreet] = useState('');
   const [building, setBuilding] = useState('');
   const [landmark, setLandmark] = useState('');
+  const [method, setMethod] = useState<'card' | 'bank'>('card');
+  const [bank, setBank] = useState<BankDetails | null>(null);
+  useEffect(() => { bankDetails().then(setBank); }, []);
   const [gift, setGift] = useState(false);
   const [giftName, setGiftName] = useState('');
   const [giftPhone, setGiftPhone] = useState('');
@@ -174,7 +178,7 @@ export default function Checkout() {
         is_gift: gift,
         gift_recipient_name: gift ? giftName.trim() : null,
         gift_message: gift ? [giftMessage.trim(), giftPhone.trim() ? `هاتف المستلم: ${giftPhone.trim()}` : ''].filter(Boolean).join('\n') || null : null,
-        payment_method: 'amwalpay',
+        payment_method: method === 'bank' ? 'bank_transfer' : 'amwalpay',
         source: 'web',
         subtotal: Number(cart.subtotal.toFixed(3)),
         shipping_cost: Number(fee.toFixed(3)),
@@ -201,6 +205,10 @@ export default function Checkout() {
         // ignore
       }
       cart.clear();
+      if (method === 'bank') {
+        navigate(`/order/${encodeURIComponent(order.order_number)}?pay=bank`);
+        return;
+      }
       let result: 'paid' | 'failed' | 'cancelled' = 'failed';
       try {
         result = await payOrder(order.order_number, order.guest_token, lang);
@@ -311,10 +319,16 @@ export default function Checkout() {
 
           <section className="co-sec">
             <h3><b>04</b>{tr('الدفع', 'Payment')}</h3>
-            <div className="pay-card">
+            <button type="button" className={`pay-card${method === 'card' ? ' on' : ''}`} onClick={() => setMethod('card')}>
               <Icon name="lock" size={20} />
               <div><b>{tr('بطاقة بنكية أو Apple Pay', 'Card or Apple Pay')}</b><span>{tr('Visa · Mastercard · Apple Pay — دفع آمن عبر أموال', 'Visa · Mastercard · Apple Pay — secured by Amwal')}</span></div>
-            </div>
+            </button>
+            {bank ? (
+              <button type="button" className={`pay-card${method === 'bank' ? ' on' : ''}`} onClick={() => setMethod('bank')}>
+                <Icon name="doc" size={20} />
+                <div><b>{tr('تحويل بنكي', 'Bank transfer')}</b><span>{tr('حوّل المبلغ لحسابنا وأرسل لنا الإيصال بالواتساب', 'Transfer to our account and send us the receipt on WhatsApp')}</span></div>
+              </button>
+            ) : null}
             {user && loyalty.balance > 0 ? (
               <label className="check"><input type="checkbox" checked={useLoyalty} onChange={(e) => setUseLoyalty(e.target.checked)} /> {tr(`استخدم نقاطي (${loyalty.balance} نقطة = ${omr(loyalty.balance * loyalty.rate)})`, `Use my points (${loyalty.balance} = ${omr(loyalty.balance * loyalty.rate)})`)}</label>
             ) : null}

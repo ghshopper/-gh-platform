@@ -15,7 +15,6 @@ export default function GiftCard() {
   const { user } = useAuth();
   const [amount, setAmount] = useState('50');
   const [toName, setToName] = useState('');
-  const [toEmail, setToEmail] = useState('');
   const [toPhone, setToPhone] = useState('');
   const [message, setMessage] = useState('');
   const [name, setName] = useState(user?.name ?? '');
@@ -34,14 +33,14 @@ export default function GiftCard() {
     e.preventDefault();
     if (value < 10) return setErr(tr('أقل مبلغ 10 ر.ع', 'Minimum 10 OMR'));
     if (phone.replace(/\D/g, '').length < 8) return setErr(tr('اكتب رقم هاتفك صح', 'Enter a valid phone number'));
+    if (toPhone.replace(/\D/g, '').length < 8) return setErr(tr('اكتب رقم جوال المستلم صح', "Enter the recipient's phone number"));
     setBusy(true);
     setErr(null);
     try {
       const r = await api.post<{ pay_url?: string; message?: string }>('/gift-cards/buy', {
         amount: value,
         recipient_name: toName.trim(),
-        recipient_email: toEmail.trim(),
-        recipient_phone: toPhone.trim() || null,
+        recipient_phone: toPhone.trim(),
         message: message.trim() || null,
         buyer_name: name.trim(),
         buyer_phone: phone.trim(),
@@ -73,7 +72,7 @@ export default function GiftCard() {
         <div className="req-art gift-art">
           <span className="kicker gold">GH GIFT CARD</span>
           <h1>{tr('أهدِ اللي تحبهم حرية الاختيار', 'Give them the freedom to choose')}</h1>
-          <p>{tr('بطاقة هدية من GH Shopper يختار فيها اللي يحبه من أرقى البراندات. توصله على الإيميل مع رسالتك، ويستخدمها في الدفع.', 'A GH Shopper gift card to choose from the finest designers. Sent by e-mail with your message, used at checkout.')}</p>
+          <p>{tr('بطاقة هدية من GH Shopper يختار فيها اللي يحبه من أرقى البراندات. توصله على جواله مع رسالتك، ويستخدمها في الدفع.', 'A GH Shopper gift card to choose from the finest designers. Sent to their phone with your message, used at checkout.')}</p>
           <div className="gift-card-visual">
             <span className="kicker">GH SHOPPER</span>
             <b className="num">{omr(value || 0)}</b>
@@ -97,9 +96,8 @@ export default function GiftCard() {
           <h3 className="gift-h">{tr('إلى', 'To')}</h3>
           <div className="fields">
             <label className="field"><span>{tr('اسم المستلم', 'Recipient name')}</span><input value={toName} onChange={(e) => setToName(e.target.value)} required /></label>
-            <label className="field"><span>{tr('إيميل المستلم', 'Recipient email')}</span><input type="email" dir="ltr" value={toEmail} onChange={(e) => setToEmail(e.target.value)} required /></label>
+            <label className="field"><span>{tr('جوال المستلم (توصله البطاقة عليه)', 'Recipient phone (the card is sent to it)')}</span><input type="tel" dir="ltr" value={toPhone} onChange={(e) => setToPhone(e.target.value)} required placeholder="9XXXXXXX" /></label>
             <label className="field wide"><span>{tr('رسالتك (اختياري)', 'Your message (optional)')}</span><textarea rows={3} maxLength={500} value={message} onChange={(e) => setMessage(e.target.value)} /></label>
-            <label className="field"><span>{tr('جوال المستلم (اختياري)', 'Recipient phone (optional)')}</span><input type="tel" dir="ltr" value={toPhone} onChange={(e) => setToPhone(e.target.value)} /></label>
           </div>
 
           <h3 className="gift-h">{tr('من', 'From')}</h3>
