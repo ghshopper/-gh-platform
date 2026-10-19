@@ -28,6 +28,13 @@ export default function Products() {
   const [searchQuery, setSearchQuery] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('all')
   const [statusFilter, setStatusFilter] = useState('all')
+  const [brandFilter, setBrandFilter] = useState('')
+  const [priceFilter, setPriceFilter] = useState('')
+  const [priceGroups, setPriceGroups] = useState([])
+  const [priceModal, setPriceModal] = useState(false)
+  const [priceMode, setPriceMode] = useState('set')
+  const [priceValue, setPriceValue] = useState('')
+  const firstLoad = useRef(true)
 
   const [currentPage, setCurrentPage] = useState(1)
   const [lastPage, setLastPage] = useState(1)
@@ -61,6 +68,64 @@ export default function Products() {
       setSelected([])
     } catch {
       toast.error('تعذّر التحديث')
+    } finally {
+      setBulkBusy(false)
+    }
+  }
+
+  useEffect(() => {
+    if (firstLoad.current) { firstLoad.current = false; return }
+    const t = setTimeout(() => { setSelected([]); fetchProducts(1) }, 350)
+    return () => clearTimeout(t)
+  }, [searchQuery, brandFilter, categoryFilter, statusFilter, priceFilter])
+
+  // Select every product that matches the filters (all pages).
+  const selectAllResults = async () => {
+    try {
+      const q = filterParams()
+      q.set('ids_only', 1)
+      const r = await api.get(`/admin/products?${q}`)
+      setSelected(r.data.ids || [])
+    } catch {
+      toast.error('تعذّر التحديد')
+    }
+  }
+
+  // Same-price products: show them and select them all.
+  const pickPrice = async (price) => {
+    setPriceFilter(String(price))
+    try {
+      const q = filterParams()
+      q.set('price', price)
+      q.set('ids_only', 1)
+      const r = await api.get(`/admin/products?${q}`)
+      setTimeout(() => setSelected(r.data.ids || []), 400)
+    } catch {}
+  }
+
+  const newPrice = (old) => {
+    const v = parseFloat(String(priceValue).replace(',', '.'))
+    if (Number.isNaN(v)) return null
+    if (priceMode === 'set') return v
+    if (priceMode === 'add') return old + v
+    const x = old * (1 + v / 100)
+    return x >= 100 ? Math.round(x) : Math.round(x * 2) / 2
+  }
+
+  const applyPrice = async () => {
+    const v = parseFloat(String(priceValue).replace(',', '.'))
+    if (Number.isNaN(v)) return toast.error('اكتب الرقم')
+    setBulkBusy(true)
+    try {
+      const r = await api.post('/admin/products/bulk-update', { ids: selected, price_mode: priceMode, price_value: v })
+      toast.success(`تغيّر سعر ${r.data?.updated ?? selected.length} منتج`)
+      setPriceModal(false)
+      setPriceValue('')
+      setSelected([])
+      if (priceFilter !== '') setPriceFilter('')
+      else fetchProducts(currentPage)
+    } catch {
+      toast.error('تعذّر تغيير السعر')
     } finally {
       setBulkBusy(false)
     }
@@ -107,11 +172,26 @@ export default function Products() {
       api.get(`/admin/products/${editId}`).then((r) => { if (r.data?.data) openEdit(r.data.data) }).catch(() => {})
     }
   }, [])
+  // Filters go to the server, so they search every product (not only this page).
+  const filterParams = () => {
+    const q = new URLSearchParams()
+    if (searchQuery.trim()) q.set('search', searchQuery.trim())
+    if (brandFilter) q.set('brand_id', brandFilter)
+    if (categoryFilter !== 'all') q.set('category_id', categoryFilter)
+    if (statusFilter !== 'all') q.set('status', statusFilter === '1' ? 'active' : 'draft')
+    if (priceFilter !== '') q.set('price', priceFilter)
+    return q
+  }
+
   const fetchProducts = async (page = 1) => {
     try {
       setLoading(true)
-      const prodRes = await api.get(`/admin/products?page=${page}&per_page=50`)
+      const q = filterParams()
+      q.set('page', page)
+      q.set('per_page', 50)
+      const prodRes = await api.get(`/admin/products?${q}`)
       setProducts(prodRes.data.data || prodRes.data || [])
+      setPriceGroups(prodRes.data.price_groups || [])
       setCurrentPage(prodRes.data.current_page || 1)
       setLastPage(prodRes.data.last_page || 1)
       setTotalItems(prodRes.data.total || (prodRes.data.data || prodRes.data || []).length || 0)
@@ -819,12 +899,8 @@ export default function Products() {
     )
   }
 
-  const filteredProducts = products.filter(p => {
-    const matchSearch = (p.name_ar || '').includes(searchQuery) || (p.name_en || '').includes(searchQuery);
-    const matchCat = categoryFilter === 'all' || p.category_id == categoryFilter;
-    const matchStatus = statusFilter === 'all' || p.status == statusFilter || (statusFilter === '1' && p.status === 'active') || (statusFilter === '0' && p.status !== 'active');
-    return matchSearch && matchCat && matchStatus;
-  });
+  const filteredProducts = products;
+  const samplePrice = products.find(p => selected.includes(p.id))?.price;
 
   // =================== LIST VIEW ===================
   return (
@@ -861,8 +937,12 @@ export default function Products() {
       <div className="filters-row flex-mobile-col" style={{ background: '#fff', borderRadius: 14, padding: '10px 14px', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 10, border: '1px solid var(--border)' }}>
         <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 12 }}>
           <RiSearchLine size={20} color="#9CA3AF" />
-          <input value={searchQuery} onChange={e => setSearchQuery(e.target.value)} style={{ flex: 1, border: 'none', outline: 'none', fontSize: 14, background: 'transparent' }} placeholder="بحث عن منتج..." />
+          <input value={searchQuery} onChange={e => setSearchQuery(e.target.value)} style={{ flex: 1, border: 'none', outline: 'none', fontSize: 14, background: 'transparent' }} placeholder="ابحث باسم المنتج أو البراند…" />
         </div>
+        <select value={brandFilter} onChange={e => { setBrandFilter(e.target.value); setPriceFilter('') }} style={{ padding: '8px 12px', border: '1px solid var(--border)', borderRadius: 10, fontSize: 13, fontFamily: 'inherit', background: '#fff', outline: 'none', maxWidth: 200 }}>
+          <option value="">كل البراندات</option>
+          {[...brands].sort((a, b) => (a.name_en || a.name_ar || '').localeCompare(b.name_en || b.name_ar || '')).map(b => <option key={b.id} value={b.id}>{b.name_en || b.name_ar}</option>)}
+        </select>
         <select value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)} style={{ padding: '8px 12px', border: '1px solid var(--border)', borderRadius: 10, fontSize: 13, fontFamily: 'inherit', background: '#fff', outline: 'none' }}>
           <option value="all">كل التصنيفات</option>
           {categories.map(c => <option key={c.id} value={c.id}>{c.name_ar}</option>)}
@@ -874,10 +954,66 @@ export default function Products() {
         </select>
       </div>
 
+      {/* Same price: pick one to select all of them */}
+      {(priceGroups.length > 0 || priceFilter !== '') && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 14 }}>
+          <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>نفس السعر:</span>
+          {priceFilter !== '' ? (
+            <button onClick={() => { setPriceFilter(''); setSelected([]) }} style={{ border: '1px solid var(--color-primary)', background: 'var(--color-primary)', color: '#fff', borderRadius: 999, padding: '6px 12px', fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}>
+              {Number(priceFilter).toFixed(3)} OMR ✕
+            </button>
+          ) : priceGroups.map(g => (
+            <button key={g.price} onClick={() => pickPrice(g.price)} style={{ border: '1px solid var(--border)', background: '#fff', borderRadius: 999, padding: '6px 12px', fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}>
+              <b style={{ fontFamily: 'sans-serif' }}>{Number(g.price).toFixed(3)}</b> OMR <span style={{ color: 'var(--text-secondary)' }}>· {g.n} منتج</span>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* All results, not only this page */}
+      {selected.length > 0 && totalItems > products.length && filteredProducts.every(p => selected.includes(p.id)) && selected.length < totalItems && (
+        <div style={{ background: '#FFF8EC', border: '1px solid #F1DFC0', borderRadius: 10, padding: '10px 14px', marginBottom: 12, fontSize: 13 }}>
+          حددت {selected.length} في هذي الصفحة.{' '}
+          <button onClick={selectAllResults} style={{ background: 'none', border: 'none', color: 'var(--color-primary)', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', fontSize: 13 }}>حدد كل الـ {totalItems} منتج</button>
+        </div>
+      )}
+
+      {/* Change price of the selected products */}
+      {priceModal && (
+        <div onClick={() => !bulkBusy && setPriceModal(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(17,12,10,0.45)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
+          <div onClick={e => e.stopPropagation()} style={{ background: '#fff', borderRadius: 16, padding: 24, width: '100%', maxWidth: 420, boxShadow: '0 20px 60px rgba(0,0,0,0.25)' }}>
+            <h3 style={{ margin: 0, fontSize: 18 }}>تغيير السعر · {selected.length} منتج</h3>
+            <div style={{ display: 'flex', gap: 6, margin: '16px 0', background: '#F5F1EC', padding: 4, borderRadius: 10 }}>
+              {[['set', 'سعر جديد'], ['percent', 'زيادة %'], ['add', 'زيادة مبلغ']].map(([k, l]) => (
+                <button key={k} onClick={() => setPriceMode(k)} style={{ flex: 1, border: 'none', borderRadius: 8, padding: '8px 6px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: 600, fontSize: 13, background: priceMode === k ? '#fff' : 'transparent', boxShadow: priceMode === k ? '0 1px 3px rgba(0,0,0,0.1)' : 'none' }}>{l}</button>
+              ))}
+            </div>
+            <label style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
+              {priceMode === 'set' ? 'السعر الجديد (OMR)' : priceMode === 'percent' ? 'النسبة % (للتخفيض اكتب بالسالب مثل -10)' : 'المبلغ OMR (للتخفيض اكتب بالسالب)'}
+            </label>
+            <input autoFocus value={priceValue} onChange={e => setPriceValue(e.target.value)} inputMode="decimal" dir="ltr"
+              onKeyDown={e => e.key === 'Enter' && applyPrice()}
+              style={{ width: '100%', marginTop: 6, padding: '12px 14px', border: '1px solid var(--border)', borderRadius: 10, fontSize: 18, fontFamily: 'sans-serif', boxSizing: 'border-box' }}
+              placeholder={priceMode === 'set' ? '0.000' : priceMode === 'percent' ? '10' : '5'} />
+            {samplePrice != null && newPrice(Number(samplePrice)) != null && (
+              <p style={{ fontSize: 13, color: 'var(--text-secondary)', margin: '10px 0 0' }}>
+                مثال: <span style={{ fontFamily: 'sans-serif' }}>{Number(samplePrice).toFixed(3)}</span> ← <b style={{ fontFamily: 'sans-serif', color: 'var(--color-primary)' }}>{newPrice(Number(samplePrice)).toFixed(3)}</b> OMR
+                {priceMode === 'percent' && <><br />يتقرّب لأقرب ريال (أو نص ريال تحت ١٠٠)، والخصم إن وُجد يتحرك بنفس النسبة.</>}
+              </p>
+            )}
+            <div style={{ display: 'flex', gap: 10, marginTop: 20 }}>
+              <button className="btn btn-primary" disabled={bulkBusy} onClick={applyPrice} style={{ flex: 1 }}>{bulkBusy ? 'يحفظ…' : 'تطبيق'}</button>
+              <button className="btn btn-ghost" disabled={bulkBusy} onClick={() => setPriceModal(false)}>إلغاء</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Bulk actions */}
       {selected.length > 0 && (
         <div style={{ position: 'sticky', top: 12, zIndex: 20, background: '#111', color: '#fff', borderRadius: 12, padding: '12px 18px', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', boxShadow: '0 8px 24px rgba(0,0,0,0.18)' }}>
           <strong style={{ fontSize: 14 }}>{selected.length} منتج محدد</strong>
+          <button disabled={bulkBusy} onClick={() => setPriceModal(true)} style={{ background: 'var(--color-gold, #B08A45)', color: '#fff', border: 'none', borderRadius: 8, padding: '8px 14px', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>💰 تغيير السعر</button>
           <span style={{ opacity: 0.6, fontSize: 13 }}>غيّر التوفر إلى:</span>
           <button disabled={bulkBusy} onClick={() => setAvailability('instant')} style={{ background: '#16804A', color: '#fff', border: 'none', borderRadius: 8, padding: '8px 14px', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>⚡ تسليم فوري</button>
           <button disabled={bulkBusy} onClick={() => setAvailability('on_order')} style={{ background: '#C26A00', color: '#fff', border: 'none', borderRadius: 8, padding: '8px 14px', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>🕓 بالطلب</button>
@@ -945,7 +1081,7 @@ export default function Products() {
                       </div>
                       <div>
                         <p style={{ fontWeight: 700, fontSize: 14, color: 'var(--text-primary)', margin: 0 }}>{p.name_ar || '-'}</p>
-                        <p style={{ fontSize: 11, color: '#9CA3AF', marginTop: 2, fontFamily: 'sans-serif' }}>{p.sku || '-'}</p>
+                        <p style={{ fontSize: 11, color: '#9CA3AF', marginTop: 2, fontFamily: 'sans-serif' }}>{p.brand_name_en || p.brand_name_ar || p.sku || '-'}</p>
                       </div>
                     </div>
                   </td>
