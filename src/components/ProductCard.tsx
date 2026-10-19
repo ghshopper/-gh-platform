@@ -2,7 +2,7 @@ import { createContext, useContext, useState, type ReactNode } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { imageUrl } from '../lib/api';
 import { originOf } from '../lib/eta';
-import { inStock, isOnOrder, mustChoose, omr, productAttributes, productImages, productPrice, productWasPrice } from '../lib/format';
+import { inStock, isOnOrder, mustChoose, num, omr, optionsExtra, productAttributes, productImages, productPrice, productWasPrice } from '../lib/format';
 import { usePrefs } from '../lib/prefs';
 import { useCart, useToast, useWishlist } from '../lib/store';
 import type { Product } from '../lib/types';
@@ -21,8 +21,8 @@ export function useAddToBag() {
       name: pick(p, 'name'),
       nameEn: p.name_en,
       brand: brandOf(p),
-      price: productPrice(p),
-      comparePrice: productWasPrice(p),
+      price: productPrice(p) + optionsExtra(p, chosen, pick),
+      comparePrice: productWasPrice(p) ? (productWasPrice(p) as number) + optionsExtra(p, chosen, pick) : productWasPrice(p),
       image: productImages(p)[0] ?? '',
       origin: originOf(p),
       options: Object.entries(chosen).filter(([, value]) => value.trim() !== '').map(([label, value]) => ({ label, value: value.trim() })),
@@ -69,7 +69,14 @@ export function OptionPicker({ product, chosen, setChosen }: { product: Product;
         }
         return (
           <div key={i} className="opt">
-            <div className="opt-label">{label}{chosen[label] ? <span>: {chosen[label]}</span> : null}</div>
+            <div className="opt-label">
+              {label}
+              {chosen[label] ? <span>: {chosen[label]}</span> : null}
+              {(() => {
+                const add = num((a.values ?? []).find((v) => pick(v, 'value') === chosen[label])?.price_add, 0);
+                return add ? <span className="chip-add"> ({add > 0 ? '+' : '−'}{omr(Math.abs(add))})</span> : null;
+              })()}
+            </div>
             <div className="opt-values">
               {(a.values ?? []).map((v, k) => {
                 const val = pick(v, 'value');
@@ -83,7 +90,10 @@ export function OptionPicker({ product, chosen, setChosen }: { product: Product;
                     <span style={{ background: v.color_code }} />
                   </button>
                 ) : (
-                  <button key={k} type="button" className={`chip${on ? ' on' : ''}`} aria-pressed={on} onClick={() => setChosen({ ...chosen, [label]: val })}>{val}</button>
+                  <button key={k} type="button" className={`chip${on ? ' on' : ''}`} aria-pressed={on} onClick={() => setChosen({ ...chosen, [label]: val })}>
+                    {val}
+                    {num(v.price_add, 0) ? <small className="chip-add">{num(v.price_add, 0) > 0 ? '+' : '−'}{omr(Math.abs(num(v.price_add, 0)))}</small> : null}
+                  </button>
                 );
               })}
             </div>
@@ -126,9 +136,9 @@ function QuickAddModal({ product, onClose }: { product: Product; onClose: () => 
   );
 }
 
-export function Price({ p, big }: { p: Product; big?: boolean }) {
-  const price = productPrice(p);
-  const was = productWasPrice(p);
+export function Price({ p, big, extra = 0 }: { p: Product; big?: boolean; extra?: number }) {
+  const price = productPrice(p) + extra;
+  const was = productWasPrice(p) ? (productWasPrice(p) as number) + extra : null;
   const off = was && was > price ? Math.round((1 - price / was) * 100) : 0;
   return (
     <div className={`price${big ? ' big' : ''}`}>

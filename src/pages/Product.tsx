@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { api, imageUrl, listOf } from '../lib/api';
-import { inStock, isOnOrder, mustChoose, num, productAttributes, productImages } from '../lib/format';
+import { inStock, isOnOrder, mustChoose, num, optionsExtra, productAttributes, productImages } from '../lib/format';
 import { useLoad, useTitle } from '../lib/hooks';
 import { usePrefs } from '../lib/prefs';
 import { useAuth, useData, useToast, useWishlist } from '../lib/store';
@@ -90,7 +90,7 @@ export default function ProductPage() {
         <div className="info">
           {p.brand_id ? <Link to={`/brand/${p.brand_id}`} className="brand big">{brandOf(p).toUpperCase()}</Link> : null}
           <h1 className="pdp-name">{name}</h1>
-          <Price p={p} big />
+          <Price p={p} big extra={optionsExtra(p, chosen, pick)} />
           <div className="pdp-tags">
             <span className={`avail${!available ? ' out' : isOnOrder(p) ? ' order' : ''}`}><i />{!available ? tr('نفدت الكمية', 'Sold out') : isOnOrder(p) ? tr('بالطلب · نجيبها لك بعد الطلب', 'On order · we source it for you') : tr('تسليم فوري', 'Ready to deliver')}</span>
             <span className="tag">{tr('أصلية ١٠٠٪', '100% authentic')}</span>

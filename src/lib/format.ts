@@ -70,6 +70,16 @@ export function productAttributes(p: Product): ProductAttribute[] {
   return parseJsonList<ProductAttribute>(p.attributes).filter((a) => a.type === 'engraving' || (a.values ?? []).length > 0);
 }
 
+/** Extra OMR from the chosen options (each option value may add to the price). */
+export function optionsExtra(p: Product, chosen: Record<string, string>, pick: (o: object, f: string) => string): number {
+  let extra = 0;
+  for (const a of productAttributes(p)) {
+    const v = (a.values ?? []).find((x) => pick(x, 'value') === chosen[pick(a, 'name')]);
+    if (v) extra += num(v.price_add, 0);
+  }
+  return Math.round(extra * 1000) / 1000;
+}
+
 /** A choice the customer must make before adding to the bag (engraving is optional). */
 export function mustChoose(a: ProductAttribute): boolean {
   return a.is_selectable !== false && (a.type !== 'engraving' || !!a.required);
