@@ -58,7 +58,7 @@ Future<Uint8List> buildWaybillPdf(
         .replaceAll(RegExp(r'https?://\S+'), '')
         .split(RegExp(r'[،,·]'))
         .map((x) => x.trim())
-        .where((x) => x.isNotEmpty && !drop.contains(x))
+        .where((x) => x.isNotEmpty && !drop.contains(x) && !_samePhone(x, customer?.phone))
         .toList();
     address = parts.isEmpty ? null : parts.join('، ');
   }
@@ -268,6 +268,15 @@ Future<Uint8List> buildWaybillPdf(
   ));
 
   return doc.save();
+}
+
+bool _samePhone(String a, String? b) {
+  String last8(String v) {
+    final d = v.replaceAll(RegExp(r'\D'), '');
+    return d.length >= 8 ? d.substring(d.length - 8) : '';
+  }
+  final x = last8(a);
+  return b != null && x.isNotEmpty && a.replaceAll(RegExp(r'[\d\s+]'), '').isEmpty && x == last8(b);
 }
 
 /// Opens the iOS print sheet (AirPrint label printer, or Save as PDF).
