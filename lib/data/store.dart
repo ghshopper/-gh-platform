@@ -275,6 +275,10 @@ class Store extends ChangeNotifier {
         }));
   }
 
+  /// "On its way to Oman": shows as its own step on the customer's tracking page.
+  Future<void> markShipped(String orderId, {String? from}) =>
+      _write(() => _api.post('/ps/orders/$orderId/shipped', {if (from != null) 'note': from}));
+
   /// Records that the shipping label was printed (first time only).
   Future<void> markLabelPrinted(String orderId) async {
     if (order(orderId)?.labelPrintedAt != null) return;

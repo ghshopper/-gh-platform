@@ -796,6 +796,7 @@ class OrderEvent {
   String get label => switch (type) {
         'created' => 'تم إنشاء الطلب',
         'purchased' => 'تم الشراء',
+        'shipped' => 'في الطريق لعُمان',
         'arrived' => 'وصل مسقط',
         'out_for_delivery' => 'خرج للتوصيل',
         'label' => 'طُبعت البوليصة',
@@ -813,6 +814,7 @@ class OrderEvent {
         'created' => CupertinoIcons.doc_text_fill,
         'purchased' => CupertinoIcons.bag_fill,
         'arrived' => CupertinoIcons.airplane,
+        'shipped' => CupertinoIcons.paperplane_fill,
         'label' => CupertinoIcons.barcode,
         'assigned' || 'unassigned' => CupertinoIcons.person_fill,
         'picked' || 'out_for_delivery' => CupertinoIcons.car_detailed,
@@ -825,6 +827,7 @@ class OrderEvent {
   Color get color => switch (type) {
         'purchased' => GH.statusPurchased,
         'arrived' => GH.statusArrived,
+        'shipped' => GH.teal,
         'assigned' || 'picked' => GH.blue,
         'out_for_delivery' => GH.teal,
         'delivered' => GH.statusDelivered,

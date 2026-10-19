@@ -483,6 +483,40 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                   ? [const Tile(title: 'ما في قطع')]
                   : o.items.map((i) => _itemRow(o, i)).toList(),
             ),
+            if (o.items.any((i) => i.status == ItemStatus.purchased))
+              Section(
+                footer: 'يطلع للعميل في صفحة التتبّع كخطوة «في الطريق لعُمان».',
+                children: [
+                  if (o.events.any((e) => e.type == 'shipped'))
+                    const Tile(
+                      leading: IconBox(CupertinoIcons.paperplane_fill, color: GH.teal),
+                      title: 'في الطريق لعُمان ✓',
+                      chevron: false,
+                    )
+                  else
+                    Tile(
+                      leading: const IconBox(CupertinoIcons.paperplane_fill, color: GH.teal),
+                      title: 'شحنّا القطع لعُمان',
+                      subtitle: 'اضغط لما تطلع القطع من البوتيك أو المدينة',
+                      onTap: () async {
+                        final from = await actionSheet<String>(context,
+                            title: 'من وين شحنتها؟',
+                            actions: const [
+                              SheetAction('من أوروبا', 'أوروبا'),
+                              SheetAction('من دبي', 'دبي'),
+                              SheetAction('من مكان ثاني', ''),
+                            ]);
+                        if (from == null) return;
+                        try {
+                          await Store.i.markShipped(o.id, from: from.isEmpty ? null : 'من $from');
+                          if (context.mounted) toast(context, 'تم، والعميل يشوفها في التتبّع');
+                        } catch (e) {
+                          if (context.mounted) toast(context, errorText(e), error: true);
+                        }
+                      },
+                    ),
+                ],
+              ),
             Section(
               header: 'التوصيل',
               trailing: HeaderButton('البوليصة',
