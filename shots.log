@@ -1,0 +1,46 @@
+
+::group::✅ Passing tests
+✅ login
+✅ today
+✅ orders
+✅ order
+✅ order_online
+✅ customers
+✅ customer
+✅ trips
+✅ summary
+✅ requests
+✅ request
+✅ convert
+✅ story-classic
+✅ story-arch
+✅ story-tag
+✅ story-editorial
+✅ story-offer
+✅ story-clean
+✅ story-cutout
+✅ products
+✅ product-edit
+✅ driver-now
+✅ driver-past
+✅ driver-money
+✅ driver-admin
+✅ story-shadow
+✅ story-compose
+✅ today2
+✅ more
+✅ search
+✅ categories
+✅ quick-price
+✅ today-dark
+✅ order-dark
+✅ customer-dark
+✅ products-dark
+✅ search-dark
+::endgroup::
+::group::✅ waybills
+Courier has no Unicode support see https://github.com/DavBfr/dart_pdf/wiki/Fonts-Management
+Courier has no Unicode support see https://github.com/DavBfr/dart_pdf/wiki/Fonts-Management
+::endgroup::
+
+🎉 38 tests passed.
