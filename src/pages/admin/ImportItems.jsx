@@ -178,7 +178,10 @@ export default function ImportItems() {
       toast.success('انضاف للمتجر')
       drop([it.id])
     } catch (e) {
-      toast.error(e.response?.data?.message || 'تعذرت الإضافة')
+      const d = e.response?.data
+      const first = d?.errors ? Object.values(d.errors).flat()[0] : null
+      toast.error(first || d?.message || (e.response ? `تعذرت الإضافة (${e.response.status})` : 'السيرفر تأخر، بنحدّث القائمة'))
+      if (!e.response || e.response.status >= 500) load()
     } finally {
       setBusy((b) => ({ ...b, [it.id]: false }))
     }
@@ -219,19 +222,32 @@ export default function ImportItems() {
     return n
   })
 
+  // A few at a time, so a slow brand site never makes the whole batch time out.
   const publishReady = async () => {
     if (!ready.length) return toast.error('اكتب السعر والتصنيف أول')
     setBulkBusy(true)
+    const all = ready.map((it) => ({ id: it.id, price: parseFloat(rows[it.id].price), category_id: Number(catOf(it.id)), split: splitOf(it), ...extra(it) }))
+    let added = 0
+    let failed = 0
+    const tid = toast.loading(`يضيف 0 من ${all.length}…`)
     try {
-      const r = await api.post('/admin/import-items/publish', {
-        availability,
-        items: ready.map((it) => ({ id: it.id, price: parseFloat(rows[it.id].price), category_id: Number(catOf(it.id)), split: splitOf(it), ...extra(it) })),
-      })
-      toast.success(`انضاف ${r.data.added} منتج للمتجر`)
-      drop(Object.keys(r.data.products || {}).map(Number))
-      if (r.data.failed?.length) toast.error(`${r.data.failed.length} ما انضافت، جربها وحدها`)
-    } catch (e) {
-      toast.error(e.response?.data?.message || 'تعذرت الإضافة')
+      for (let i = 0; i < all.length; i += 3) {
+        const part = all.slice(i, i + 3)
+        try {
+          const r = await api.post('/admin/import-items/publish', { availability, items: part }, { timeout: 180000 })
+          added += r.data.added || 0
+          failed += r.data.failed?.length || 0
+          drop(Object.keys(r.data.products || {}).map(Number))
+        } catch {
+          failed += part.length
+        }
+        toast.loading(`يضيف ${Math.min(i + 3, all.length)} من ${all.length}…`, { id: tid })
+      }
+      toast.success(`انضاف ${added} منتج للمتجر`, { id: tid })
+      if (failed) {
+        toast.error(`${failed} ما انضافت، جربها وحدها`)
+        load()
+      }
     } finally {
       setBulkBusy(false)
     }
