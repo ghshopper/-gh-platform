@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../data/api.dart';
 import 'scanner_page.dart';
+import 'driver_money.dart';
 import '../format.dart';
 import '../models.dart';
 import '../ui/colors.dart';
@@ -17,10 +18,16 @@ class DriverData extends ChangeNotifier {
   static final DriverData i = DriverData._();
 
   List<DriverOrder> orders = [];
+  DriverAccount? account;
   bool ready = false;
   Object? error;
 
   Future<void> refresh() async {
+    // money and past deliveries (newer server); the list works without it
+    Api.i.get('/ps/driver/account').then((res) {
+      account = DriverAccount(Map<String, dynamic>.from(res as Map));
+      notifyListeners();
+    }).catchError((_) {});
     try {
       final res = await Api.i.get('/ps/driver/orders');
       final list = ((res as Map)['orders'] as List?) ?? const [];
@@ -50,6 +57,7 @@ class DriverData extends ChangeNotifier {
 
   void clear() {
     orders = [];
+    account = null;
     ready = false;
   }
 }
@@ -57,21 +65,22 @@ class DriverData extends ChangeNotifier {
 // ───────────────────────── Home ─────────────────────────
 
 class DriverHome extends StatefulWidget {
-  const DriverHome({super.key, required this.name});
+  const DriverHome({super.key, required this.name, this.initialTab = 0});
 
   final String name;
+  final int initialTab;
 
   @override
   State<DriverHome> createState() => _DriverHomeState();
 }
 
 class _DriverHomeState extends State<DriverHome> {
-  bool _showDone = false;
+  late int _tab = widget.initialTab; // 0 now · 1 previous · 2 my money
 
   @override
   void initState() {
     super.initState();
-    DriverData.i.refresh();
+    if (!DriverData.i.ready) DriverData.i.refresh();
   }
 
   /// Pick-up: scanning the label hands the parcel to this driver.
@@ -90,17 +99,170 @@ class _DriverHomeState extends State<DriverHome> {
     }
   }
 
+  String _greeting() {
+    final h = DateTime.now().hour;
+    if (h < 12) return 'صباح الخير';
+    if (h < 18) return 'مساء الخير';
+    return 'مساء النور';
+  }
+
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
       listenable: DriverData.i,
       builder: (context, _) {
         final data = DriverData.i;
+        final acc = data.account;
         final open = data.orders.where((o) => !o.isDone).toList();
         final done = data.orders.where((o) => o.isDone).toList();
-        final list = _showDone ? done : open;
-        final collect = open
-            .fold<double>(0, (s, o) => s + o.toCollect);
+        final collect = open.fold<double>(0, (s, o) => s + o.toCollect);
+
+        final children = <Widget>[
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 2),
+            child: Row(children: [
+              Expanded(
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Text('${_greeting()} ${widget.name}', style: T.title.copyWith(fontSize: 18)),
+                  Text(dateStr(DateTime.now()), style: T.sub),
+                ]),
+              ),
+              Image.asset('assets/images/story_logo.png', height: 44),
+            ]),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+            child: Row(children: [
+              Expanded(
+                  child: StatCard(
+                      label: 'للتوصيل الحين',
+                      value: '${open.length}',
+                      hero: true,
+                      icon: CupertinoIcons.car_detailed)),
+              const SizedBox(width: 10),
+              Expanded(
+                  child: StatCard(
+                      label: 'تحصّل اليوم',
+                      value: omr(collect),
+                      color: GH.amber,
+                      icon: CupertinoIcons.money_dollar_circle_fill)),
+            ]),
+          ),
+          if (acc != null)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
+              child: GestureDetector(
+                onTap: () => setState(() => _tab = 2),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  decoration: BoxDecoration(color: GH.card, borderRadius: BorderRadius.circular(16), boxShadow: GH.shadow),
+                  child: Row(children: [
+                    IconBox(acc.net >= 0 ? CupertinoIcons.arrow_up_circle_fill : CupertinoIcons.arrow_down_circle_fill,
+                        color: acc.net >= 0 ? GH.amber : GH.green),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        acc.net.abs() < 0.0005
+                            ? 'حسابك معنا صافي ✓'
+                            : acc.net > 0
+                                ? 'عندك لنا ${omr(acc.net)}'
+                                : 'لك عندنا ${omr(-acc.net)}',
+                        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: GH.label),
+                      ),
+                    ),
+                    const Text('حسابي', style: TextStyle(fontSize: 14, color: GH.burgundy)),
+                    const Icon(CupertinoIcons.forward, size: 16, color: GH.tertiary),
+                  ]),
+                ),
+              ),
+            ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+            child: CupertinoSlidingSegmentedControl<int>(
+              groupValue: _tab,
+              children: {
+                0: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 6),
+                    child: Text('الحالية (${open.length})')),
+                1: const Text('السابقة'),
+                2: const Text('حسابي'),
+              },
+              onValueChanged: (v) => setState(() => _tab = v ?? 0),
+            ),
+          ),
+        ];
+
+        if (!data.ready) {
+          children.add(const Loading());
+        } else if (data.error != null && data.orders.isEmpty && _tab == 0) {
+          children.add(EmptyState(
+            icon: CupertinoIcons.wifi_exclamationmark,
+            title: 'ما قدرنا نحمّل الطلبات',
+            message: errorText(data.error!),
+          ));
+        } else if (_tab == 0) {
+          if (open.isEmpty) {
+            children.add(const EmptyState(
+              icon: CupertinoIcons.cube_box,
+              title: 'ما عندك توصيلات الحين',
+              message: 'امسح بوليصة الطلب عشان تستلمه، أو اسحب لتحت عشان تحدّث.',
+            ));
+          } else {
+            children.addAll(open.map((o) => _DeliveryCard(o)));
+          }
+        } else if (_tab == 1) {
+          final past = acc?.recent ?? const <PastDelivery>[];
+          if (acc == null && done.isNotEmpty) {
+            // older server: the deliveries of the last 30 days
+            children.add(Section(
+              header: 'المسلّمة · ${done.length}',
+              children: done
+                  .map((o) => Tile(
+                        leading: Avatar(o.customerName, size: 34),
+                        title: o.customerName,
+                        subtitle: [dateStr(o.deliveredAt), o.customerCity ?? o.invoiceNo].join(' · '),
+                        onTap: () => pushPage(context, DriverOrderPage(orderId: o.id)),
+                      ))
+                  .toList(),
+            ));
+          } else if (past.isEmpty) {
+            children.add(const EmptyState(icon: CupertinoIcons.checkmark_seal, title: 'ما سلّمت شي للحين'));
+          } else {
+            children.add(Section(
+              header: 'سلّمتها · ${acc!.deliveries}',
+              children: past
+                  .map((d) => PastDeliveryTile(d,
+                      onTap: data.orders.any((o) => o.id == d.id)
+                          ? () => pushPage(context, DriverOrderPage(orderId: d.id))
+                          : null))
+                  .toList(),
+            ));
+          }
+        } else {
+          if (acc == null) {
+            children.add(const EmptyState(icon: CupertinoIcons.money_dollar_circle, title: 'الحساب يتحمّل…'));
+          } else {
+            children.add(DriverBalanceCard(acc));
+            children.add(Section(header: 'هالشهر', children: [
+              KV('توصيلاتك', '${acc.monthDeliveries}'),
+              KV('أجرتك', omr(acc.monthEarned)),
+              if (acc.rate > 0) KV('لكل توصيلة', omr(acc.rate)),
+            ]));
+            children.add(Section(header: 'من البداية', children: [
+              KV('حصّلت من العملاء', omr(acc.collected)),
+              KV('سلّمت لنا', omr(acc.handed)),
+              KV('أجرتك كلها', omr(acc.earned)),
+              KV('حوّلنا لك', omr(acc.paid)),
+            ]));
+            if (acc.entries.isNotEmpty) {
+              children.add(Section(
+                header: 'التسليم والتحويلات',
+                children: acc.entries.map((e) => DriverEntryTile(e)).toList(),
+              ));
+            }
+          }
+        }
+
         return GHPage(
           title: 'توصيلاتي',
           onRefresh: data.refresh,
@@ -113,82 +275,72 @@ class _DriverHomeState extends State<DriverHome> {
               await Api.i.logout();
             }
           }),
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 0, 20, 4),
-              child: Text('هلا ${widget.name} 👋', style: T.sub),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-              child: Row(children: [
-                Expanded(
-                    child: StatCard(
-                        label: 'للتوصيل',
-                        value: '${open.length}',
-                        hero: true,
-                        icon: CupertinoIcons.car_detailed)),
-                const SizedBox(width: 10),
-                Expanded(
-                    child: StatCard(
-                        label: 'تحصّل توصيل',
-                        value: omr(collect),
-                        color: GH.amber,
-                        icon: CupertinoIcons.money_dollar_circle_fill)),
-              ]),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-              child: CupertinoSlidingSegmentedControl<bool>(
-                groupValue: _showDone,
-                children: {
-                  false: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 6),
-                      child: Text('الحالية (${open.length})')),
-                  true: Text('المسلّمة (${done.length})'),
-                },
-                onValueChanged: (v) => setState(() => _showDone = v ?? false),
-              ),
-            ),
-            if (!data.ready)
-              const Loading()
-            else if (data.error != null && data.orders.isEmpty)
-              EmptyState(
-                icon: CupertinoIcons.wifi_exclamationmark,
-                title: 'ما قدرنا نحمّل الطلبات',
-                message: errorText(data.error!),
-              )
-            else if (list.isEmpty)
-              EmptyState(
-                icon: _showDone
-                    ? CupertinoIcons.checkmark_seal
-                    : CupertinoIcons.cube_box,
-                title: _showDone ? 'ما سلّمت شي للحين' : 'ما عندك توصيلات الحين',
-                message: _showDone ? null : 'اسحب لتحت عشان تحدّث.',
-              )
-            else
-              Section(
-                children: list
-                    .map((o) => Tile(
-                          leading: Avatar(o.customerName),
-                          title: o.customerName,
-                          subtitle: [
-                            o.customerCity ?? o.address ?? o.invoiceNo,
-                            '${o.items.length} قطعة',
-                          ].join(' · '),
-                          trailing: o.isDone
-                              ? Badge('تم ✓', color: GH.green)
-                              : o.toCollect > 0
-                                  ? Badge('حصّل ${omr(o.toCollect)}',
-                                      color: GH.amber)
-                                  : Badge('مدفوع', color: GH.blue),
-                          onTap: () => pushPage(
-                              context, DriverOrderPage(orderId: o.id)),
-                        ))
-                    .toList(),
-              ),
-          ],
+          children: children,
         );
       },
+    );
+  }
+}
+
+/// One delivery waiting: customer, where, what to collect, step.
+class _DeliveryCard extends StatelessWidget {
+  const _DeliveryCard(this.o);
+  final DriverOrder o;
+
+  @override
+  Widget build(BuildContext context) {
+    final picked = o.status == DriverStatus.picked;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+      child: GestureDetector(
+        onTap: () => pushPage(context, DriverOrderPage(orderId: o.id)),
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(color: GH.card, borderRadius: BorderRadius.circular(18), boxShadow: GH.shadow),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Row(children: [
+              Avatar(o.customerName, size: 40),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Text(o.customerName, style: T.title),
+                  Text([o.customerCity ?? '', '${o.items.length} قطعة', o.waybillNo ?? o.invoiceNo]
+                      .where((e) => e.isNotEmpty)
+                      .join(' · '),
+                      style: T.sub),
+                ]),
+              ),
+              Badge(picked ? 'معك' : 'جديد', color: picked ? GH.amber : GH.blue),
+            ]),
+            if (o.address != null) ...[
+              const SizedBox(height: 10),
+              Row(children: [
+                const Icon(CupertinoIcons.location_solid, size: 15, color: GH.secondary),
+                const SizedBox(width: 6),
+                Expanded(
+                    child: Text(o.address!.replaceAll(RegExp(r'https?://\S+'), '').trim(),
+                        maxLines: 2, overflow: TextOverflow.ellipsis, style: T.sub)),
+              ]),
+            ],
+            const SizedBox(height: 10),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: (o.toCollect > 0 ? GH.amber : GH.green).withAlpha(24),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(children: [
+                Icon(o.toCollect > 0 ? CupertinoIcons.money_dollar_circle_fill : CupertinoIcons.checkmark_seal_fill,
+                    size: 18, color: o.toCollect > 0 ? GH.amber : GH.green),
+                const SizedBox(width: 8),
+                Text(o.toCollect > 0 ? 'حصّل ${omr(o.toCollect)}' : 'مدفوع، لا تحصّل شي',
+                    style: TextStyle(
+                        fontSize: 14, fontWeight: FontWeight.w600, color: o.toCollect > 0 ? const Color(0xFFB36200) : GH.green)),
+              ]),
+            ),
+          ]),
+        ),
+      ),
     );
   }
 }

@@ -10,6 +10,7 @@ import '../models.dart';
 import '../ui/colors.dart';
 import '../ui/delivery_picker.dart';
 import '../ui/kit.dart';
+import 'driver_money.dart';
 import 'item_pages.dart' show PhotoPage, Thumb;
 import 'order_detail_page.dart';
 
@@ -258,6 +259,7 @@ class DriverDetailPage extends StatelessWidget {
                         icon: CupertinoIcons.money_dollar_circle_fill)),
               ]),
             ),
+            AdminDriverMoney(driverId: d.id, name: d.name),
             Section(children: [
               Tile(
                 leading: const IconBox(CupertinoIcons.chat_bubble_fill,

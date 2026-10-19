@@ -11,6 +11,7 @@ import 'requests_page.dart';
 import 'order_form_page.dart';
 import 'more_page.dart' show SummaryPage;
 import 'story_page.dart';
+import 'products_page.dart';
 
 /// What needs doing today: buy, deliver, collect.
 class TodayPage extends StatelessWidget {
@@ -117,8 +118,14 @@ class TodayPage extends StatelessWidget {
                         onTap: () => pushPage(context, const StoryPickPage()))),
                 Expanded(
                     child: QuickAction(
-                        icon: CupertinoIcons.sparkles,
+                        icon: CupertinoIcons.bag,
                         color: GH.gold,
+                        label: 'المنتجات',
+                        onTap: () => pushPage(context, const ProductsPage()))),
+                Expanded(
+                    child: QuickAction(
+                        icon: CupertinoIcons.sparkles,
+                        color: GH.blue,
                         label: 'طلبات القطع',
                         onTap: () => pushPage(context, const RequestsPage()))),
                 Expanded(

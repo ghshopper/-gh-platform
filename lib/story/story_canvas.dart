@@ -23,6 +23,7 @@ class StoryData {
 
   /// Photo size (1 = fits its place) and how far it is moved up (−) or down (+).
   double zoom = 1;
+  double shiftX = 0;
   double shiftY = 0;
 
   /// Show the product name under the brand.
@@ -148,9 +149,9 @@ class StoryCanvas extends StatelessWidget {
       errorBuilder: (_, __, ___) => const SizedBox(),
     );
     final photo = blend ? _Multiply(child: w) : w;
-    if (data.zoom == 1 && data.shiftY == 0) return photo;
+    if (data.zoom == 1 && data.shiftX == 0 && data.shiftY == 0) return photo;
     return Transform.translate(
-      offset: Offset(0, data.shiftY),
+      offset: Offset(data.shiftX, data.shiftY),
       child: Transform.scale(scale: data.zoom, child: photo),
     );
   }

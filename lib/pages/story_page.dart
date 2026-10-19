@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:io';
 import 'dart:ui' as ui;
 
@@ -8,11 +7,11 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../config.dart';
-import '../data/api.dart';
 import '../story/cutout.dart';
 import '../story/story_canvas.dart';
 import '../ui/colors.dart';
 import '../ui/kit.dart';
+import 'products_page.dart';
 
 /// A store product, as the story needs it.
 class StoryProduct {
@@ -78,67 +77,14 @@ class StoryPickPage extends StatefulWidget {
 }
 
 class _StoryPickPageState extends State<StoryPickPage> {
-  final _search = TextEditingController();
-  List<StoryProduct> _items = [];
   final Map<int, StoryProduct> _chosen = {};
-  bool _loading = true;
-  bool _more = false;
-  int _page = 1;
-  int _total = 0;
-  String? _error;
-  Timer? _debounce;
-
-  @override
-  void initState() {
-    super.initState();
-    _load();
-  }
-
-  @override
-  void dispose() {
-    _debounce?.cancel();
-    _search.dispose();
-    super.dispose();
-  }
-
-  /// Every product in the store (search by name or brand), 60 at a time.
-  Future<void> _load({bool next = false}) async {
-    setState(() {
-      _loading = true;
-      _error = null;
-    });
-    try {
-      final q = Uri.encodeQueryComponent(_search.text.trim());
-      final page = next ? _page + 1 : 1;
-      final res = await Api.i.get('/admin/products?per_page=60&page=$page${q.isEmpty ? '' : '&search=$q'}');
-      final rows = res is Map ? (res['data'] ?? []) : res;
-      final list = (rows as List).whereType<Map>().map((e) => StoryProduct.fromJson(Map<String, dynamic>.from(e))).toList();
-      if (mounted) {
-        setState(() {
-          _items = next ? [..._items, ...list] : list;
-          _page = page;
-          _total = res is Map ? int.tryParse('${res['total'] ?? ''}') ?? _items.length : _items.length;
-          _more = res is Map && (int.tryParse('${res['last_page'] ?? 1}') ?? 1) > page;
-        });
-      }
-    } catch (e) {
-      if (mounted) setState(() => _error = e.toString());
-    } finally {
-      if (mounted) setState(() => _loading = false);
-    }
-  }
-
-  void _onSearch(String _) {
-    _debounce?.cancel();
-    _debounce = Timer(const Duration(milliseconds: 450), _load);
-  }
 
   @override
   Widget build(BuildContext context) {
     final n = _chosen.length;
     return GHPage(
       title: 'ستوري المنتجات',
-      previousPageTitle: 'المزيد',
+      previousPageTitle: 'رجوع',
       bottom: PrimaryButton(
         n == 0 ? 'اختر منتج أو أكثر' : 'التالي · $n ${n == 1 ? 'منتج' : 'منتجات'}',
         icon: CupertinoIcons.sparkles,
@@ -147,78 +93,13 @@ class _StoryPickPageState extends State<StoryPickPage> {
             : () => pushPage(context, StoryComposePage(products: _chosen.values.toList())),
       ),
       children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
-          child: CupertinoSearchTextField(
-            controller: _search,
-            placeholder: 'ابحث باسم المنتج أو البراند',
-            onChanged: _onSearch,
-            backgroundColor: GH.card,
-          ),
+        ProductBrowser(
+          isSelected: (p) => _chosen.containsKey(p.id),
+          onTap: (p) => setState(() => _chosen.containsKey(p.id) ? _chosen.remove(p.id) : _chosen[p.id] = p.toStory()),
         ),
-        if (_loading && _items.isEmpty)
-          const Loading()
-        else if (_error != null)
-          EmptyState(
-            icon: CupertinoIcons.wifi_exclamationmark,
-            title: 'ما قدرنا نجيب المنتجات',
-            message: _error,
-            action: SecondaryButton('حاول مرة ثانية', onPressed: _load),
-          )
-        else if (_items.isEmpty)
-          const EmptyState(icon: CupertinoIcons.search, title: 'ما في منتجات بهذا الاسم')
-        else
-          Section(
-            header: 'اختر المنتجات · $_total',
-            footer: _more ? null : (_items.length > 8 ? 'هذي كل المنتجات' : null),
-            children: _items.map((p) {
-              final on = _chosen.containsKey(p.id);
-              return Tile(
-                leading: _ProductThumb(p.image),
-                title: p.name,
-                subtitle: [
-                  if (p.brand.isNotEmpty) p.brand,
-                  '${storyPrice(p.price)} ر.ع',
-                  if (p.was != null) 'عليه خصم',
-                ].join(' · '),
-                chevron: false,
-                trailing: Icon(
-                  on ? CupertinoIcons.checkmark_circle_fill : CupertinoIcons.circle,
-                  color: on ? GH.burgundy : GH.tertiary,
-                  size: 26,
-                ),
-                onTap: () => setState(() => on ? _chosen.remove(p.id) : _chosen[p.id] = p),
-              );
-            }).toList(),
-          ),
-        if (_more)
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
-            child: SecondaryButton(_loading ? 'يحمّل…' : 'عرض المزيد', onPressed: _loading ? null : () => _load(next: true)),
-          ),
       ],
     );
   }
-}
-
-class _ProductThumb extends StatelessWidget {
-  const _ProductThumb(this.url);
-  final String? url;
-
-  @override
-  Widget build(BuildContext context) => ClipRRect(
-        borderRadius: BorderRadius.circular(10),
-        child: Container(
-          width: 52,
-          height: 52,
-          color: const Color(0xFFF6F1EA),
-          child: url == null
-              ? const Icon(CupertinoIcons.photo, color: GH.tertiary)
-              : Image.network(url!,
-                  fit: BoxFit.contain,
-                  errorBuilder: (_, __, ___) => const Icon(CupertinoIcons.photo, color: GH.tertiary)),
-        ),
-      );
 }
 
 // ───────────────────────── Design & share ─────────────────────────
@@ -247,19 +128,27 @@ class _StoryComposePageState extends State<StoryComposePage> {
   bool _busy = false;
 
   /// Photos with the background taken out (ready one by one).
-  late final List<Future<void>> _cutouts = [
-    for (var i = 0; i < _data.length; i++) _cut(i),
-  ];
+  List<Future<void>> _cutouts = [];
   int _cutting = 0;
   int _cutFailed = 0;
   bool _names = true;
+  bool _shadow = true; // take the soft shadow out too
+  bool _move = false; // drag / pinch the photo instead of swiping
+  double _baseZoom = 1;
+  Offset _baseShift = Offset.zero;
+  Offset _startFocal = Offset.zero;
+
+  void _cutAll() {
+    _cutFailed = 0;
+    _cutouts = [for (var i = 0; i < _data.length; i++) _cut(i)];
+  }
 
   Future<void> _cut(int i) async {
     final url = widget.dataOverride == null && i < widget.products.length ? widget.products[i].image : null;
     if (url == null) return;
     setState(() => _cutting++);
     try {
-      final img = await cutoutImage(url);
+      final img = await cutoutImage(url, removeShadow: _shadow);
       if (img != null && mounted) setState(() => _data[i].image = img);
       if (img == null && mounted) setState(() => _cutFailed++);
     } finally {
@@ -270,7 +159,7 @@ class _StoryComposePageState extends State<StoryComposePage> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _cutouts.length);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _cutAll());
   }
 
   @override
@@ -301,7 +190,7 @@ class _StoryComposePageState extends State<StoryComposePage> {
   }
 
   Future<File> _capture(int i) async {
-    await _cutouts[i];
+    if (i < _cutouts.length) await _cutouts[i];
     await Future<void>.delayed(const Duration(milliseconds: 120));
     final ctx = _keys[i].currentContext;
     if (ctx == null) throw Exception('الصورة مب جاهزة');
@@ -367,6 +256,7 @@ class _StoryComposePageState extends State<StoryComposePage> {
             Expanded(
               child: PageView.builder(
                 controller: _pages,
+                physics: _move ? const NeverScrollableScrollPhysics() : null,
                 itemCount: _data.length,
                 onPageChanged: (i) => setState(() => _page = i),
                 itemBuilder: (_, i) => Padding(
@@ -374,7 +264,26 @@ class _StoryComposePageState extends State<StoryComposePage> {
                   child: Center(
                     child: AspectRatio(
                       aspectRatio: 9 / 16,
-                      child: DecoratedBox(
+                      child: LayoutBuilder(builder: (context, box) => GestureDetector(
+                        onScaleStart: !_move || i != _page
+                            ? null
+                            : (d) {
+                                _baseZoom = _data[i].zoom;
+                                _baseShift = Offset(_data[i].shiftX, _data[i].shiftY);
+                                _startFocal = d.focalPoint;
+                              },
+                        onScaleUpdate: !_move || i != _page
+                            ? null
+                            : (d) {
+                                final k = StoryCanvas.width / box.maxWidth;
+                                final o = _baseShift + (d.focalPoint - _startFocal) * k;
+                                setState(() {
+                                  _data[i].zoom = (_baseZoom * d.scale).clamp(0.4, 2.6);
+                                  _data[i].shiftX = o.dx.clamp(-700.0, 700.0);
+                                  _data[i].shiftY = o.dy.clamp(-1100.0, 1100.0);
+                                });
+                              },
+                        child: DecoratedBox(
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(18),
                           boxShadow: const [BoxShadow(color: Color(0x26000000), blurRadius: 24, offset: Offset(0, 10))],
@@ -389,6 +298,7 @@ class _StoryComposePageState extends State<StoryComposePage> {
                           ),
                         ),
                       ),
+                      )),
                     ),
                   ),
                 ),
@@ -398,9 +308,10 @@ class _StoryComposePageState extends State<StoryComposePage> {
               padding: const EdgeInsets.only(top: 6),
               child: Text(
                   [
+                    if (_move) 'اسحب الصورة لتحريكها، وكبّرها بإصبعين',
                     if (_cutting > 0) 'يشيل خلفية الصور…',
                     if (_cutting == 0 && _cutFailed > 0) 'ما قدرت أجيب الصورة الأصلية لشيل الخلفية ($_cutFailed)',
-                    if (many) '${_page + 1} من ${_data.length} · اسحب للمنتج الثاني',
+                    if (many && !_move) '${_page + 1} من ${_data.length} · اسحب للمنتج الثاني',
                   ].join(' · '),
                   style: T.small),
             ),
@@ -444,37 +355,41 @@ class _StoryComposePageState extends State<StoryComposePage> {
                 }).toList(),
               ),
             ),
-            // Photo size and position for this story.
+            // Options, side by side.
+            SizedBox(
+              height: 44,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                children: [
+                  _Toggle('تحريك الصورة', CupertinoIcons.hand_draw, _move, (v) => setState(() => _move = v)),
+                  _Toggle('شيل الظل', CupertinoIcons.sun_min, _shadow, (v) {
+                    setState(() => _shadow = v);
+                    _cutAll();
+                  }),
+                  _Toggle('اسم المنتج', CupertinoIcons.textformat, _names, (v) => setState(() {
+                        _names = v;
+                        for (final d in _data) {
+                          d.showName = v;
+                        }
+                      })),
+                  _Toggle('«اطلب من التطبيق»', CupertinoIcons.device_phone_portrait, _cta, (v) => setState(() => _cta = v)),
+                ],
+              ),
+            ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 6, 12, 0),
+              padding: const EdgeInsets.fromLTRB(20, 2, 12, 0),
               child: Row(children: [
                 const Icon(CupertinoIcons.zoom_in, size: 20, color: GH.secondary),
                 const SizedBox(width: 6),
-                const SizedBox(width: 44, child: Text('الحجم', style: TextStyle(fontSize: 14, color: GH.label))),
+                const Text('الحجم', style: TextStyle(fontSize: 14, color: GH.label)),
                 Expanded(
                   child: CupertinoSlider(
-                    value: _data[_page].zoom,
-                    min: 0.6,
-                    max: 1.8,
+                    value: _data[_page].zoom.clamp(0.4, 2.6),
+                    min: 0.4,
+                    max: 2.6,
                     activeColor: GH.burgundy,
                     onChanged: (v) => setState(() => _data[_page].zoom = v),
-                  ),
-                ),
-              ]),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 0, 12, 0),
-              child: Row(children: [
-                const Icon(CupertinoIcons.arrow_up_arrow_down, size: 18, color: GH.secondary),
-                const SizedBox(width: 8),
-                const SizedBox(width: 42, child: Text('المكان', style: TextStyle(fontSize: 14, color: GH.label))),
-                Expanded(
-                  child: CupertinoSlider(
-                    value: _data[_page].shiftY,
-                    min: -300,
-                    max: 300,
-                    activeColor: GH.burgundy,
-                    onChanged: (v) => setState(() => _data[_page].shiftY = v.abs() < 12 ? 0 : v),
                   ),
                 ),
                 CupertinoButton(
@@ -482,32 +397,11 @@ class _StoryComposePageState extends State<StoryComposePage> {
                   minSize: 30,
                   onPressed: () => setState(() {
                     _data[_page].zoom = 1;
+                    _data[_page].shiftX = 0;
                     _data[_page].shiftY = 0;
                   }),
                   child: const Icon(CupertinoIcons.arrow_counterclockwise, size: 20, color: GH.burgundy),
                 ),
-              ]),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 4, 16, 0),
-              child: Row(children: [
-                const Expanded(child: Text('اسم المنتج', style: TextStyle(fontSize: 15, color: GH.label))),
-                CupertinoSwitch(
-                    value: _names,
-                    activeTrackColor: GH.burgundy,
-                    onChanged: (v) => setState(() {
-                          _names = v;
-                          for (final d in _data) {
-                            d.showName = v;
-                          }
-                        })),
-              ]),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 4, 16, 0),
-              child: Row(children: [
-                const Expanded(child: Text('جملة «اطلب من التطبيق»', style: TextStyle(fontSize: 15, color: GH.label))),
-                CupertinoSwitch(value: _cta, activeTrackColor: GH.burgundy, onChanged: (v) => setState(() => _cta = v)),
               ]),
             ),
             Padding(
@@ -530,6 +424,39 @@ class _StoryComposePageState extends State<StoryComposePage> {
       ),
     );
   }
+}
+
+/// An on/off chip in the options bar.
+class _Toggle extends StatelessWidget {
+  const _Toggle(this.label, this.icon, this.on, this.onChanged);
+
+  final String label;
+  final IconData icon;
+  final bool on;
+  final ValueChanged<bool> onChanged;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsetsDirectional.only(end: 8),
+        child: GestureDetector(
+          onTap: () => onChanged(!on),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            decoration: BoxDecoration(
+              color: on ? GH.burgundy : GH.card,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: on ? GH.burgundy : const Color(0xFFE4D8C8)),
+            ),
+            child: Row(mainAxisSize: MainAxisSize.min, children: [
+              Icon(icon, size: 16, color: on ? GH.goldLight : GH.secondary),
+              const SizedBox(width: 6),
+              Text(label,
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: on ? CupertinoColors.white : GH.label)),
+            ]),
+          ),
+        ),
+      );
 }
 
 class _EditStoryText extends StatelessWidget {

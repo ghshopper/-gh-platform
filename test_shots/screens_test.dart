@@ -19,6 +19,11 @@ import 'package:gh_shopper/pages/requests_page.dart';
 import 'package:gh_shopper/pages/story_page.dart';
 import 'package:gh_shopper/story/story_canvas.dart';
 import 'package:gh_shopper/story/cutout.dart';
+import 'package:gh_shopper/pages/products_page.dart';
+import 'package:gh_shopper/pages/driver_money.dart';
+import 'package:gh_shopper/pages/driver_home.dart';
+import 'package:gh_shopper/models.dart';
+import 'package:gh_shopper/ui/kit.dart';
 import 'package:gh_shopper/pdf_waybill.dart';
 import 'dart:io';
 
@@ -217,6 +222,83 @@ void main() {
     ));
     await warmImages(tester, [img!, ...storyAssets]);
     await expectLater(find.byType(RepaintBoundary).first, matchesGoldenFile('goldens/story-cutout.png'));
+  });
+
+  Map<String, dynamic> prod(int id, String brand, String name, double price, {double? sale, String status = 'active'}) => {
+        'id': id, 'name_ar': name, 'name_en': name, 'brand_name_en': brand, 'price': price,
+        'compare_price': sale, 'status': status, 'stock_quantity': 2, 'availability': 'on_order',
+        'gender': 'women', 'origin': 'europe', 'primary_image': null,
+      };
+  final products = [
+    AdminProduct(prod(1, 'DIOR', 'Lady Dior Medium', 2100)),
+    AdminProduct(prod(2, 'DOLCE & GABBANA', 'Sicily bag in dauphine leather', 1450, sale: 1290)),
+    AdminProduct(prod(3, 'GUERLAIN', 'روج كيس كيس', 18.5)),
+    AdminProduct(prod(4, 'LOEWE', 'Puzzle Bag Small', 1450, status: 'draft')),
+  ];
+  final account = DriverAccount({
+    'pay_per_delivery': 1.5, 'deliveries': 42, 'month_deliveries': 12, 'month_earned': 18,
+    'collected': 96, 'handed': 60, 'cash_with_driver': 36, 'earned': 63, 'paid': 45, 'owed_to_driver': 18, 'net': 18,
+    'entries': [
+      {'id': 'e1', 'type': 'handover', 'amount': 60, 'note': 'كاش أسبوع ١', 'on_date': '2026-10-15'},
+      {'id': 'e2', 'type': 'payout', 'amount': 45, 'note': 'تحويل بنكي', 'on_date': '2026-10-12'},
+    ],
+    'recent': [
+      {'id': 'o3', 'order_no': 126, 'created_at': '2026-10-13T10:00:00Z', 'customer_name': 'خالد الرواحي', 'customer_city': 'صحار', 'delivered_at': '2026-10-18T12:00:00Z', 'collected': 2, 'pay': 1.5},
+      {'id': 'o9', 'order_no': 120, 'created_at': '2026-10-10T10:00:00Z', 'customer_name': 'نور الهنائي', 'customer_city': 'مسقط', 'delivered_at': '2026-10-16T12:00:00Z', 'collected': 0, 'pay': 1.5},
+    ],
+  });
+
+  for (final screen in ['products', 'product-edit', 'driver-now', 'driver-past', 'driver-money', 'driver-admin']) {
+    testWidgets(screen, (tester) async {
+      tester.view.physicalSize = const Size(1179, 2556);
+      tester.view.devicePixelRatio = 3;
+      addTearDown(tester.view.reset);
+      Store.i.loadSnapshot(sample());
+      DriverData.i.orders = [
+        DriverOrder.fromMap({'id': 'o3', 'order_no': 126, 'customer_name': 'خالد الرواحي', 'customer_city': 'صحار', 'address': 'الخوض، شارع ١٨، منزل ٤٢', 'delivery_fee': 2, 'delivery_collect': true, 'driver_status': 'picked', 'items': [{'brand': 'LV', 'name': 'Keepall 45'}]}),
+        DriverOrder.fromMap({'id': 'o5', 'order_no': 129, 'customer_name': 'نور الهنائي', 'customer_city': 'نزوى', 'delivery_fee': 1, 'delivery_collect': false, 'driver_status': 'assigned', 'items': [{'brand': 'CHANEL', 'name': 'Classic Flap'}, {'brand': 'DIOR', 'name': 'Saddle'}]}),
+      ];
+      DriverData.i.account = account;
+      DriverData.i.ready = true;
+      final Widget home = switch (screen) {
+        'products' => ProductsPage(initial: products),
+        'product-edit' => ProductEditPage(product: products[1]),
+        'driver-admin' => GHPage(title: 'سالم', children: [AdminDriverMoney(driverId: 'd1', name: 'سالم', initial: account)]),
+        _ => DriverHome(name: 'سالم', initialTab: screen == 'driver-now' ? 0 : screen == 'driver-past' ? 1 : 2),
+      };
+      await tester.pumpWidget(RepaintBoundary(
+        child: CupertinoApp(
+          debugShowCheckedModeBanner: false,
+          theme: ghTheme,
+          locale: const Locale('ar'),
+          supportedLocales: const [Locale('ar'), Locale('en')],
+          localizationsDelegates: const [
+            GlobalCupertinoLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+          ],
+          home: home,
+        ),
+      ));
+      await warmImages(tester, storyAssets);
+      await tester.pump(const Duration(milliseconds: 600));
+      await expectLater(find.byType(RepaintBoundary).first, matchesGoldenFile('goldens/$screen.png'));
+    });
+  }
+
+  // A photo with a soft shadow under the piece: shadow comes out too.
+  testWidgets('story-shadow', (tester) async {
+    tester.view.physicalSize = const Size(1080, 1920);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final bytes = File('test_shots/sample_shadow.jpg').readAsBytesSync();
+    final img = await tester.runAsync(() => cutoutBytes(bytes));
+    final d = StoryData(brand: 'MAISON', name: 'عطر', price: 52.5, image: img)..showName = false;
+    await tester.pumpWidget(RepaintBoundary(
+      child: Directionality(textDirection: TextDirection.rtl, child: StoryCanvas(data: d, template: StoryTemplate.clean)),
+    ));
+    await warmImages(tester, [img!, ...storyAssets]);
+    await expectLater(find.byType(RepaintBoundary).first, matchesGoldenFile('goldens/story-shadow.png'));
   });
 
   for (final screen in ['story-compose', 'today2', 'more']) {

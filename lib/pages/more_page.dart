@@ -15,6 +15,7 @@ import 'import_page.dart';
 import 'purchases_pages.dart';
 import 'requests_page.dart';
 import 'story_page.dart';
+import 'products_page.dart';
 import 'trips_page.dart' show ExpenseFormPage;
 
 class MorePage extends StatefulWidget {
@@ -75,7 +76,13 @@ class _MorePageState extends State<MorePage> {
     return GHPage(
       title: 'المزيد',
       children: [
-        Section(header: 'التسويق', children: [
+        Section(header: 'المتجر', children: [
+          Tile(
+            leading: const IconBox(CupertinoIcons.bag_fill, color: GH.burgundy),
+            title: 'المنتجات',
+            subtitle: 'الأسعار، الخصم، الكمية، الظهور في المتجر',
+            onTap: () => pushPage(context, const ProductsPage()),
+          ),
           Tile(
             leading: const IconBox(CupertinoIcons.camera_on_rectangle_fill, color: GH.pink),
             title: 'ستوري المنتجات',

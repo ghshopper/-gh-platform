@@ -12,7 +12,7 @@ import 'package:http/http.dart' as http;
 ///
 /// Returns null when the photo can't be loaded; returns the photo trimmed but
 /// untouched when its background isn't plain (a model, a street…).
-Future<ImageProvider?> cutoutImage(String url) async {
+Future<ImageProvider?> cutoutImage(String url, {bool removeShadow = true}) async {
   try {
     final uri = Uri.parse(url);
     final res = await http.get(uri, headers: {
@@ -22,13 +22,13 @@ Future<ImageProvider?> cutoutImage(String url) async {
       'Referer': '${uri.scheme}://${uri.host}/',
     }).timeout(const Duration(seconds: 30));
     if (res.statusCode != 200 || res.bodyBytes.isEmpty) return null;
-    return await cutoutBytes(res.bodyBytes);
+    return await cutoutBytes(res.bodyBytes, removeShadow: removeShadow);
   } catch (_) {
     return null;
   }
 }
 
-Future<ImageProvider?> cutoutBytes(Uint8List bytes) async {
+Future<ImageProvider?> cutoutBytes(Uint8List bytes, {bool removeShadow = true}) async {
   final buffer = await ui.ImmutableBuffer.fromUint8List(bytes);
   final desc = await ui.ImageDescriptor.encoded(buffer);
   // Big enough for a 1080 story, small enough to be quick.
@@ -45,7 +45,7 @@ Future<ImageProvider?> cutoutBytes(Uint8List bytes) async {
   img.dispose();
   if (raw == null) return null;
 
-  final out = await compute(_cut, _Job(raw.buffer.asUint8List(), w, h));
+  final out = await compute(_cut, _Job(raw.buffer.asUint8List(), w, h, removeShadow));
   if (out == null) return null;
 
   final completer = Completer<ui.Image>();
@@ -58,10 +58,11 @@ Future<ImageProvider?> cutoutBytes(Uint8List bytes) async {
 }
 
 class _Job {
-  _Job(this.rgba, this.w, this.h);
+  _Job(this.rgba, this.w, this.h, this.removeShadow);
   final Uint8List rgba;
   final int w;
   final int h;
+  final bool removeShadow;
 }
 
 class _Out {
@@ -144,6 +145,47 @@ _Out? _cut(_Job job) {
         if (x < w - 1) push(x + 1, y);
         if (y > 0) push(x, y - 1);
         if (y < h - 1) push(x, y + 1);
+      }
+    }
+
+    // Soft shadows under the piece: grey (no colour), darker than the
+    // background, and changing smoothly (a piece's edge changes sharply).
+    if (job.removeShadow) {
+      double lum(int i) => (p[i] * 0.3 + p[i + 1] * 0.59 + p[i + 2] * 0.11);
+      int chroma(int i) {
+        final r = p[i], g = p[i + 1], b = p[i + 2];
+        final mx = r > g ? (r > b ? r : b) : (g > b ? g : b);
+        final mn = r < g ? (r < b ? r : b) : (g < b ? g : b);
+        return mx - mn;
+      }
+
+      final bgL = bg[0] * 0.3 + bg[1] * 0.59 + bg[2] * 0.11;
+      final bgC = (bg.reduce((a, b) => a > b ? a : b) - bg.reduce((a, b) => a < b ? a : b)).round();
+      head = 0;
+      tail = 0;
+      for (var k = 0; k < w * h; k++) {
+        if (seen[k] == 1) queue[tail++] = k;
+      }
+      void grow(int from, int k) {
+        final i = k * 4;
+        // new pixels, and the half see-through rim the first pass left
+        if (seen[k] == 2 || (seen[k] == 1 && p[i + 3] == 0)) return;
+        final l = lum(i);
+        if (l > bgL + 4 || l < bgL - 120) return;
+        if (chroma(i) - bgC > 14) return;
+        if ((l - lum(from * 4)).abs() > 6) return;
+        seen[k] = 2;
+        p[i + 3] = 0;
+        queue[tail++] = k;
+      }
+
+      while (head < tail) {
+        final k = queue[head++];
+        final x = k % w, y = k ~/ w;
+        if (x > 0) grow(k, k - 1);
+        if (x < w - 1) grow(k, k + 1);
+        if (y > 0) grow(k, k - w);
+        if (y < h - 1) grow(k, k + w);
       }
     }
   }
