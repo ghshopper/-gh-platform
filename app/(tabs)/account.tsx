@@ -134,6 +134,20 @@ export default function Account() {
         <Tile icon="bell" label={tr('الإشعارات', 'Notifications')} onPress={() => router.push('/notifications')} />
       </View>
 
+      {/* Gift card */}
+      <Pressable onPress={() => router.push('/gift-card')} accessibilityRole="button" style={{ marginHorizontal: S.gutter, marginTop: 16 }}>
+        <LinearGradient colors={['#4A0709', CARD, '#1E0102']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+          style={{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 18, paddingHorizontal: 18 }}>
+          <View style={{ position: 'absolute', top: 6, left: 6, right: 6, bottom: 6, borderWidth: 0.7, borderColor: CARD_GOLD, opacity: 0.4 }} />
+          <Icon name="gift" size={26} color={CARD_GOLD} stroke={1.2} />
+          <View style={{ flex: 1, gap: 2 }}>
+            <T size={15} w="medium" color="#F6E9D8">{tr('أهدِ بطاقة هدية', 'Send a gift card')}</T>
+            <T size={12} color="rgba(246,233,216,0.7)">{tr('توصل على جوال اللي تحبه مع رسالتك', 'Sent to their phone with your message')}</T>
+          </View>
+          <Icon name="forward" size={16} color={CARD_GOLD} flip={isAr} />
+        </LinearGradient>
+      </Pressable>
+
       <Section title={tr('الإعدادات', 'Settings')} />
       <View style={{ paddingHorizontal: S.gutter }}>
         <Row icon="globe" title={tr('اللغة والدولة', 'Language & country')} value={`${isAr ? 'العربية' : 'English'} · ${tr('عُمان', 'Oman')}`}
