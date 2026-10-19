@@ -81,26 +81,34 @@ function collector(API, KEY) {
     var variants = [].concat(x.hasVariant || [])
     var colors = [], sizes = [], imgs = imgsOf(x, base)
     var baseName = String(x.name || '').trim()
+    var SIZE_RE = /(\d+(?:[.,]\d+)?\s?(?:ml|mL|ML|g|gr|oz|fl\.?\s?oz|cl))\b/
+    var prices = []
+    function addSize(label, vp) { if (label && !sizes.some(function (k) { return k.en === label })) sizes.push({ en: label, price: vp }) }
     variants.forEach(function (v) {
-      var c = v.color || null
-      if (!c && v.name && baseName && v.name !== baseName) c = String(v.name).replace(baseName, '').replace(/^[\s\-–|,:]+|[\s\-–|,:]+$/g, '') || null
-      if (c && !colors.some(function (k) { return k.en === String(c) })) colors.push({ en: String(c), image: imgsOf(v, base)[0] || null })
-      if (v.size) sizes.push(String(v.size))
+      var vp = num(offerOf(v).price || offerOf(v).lowPrice || '') || null
+      if (vp) prices.push(vp)
+      var rest = v.name && baseName && v.name !== baseName ? String(v.name).replace(baseName, '').replace(/^[\s\-–|,:]+|[\s\-–|,:]+$/g, '') : ''
+      var sz = v.size ? String(v.size) : (SIZE_RE.exec(rest || '') || [])[1] || null
+      if (sz) addSize(sz.replace(/\s+/g, ' ').trim(), vp)
+      var c = v.color || (rest && !SIZE_RE.test(rest) ? rest : null)
+      if (c && !colors.some(function (k) { return k.en === String(c) })) colors.push({ en: String(c), image: imgsOf(v, base)[0] || null, price: vp })
       imgsOf(v, base).slice(0, 1).forEach(function (i) { if (imgs.indexOf(i) < 0) imgs.push(i) })
       if (!of.price) of = offerOf(v)
     })
     if (x.color && !colors.length) colors.push({ en: String(x.color) })
-    if (x.size && !sizes.length) sizes.push(String(x.size))
+    if (x.size && !sizes.length) addSize(String(x.size), null)
+    // Different prices per size/colour: the product starts at the lowest one.
+    var low = prices.length ? Math.min.apply(null, prices) : null
     return {
       name_en: baseName,
       brand: brandOf(x),
       description_en: String(x.description || '').replace(/<[^>]+>/g, ' ').replace(/[ \t]+/g, ' ').trim(),
-      price: num(of.price || of.lowPrice || '') || null,
+      price: low || num(of.price || of.lowPrice || '') || null,
       currency: of.priceCurrency || null,
       source_url: abs(x.url || of.url || base, base),
       images: imgs,
       colors: colors,
-      sizes: uniq(sizes),
+      sizes: sizes,
       category: x.category ? String(x.category) : null,
     }
   }
@@ -219,7 +227,7 @@ function collector(API, KEY) {
         if (f.brand) o.brand = f.brand
         if (f.colors.length > (o.colors || []).length) o.colors = f.colors
         if (f.sizes.length) o.sizes = f.sizes
-        if (!o.price && f.price) { o.price = f.price; o.currency = f.currency }
+        if (f.price && (!o.price || f.sizes.some(function (z) { return z.price }))) { o.price = f.price; o.currency = f.currency || o.currency }
         f.images.forEach(function (i) { if (o.images.indexOf(i) < 0) o.images.push(i) })
         if (f.category) o.category = f.category
       }

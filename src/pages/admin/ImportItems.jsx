@@ -406,7 +406,15 @@ export default function ImportItems() {
                             {(a.values || []).length > 14 ? <b>+{a.values.length - 14}</b> : null}
                           </span>
                         ) : null}
-                        <span className="imp-vals">{(a.values || []).slice(0, 8).map((v) => v.value_ar || v.value_en).join('، ')}{(a.values || []).length > 8 ? '…' : ''}</span>
+                        <span className="imp-vals">{(a.values || []).slice(0, 8).map((v) => {
+                          const label = v.value_ar || v.value_en
+                          const sp = Number(v.source_price) || 0
+                          const base = Number(it.source_price) || 0
+                          const omrNow = parseFloat(rows[it.id]?.price) || 0
+                          if (!sp || !base || sp <= base) return label
+                          const add = omrNow ? ` · +${(Math.round(((sp - base) * omrNow / base) * 10) / 10).toLocaleString('en-US')} ر.ع` : ''
+                          return `${label} (${money(sp)}${add})`
+                        }).join('، ')}{(a.values || []).length > 8 ? '…' : ''}</span>
                       </span>
                     ))}
                     {it.description_ar || it.description_en ? <span title={it.description_ar || it.description_en}>✓ الوصف</span> : null}
