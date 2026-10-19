@@ -482,7 +482,7 @@ export default function ImportItems() {
 
 /** Extra choices for one product: rename/edit groups, add a group, engraving. */
 function OptionsEditor({ item, onSave, onCancel }) {
-  const toText = (a) => (a.values || []).map((v) => v.value_ar || v.value_en).join('، ')
+  const toText = (a) => (a.values || []).map((v) => (v.value_ar || v.value_en) + (Number(v.price_add) ? ` +${Number(v.price_add)}` : '')).join('، ')
   const [groups, setGroups] = useState(() =>
     (item.attributes || []).filter((a) => a.type !== 'engraving').map((a) => ({ ...a, text: toText(a) })),
   )
@@ -498,9 +498,12 @@ function OptionsEditor({ item, onSave, onCancel }) {
       .map((g) => {
         const names = g.text.split(/[,،\n]/).map((t) => t.trim()).filter(Boolean)
         // Keep photos/colours of values that are still there.
-        const values = names.map((n) => {
+        // "ذهبي +5" → the gold case adds 5 OMR.
+        const values = names.map((raw) => {
+          const m = raw.match(/^(.*?)\s*\+\s*([0-9.]+)\s*$/)
+          const n = m ? m[1].trim() : raw
           const prev = (g.values || []).find((v) => (v.value_ar || v.value_en) === n)
-          return { ...(prev || {}), id: id++, value_ar: n, value_en: prev?.value_en || n }
+          return { ...(prev || {}), id: id++, value_ar: n, value_en: prev?.value_en || n, price_add: m ? Number(m[2]) : null }
         })
         const { text, ...rest } = g // eslint-disable-line no-unused-vars
         return { ...rest, name_en: rest.name_en || rest.name_ar, is_selectable: rest.is_selectable !== false, values }
@@ -515,7 +518,7 @@ function OptionsEditor({ item, onSave, onCancel }) {
       {groups.map((g, i) => (
         <div key={i} className="imp-opt">
           <input value={g.name_ar || ''} onChange={(e) => update(i, { name_ar: e.target.value })} placeholder="اسم الخيار (مثلاً: الكفر)" />
-          <textarea value={g.text} onChange={(e) => update(i, { text: e.target.value })} placeholder="القيم مفصولة بفاصلة: ذهبي، أسود، فضي" rows={2} />
+          <textarea value={g.text} onChange={(e) => update(i, { text: e.target.value })} placeholder="القيم مفصولة بفاصلة: ذهبي +5، أسود، فضي (‎+5 = يزيد 5 ر.ع)" rows={2} />
           <button type="button" className="imp-x" onClick={() => setGroups((x) => x.filter((_, k) => k !== i))} title="حذف"><RiCloseLine /></button>
         </div>
       ))}

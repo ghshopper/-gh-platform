@@ -652,6 +652,7 @@ export default function Products() {
                       <div key={valIdx} style={{ display: 'flex', gap: 8, marginBottom: 8, alignItems: 'center' }}>
                         <input value={val.value_ar} onChange={e => updateAttributeValue(attrIdx, valIdx, 'value_ar', e.target.value)} placeholder="القيمة (عربي)" style={{ flex: 1, padding: '6px 10px', border: '1px solid #E5E7EB', borderRadius: 6, fontSize: 12 }} />
                         <input value={val.value_en} onChange={e => updateAttributeValue(attrIdx, valIdx, 'value_en', e.target.value)} placeholder="القيمة (إنجليزي)" style={{ flex: 1, padding: '6px 10px', border: '1px solid #E5E7EB', borderRadius: 6, fontSize: 12, direction: 'ltr' }} />
+                        <input type="number" step="0.001" value={val.price_add ?? ''} onChange={e => updateAttributeValue(attrIdx, valIdx, 'price_add', e.target.value === '' ? null : Number(e.target.value))} placeholder="+ ر.ع" title="زيادة على السعر لما يختار هذا الخيار" style={{ width: 80, padding: '6px 8px', border: '1px solid #E5E7EB', borderRadius: 6, fontSize: 12, direction: 'ltr' }} />
                         
                         {attr.type === 'color' && (
                           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
