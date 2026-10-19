@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
@@ -120,7 +121,23 @@ _Out? _cut(_Job job) {
     // Shine and white rims on the piece are lighter than the backdrop:
     // keep them (unless the backdrop is pure white, where nothing is lighter).
     final bgLum = bg[0] * 0.3 + bg[1] * 0.59 + bg[2] * 0.11;
-    bool lighter(int i) => bgLum < 248 && p[i] * 0.3 + p[i + 1] * 0.59 + p[i + 2] * 0.11 > bgLum + 3;
+    // How grainy the backdrop is (spread of brightness in a corner), so grain
+    // is never mistaken for shine.
+    var sum = 0.0, sq = 0.0, cnt = 0;
+    final cn = (w < h ? w : h) ~/ 12 + 4;
+    for (var y = 2; y < cn && y < h; y++) {
+      for (var x = 2; x < cn && x < w; x++) {
+        final i = (y * w + x) * 4;
+        final l = p[i] * 0.3 + p[i + 1] * 0.59 + p[i + 2] * 0.11;
+        sum += l;
+        sq += l * l;
+        cnt++;
+      }
+    }
+    final mean = sum / cnt;
+    final grain = math.sqrt((sq / cnt - mean * mean).clamp(0, 1e9));
+    final shine = 3 + grain * 3.5;
+    bool lighter(int i) => bgLum < 248 && p[i] * 0.3 + p[i + 1] * 0.59 + p[i + 2] * 0.11 > bgLum + shine;
 
     void push(int x, int y) {
       final k = y * w + x;
