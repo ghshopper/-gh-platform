@@ -9,7 +9,7 @@ const config: ExpoConfig = {
   name: 'GH Shopper',
   slug: 'gh-shopper',
   scheme: 'ghshopper',
-  version: '2.1.0',
+  version: '2.0.1',
   orientation: 'portrait',
   icon: './assets/icon.png',
   userInterfaceStyle: 'automatic',
