@@ -112,7 +112,7 @@ export default function ProductPage() {
           <a className="btn ghost" href={ask} target="_blank" rel="noreferrer"><Icon name="whatsapp" /> {tr('اسأل عن القطعة على واتساب', 'Ask about it on WhatsApp')}</a>
           <ul className="perks">
             <li><Icon name="shield" size={18} />{tr('من البوتيك مباشرة، مع الفاتورة الأصلية', 'Straight from the boutique, with the original receipt')}</li>
-            <li><Icon name="truck" size={18} />{tr('توصيل لكل عُمان: مندوبنا أو نول وجيناكم', 'Delivery across Oman: our driver, Nool or Genacom')}</li>
+            <li><Icon name="truck" size={18} />{tr('توصيل لكل عُمان: مندوبنا في مسقط وبركاء، وجيناكم لباب البيت أو من مكتبهم', 'Delivery across Oman: our driver in Muscat & Barka, Genacom to your door or office')}</li>
             <li><Icon name="gift" size={18} />{tr('تقدر ترسلها هدية مع رسالة', 'Send it as a gift with a message')}</li>
           </ul>
           {desc ? <details open><summary>{tr('الوصف', 'Description')}</summary><p className="desc">{desc}</p></details> : null}

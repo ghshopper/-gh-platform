@@ -205,7 +205,7 @@ function Footer() {
     <footer className="footer">
       <div className="container features">
         <div><Icon name="shield" size={26} stroke={1.1} /><b>{tr('أصلية ١٠٠٪', '100% authentic')}</b><span>{tr('من البوتيك مباشرة، مع الفاتورة', 'Straight from the boutique, with receipt')}</span></div>
-        <div><Icon name="truck" size={26} stroke={1.1} /><b>{tr('توصيل لكل عُمان', 'Delivery across Oman')}</b><span>{tr('مندوبنا أو نول وجيناكم', 'Our driver, Nool or Genacom')}</span></div>
+        <div><Icon name="truck" size={26} stroke={1.1} /><b>{tr('توصيل لكل عُمان', 'Delivery across Oman')}</b><span>{tr('مندوبنا أو جيناكم لباب البيت أو مكتبهم', 'Our driver or Genacom, door or office')}</span></div>
         <div><Icon name="lock" size={26} stroke={1.1} /><b>{tr('دفع آمن', 'Secure payment')}</b><span>{tr('بطاقة أو Apple Pay عبر أموال', 'Card or Apple Pay via Amwal')}</span></div>
         <div><Icon name="gift" size={26} stroke={1.1} /><b>{tr('تغليف هدايا', 'Gift wrapping')}</b><span>{tr('مع رسالة إهداء باسمك', 'With your personal message')}</span></div>
       </div>
