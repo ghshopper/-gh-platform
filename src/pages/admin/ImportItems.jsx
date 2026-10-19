@@ -316,6 +316,17 @@ export default function ImportItems() {
               <RiCloseLine /> حذف المحدد ({selectedIds.length})
             </button>
           )}
+          {items.length > 0 && (
+            <button
+              className="btn btn-ghost imp-danger"
+              onClick={() => {
+                const msg = brand ? `تحذف كل منتجات ${brand} من القائمة (${items.length})؟` : `تحذف كل المنتجات من القائمة (${items.length})؟`
+                if (window.confirm(msg + '\nالمنتجات اللي انضافت للمتجر ما تتأثر.')) skip(items.map((x) => x.id))
+              }}
+            >
+              <RiCloseLine /> حذف الكل ({items.length})
+            </button>
+          )}
           {existingCount > 0 && (
             <button className="btn btn-ghost" onClick={() => skip(items.filter((x) => x.existing).map((x) => x.id))}>
               حذف الموجود عندي ({existingCount})
@@ -589,6 +600,8 @@ const CSS = `
 .imp-dots b{font-weight:600;font-size:11px}
 .imp-two{display:grid;grid-template-columns:1fr 1fr;gap:4px}
 .imp-two select{padding:6px 6px;font-size:12.5px}
+.imp-danger{color:#B42318 !important}
+.imp-danger:hover{border-color:#B42318 !important}
 .imp-split{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-secondary);cursor:pointer}
 .imp select.imp-auto{border-color:#c9a25c;background:rgba(201,162,92,.08)}
 .imp-meta a{color:var(--color-primary);display:inline-flex;align-items:center;gap:3px;text-decoration:none}
