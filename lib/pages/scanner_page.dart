@@ -1,7 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
+import '../data/store.dart';
+import '../models.dart';
 import '../ui/colors.dart';
+import '../ui/kit.dart';
+import 'order_detail_page.dart';
 
 /// Full-screen camera that returns the first QR / barcode it reads.
 class ScannerPage extends StatefulWidget {
@@ -84,7 +88,7 @@ class _ScannerPageState extends State<ScannerPage> {
             right: 0,
             bottom: 70,
             child: Text(
-              'وجّه الكاميرا على كود البوليصة',
+              'وجّه الكاميرا على كود الفاتورة أو البوليصة',
               textAlign: TextAlign.center,
               style: TextStyle(color: CupertinoColors.white, fontSize: 16),
             ),
@@ -111,3 +115,48 @@ String? tokenFromCode(String code) =>
         .firstMatch(code)
         ?.group(0)
         ?.toLowerCase();
+
+/// Finds the order a scanned (or typed) code points to, from the loaded
+/// orders: the invoice / waybill QR (…/track/?t=<token>), the bare tracking
+/// token, the invoice ref (GH-…) or the order number (201001).
+Order? orderFromCode(String code) {
+  final c = code.trim();
+  if (c.isEmpty) return null;
+  final store = Store.i;
+  String? t;
+  try {
+    t = Uri.tryParse(c)?.queryParameters['t'];
+  } catch (_) {}
+  t ??= tokenFromCode(c);
+  if (t != null) {
+    final o = store.orderByToken(t.toLowerCase()) ?? store.orderByToken(t);
+    if (o != null) return o;
+  }
+  final upper = c.toUpperCase();
+  for (final o in store.orders) {
+    if ((o.refNo ?? '').toUpperCase() == upper || o.invoiceNo.toUpperCase() == upper) return o;
+    if (o.waybillNo == upper) return o;
+    if (o.storeOrderNumber != null && o.storeOrderNumber!.toUpperCase() == upper) return o;
+  }
+  final digits = RegExp(r'\d{3,}').allMatches(c).map((m) => m.group(0)!).toList();
+  for (final d in digits.reversed) {
+    final n = int.tryParse(d);
+    for (final o in store.orders) {
+      if (o.orderNo == n) return o;
+      if ((o.refNo ?? '').replaceAll(RegExp(r'\D'), '') == d) return o;
+    }
+  }
+  return null;
+}
+
+/// Scan button action: opens the camera, then the order it finds.
+Future<void> scanAndOpen(BuildContext context) async {
+  final code = await scanCode(context, title: 'امسح كود الطلب');
+  if (code == null || !context.mounted) return;
+  final o = orderFromCode(code);
+  if (o == null) {
+    toast(context, 'ما لقينا طلب لهذا الكود', error: true);
+    return;
+  }
+  pushPage(context, OrderDetailPage(orderId: o.id));
+}

@@ -114,6 +114,8 @@ class Api extends ChangeNotifier {
       _send('POST', path, body: body ?? {});
   Future<dynamic> put(String path, [Map<String, dynamic>? body]) =>
       _send('PUT', path, body: body ?? {});
+  Future<dynamic> patch(String path, [Map<String, dynamic>? body]) =>
+      _send('PATCH', path, body: body ?? {});
   Future<dynamic> delete(String path, [Map<String, dynamic>? body]) =>
       _send('DELETE', path, body: body);
 

@@ -11,6 +11,118 @@ import 'order_detail_page.dart';
 import 'order_form_page.dart';
 import 'orders_page.dart';
 
+// ───────────────────────── Loyalty tiers ─────────────────────────
+// Three tiers by points: Beige 0+, Burgundy 20,000+, Black 50,000+. The server
+// sends the Arabic name (بيج / عنابي / أسود); the English key also works.
+
+const _tiers = [
+  (key: 'beige', ar: 'بيج', min: 0, color: Color(0xFFD9C4A3)),
+  (key: 'burgundy', ar: 'عنابي', min: 20000, color: Color(0xFF5C0A16)),
+  (key: 'black', ar: 'أسود', min: 50000, color: Color(0xFF111111)),
+];
+
+int _tierIndex(String? tier, int points) {
+  final t = (tier ?? '').trim().toLowerCase();
+  for (var i = 0; i < _tiers.length; i++) {
+    if (_tiers[i].key == t || _tiers[i].ar == t) return i;
+  }
+  // Unknown name: go by the points.
+  var i = 0;
+  for (var k = 0; k < _tiers.length; k++) {
+    if (points >= _tiers[k].min) i = k;
+  }
+  return i;
+}
+
+/// The tier's Arabic name («بيج», «عنابي», «أسود»).
+String tierName(String? tier, [int points = 0]) {
+  final t = (tier ?? '').trim();
+  final i = _tierIndex(tier, points);
+  final known = _tiers.any((x) => x.key == t.toLowerCase() || x.ar == t);
+  return known || t.isEmpty ? _tiers[i].ar : t;
+}
+
+/// A colour that reads on the page for the tier badge.
+Color tierColor(String? tier, [int points = 0]) => switch (_tierIndex(tier, points)) {
+      0 => GH.gold,
+      1 => GH.burgundy,
+      _ => GH.label,
+    };
+
+/// The customer's loyalty card: tier, points and how far to the next tier.
+class TierCard extends StatelessWidget {
+  const TierCard({super.key, required this.tier, required this.points});
+
+  final String? tier;
+  final int points;
+
+  @override
+  Widget build(BuildContext context) {
+    final i = _tierIndex(tier, points);
+    final t = _tiers[i];
+    final next = i + 1 < _tiers.length ? _tiers[i + 1] : null;
+    final light = i == 0;
+    final fg = light ? const Color(0xFF3A2414) : const Color(0xFFF3E6CC);
+    final progress = next == null ? 1.0 : ((points - t.min) / (next.min - t.min)).clamp(0.0, 1.0);
+    return Container(
+      padding: const EdgeInsets.fromLTRB(18, 16, 18, 16),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        gradient: LinearGradient(
+          begin: AlignmentDirectional.topStart,
+          end: AlignmentDirectional.bottomEnd,
+          colors: [Color.lerp(t.color, const Color(0xFFFFFFFF), light ? 0.25 : 0.12)!, t.color],
+        ),
+        border: Border.all(color: const Color(0x55C9A465)),
+        boxShadow: GH.shadow,
+      ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Row(children: [
+          Text('GH PRIVILEGE',
+              textDirection: TextDirection.ltr,
+              style: TextStyle(fontSize: 11, letterSpacing: 2.4, fontWeight: FontWeight.w600, color: fg.withAlpha(170))),
+          const Spacer(),
+          Icon(CupertinoIcons.star_circle_fill, size: 22, color: light ? GH.burgundy : const Color(0xFFC9A465)),
+        ]),
+        const SizedBox(height: 6),
+        Text('فئة ${t.ar}', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: fg)),
+        const SizedBox(height: 2),
+        Text('${plainPoints(points)} نقطة', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: fg.withAlpha(220))),
+        const SizedBox(height: 12),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(4),
+          child: SizedBox(
+            height: 6,
+            child: Stack(children: [
+              Positioned.fill(child: ColoredBox(color: fg.withAlpha(40))),
+              FractionallySizedBox(
+                alignment: AlignmentDirectional.centerStart,
+                widthFactor: progress,
+                child: const ColoredBox(color: Color(0xFFC9A465)),
+              ),
+            ]),
+          ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          next == null ? 'أعلى فئة' : 'باقي ${plainPoints(next.min - points)} نقطة لفئة ${next.ar}',
+          style: TextStyle(fontSize: 12.5, color: fg.withAlpha(190)),
+        ),
+      ]),
+    );
+  }
+}
+
+String plainPoints(int n) {
+  final s = n.abs().toString();
+  final b = StringBuffer();
+  for (var i = 0; i < s.length; i++) {
+    if (i > 0 && (s.length - i) % 3 == 0) b.write(',');
+    b.write(s[i]);
+  }
+  return b.toString();
+}
+
 bool _matches(Customer c, String query) {
   final q = normalizeDigits(query).trim().toLowerCase();
   if (q.isEmpty) return true;
@@ -105,6 +217,9 @@ class CustomerDetailPage extends StatelessWidget {
         final owed = orders.fold<double>(
             0, (s, o) => s + (o.remaining > 0 ? o.remaining : 0));
         final balance = orders.fold<double>(0, (s, o) => s + o.customerBalance);
+        final recent = [...orders]
+          ..sort((a, b) => (b.createdAt ?? DateTime(2000)).compareTo(a.createdAt ?? DateTime(2000)));
+        if (recent.length > 3) recent.removeRange(3, recent.length);
 
         Future<void> delete() async {
           if (orders.isNotEmpty) {
@@ -152,6 +267,25 @@ class CustomerDetailPage extends StatelessWidget {
                 ],
               ),
             ),
+            if (c.loyaltyPoints > 0 || c.loyaltyTier != null)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                child: TierCard(tier: c.loyaltyTier, points: c.loyaltyPoints),
+              ),
+            if (orders.isNotEmpty)
+              Section(
+                header: 'آخر الطلبات',
+                trailing: orders.length > 3
+                    ? HeaderButton('الكل · ${orders.length}', onPressed: () => pushPage(context, _CustomerOrdersPage(customerId: c.id)))
+                    : null,
+                children: recent
+                    .map((o) => OrderRow(
+                          order: o,
+                          showCustomer: false,
+                          onTap: () => pushPage(context, OrderDetailPage(orderId: o.id)),
+                        ))
+                    .toList(),
+              ),
             Section(children: [
               if (c.phone != null)
                 Tile(
@@ -180,16 +314,6 @@ class CustomerDetailPage extends StatelessWidget {
                   chevron: false),
               if (c.city != null)
                 Tile(title: 'المنطقة', value: c.city, chevron: false),
-              if (c.loyaltyPoints > 0 || c.loyaltyTier != null)
-                Tile(
-                    leading: const IconBox(CupertinoIcons.star_fill,
-                        color: GH.amber),
-                    title: 'نقاط الولاء',
-                    value: [
-                      '${c.loyaltyPoints} نقطة',
-                      if (c.loyaltyTier != null) c.loyaltyTier!,
-                    ].join(' · '),
-                    chevron: false),
               if (c.address != null)
                 Tile(title: 'العنوان', subtitle: c.address, chevron: false),
               Tile(
@@ -235,19 +359,7 @@ class CustomerDetailPage extends StatelessWidget {
               ]),
             if (orders.isEmpty)
               const EmptyState(
-                  icon: CupertinoIcons.doc_text, title: 'ما عنده طلبات')
-            else
-              Section(
-                header: 'الطلبات',
-                children: orders
-                    .map((o) => OrderRow(
-                          order: o,
-                          showCustomer: false,
-                          onTap: () =>
-                              pushPage(context, OrderDetailPage(orderId: o.id)),
-                        ))
-                    .toList(),
-              ),
+                  icon: CupertinoIcons.doc_text, title: 'ما عنده طلبات'),
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
               child: CupertinoButton(
@@ -460,5 +572,39 @@ Future<void> _copyPortal(BuildContext context, Customer c,
   await Clipboard.setData(ClipboardData(text: url));
   if (context.mounted) {
     toast(context, reset ? 'تغيّر الرابط ونسخته' : 'نسخت الرابط');
+  }
+}
+
+/// Every order of one customer, newest first.
+class _CustomerOrdersPage extends StatelessWidget {
+  const _CustomerOrdersPage({required this.customerId});
+
+  final String customerId;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListenableBuilder(
+      listenable: Store.i,
+      builder: (context, _) {
+        final store = Store.i;
+        final orders = store.ordersOf(customerId)
+          ..sort((a, b) => (b.createdAt ?? DateTime(2000)).compareTo(a.createdAt ?? DateTime(2000)));
+        return GHPage(
+          title: 'الطلبات',
+          previousPageTitle: store.customer(customerId)?.name ?? 'العميل',
+          children: [
+            Section(
+              children: orders
+                  .map((o) => OrderRow(
+                        order: o,
+                        showCustomer: false,
+                        onTap: () => pushPage(context, OrderDetailPage(orderId: o.id)),
+                      ))
+                  .toList(),
+            ),
+          ],
+        );
+      },
+    );
   }
 }

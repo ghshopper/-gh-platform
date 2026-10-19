@@ -29,6 +29,14 @@ class AdminProduct {
   String? get gender => raw['gender']?.toString();
   String? get origin => raw['origin']?.toString();
   bool get featured => raw['is_featured'] == true || raw['is_featured'] == 1;
+  int? get categoryId => int.tryParse('${raw['category_id'] ?? ''}');
+  String? get categoryName {
+    final s = (raw['category_name'] ?? '').toString();
+    return s.isEmpty ? null : s;
+  }
+
+  /// The same product with fields the server sent back merged in.
+  AdminProduct merged(Map<String, dynamic> changes) => AdminProduct({...raw, ...changes});
   String? get image {
     final s = (raw['primary_image'] ?? '').toString();
     return s.isEmpty ? null : storyImageUrl(s);
@@ -46,9 +54,12 @@ class AdminProduct {
 /// Search + grid of every store product, 60 at a time. Used by the products
 /// page and the story picker.
 class ProductBrowser extends StatefulWidget {
-  const ProductBrowser({super.key, required this.onTap, this.isSelected, this.reloadKey, this.initial});
+  const ProductBrowser({super.key, required this.onTap, this.isSelected, this.reloadKey, this.initial, this.onPrice});
 
   final void Function(AdminProduct p) onTap;
+
+  /// Quick price change (products page only): price button / long press.
+  final void Function(AdminProduct p)? onPrice;
   final bool Function(AdminProduct p)? isSelected;
 
   /// Change it to reload (after an edit).
@@ -178,6 +189,7 @@ class ProductBrowserState extends State<ProductBrowser> {
                 p,
                 selected: widget.isSelected?.call(p),
                 onTap: () => widget.onTap(p),
+                onPrice: widget.onPrice == null ? null : () => widget.onPrice!(p),
               );
             },
           ),
@@ -194,10 +206,11 @@ class ProductBrowserState extends State<ProductBrowser> {
 }
 
 class ProductCard extends StatelessWidget {
-  const ProductCard(this.p, {super.key, required this.onTap, this.selected});
+  const ProductCard(this.p, {super.key, required this.onTap, this.selected, this.onPrice});
 
   final AdminProduct p;
   final VoidCallback onTap;
+  final VoidCallback? onPrice;
 
   /// null = not choosing; true/false = chosen or not.
   final bool? selected;
@@ -207,6 +220,7 @@ class ProductCard extends StatelessWidget {
     final on = selected == true;
     return GestureDetector(
       onTap: onTap,
+      onLongPress: onPrice,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
         decoration: BoxDecoration(
@@ -223,7 +237,7 @@ class ProductCard extends StatelessWidget {
               child: Stack(children: [
                 Positioned.fill(
                   child: Container(
-                    color: const Color(0xFFF7F2EB),
+                    color: GH.imageBg,
                     padding: const EdgeInsets.all(12),
                     child: p.image == null
                         ? const Icon(CupertinoIcons.photo, color: GH.tertiary, size: 30)
@@ -291,6 +305,19 @@ class ProductCard extends StatelessWidget {
                               fontSize: 11.5, color: GH.tertiary, decoration: TextDecoration.lineThrough)),
                     ),
                   ],
+                  if (onPrice != null) ...[
+                    const Spacer(),
+                    GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: onPrice,
+                      child: Container(
+                        width: 28,
+                        height: 28,
+                        decoration: BoxDecoration(color: GH.burgundy.withAlpha(20), shape: BoxShape.circle),
+                        child: const Icon(CupertinoIcons.tag_fill, size: 14, color: GH.burgundy),
+                      ),
+                    ),
+                  ],
                 ]),
               ]),
             ),
@@ -343,6 +370,10 @@ class _ProductsPageState extends State<ProductsPage> {
             final changed = await pushPage<AdminProduct>(context, ProductEditPage(product: p));
             if (changed != null) _browser.currentState?.replace(changed);
           },
+          onPrice: (p) async {
+            final changed = await presentForm<AdminProduct>(context, QuickPricePage(product: p));
+            if (changed != null) _browser.currentState?.replace(changed);
+          },
         ),
       ],
     );
@@ -372,6 +403,8 @@ class _ProductEditPageState extends State<ProductEditPage> {
   late bool _featured = p.featured;
   late String _gender = p.gender ?? '';
   late String _origin = p.origin ?? '';
+  late int? _categoryId = p.categoryId;
+  late String? _categoryPath = p.categoryName;
   bool _busy = false;
 
   double? _num(String s) => double.tryParse(s
@@ -404,7 +437,12 @@ class _ProductEditPageState extends State<ProductEditPage> {
         'origin': _origin.isEmpty ? null : _origin,
         'is_featured': _featured,
       });
-      final data = res is Map && res['data'] is Map ? Map<String, dynamic>.from(res['data'] as Map) : null;
+      var data = res is Map && res['data'] is Map ? Map<String, dynamic>.from(res['data'] as Map) : null;
+      if (_categoryId != p.categoryId && _categoryId != null) {
+        final r = await Api.i.patch('/admin/products/${p.id}/quick', {'category_id': _categoryId});
+        final back = r is Map && r['product'] is Map ? Map<String, dynamic>.from(r['product'] as Map) : <String, dynamic>{};
+        data = {...?data, ...back, 'category_id': _categoryId, 'category_name': _categoryPath?.split(' › ').last};
+      }
       if (!mounted) return;
       toast(context, 'انحفظ ✓');
       Navigator.pop(context, data == null ? null : AdminProduct(data));
@@ -428,7 +466,7 @@ class _ProductEditPageState extends State<ProductEditPage> {
           child: Container(
             height: 220,
             decoration: BoxDecoration(
-              color: const Color(0xFFF7F2EB),
+              color: GH.imageBg,
               borderRadius: BorderRadius.circular(20),
             ),
             padding: const EdgeInsets.all(16),
@@ -478,7 +516,23 @@ class _ProductEditPageState extends State<ProductEditPage> {
             onChanged: (v) => setState(() => _featured = v),
           ),
         ]),
-        Section(header: 'القسم', children: [
+        Section(header: 'التصنيف', children: [
+          Tile(
+            leading: const IconBox(CupertinoIcons.square_stack_3d_up_fill, color: GH.gold),
+            title: _categoryPath ?? 'بدون تصنيف',
+            subtitle: 'القسم › الفئة › الفرعية',
+            onTap: () async {
+              final picked = await presentForm<CategoryChoice>(context, CategoryPickerPage(selected: _categoryId));
+              if (picked != null) {
+                setState(() {
+                  _categoryId = picked.id;
+                  _categoryPath = picked.path;
+                });
+              }
+            },
+          ),
+        ]),
+        Section(header: 'لمن', children: [
           Segments<String>(
             value: _gender,
             options: const {'women': 'نسائي', 'men': 'رجالي', 'unisex': 'للجنسين', '': 'بدون'},
@@ -500,6 +554,282 @@ class _ProductEditPageState extends State<ProductEditPage> {
           ),
         ]),
       ],
+    );
+  }
+}
+
+// ───────────────────────── Quick price ─────────────────────────
+
+/// Change only the price / sale price, from the products grid.
+class QuickPricePage extends StatefulWidget {
+  const QuickPricePage({super.key, required this.product});
+
+  final AdminProduct product;
+
+  @override
+  State<QuickPricePage> createState() => _QuickPricePageState();
+}
+
+class _QuickPricePageState extends State<QuickPricePage> {
+  late final p = widget.product;
+  late final _price = TextEditingController(text: p.price.toStringAsFixed(3));
+  late final _sale = TextEditingController(text: p.onSale ? p.comparePrice!.toStringAsFixed(3) : '');
+  bool _busy = false;
+
+  double? _num(String s) => double.tryParse(normalizeDigits(s).trim().replaceAll(',', '.'));
+
+  Future<void> _save() async {
+    final price = _num(_price.text);
+    if (price == null || price <= 0) {
+      toast(context, 'اكتب السعر', error: true);
+      return;
+    }
+    final sale = _sale.text.trim().isEmpty ? 0.0 : _num(_sale.text);
+    if (sale == null || (sale > 0 && sale >= price)) {
+      toast(context, 'سعر الخصم لازم يكون أقل من السعر', error: true);
+      return;
+    }
+    setState(() => _busy = true);
+    try {
+      final res = await Api.i.patch('/admin/products/${p.id}/quick', {'price': price, 'compare_price': sale});
+      final back = res is Map && res['product'] is Map ? Map<String, dynamic>.from(res['product'] as Map) : <String, dynamic>{};
+      if (!mounted) return;
+      toast(context, 'تغيّر السعر ✓');
+      Navigator.pop(context, p.merged({'price': price, 'compare_price': sale, ...back}));
+    } catch (e) {
+      if (mounted) {
+        setState(() => _busy = false);
+        toast(context, errorText(e), error: true);
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GHPage(
+      title: 'تغيير السعر',
+      leading: NavButton('إلغاء', onPressed: () => Navigator.pop(context)),
+      bottom: PrimaryButton('حفظ', icon: CupertinoIcons.checkmark_alt, busy: _busy, onPressed: _save),
+      children: [
+        Section(children: [
+          Tile(
+            leading: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Container(
+                width: 44,
+                height: 44,
+                color: GH.imageBg,
+                child: p.image == null
+                    ? const Icon(CupertinoIcons.photo, size: 20, color: GH.tertiary)
+                    : Image.network(p.image!, fit: BoxFit.contain,
+                        errorBuilder: (_, __, ___) => const Icon(CupertinoIcons.photo, size: 20, color: GH.tertiary)),
+              ),
+            ),
+            title: p.name,
+            subtitle: p.brand,
+            chevron: false,
+          ),
+        ]),
+        Section(
+          header: 'السعر',
+          footer: 'اترك سعر الخصم فاضي إذا ما عليه خصم.',
+          children: [
+            AmountRow(label: 'السعر', controller: _price, autofocus: true),
+            AmountRow(label: 'بعد الخصم', controller: _sale),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+// ───────────────────────── Category picker ─────────────────────────
+
+class CategoryChoice {
+  const CategoryChoice(this.id, this.path);
+  final int id;
+
+  /// «القسم › الفئة › الفرعية»
+  final String path;
+}
+
+class _Cat {
+  _Cat(this.id, this.parentId, this.name, this.count);
+  final int id;
+  final int? parentId;
+  final String name;
+  final int count;
+  final children = <_Cat>[];
+}
+
+/// Sections → categories → sub-categories, from GET /admin/categories
+/// (flat rows with parent_id). Returns the picked one.
+class CategoryPickerPage extends StatefulWidget {
+  const CategoryPickerPage({super.key, this.selected, this.initialRows});
+
+  final int? selected;
+
+  /// Ready rows (screenshots); nothing is loaded then.
+  final List<Map<String, dynamic>>? initialRows;
+
+  static List<Map<String, dynamic>>? _cache;
+
+  @override
+  State<CategoryPickerPage> createState() => _CategoryPickerPageState();
+}
+
+class _CategoryPickerPageState extends State<CategoryPickerPage> {
+  List<_Cat> _roots = [];
+  final _byId = <int, _Cat>{};
+  bool _loading = true;
+  String? _error;
+  String _q = '';
+
+  @override
+  void initState() {
+    super.initState();
+    final rows = widget.initialRows ?? CategoryPickerPage._cache;
+    if (rows != null) {
+      _build(rows);
+      _loading = false;
+      if (widget.initialRows == null) _load(quiet: true);
+    } else {
+      _load();
+    }
+  }
+
+  void _build(List<Map<String, dynamic>> rows) {
+    _byId.clear();
+    for (final r in rows) {
+      final id = int.tryParse('${r['id']}');
+      if (id == null) continue;
+      final name = '${r['name_ar'] ?? ''}'.trim().isNotEmpty ? '${r['name_ar']}' : '${r['name_en'] ?? ''}';
+      _byId[id] = _Cat(id, int.tryParse('${r['parent_id'] ?? ''}'), name, int.tryParse('${r['products_count'] ?? 0}') ?? 0);
+    }
+    final roots = <_Cat>[];
+    for (final c in _byId.values) {
+      final parent = c.parentId == null ? null : _byId[c.parentId];
+      if (parent == null) {
+        roots.add(c);
+      } else {
+        parent.children.add(c);
+      }
+    }
+    _roots = roots;
+  }
+
+  Future<void> _load({bool quiet = false}) async {
+    if (!quiet) {
+      setState(() {
+        _loading = true;
+        _error = null;
+      });
+    }
+    try {
+      final res = await Api.i.get('/admin/categories');
+      final list = (res is Map ? (res['data'] ?? []) : res) as List;
+      final rows = list.whereType<Map>().map((m) => Map<String, dynamic>.from(m)).toList();
+      CategoryPickerPage._cache = rows;
+      if (!mounted) return;
+      setState(() {
+        _build(rows);
+        _loading = false;
+      });
+    } catch (e) {
+      if (mounted && !quiet) {
+        setState(() {
+          _loading = false;
+          _error = errorText(e);
+        });
+      }
+    }
+  }
+
+  String _path(_Cat c) {
+    final parts = <String>[c.name];
+    var p = c.parentId == null ? null : _byId[c.parentId];
+    var guard = 0;
+    while (p != null && guard++ < 6) {
+      parts.insert(0, p.name);
+      p = p.parentId == null ? null : _byId[p.parentId];
+    }
+    return parts.join(' › ');
+  }
+
+  Widget _tile(_Cat c, {int depth = 0}) {
+    final on = c.id == widget.selected;
+    return Tile(
+      leading: Padding(
+        padding: EdgeInsetsDirectional.only(start: depth * 18.0),
+        child: Icon(
+          on ? CupertinoIcons.checkmark_circle_fill : (depth == 0 ? CupertinoIcons.folder_fill : CupertinoIcons.circle),
+          size: depth == 0 ? 20 : 16,
+          color: on ? GH.burgundy : (depth == 0 ? GH.gold : GH.tertiary),
+        ),
+      ),
+      title: c.name,
+      titleStyle: depth == 0 ? T.title.copyWith(fontSize: 16) : null,
+      value: c.count > 0 ? '${c.count}' : null,
+      chevron: false,
+      onTap: () => Navigator.pop(context, CategoryChoice(c.id, _path(c))),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final q = normalizeDigits(_q).trim().toLowerCase();
+    final children = <Widget>[
+      Padding(
+        padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+        child: CupertinoSearchTextField(
+          placeholder: 'ابحث عن تصنيف',
+          backgroundColor: GH.card,
+          onChanged: (v) => setState(() => _q = v),
+        ),
+      ),
+    ];
+    if (_loading) {
+      children.add(const Loading());
+    } else if (_error != null) {
+      children.add(EmptyState(
+        icon: CupertinoIcons.wifi_exclamationmark,
+        title: 'ما قدرنا نجيب التصنيفات',
+        message: _error,
+        action: SecondaryButton('حاول مرة ثانية', onPressed: _load),
+      ));
+    } else if (q.isNotEmpty) {
+      final hits = _byId.values.where((c) => _path(c).toLowerCase().contains(q)).toList();
+      children.add(hits.isEmpty
+          ? const EmptyState(icon: CupertinoIcons.search, title: 'ما في تصنيف بهذا الاسم')
+          : Section(
+              children: hits
+                  .map((c) => Tile(
+                        title: c.name,
+                        subtitle: _path(c),
+                        chevron: false,
+                        trailing: c.id == widget.selected
+                            ? const Icon(CupertinoIcons.checkmark_alt, color: GH.burgundy, size: 20)
+                            : null,
+                        onTap: () => Navigator.pop(context, CategoryChoice(c.id, _path(c))),
+                      ))
+                  .toList(),
+            ));
+    } else {
+      for (final root in _roots) {
+        final rows = <Widget>[_tile(root)];
+        for (final c in root.children) {
+          rows.add(_tile(c, depth: 1));
+          for (final sub in c.children) {
+            rows.add(_tile(sub, depth: 2));
+          }
+        }
+        children.add(Section(header: root.name, children: rows));
+      }
+    }
+    return GHPage(
+      title: 'التصنيف',
+      leading: NavButton('إلغاء', onPressed: () => Navigator.pop(context)),
+      children: children,
     );
   }
 }

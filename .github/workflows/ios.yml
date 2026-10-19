@@ -88,13 +88,20 @@ jobs:
           PBX=ios/Runner.xcodeproj/project.pbxproj
           sed -i '' "s/com\.ghshopper\.ghShopper/${BUNDLE_ID}/g" "$PBX"
           sed -i '' 's/TARGETED_DEVICE_FAMILY = "1,2";/TARGETED_DEVICE_FAMILY = 1;/g' "$PBX"
-          sed -i '' 's/IPHONEOS_DEPLOYMENT_TARGET = [0-9.]*;/IPHONEOS_DEPLOYMENT_TARGET = 13.0;/g' "$PBX"
+          # iOS 15: the Firebase SDK (push notifications) needs it.
+          sed -i '' 's/IPHONEOS_DEPLOYMENT_TARGET = [0-9.]*;/IPHONEOS_DEPLOYMENT_TARGET = 15.0;/g' "$PBX"
+          # Push: the entitlement (Fastlane drops it again if the profile has no push).
+          /usr/libexec/PlistBuddy -c "Add :aps-environment string production" ios/Runner/Runner.entitlements || true
+          grep -q CODE_SIGN_ENTITLEMENTS "$PBX" || sed -i '' 's|INFOPLIST_FILE = Runner/Info.plist;|INFOPLIST_FILE = Runner/Info.plist; CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;|g' "$PBX"
+          # Firebase config of the admin app, when it is in the repo (also read by the app from its assets).
+          if [ -f assets/firebase/GoogleService-Info.plist ]; then cp assets/firebase/GoogleService-Info.plist ios/Runner/; fi
           PL=ios/Runner/Info.plist
           /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName GH Shopper" "$PL" || /usr/libexec/PlistBuddy -c "Add :CFBundleDisplayName string GH Shopper" "$PL"
           /usr/libexec/PlistBuddy -c "Add :ITSAppUsesNonExemptEncryption bool false" "$PL"
           /usr/libexec/PlistBuddy -c "Add :NSCameraUsageDescription string لتصوير القطع وإيصالات الشراء" "$PL"
           /usr/libexec/PlistBuddy -c "Add :NSPhotoLibraryUsageDescription string لاختيار صور القطع وإيصالات الشراء" "$PL"
           /usr/libexec/PlistBuddy -c "Add :NSFaceIDUsageDescription string لقفل التطبيق بالـ Face ID" "$PL"
+          /usr/libexec/PlistBuddy -c "Add :UIBackgroundModes array" -c "Add :UIBackgroundModes:0 string remote-notification" "$PL" 2>/dev/null || true
           /usr/libexec/PlistBuddy -c "Delete :CFBundleLocalizations" "$PL" 2>/dev/null || true
           /usr/libexec/PlistBuddy -c "Add :CFBundleLocalizations array" -c "Add :CFBundleLocalizations:0 string ar" -c "Add :CFBundleLocalizations:1 string en" "$PL"
           /usr/libexec/PlistBuddy -c "Set :CFBundleDevelopmentRegion ar" "$PL"
@@ -102,6 +109,16 @@ jobs:
           /usr/libexec/PlistBuddy -c "Delete :UISupportedInterfaceOrientations~ipad" "$PL" 2>/dev/null || true
           /usr/libexec/PlistBuddy -c "Delete :UISupportedInterfaceOrientations" "$PL" 2>/dev/null || true
           /usr/libexec/PlistBuddy -c "Add :UISupportedInterfaceOrientations array" -c "Add :UISupportedInterfaceOrientations:0 string UIInterfaceOrientationPortrait" "$PL"
+
+      - name: Podfile for iOS 15
+        shell: bash
+        run: |
+          [ -f ios/Podfile ] || flutter build ios --config-only --release --no-codesign || true
+          if [ -f ios/Podfile ]; then
+            sed -i '' -E "s/^#? *platform :ios.*/platform :ios, '15.0'/" ios/Podfile
+            grep -q "^platform :ios" ios/Podfile || { printf "platform :ios, '15.0'\n" | cat - ios/Podfile > Podfile.tmp && mv Podfile.tmp ios/Podfile; }
+            head -5 ios/Podfile
+          fi
 
       - name: Build Flutter (unsigned)
         shell: bash

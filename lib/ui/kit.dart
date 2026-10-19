@@ -64,7 +64,7 @@ class GHPage extends StatelessWidget {
                   trailing: trailing,
                   leading: leading,
                   previousPageTitle: previousPageTitle,
-                  backgroundColor: const Color(0xF2F4EEE6),
+                  backgroundColor: GH.bar,
                   border: null,
                   transitionBetweenRoutes: false,
                 ),
@@ -81,9 +81,9 @@ class GHPage extends StatelessWidget {
           if (bottom != null)
             Container(
               decoration: const BoxDecoration(
-                color: Color(0xFAFFFFFF),
+                color: GH.tabBar,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
-                boxShadow: [BoxShadow(color: Color(0x143A2414), blurRadius: 20, offset: Offset(0, -4))],
+                boxShadow: [BoxShadow(color: GH.barShadow, blurRadius: 20, offset: Offset(0, -4))],
               ),
               child: SafeArea(
                 top: false,
@@ -274,7 +274,7 @@ class _PressableState extends State<Pressable> {
       onLongPress: widget.onLongPress,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 90),
-        color: _down ? const Color(0xFFF3ECE3) : const Color(0x00FFFFFF),
+        color: _down ? GH.pressed : const Color(0x00FFFFFF),
         child: widget.child,
       ),
     );
@@ -621,7 +621,7 @@ class PrimaryButton extends StatelessWidget {
       child: DecoratedBox(
         decoration: BoxDecoration(
           gradient: onPressed == null || busy ? null : GH.brandGradient,
-          color: onPressed == null || busy ? const Color(0xFFD8CBC3) : null,
+          color: onPressed == null || busy ? GH.disabled : null,
           borderRadius: BorderRadius.circular(16),
           boxShadow: onPressed == null || busy
               ? null
@@ -674,7 +674,7 @@ class SecondaryButton extends StatelessWidget {
         decoration: BoxDecoration(
           color: GH.card,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFFE4D8C8)),
+          border: Border.all(color: GH.border),
         ),
         child: CupertinoButton(
         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -719,7 +719,7 @@ class Chip extends StatelessWidget {
         decoration: BoxDecoration(
           color: selected ? GH.ink : GH.card,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: selected ? GH.ink : const Color(0xFFE4D8C8)),
+          border: Border.all(color: selected ? GH.ink : GH.border),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -934,7 +934,10 @@ class Segments<T extends Object> extends StatelessWidget {
 // ───────────────────────── Feedback ─────────────────────────
 
 /// A short message that slides in at the top and disappears.
-void toast(BuildContext context, String message, {bool error = false}) {
+/// With [onTap] it stays a little longer and opens something when tapped
+/// (used for notifications that arrive while the app is open).
+void toast(BuildContext context, String message,
+    {bool error = false, VoidCallback? onTap, IconData? icon}) {
   final overlay = Overlay.maybeOf(context, rootOverlay: true);
   if (overlay == null) return;
   late OverlayEntry entry;
@@ -942,6 +945,8 @@ void toast(BuildContext context, String message, {bool error = false}) {
     builder: (ctx) => _Toast(
       message: message,
       error: error,
+      icon: icon,
+      onTap: onTap,
       onDone: () => entry.remove(),
     ),
   );
@@ -954,10 +959,12 @@ void toast(BuildContext context, String message, {bool error = false}) {
 }
 
 class _Toast extends StatefulWidget {
-  const _Toast({required this.message, required this.error, required this.onDone});
+  const _Toast({required this.message, required this.error, required this.onDone, this.onTap, this.icon});
 
   final String message;
   final bool error;
+  final VoidCallback? onTap;
+  final IconData? icon;
   final VoidCallback onDone;
 
   @override
@@ -973,7 +980,7 @@ class _ToastState extends State<_Toast> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) setState(() => _shown = true);
     });
-    Timer(const Duration(milliseconds: 2400), () {
+    Timer(Duration(milliseconds: widget.onTap == null ? 2400 : 5000), () {
       if (mounted) setState(() => _shown = false);
       Timer(const Duration(milliseconds: 300), widget.onDone);
     });
@@ -989,6 +996,13 @@ class _ToastState extends State<_Toast> {
       left: 16,
       right: 16,
       child: IgnorePointer(
+        ignoring: widget.onTap == null,
+        child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () {
+          setState(() => _shown = false);
+          widget.onTap?.call();
+        },
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
           decoration: BoxDecoration(
@@ -1001,9 +1015,10 @@ class _ToastState extends State<_Toast> {
           child: Row(
             children: [
               Icon(
-                  widget.error
-                      ? CupertinoIcons.exclamationmark_circle_fill
-                      : CupertinoIcons.checkmark_circle_fill,
+                  widget.icon ??
+                      (widget.error
+                          ? CupertinoIcons.exclamationmark_circle_fill
+                          : CupertinoIcons.checkmark_circle_fill),
                   color: CupertinoColors.white,
                   size: 20),
               const SizedBox(width: 10),
@@ -1018,6 +1033,7 @@ class _ToastState extends State<_Toast> {
             ],
           ),
         ),
+      ),
       ),
     );
   }

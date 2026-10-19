@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 
+import '../data/push.dart';
 import '../data/store.dart';
 import '../ui/colors.dart';
 import 'customers_page.dart';
@@ -17,12 +18,15 @@ class Tabs extends StatefulWidget {
 }
 
 class _TabsState extends State<Tabs> {
-  int _index = 0;
+  /// Kept across the rebuild after a light/dark switch.
+  static int _index = 0;
 
   @override
   void initState() {
     super.initState();
     Store.i.start();
+    // Staff notifications: ask once signed in, then register the phone.
+    Push.i.start();
   }
 
   static const _pages = <Widget>[
@@ -70,9 +74,9 @@ class _TabBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
-        color: Color(0xFCFFFFFF),
+        color: GH.tabBar,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-        boxShadow: [BoxShadow(color: Color(0x183A2414), blurRadius: 24, offset: Offset(0, -6))],
+        boxShadow: [BoxShadow(color: GH.barShadow, blurRadius: 24, offset: Offset(0, -6))],
       ),
       child: SafeArea(
         top: false,

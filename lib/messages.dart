@@ -39,6 +39,40 @@ MsgTemplate payLinkTemplate(String url) => MsgTemplate('رابط الدفع', (o
           'الرابط خاص ${_g(c, 'فيكِ', 'فيك')} 🤍';
     });
 
+/// Short one-tap replies on the order page (WhatsApp opens with the text
+/// ready; the pay-link one fetches the link first).
+class QuickReply {
+  const QuickReply(this.label, this.build, {this.needsPayLink = false});
+
+  final String label;
+  final bool needsPayLink;
+  final String Function(Order o, Customer? c, String? payUrl) build;
+}
+
+final List<QuickReply> quickReplies = [
+  QuickReply('طلبك وصل عُمان', (o, c, _) {
+    return '${_hi(c)}\n'
+        '${_g(c, 'طلبكِ', 'طلبك')} ${o.invoiceNo} وصل عُمان بالسلامة ✨\n'
+        '${_g(c, 'بنتواصل معكِ', 'بنتواصل معك')} لترتيب التوصيل.';
+  }),
+  QuickReply('طلبك في الطريق', (o, c, _) {
+    return '${_hi(c)}\n'
+        '${_g(c, 'طلبكِ', 'طلبك')} ${o.invoiceNo} في الطريق ${_g(c, 'لكِ', 'لك')} 🚗'
+        '${o.trackingToken == null ? '' : '\nتتبّع${_g(c, 'ي', '')} من هنا:\n${trackingLink(o)}'}';
+  }),
+  QuickReply('تم التسليم، نتمنى تعجبك', (o, c, _) {
+    return '${_hi(c)}\n'
+        'تم تسليم ${_g(c, 'طلبكِ', 'طلبك')} ${o.invoiceNo} ✅\n'
+        'نتمنى ${_g(c, 'تعجبكِ', 'تعجبك')} 🤍 شكراً ${_g(c, 'لثقتكِ', 'لثقتك')} في GH Shopper';
+  }),
+  QuickReply('رابط الدفع…', (o, c, url) {
+    return '${_hi(c)}\n'
+        'رابط الدفع ${_g(c, 'لطلبكِ', 'لطلبك')} ${o.invoiceNo}:\n'
+        '${url ?? ''}\n'
+        'المبلغ: ${omr(o.remaining)}';
+  }, needsPayLink: true),
+];
+
 final List<MsgTemplate> messageTemplates = [
   MsgTemplate('تأكيد الطلب', (o, c) {
     return '${_hi(c)}\n'

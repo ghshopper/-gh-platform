@@ -12,6 +12,9 @@ import 'order_form_page.dart';
 import 'more_page.dart' show SummaryPage;
 import 'story_page.dart';
 import 'products_page.dart';
+import 'drivers_pages.dart' show DriverDetailPage;
+import 'scanner_page.dart';
+import 'search_page.dart';
 
 /// What needs doing today: buy, deliver, collect.
 class TodayPage extends StatelessWidget {
@@ -56,6 +59,40 @@ class TodayPage extends StatelessWidget {
             .where((o) =>
                 o.fromStore && o.overallStatus == ItemStatus.requested)
             .toList();
+        // Today's numbers.
+        bool isToday(DateTime? d) {
+          final l = d?.toLocal();
+          return l != null && l.year == now.year && l.month == now.month && l.day == now.day;
+        }
+        final todayOrders = store.orders.where((o) => isToday(o.createdAt)).toList();
+        final todaySales = todayOrders.fold<double>(0, (s, o) => s + o.netSales);
+        final collectedToday = store.orders.fold<double>(
+            0, (s, o) => s + o.payments.where((p) => isToday(p.paidOn)).fold<double>(0, (a, p) => a + p.amount));
+
+        // Late: open for more than two weeks, or arrived and waiting 3+ days.
+        final lateOrders = <(Order, String)>[];
+        for (final o in store.orders) {
+          final st = o.overallStatus;
+          if (st == ItemStatus.delivered || o.activeItems.isEmpty) continue;
+          final age = o.createdAt == null ? 0 : now.difference(o.createdAt!).inDays;
+          if (st == ItemStatus.arrived) {
+            DateTime? arrived;
+            for (final e in o.events) {
+              if (e.type == 'arrived' && e.at != null) arrived = e.at;
+            }
+            final waited = arrived == null ? 0 : now.difference(arrived).inDays;
+            if (waited >= 3) lateOrders.add((o, 'وصلت من $waited أيام وما تسلّمت'));
+          } else if (age >= 14) {
+            lateOrders.add((o, 'مفتوح من $age يوم · ${st.label}'));
+          }
+        }
+
+        // Drivers on the road, with what they carry.
+        final byDriver = <String, List<Order>>{};
+        for (final o in store.withDrivers) {
+          byDriver.putIfAbsent(o.driverId!, () => []).add(o);
+        }
+
         final taxFree = <String, double>{};
         for (final o in store.orders) {
           o.taxFreePending
@@ -78,6 +115,7 @@ class TodayPage extends StatelessWidget {
         return GHPage(
           title: 'اليوم',
           onRefresh: store.refresh,
+          leading: NavIcon(CupertinoIcons.qrcode_viewfinder, onPressed: () => scanAndOpen(context)),
           trailing: NavIcon(CupertinoIcons.add_circled_solid, onPressed: () async {
             final id = await presentForm<String>(context, const OrderFormPage());
             if (id != null && context.mounted) {
@@ -96,6 +134,10 @@ class TodayPage extends StatelessWidget {
                 ),
                 Image.asset('assets/images/story_logo.png', height: 44),
               ]),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+              child: SearchLauncher(onTap: () => pushPage(context, const SearchPage())),
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(12, 10, 12, 2),
@@ -139,8 +181,35 @@ class TodayPage extends StatelessWidget {
             if (!store.ready)
               const Loading()
             else ...[
+              Section(header: 'اليوم', children: const []),
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+                child: Row(children: [
+                  Expanded(
+                      child: StatCard(
+                          icon: CupertinoIcons.doc_text_fill,
+                          color: GH.blue,
+                          label: 'طلبات اليوم',
+                          value: '${todayOrders.length}',
+                          onTap: () => pushPage(context, const SearchPage(todayOnly: true)))),
+                  const SizedBox(width: 8),
+                  Expanded(
+                      child: StatCard(
+                          icon: CupertinoIcons.bag_fill,
+                          color: GH.burgundy,
+                          label: 'مبيعات اليوم',
+                          value: omr(todaySales))),
+                  const SizedBox(width: 8),
+                  Expanded(
+                      child: StatCard(
+                          icon: CupertinoIcons.money_dollar_circle_fill,
+                          color: GH.green,
+                          label: 'محصّل اليوم',
+                          value: omr(collectedToday))),
+                ]),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
                 child: Column(children: [
                   Row(children: [
                     Expanded(
@@ -179,7 +248,7 @@ class TodayPage extends StatelessWidget {
                   ]),
                 ]),
               ),
-              if (newRequests.isEmpty && newOnline.isEmpty && toBuy.isEmpty && toDeliver.isEmpty && outForDelivery.isEmpty && unpaid.isEmpty && store.withDrivers.isEmpty)
+              if (newRequests.isEmpty && newOnline.isEmpty && toBuy.isEmpty && toDeliver.isEmpty && outForDelivery.isEmpty && unpaid.isEmpty && store.withDrivers.isEmpty && lateOrders.isEmpty)
                 const EmptyState(
                   icon: CupertinoIcons.checkmark_seal,
                   title: 'كل شي تمام',
@@ -190,6 +259,39 @@ class TodayPage extends StatelessWidget {
                   header: 'طلبات قطع جديدة · ${newRequests.length}',
                   trailing: HeaderButton('الكل', onPressed: () => pushPage(context, const RequestsPage())),
                   children: newRequests.take(5).map((r) => RequestTile(r)).toList(),
+                ),
+              if (lateOrders.isNotEmpty)
+                Section(
+                  header: 'متأخرة · ${lateOrders.length}',
+                  children: lateOrders
+                      .take(6)
+                      .map((e) => Tile(
+                            leading: const IconBox(CupertinoIcons.clock_fill, color: GH.red),
+                            title: '${store.customerName(e.$1)} · ${e.$1.invoiceNo}',
+                            subtitle: e.$2,
+                            onTap: () => pushPage(context, OrderDetailPage(orderId: e.$1.id)),
+                          ))
+                      .toList(),
+                ),
+              if (byDriver.isNotEmpty)
+                Section(
+                  header: 'المناديب في التوصيل · ${byDriver.length}',
+                  children: byDriver.entries.map((e) {
+                    final d = store.driver(e.key);
+                    final onRoad = e.value.where((o) => o.driverStatus == DriverStatus.picked).length;
+                    final collect = e.value.fold<double>(0, (s, o) => s + (o.toCollect > 0 ? o.toCollect : 0));
+                    return Tile(
+                      leading: Avatar(d?.name ?? 'مندوب', size: 32),
+                      title: d?.name ?? 'مندوب',
+                      subtitle: [
+                        '${e.value.length} طلب',
+                        if (onRoad > 0) 'في الطريق $onRoad',
+                        if (collect > 0) 'يحصّل ${omr(collect)}',
+                      ].join(' · '),
+                      trailing: Badge(onRoad > 0 ? 'في الطريق' : 'عنده', color: onRoad > 0 ? GH.amber : GH.blue),
+                      onTap: () => pushPage(context, DriverDetailPage(driverId: e.key)),
+                    );
+                  }).toList(),
                 ),
               if (newOnline.isNotEmpty)
                 Section(
@@ -222,23 +324,6 @@ class TodayPage extends StatelessWidget {
                 Section(
                   header: 'وصلت وتنتظر التسليم · ${toDeliver.length}',
                   children: toDeliver.take(8).map((e) => itemTile(e)).toList(),
-                ),
-              if (store.withDrivers.isNotEmpty)
-                Section(
-                  header: 'مع المناديب · ${store.withDrivers.length}',
-                  children: store.withDrivers
-                      .take(8)
-                      .map((o) => Tile(
-                            leading: Avatar(store.customerName(o), size: 32),
-                            title: store.customerName(o),
-                            subtitle:
-                                '${store.driver(o.driverId)?.name ?? ''} · ${o.invoiceNo}',
-                            trailing: Badge(o.driverStatus?.label ?? '',
-                                color: o.driverStatus?.color ?? GH.blue),
-                            onTap: () => pushPage(
-                                context, OrderDetailPage(orderId: o.id)),
-                          ))
-                      .toList(),
                 ),
               if (toBuy.isNotEmpty)
                 Section(

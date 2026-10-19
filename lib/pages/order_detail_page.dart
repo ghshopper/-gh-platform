@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../data/store.dart';
 import '../format.dart';
@@ -330,6 +331,31 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
     }
   }
 
+  Future<void> _quickReply(Order o, QuickReply r) async {
+    final c = Store.i.customer(o.customerId);
+    String? url;
+    if (r.needsPayLink) {
+      setState(() => _busy = true);
+      try {
+        url = await Store.i.orderPayLink(o.id);
+      } catch (e) {
+        if (mounted) toast(context, errorText(e), error: true);
+        return;
+      } finally {
+        if (mounted) setState(() => _busy = false);
+      }
+    }
+    final text = r.build(o, c, url);
+    final phone = waPhone(c?.phone);
+    final encoded = Uri.encodeComponent(text);
+    final uri = Uri.parse(phone == null ? 'https://wa.me/?text=$encoded' : 'https://wa.me/$phone?text=$encoded');
+    final ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
+    if (!ok) {
+      await Clipboard.setData(ClipboardData(text: text));
+      if (mounted) toast(context, 'ما قدرت أفتح واتساب، نسخت الرسالة');
+    }
+  }
+
   Future<void> _deletePayment(Payment p) async {
     if (await confirm(context, 'حذف دفعة ${omr(p.amount)}؟')) {
       await _run(() => Store.i.deletePayment(p.id));
@@ -473,6 +499,24 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                   ],
                 ),
               ),
+            // One-tap WhatsApp replies with the order ref.
+            SizedBox(
+              height: 50,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                children: [
+                  for (final r in quickReplies)
+                    if (!r.needsPayLink || o.hasBalance)
+                      Padding(
+                        padding: const EdgeInsetsDirectional.only(end: 8),
+                        child: Chip(r.label,
+                            icon: r.needsPayLink ? CupertinoIcons.creditcard : CupertinoIcons.chat_bubble_text,
+                            onTap: _busy ? null : () => _quickReply(o, r)),
+                      ),
+                ],
+              ),
+            ),
             Section(
               header: 'القطع',
               trailing: HeaderButton('إضافة',
@@ -718,7 +762,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                         CupertinoButton(
                           padding: const EdgeInsets.symmetric(horizontal: 10),
                           minSize: 30,
-                          color: const Color(0xFFF2EAE0),
+                          color: GH.panel,
                           borderRadius: BorderRadius.circular(8),
                           onPressed: _busy
                               ? null

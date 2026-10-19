@@ -27,10 +27,25 @@ platform :ios do
       )
     end
 
+    # Push notifications: turn the capability on for the app ID. Never fatal.
+    push_on = false
+    begin
+      bid = Spaceship::ConnectAPI::BundleId.find(bundle_id)
+      push_type = Spaceship::ConnectAPI::BundleIdCapability::Type::PUSH_NOTIFICATIONS
+      push_on = bid.get_capabilities.any? { |c| c.capability_type == push_type }
+      unless push_on
+        bid.update_capability(push_type, enabled: true)
+        push_on = true
+        UI.message("Push notifications turned on for #{bundle_id}")
+      end
+    rescue => e
+      UI.important("Could not turn on push notifications: #{e.message}")
+    end
+
     # Distribution certificate + App Store profile, stored encrypted
     # (MATCH_PASSWORD) on the "certificates" branch of this repository.
     repo = ENV.fetch("GITHUB_REPOSITORY")
-    match(
+    match_options = {
       type: "appstore",
       app_identifier: bundle_id,
       team_id: team_id,
@@ -40,7 +55,30 @@ platform :ios do
       git_branch: "certificates",
       git_basic_authorization: Base64.strict_encode64("x-access-token:#{ENV.fetch('GITHUB_TOKEN')}"),
       readonly: false
-    )
+    }
+    match(match_options)
+
+    profile_has_push = lambda do
+      path = ENV["sigh_#{bundle_id}_appstore_profile-path"]
+      path && File.exist?(path) && `security cms -D -i "#{path}" 2>/dev/null`.include?("aps-environment")
+    end
+    if push_on && !profile_has_push.call
+      # A profile made before push was on: make a new one.
+      begin
+        match(match_options.merge(force: true))
+      rescue => e
+        UI.important("Could not renew the profile for push: #{e.message}")
+      end
+    end
+    unless profile_has_push.call
+      # No push in the profile: sign without the push entitlement so the
+      # build still goes through (the app just won't get notifications).
+      pbx = ["../ios/Runner.xcodeproj/project.pbxproj", "ios/Runner.xcodeproj/project.pbxproj"].find { |f| File.exist?(f) }
+      if pbx
+        File.write(pbx, File.read(pbx).gsub(/ ?CODE_SIGN_ENTITLEMENTS = Runner\/Runner\.entitlements;/, ""))
+        UI.important("Profile has no push: building without the push entitlement")
+      end
+    end
     profile_name = ENV["sigh_#{bundle_id}_appstore_profile-name"]
 
     update_code_signing_settings(

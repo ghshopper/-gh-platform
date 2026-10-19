@@ -24,6 +24,8 @@ import 'package:gh_shopper/pages/driver_money.dart';
 import 'package:gh_shopper/pages/driver_home.dart';
 import 'package:gh_shopper/models.dart';
 import 'package:gh_shopper/ui/kit.dart';
+import 'package:gh_shopper/ui/colors.dart';
+import 'package:gh_shopper/pages/search_page.dart';
 import 'package:gh_shopper/pdf_waybill.dart';
 import 'dart:io';
 
@@ -33,7 +35,7 @@ Map<String, dynamic> sample() {
   final now = DateTime.now();
   final d = (int days) => iso(now.subtract(Duration(days: days)));
   final customers = [
-    {'id': '1', 'name': 'أميرة الحارثي', 'phone': '96899093898', 'city': 'مسقط', 'gender': 'f', 'loyalty_points': 1240, 'loyalty_tier': 'Privilege'},
+    {'id': '1', 'name': 'أميرة الحارثي', 'phone': '96899093898', 'city': 'مسقط', 'gender': 'f', 'loyalty_points': 23400, 'loyalty_tier': 'عنابي'},
     {'id': '2', 'name': 'سارة البلوشي', 'phone': '96891234567', 'city': 'السيب', 'gender': 'f'},
     {'id': '3', 'name': 'خالد الرواحي', 'phone': '96892223344', 'city': 'صحار', 'gender': 'm'},
     {'id': '4', 'name': 'نور الهنائي', 'phone': '96895556677', 'city': 'نزوى', 'gender': 'f'},
@@ -74,6 +76,7 @@ Map<String, dynamic> sample() {
       'delivery_address': 'استلام من مكتب جيناكم: نزوى (فرق، خلف بنك العز)، نور الهنائي، 95556677، الداخلية، نزوى',
       'store_order_number': 'ORD-77A', 'store_source': 'app', 'store_paid_online': true,
       'items': [item('i7', 'o5', 'CHANEL', 'Classic Flap Medium', 4200, 'arrived'), item('i8', 'o5', 'DIOR', 'Saddle Card Holder', 380, 'arrived')],
+      'events': [{'type': 'arrived', 'at': d(4)}],
       'payments': [{'id': 'p5', 'order_id': 'o5', 'amount': 4581, 'method': 'بطاقة / Apple Pay (أموال)', 'paid_on': d(0)}],
     },
     {
@@ -327,6 +330,58 @@ void main() {
         ),
       ));
       await warmImages(tester, [d.image!, ...storyAssets]);
+      await tester.pump(const Duration(milliseconds: 600));
+      await expectLater(find.byType(RepaintBoundary).first, matchesGoldenFile('goldens/$screen.png'));
+    });
+  }
+
+  // Items 15–20: global search, category picker, quick price, dark mode.
+  final cats = <Map<String, dynamic>>[
+    {'id': 1, 'parent_id': null, 'name_ar': 'نسائي', 'products_count': 0},
+    {'id': 2, 'parent_id': 1, 'name_ar': 'حقائب', 'products_count': 34},
+    {'id': 3, 'parent_id': 2, 'name_ar': 'حقائب كتف', 'products_count': 12},
+    {'id': 4, 'parent_id': 2, 'name_ar': 'محافظ', 'products_count': 9},
+    {'id': 5, 'parent_id': 1, 'name_ar': 'مجوهرات', 'products_count': 21},
+    {'id': 6, 'parent_id': null, 'name_ar': 'رجالي', 'products_count': 0},
+    {'id': 7, 'parent_id': 6, 'name_ar': 'ساعات', 'products_count': 8},
+    {'id': 8, 'parent_id': 6, 'name_ar': 'أحذية', 'products_count': 5},
+  ];
+  for (final screen in ['search', 'categories', 'quick-price', 'today-dark', 'order-dark', 'customer-dark', 'products-dark', 'search-dark']) {
+    testWidgets(screen, (tester) async {
+      tester.view.physicalSize = const Size(1179, 2556);
+      tester.view.devicePixelRatio = 3;
+      final dark = screen.endsWith('-dark');
+      tester.platformDispatcher.platformBrightnessTestValue = dark ? Brightness.dark : Brightness.light;
+      GH.dark = dark;
+      addTearDown(() {
+        tester.view.reset();
+        tester.platformDispatcher.clearPlatformBrightnessTestValue();
+        GH.dark = false;
+      });
+      Store.i.loadSnapshot(sample());
+      final Widget home = switch (screen) {
+        'search' || 'search-dark' => SearchPage(initialQuery: 'شانيل', initialProducts: [products[0], products[1]]),
+        'categories' => CategoryPickerPage(selected: 3, initialRows: cats),
+        'quick-price' => QuickPricePage(product: products[1]),
+        'today-dark' => const TodayPage(),
+        'order-dark' => const OrderDetailPage(orderId: 'o2'),
+        'customer-dark' => const CustomerDetailPage(customerId: '1'),
+        _ => ProductsPage(initial: products),
+      };
+      await tester.pumpWidget(RepaintBoundary(
+        child: CupertinoApp(
+          debugShowCheckedModeBanner: false,
+          theme: ghTheme,
+          locale: const Locale('ar'),
+          supportedLocales: const [Locale('ar'), Locale('en')],
+          localizationsDelegates: const [
+            GlobalCupertinoLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+          ],
+          home: home,
+        ),
+      ));
       await tester.pump(const Duration(milliseconds: 600));
       await expectLater(find.byType(RepaintBoundary).first, matchesGoldenFile('goldens/$screen.png'));
     });

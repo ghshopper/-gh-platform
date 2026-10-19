@@ -71,7 +71,10 @@ class _OrdersPageState extends State<OrdersPage> {
     if (q.isEmpty) return true;
     final hay = [
       Store.i.customerName(o),
+      Store.i.customer(o.customerId)?.phone ?? '',
       o.invoiceNo,
+      '${o.orderNo}',
+      o.storeOrderNumber ?? '',
       ...o.items.map((i) => '${i.brand ?? ''} ${i.name}'),
     ].join(' ').toLowerCase();
     return hay.contains(q);
@@ -85,17 +88,7 @@ class _OrdersPageState extends State<OrdersPage> {
   }
 
   /// Opens an order by scanning its waybill.
-  Future<void> _scan() async {
-    final code = await scanCode(context);
-    if (code == null || !mounted) return;
-    final token = tokenFromCode(code);
-    final o = token == null ? null : Store.i.orderByToken(token);
-    if (o == null) {
-      toast(context, 'ما لقينا طلب لهذي البوليصة', error: true);
-      return;
-    }
-    pushPage(context, OrderDetailPage(orderId: o.id));
-  }
+  Future<void> _scan() => scanAndOpen(context);
 
   @override
   Widget build(BuildContext context) {
@@ -114,7 +107,7 @@ class _OrdersPageState extends State<OrdersPage> {
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
               child: CupertinoSearchTextField(
-                placeholder: 'بحث بالاسم أو القطعة أو رقم الفاتورة',
+                placeholder: 'بحث بالاسم أو الرقم أو القطعة أو الفاتورة',
                 onChanged: (v) => setState(() => _query = v),
               ),
             ),
