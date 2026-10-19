@@ -4,7 +4,6 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import AdminLayout from './layouts/AdminLayout'
 import Dashboard from './pages/admin/Dashboard'
-import Orders from './pages/admin/Orders'
 import Products from './pages/admin/Products'
 import Reviews from './pages/admin/Reviews'
 import Customers from './pages/admin/Customers'
@@ -30,6 +29,8 @@ import CustomizeApp from './pages/admin/CustomizeApp'
 import Profile from './pages/admin/Profile'
 import ImportItems from './pages/admin/ImportItems'
 import AbandonedCarts from './pages/admin/AbandonedCarts'
+import Offers from './pages/admin/Offers'
+import Activity from './pages/admin/Activity'
 import './index.css'
 
 import LandingPage from './pages/website/LandingPage'
@@ -61,7 +62,7 @@ export default function App() {
           <Route index element={<Navigate to="/admin/dashboard" replace />} />
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="orders" element={<Navigate to="/admin/app-orders" replace />} />
-          <Route path="store-orders" element={<Orders />} />
+          <Route path="store-orders" element={<Navigate to="/admin/app-orders" replace />} />
           <Route path="app-orders" element={<AppOrders />} />
           <Route path="coupons" element={<Coupons />} />
           <Route path="gift-cards" element={<GiftCards />} />
@@ -86,6 +87,8 @@ export default function App() {
           <Route path="faqs" element={<Faqs />} />
           <Route path="whatsapp" element={<WhatsApp />} />
           <Route path="profile" element={<Profile />} />
+          <Route path="offers" element={<Offers />} />
+          <Route path="activity" element={<Activity />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

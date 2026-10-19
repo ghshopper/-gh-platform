@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { RiNotification3Line, RiWhatsappLine, RiDeleteBinLine, RiLoader4Line, RiShoppingBag3Line, RiCheckLine } from 'react-icons/ri'
 import api, { getImageUrl } from '../../services/api'
+import Empty from '../../components/Empty'
 
 const money = (v) => Number(v || 0).toLocaleString('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 })
 
@@ -26,6 +27,8 @@ export default function AbandonedCarts() {
   const [hours, setHours] = useState(2)
   const [loading, setLoading] = useState(true)
   const [busy, setBusy] = useState({})
+  const [stats, setStats] = useState(null)
+  const [sendingAll, setSendingAll] = useState(false)
 
   const load = async () => {
     setLoading(true)
@@ -33,6 +36,7 @@ export default function AbandonedCarts() {
       const r = await api.get('/admin/abandoned-carts', { params: { hours } })
       setRows(Array.isArray(r.data.data) ? r.data.data : [])
       setValue(r.data.total_value || 0)
+      setStats(r.data.stats || null)
     } catch {
       toast.error('تعذر التحميل')
     } finally {
@@ -65,6 +69,22 @@ export default function AbandonedCarts() {
     setRows((list) => list.map((x) => (x.id === c.id ? { ...x, whatsapped_at: new Date().toISOString() } : x)))
   }
 
+  const remindAll = async () => {
+    const n = rows.filter((c) => !c.reminded_at).length
+    if (!n) return toast('كل السلات انرسل لها تذكير')
+    if (!window.confirm(`نرسل تذكير لـ ${n} سلة ما انرسل لها قبل؟`)) return
+    setSendingAll(true)
+    try {
+      const r = await api.post('/admin/abandoned-carts/remind-all')
+      toast.success(`انرسل ${r.data.sent} تذكير`)
+      load()
+    } catch {
+      toast.error('تعذر الإرسال')
+    } finally {
+      setSendingAll(false)
+    }
+  }
+
   const remove = async (c) => {
     if (!window.confirm('تشيل هذي السلة من القائمة؟')) return
     await api.delete(`/admin/abandoned-carts/${c.id}`).catch(() => {})
@@ -82,6 +102,9 @@ export default function AbandonedCarts() {
         <div className="ab-stats">
           <div><b>{rows.length}</b><span>سلة</span></div>
           <div><b>{money(value)}</b><span>ر.ع قيمتها</span></div>
+          <button className="btn btn-primary btn-sm" disabled={sendingAll || !rows.length} onClick={remindAll}>
+            {sendingAll ? <RiLoader4Line className="spin" /> : <RiNotification3Line />} ذكّر الكل
+          </button>
           <label>
             <span>متروكة من</span>
             <select value={hours} onChange={(e) => setHours(Number(e.target.value))}>
@@ -94,10 +117,19 @@ export default function AbandonedCarts() {
         </div>
       </div>
 
+      {stats && (
+        <div className="ab-recovery">
+          <div><small>تذكيرات آخر 30 يوم</small><b>{stats.reminded}</b></div>
+          <div><small>سلات رجعت طلبات</small><b>{stats.recovered}</b></div>
+          <div><small>نسبة الاسترجاع</small><b>{stats.rate}%</b><i style={{ width: `${Math.min(100, stats.rate)}%` }} /></div>
+          <div><small>مبيعات رجعت بسبب التذكير</small><b>{money(stats.value)} <span>ر.ع</span></b></div>
+        </div>
+      )}
+
       {loading ? (
         <div className="ab-empty"><RiLoader4Line className="spin" size={28} /></div>
       ) : !rows.length ? (
-        <div className="ab-empty"><RiShoppingBag3Line size={34} /><p>ما في سلات متروكة الحين.</p></div>
+        <Empty icon={RiShoppingBag3Line} title="ما في سلات متروكة الحين" hint="أول ما يحط عميل قطع في السلة ويطلع بدون ما يطلب، بتظهر هنا وتقدر تذكّره." />
       ) : (
         <div className="ab-list">
           {rows.map((c) => (
@@ -147,7 +179,14 @@ const CSS = `
 .ab .btn{display:inline-flex;align-items:center;gap:6px}
 .ab-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:22px}
 .ab-sub{color:var(--text-secondary);font-size:14px;margin:6px 0 0}
-.ab-stats{display:flex;gap:18px;align-items:flex-end}
+.ab-stats{display:flex;gap:18px;align-items:flex-end;flex-wrap:wrap}
+.ab-recovery{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:0 0 22px}
+.ab-recovery>div{position:relative;overflow:hidden;background:#fff;border:1px solid var(--border);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:4px}
+.ab-recovery small{color:var(--text-secondary);font-size:12px}
+.ab-recovery b{font-size:22px;font-weight:700}
+.ab-recovery b span{font-size:12px;color:var(--text-secondary);font-weight:500}
+.ab-recovery i{position:absolute;bottom:0;inset-inline-start:0;height:3px;background:#5C0B16}
+@media(max-width:768px){.ab-recovery{grid-template-columns:1fr 1fr}.ab{padding:16px 14px!important}}
 .ab-stats>div{display:flex;flex-direction:column;align-items:center}
 .ab-stats b{font-size:22px;font-weight:800}
 .ab-stats span{font-size:12px;color:var(--text-secondary)}

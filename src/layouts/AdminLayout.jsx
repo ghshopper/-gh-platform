@@ -3,6 +3,7 @@ import { Outlet, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import ghLogo from '../assets/gh-logo.png'
 import { canOpen } from '../lib/access'
 import api from '../services/api'
+import GlobalSearch from '../components/GlobalSearch'
 import toast from 'react-hot-toast'
 import {
   RiHome5Line,
@@ -35,6 +36,8 @@ import {
   RiCoupon3Line,
   RiGiftLine,
   RiWhatsappLine,
+  RiPercentLine,
+  RiHistoryLine,
 } from 'react-icons/ri'
 
 // Sidebar, grouped the way the work flows: sell → products → customers → store.
@@ -60,6 +63,7 @@ const navSections = [
     { label: 'نظام الولاء', icon: RiStarSmileLine, path: '/admin/loyalty' },
     { label: 'كوبونات الخصم', icon: RiCoupon3Line, path: '/admin/coupons' },
     { label: 'بطاقات الهدايا', icon: RiGiftLine, path: '/admin/gift-cards' },
+    { label: 'العروض التلقائية', icon: RiPercentLine, path: '/admin/offers' },
     { label: 'إرسال إشعارات', icon: RiNotification3Fill, path: '/admin/notify-users' },
   ] },
   { title: 'المتجر', items: [
@@ -69,6 +73,7 @@ const navSections = [
     { label: 'التقارير', icon: RiBarChartBoxLine, path: '/admin/reports' },
     { label: 'واتساب', icon: RiWhatsappLine, path: '/admin/whatsapp' },
     { label: 'المستخدمون', icon: RiUserSettingsLine, path: '/admin/users' },
+    { label: 'سجل النشاط', icon: RiHistoryLine, path: '/admin/activity' },
     { label: 'الإعدادات', icon: RiSettings4Line, path: '/admin/settings' },
   ] },
 ]
@@ -86,6 +91,17 @@ export default function AdminLayout() {
   const [notifFilter, setNotifFilter] = useState('all') // 'all' | 'unread'
   const [lang, setLang] = useState(localStorage.getItem('adminLang') || 'ar')
   const notifDropdownRef = useRef(null)
+  const [searchOpen, setSearchOpen] = useState(false)
+  // ⌘K / Ctrl+K opens the search from anywhere ("/" too, when not typing)
+  useEffect(() => {
+    const onKey = (e) => {
+      const typing = /input|textarea|select/i.test(e.target?.tagName || '') || e.target?.isContentEditable
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); setSearchOpen(true) }
+      else if (e.key === '/' && !typing) { e.preventDefault(); setSearchOpen(true) }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
   const prevCountRef = useRef(null)
   
   const location = useLocation()
@@ -328,6 +344,8 @@ export default function AdminLayout() {
   return (
     <div className="app-layout" style={{ display: 'flex', height: '100dvh', width: '100%', direction: 'rtl' }}>
       
+      <GlobalSearch open={searchOpen} onClose={() => setSearchOpen(false)} pages={navItems.filter((it) => canOpen(it.path, user))} />
+
       {/* Mobile Sidebar Overlay */}
       <div 
         className={`sidebar-overlay ${!isCollapsed ? 'active' : ''}`} 
@@ -399,10 +417,11 @@ export default function AdminLayout() {
                   <RiMenuFoldFill size={28} style={{ transform: 'scaleX(-1)' }} />
                 )}
               </button>
-              <div className="search-bar">
-                <input type="text" placeholder="بحث عن طلب، عميل، منتج..." />
-                <RiSearch2Line className="search-icon" size={22} style={{ color: 'var(--color-primary)' }} />
-              </div>
+              <button type="button" className="gs-trigger" onClick={() => setSearchOpen(true)}>
+                <RiSearch2Line size={19} />
+                <span className="gs-trigger-text">بحث عن طلب، عميل، منتج…</span>
+                <kbd className="hide-on-mobile">⌘K</kbd>
+              </button>
             </div>
 
             {/* Left side of header (Language, Notifications and Date) */}
@@ -659,10 +678,6 @@ export default function AdminLayout() {
                   )}
                 </div>
 
-                <button className="icon-btn relative" onClick={() => navigate('/admin/app-orders')}>
-                  <RiShoppingBag3Line size={24} style={{ color: 'var(--color-primary)' }} />
-                  <span className="badge">1</span>
-                </button>
               </div>
               <div className="date-display hide-on-mobile">
                 <RiCalendarEventFill size={20} style={{ color: 'var(--color-gold)' }} />

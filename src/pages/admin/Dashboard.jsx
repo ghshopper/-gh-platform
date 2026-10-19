@@ -64,14 +64,8 @@ export default function Dashboard() {
     total_loyalty_points: 0,
   })
 
-  const [changes, setChanges] = useState({
-    revenue: 12.5,
-    orders: 8.7,
-    customers: 15.2,
-    avg: 5.2,
-    pending: -9.1,
-    loyalty: 19.7,
-  })
+  // real changes come from the server; nothing made up while loading
+  const [changes, setChanges] = useState({ revenue: 0, orders: 0, customers: 0, avg: 0, pending: 0, loyalty: 0 })
 
   const [salesChart, setSalesChart] = useState([])
   const [categorySales, setCategorySales] = useState([])
@@ -108,17 +102,33 @@ export default function Dashboard() {
   }
 
   // Things that wait for you (each one links to its page).
-  const [todo, setTodo] = useState({ requests: 0, imports: 0, gifts: 0 })
+  const [todo, setTodo] = useState({ requests: 0, imports: 0, gifts: 0, toBuy: 0, unpaid: 0, ready: 0, onWay: 0, carts: 0, today: 0, todaySales: 0 })
   const fetchTodo = async () => {
-    const [r, i, g] = await Promise.allSettled([
+    const [r, i, g, b, c] = await Promise.allSettled([
       api.get('/admin/product-requests/stats'),
       api.get('/admin/import-items'),
       api.get('/admin/gift-cards'),
+      api.get('/ps/bootstrap'),
+      api.get('/admin/abandoned-carts'),
     ])
+    // the day's work from the orders themselves
+    const orders = b.status === 'fulfilled' ? (b.value.data?.orders || []) : []
+    const live = (o) => o.items.filter((x) => x.status !== 'cancelled')
+    const remaining = (o) => live(o).reduce((a, x) => a + Number(x.price || 0), 0) + Number(o.delivery_fee || 0) + Number(o.tax || 0) - Number(o.discount || 0) - o.payments.reduce((a, p) => a + Number(p.amount || 0), 0)
+    const todayKey = new Date().toDateString()
+    const todays = orders.filter((o) => new Date(o.created_at).toDateString() === todayKey)
+    const cartsList = c.status === 'fulfilled' ? (c.value.data?.data || c.value.data || []) : []
     setTodo({
       requests: r.status === 'fulfilled' ? (r.value.data?.data?.pending || 0) : 0,
       imports: i.status === 'fulfilled' ? (i.value.data?.counts?.pending || 0) : 0,
       gifts: g.status === 'fulfilled' ? (g.value.data?.totals?.pending || 0) : 0,
+      toBuy: orders.filter((o) => live(o).some((x) => x.status === 'requested')).length,
+      unpaid: orders.filter((o) => live(o).length && remaining(o) > 0.0005).length,
+      ready: orders.filter((o) => live(o).some((x) => x.status === 'arrived')).length,
+      onWay: orders.filter((o) => live(o).some((x) => x.status === 'out_for_delivery')).length,
+      carts: Array.isArray(cartsList) ? cartsList.length : 0,
+      today: todays.length,
+      todaySales: todays.reduce((a, o) => a + live(o).reduce((s2, x) => s2 + Number(x.price || 0), 0), 0),
     })
   }
 
@@ -243,10 +253,15 @@ export default function Dashboard() {
   const omr3 = (v) => Number(v || 0).toLocaleString('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 })
   const kpis = statsCards.slice(0, 4)
   const statusTotal = statusList.reduce((a, s) => a + s.count, 0) || 1
+  // "what needs doing today": each opens its list
   const todoList = [
-    { n: stats.pending_orders || 0, label: 'طلبات قيد التنفيذ', to: '/admin/app-orders', icon: RiTimerLine },
+    { n: todo.toBuy, label: 'طلبات تنتظر الشراء', to: '/admin/app-orders?filter=requested', icon: RiShoppingBag3Line },
+    { n: todo.unpaid, label: 'طلبات عليها مبالغ', to: '/admin/app-orders?filter=unpaid', icon: RiBankCardLine },
+    { n: todo.ready, label: 'وصلت وجاهزة للتوصيل', to: '/admin/app-orders?filter=arrived', icon: RiTruckLine },
+    { n: todo.onWay, label: 'خرجت للتوصيل', to: '/admin/app-orders?filter=out_for_delivery', icon: RiMapPinLine },
     { n: todo.requests, label: 'طلبات قطع جديدة', to: '/admin/product-requests', icon: RiSearchLine },
     { n: todo.imports, label: 'منتجات تنتظر سعر', to: '/admin/import-items', icon: RiDownloadCloud2Line },
+    { n: todo.carts, label: 'سلات متروكة', to: '/admin/abandoned-carts', icon: RiShoppingBag3Line },
     { n: todo.gifts, label: 'بطاقات هدايا تنتظر الدفع', to: '/admin/gift-cards', icon: RiGiftLine },
   ]
 
@@ -257,6 +272,7 @@ export default function Dashboard() {
         <div>
           <div className="dash-kicker">{new Date().toLocaleDateString('ar-OM-u-nu-latn', { weekday: 'long', day: 'numeric', month: 'long' })}</div>
           <h1 className="page-title-main">{hello}{first ? `، ${first}` : ''}</h1>
+          <div style={{ color: 'var(--text-secondary)', fontSize: 14, marginTop: 4 }}>اليوم: <b>{todo.today}</b> طلب · <b>{omr3(todo.todaySales)}</b> ر.ع</div>
         </div>
         <button onClick={() => { fetchDashboardStats(); fetchTodo() }} className="btn btn-ghost btn-sm">
           <RiRefreshLine size={15} className={loading ? 'animate-spin' : ''} /> تحديث

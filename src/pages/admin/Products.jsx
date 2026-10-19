@@ -11,6 +11,18 @@ import toast from 'react-hot-toast'
 import AiImportModal from './AiImportModal'
 import GHPagination from '../../components/GHPagination'
 import { catTree } from '../../lib/catTree'
+import { EmptyRow } from '../../components/Empty'
+
+// A table cell you can click to edit in place (Enter saves, Esc cancels).
+function EditNum({ value, onSave, placeholder, step = '0.001', children }) {
+  const [on, setOn] = useState(false)
+  const [v, setV] = useState('')
+  if (!on) return <span className="ie-cell" title="اضغط للتعديل" onClick={() => { setV(value ?? ''); setOn(true) }}>{children}</span>
+  const done = (save) => { setOn(false); if (save && String(v) !== String(value ?? '')) onSave(v === '' ? null : Number(v)) }
+  return <input autoFocus className="ie-input" type="number" min="0" step={step} value={v} placeholder={placeholder}
+    onChange={(e) => setV(e.target.value)} onBlur={() => done(true)}
+    onKeyDown={(e) => { if (e.key === 'Enter') done(true); if (e.key === 'Escape') done(false) }} />
+}
 
 export default function Products() {
   const [view, setView] = useState('list')
@@ -327,6 +339,19 @@ export default function Products() {
     } finally {
       isSubmittingRef.current = false;
       setIsSubmitting(false)
+    }
+  }
+
+  // inline edits from the table: saved at once, the row updates in place
+  const quick = async (p, patch) => {
+    const before = p
+    setProducts((list) => list.map((x) => (x.id === p.id ? { ...x, ...patch, ...(patch.category_id ? { category_name: categories.find((c) => Number(c.id) === Number(patch.category_id))?.name_ar } : {}) } : x)))
+    try {
+      await api.patch(`/admin/products/${p.id}/quick`, patch)
+      toast.success('انحفظ', { id: 'quick' })
+    } catch (e) {
+      setProducts((list) => list.map((x) => (x.id === p.id ? before : x)))
+      toast.error(e.response?.data?.message || 'ما انحفظ')
     }
   }
 
@@ -1054,14 +1079,14 @@ export default function Products() {
                   <input type="checkbox" checked={filteredProducts.length > 0 && filteredProducts.every(p => selected.includes(p.id))}
                     onChange={e => setSelected(e.target.checked ? filteredProducts.map(p => p.id) : [])} />
                 </th>
-                {['المنتج', 'الفئة', 'السعر (OMR)', 'المخزون', 'التوفر', 'الحالة', 'الإجراءات'].map(h => (
+                {['المنتج', 'الفئة', 'السعر (اضغط للتعديل)', 'المخزون', 'التوفر', 'الحالة', 'الإجراءات'].map(h => (
                   <th key={h} style={{ padding: '14px 20px', fontSize: 12, fontWeight: 700, color: '#9CA3AF', textAlign: 'right', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {filteredProducts.length === 0 ? (
-                <tr><td colSpan={8} style={{ textAlign: 'center', padding: 80, color: '#9CA3AF', fontSize: 15 }}>لا توجد منتجات مطابقة.</td></tr>
+                <EmptyRow cols={8} icon={RiImageAddLine} title={products.length || searchQuery ? 'ما فيه منتجات بهذا البحث' : 'ما فيه منتجات للحين'} hint={searchQuery ? 'جرّب اسم البراند أو جزء من اسم المنتج' : 'أضف منتج أو انشر من «منتجات للإضافة»'} />
               ) : filteredProducts.map(p => (
                 <tr key={p.id} style={{ borderBottom: '1px solid #F9FAFB', transition: 'background 0.15s' }}
                   onMouseEnter={e => e.currentTarget.style.background = '#FAFAFA'}
@@ -1088,33 +1113,35 @@ export default function Products() {
                       </div>
                     </div>
                   </td>
-                  <td style={{ padding: '14px 20px', color: 'var(--color-gold)', fontWeight: 600, fontSize: 13 }}>{p.category_name || '-'}</td>
                   <td style={{ padding: '14px 20px' }}>
-                    {p.compare_price ? (
-                      <div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                          <span style={{ fontWeight: 800, color: 'var(--color-primary)', fontFamily: 'sans-serif', fontSize: 14 }}>{p.compare_price}</span>
-                          <span style={{ fontSize: 11, color: 'var(--color-primary)', fontWeight: 700 }}>OMR</span>
-                        </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 2 }}>
-                           <span style={{ fontSize: 11, color: '#9CA3AF', textDecoration: 'line-through', fontFamily: 'sans-serif' }}>{p.price}</span>
-                           <span style={{ fontSize: 9, color: '#9CA3AF' }}>OMR</span>
-                        </div>
-                      </div>
-                    ) : (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                        <span style={{ fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'sans-serif', fontSize: 14 }}>{p.price}</span>
-                        <span style={{ fontSize: 11, color: 'var(--text-primary)', fontWeight: 700 }}>OMR</span>
-                      </div>
-                    )}
+                    <select className="ie-select" value={p.category_id || ''} onChange={(e) => quick(p, { category_id: Number(e.target.value) })} title="غيّر التصنيف">
+                      {!p.category_id && <option value="">بدون تصنيف</option>}
+                      {catTree(categories)}
+                    </select>
                   </td>
                   <td style={{ padding: '14px 20px' }}>
-                    <span style={{ fontWeight: 600, color: p.stock_quantity > 0 ? '#15803D' : p.availability === 'on_order' ? 'var(--text-light)' : '#B42318', fontSize: 14 }}>
-                      {p.stock_quantity > 0 ? p.stock_quantity : p.availability === 'on_order' ? '—' : 'نفذ'}
-                    </span>
+                    {/* full price, and the sale price under it (empty = no sale) */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                      <EditNum value={p.price} onSave={(v) => v != null && quick(p, { price: v })}>
+                        <span style={{ fontWeight: 800, fontFamily: 'sans-serif', fontSize: 14, color: 'var(--text-primary)', textDecoration: p.compare_price > 0 && Number(p.compare_price) < Number(p.price) ? 'line-through' : 'none', opacity: p.compare_price > 0 && Number(p.compare_price) < Number(p.price) ? .55 : 1 }}>{Number(p.price).toFixed(3)}</span>
+                        <span style={{ fontSize: 10, color: '#9CA3AF' }}>OMR</span>
+                      </EditNum>
+                      <EditNum value={p.compare_price} placeholder="سعر الخصم" onSave={(v) => quick(p, { compare_price: v })}>
+                        {p.compare_price > 0 && Number(p.compare_price) < Number(p.price)
+                          ? <><span style={{ fontWeight: 800, color: '#5C0B16', fontFamily: 'sans-serif', fontSize: 14 }}>{Number(p.compare_price).toFixed(3)}</span><span style={{ fontSize: 10, color: '#5C0B16' }}>بعد الخصم</span></>
+                          : <span style={{ fontSize: 11, color: '#B5AFA7' }}>+ سعر خصم</span>}
+                      </EditNum>
+                    </div>
                   </td>
                   <td style={{ padding: '14px 20px' }}>
-                    <span style={{ padding: '5px 12px', borderRadius: 20, fontSize: 11, fontWeight: 700, whiteSpace: 'nowrap',
+                    <EditNum value={p.stock_quantity} step="1" onSave={(v) => quick(p, { stock_quantity: Math.max(0, Math.round(v || 0)) })}>
+                      <span style={{ fontWeight: 600, color: p.stock_quantity > 0 ? '#15803D' : p.availability === 'on_order' ? 'var(--text-light)' : '#B42318', fontSize: 14 }}>
+                        {p.stock_quantity > 0 ? p.stock_quantity : p.availability === 'on_order' ? '—' : 'نفذ'}
+                      </span>
+                    </EditNum>
+                  </td>
+                  <td style={{ padding: '14px 20px' }}>
+                    <span title="اضغط للتبديل" onClick={() => quick(p, { availability: p.availability === 'on_order' ? 'instant' : 'on_order' })} style={{ cursor: 'pointer', padding: '5px 12px', borderRadius: 20, fontSize: 11, fontWeight: 700, whiteSpace: 'nowrap',
                       background: p.availability === 'on_order' ? 'rgba(194,106,0,0.1)' : 'rgba(16,128,74,0.1)',
                       color: p.availability === 'on_order' ? '#C26A00' : '#16804A' }}>
                       {p.availability === 'on_order' ? 'بالطلب' : 'تسليم فوري'}
@@ -1124,7 +1151,7 @@ export default function Products() {
                     </div>
                   </td>
                   <td style={{ padding: '14px 20px' }}>
-                    <span style={{ padding: '5px 14px', borderRadius: 20, fontSize: 11, fontWeight: 700, background: p.status === 'active' ? 'rgba(16,185,129,0.1)' : 'rgba(107,114,128,0.1)', color: p.status === 'active' ? '#10B981' : '#6B7280' }}>
+                    <span title="اضغط للتبديل" onClick={() => quick(p, { status: p.status === 'active' ? 'draft' : 'active' })} style={{ cursor: 'pointer', padding: '5px 14px', borderRadius: 20, fontSize: 11, fontWeight: 700, background: p.status === 'active' ? 'rgba(16,185,129,0.1)' : 'rgba(107,114,128,0.1)', color: p.status === 'active' ? '#10B981' : '#6B7280' }}>
                       {p.status === 'active' ? 'نشط' : 'مسودة'}
                     </span>
                   </td>

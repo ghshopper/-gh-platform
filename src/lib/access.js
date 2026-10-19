@@ -4,9 +4,9 @@ const PAGE_AREA = {
   invoices: 'finance', payments: 'finance', reports: 'finance',
   products: 'products', 'import-items': 'products', categories: 'products', brands: 'products', attributes: 'products', reviews: 'products',
   customers: 'customers', loyalty: 'customers', coupons: 'customers', 'gift-cards': 'customers',
-  'customize-app': 'marketing', 'notify-users': 'marketing', faqs: 'marketing',
+  'customize-app': 'marketing', 'notify-users': 'marketing', faqs: 'marketing', offers: 'marketing',
   shipping: 'shipping',
-  users: 'settings', settings: 'settings', whatsapp: 'settings',
+  users: 'settings', settings: 'settings', whatsapp: 'settings', activity: 'settings',
 }
 
 export const STAFF_ROLES = ['super_admin', 'admin', 'manager', 'sales_manager', 'product_editor', 'shipping_manager', 'accountant', 'support']

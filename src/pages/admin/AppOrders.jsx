@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import {
   RiSearchLine, RiRefreshLine, RiPrinterLine, RiWhatsappLine, RiLinksLine,
   RiCloseLine, RiTruckLine, RiShoppingBag3Line, RiTimeLine, RiLoader4Line,
+  RiFileList3Line, RiBankCardLine, RiStickyNoteLine, RiSendPlane2Line,
 } from 'react-icons/ri'
 import toast from 'react-hot-toast'
 import QRCode from 'qrcode'
@@ -28,7 +30,7 @@ const METHOD = { home: 'مندوبنا · للبيت', office: 'إلى المك�
 const COURIERS = ['nool', 'nool_office', 'genacom', 'genacom_office']
 const EVENT_LABEL = {
   created: 'تم إنشاء الطلب', purchased: 'تم الشراء', arrived: 'وصل مسقط', out_for_delivery: 'خرج للتوصيل',
-  label: 'طُبعت البوليصة', assigned: 'سُلّم للمندوب', unassigned: 'سُحب من المندوب',
+  label: 'طُبعت البوليصة', note: 'ملاحظة', paid: 'دفعة', shipped: 'شُحن', assigned: 'سُلّم للمندوب', unassigned: 'سُحب من المندوب',
   picked: 'المندوب استلم', delivered: 'تم التسليم', cancelled: 'إلغاء', requested: 'رجع للانتظار',
 }
 
@@ -38,6 +40,8 @@ const invoiceNo = (o) => {
   const d = o.created_at ? new Date(o.created_at) : new Date()
   return `GH-${pad(d.getMonth() + 1, 2)}-${pad(d.getDate(), 2)}-${pad(o.order_no, 3)}`
 }
+// The short order number everyone uses (201001); the invoice number stays for the books.
+const refOf = (o) => o.ref_no || invoiceNo(o)
 const dateStr = (s) => (s ? new Date(s).toLocaleDateString('en-GB') : '—')
 const dateTime = (s) => (s ? new Date(s).toLocaleString('en-GB', { day: 'numeric', month: 'numeric', hour: 'numeric', minute: '2-digit' }) : '')
 
@@ -60,7 +64,19 @@ export default function AppOrders() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState('open')
-  const [openId, setOpenId] = useState(null)
+  const [params, setParams] = useSearchParams()
+  const [openId, setOpenIdState] = useState(params.get('order'))
+  // the open order lives in the address (?order=…), so search and the home page can link to it
+  const setOpenId = (id) => {
+    setOpenIdState(id)
+    const p = new URLSearchParams(params)
+    if (id) p.set('order', id); else p.delete('order')
+    setParams(p, { replace: true })
+  }
+  useEffect(() => { const f = params.get('filter'); if (f) setFilter(f) }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  // the search box (⌘K) may open another order while this page is already open
+  useEffect(() => { const id = params.get('order'); if (id && id !== openId) setOpenIdState(id) }, [params]) // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { const q = params.get('q'); if (q) { setSearch(q); setFilter('all') } }, []) // eslint-disable-line react-hooks/exhaustive-deps
   const [busy, setBusy] = useState(false)
 
   const headers = {
@@ -112,7 +128,7 @@ export default function AppOrders() {
       if (filter === 'unpaid' && totals(o).remaining <= 0.0005) return false
       if (!q) return true
       const c = customers[o.customer_id]
-      return [invoiceNo(o), o.waybill_no, c?.name, c?.phone, ...o.items.map((i) => `${i.brand || ''} ${i.name}`)]
+      return [refOf(o), o.ref_no, invoiceNo(o), o.store_order_number, o.waybill_no, c?.name, c?.phone, ...o.items.map((i) => `${i.brand || ''} ${i.name}`)]
         .filter(Boolean).join(' ').toLowerCase().includes(q)
     })
   }, [orders, filter, search, customers])
@@ -196,7 +212,7 @@ export default function AppOrders() {
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
               <thead>
                 <tr style={{ background: '#FBF5EE', color: '#8B6B3D', textAlign: 'right' }}>
-                  {['الفاتورة', 'العميل', 'القطع', 'الإجمالي', 'المتبقي', 'الحالة', 'التوصيل', ''].map((h) => (
+                  {['الطلب', 'العميل', 'القطع', 'الإجمالي', 'المتبقي', 'الحالة', 'التوصيل', ''].map((h) => (
                     <th key={h} style={{ padding: '12px 16px', fontWeight: 700, fontSize: 12.5, whiteSpace: 'nowrap' }}>{h}</th>
                   ))}
                 </tr>
@@ -211,7 +227,7 @@ export default function AppOrders() {
                     <tr key={o.id} onClick={() => setOpenId(o.id)} style={{ borderTop: '1px solid #f4efe9', cursor: 'pointer' }}
                       onMouseEnter={(e) => (e.currentTarget.style.background = '#fffaf6')}
                       onMouseLeave={(e) => (e.currentTarget.style.background = '')}>
-                      <td style={td}><div style={{ fontWeight: 700, direction: 'ltr', textAlign: 'right' }}>{invoiceNo(o)}</div>{o.source === 'store' && <div style={{ fontSize: 11, fontWeight: 700, color: '#2F7CF6' }}>🌐 الموقع {o.store_order_number}</div>}<div style={{ color: '#94a3b8', fontSize: 12 }}>{dateStr(o.created_at)}</div></td>
+                      <td style={td}><div style={{ fontWeight: 800, fontSize: 15, direction: 'ltr', textAlign: 'right' }}>#{refOf(o)}</div>{o.source === 'store' && <div style={{ fontSize: 11, fontWeight: 700, color: '#2F7CF6' }}>🌐 من الموقع / التطبيق</div>}<div style={{ color: '#94a3b8', fontSize: 12 }}>{dateStr(o.created_at)}</div></td>
                       <td style={td}><div style={{ fontWeight: 600 }}>{c?.name || '—'}</div><div style={{ color: '#94a3b8', fontSize: 12, direction: 'ltr', textAlign: 'right' }}>{c?.phone || ''}</div></td>
                       <td style={td}>{o.items.filter((i) => i.status !== 'cancelled').length}</td>
                       <td style={{ ...td, fontWeight: 700 }}>{omr(t.total)}</td>
@@ -234,7 +250,7 @@ export default function AppOrders() {
         <Drawer onClose={() => setOpenId(null)}>
           <OrderDetail
             o={open} c={customers[open.customer_id]} driver={drivers[open.driver_id]}
-            busy={busy} onStatus={setItemStatus} onPrint={() => printWaybill(open)}
+            busy={busy} onStatus={setItemStatus} onPrint={() => printWaybill(open)} onReload={load} headers={headers}
           />
         </Drawer>
       )}
@@ -242,7 +258,36 @@ export default function AppOrders() {
   )
 }
 
-function OrderDetail({ o, c, driver, busy, onStatus, onPrint }) {
+function OrderDetail({ o, c, driver, busy, onStatus, onPrint, onReload, headers }) {
+  const [note, setNote] = useState('')
+  const [saving, setSaving] = useState(false)
+  const [payUrl, setPayUrl] = useState('')
+  const addNote = async () => {
+    if (!note.trim()) return
+    setSaving(true)
+    try {
+      const r = await fetch(`${API}/ps/orders/${o.id}/note`, { method: 'POST', headers, body: JSON.stringify({ text: note.trim() }) })
+      if (!r.ok) throw new Error()
+      setNote(''); toast.success('انحفظت الملاحظة'); onReload()
+    } catch { toast.error('ما انحفظت') } finally { setSaving(false) }
+  }
+  const invoice = async () => {
+    try {
+      const r = await fetch(`${API}/ps/orders/${o.id}/invoice-pdf`, { headers })
+      if (!r.ok) throw new Error((await r.json().catch(() => ({}))).message || 'تعذّرت الفاتورة')
+      const url = URL.createObjectURL(await r.blob())
+      const a = document.createElement('a'); a.href = url; a.download = `invoice-${refOf(o)}.pdf`; a.click()
+      setTimeout(() => URL.revokeObjectURL(url), 4000)
+    } catch (e) { toast.error(e.message) }
+  }
+  const payLink = async () => {
+    try {
+      const r = await fetch(`${API}/ps/orders/${o.id}/pay-link`, { method: 'POST', headers, body: JSON.stringify({}) })
+      const j = await r.json()
+      if (!r.ok || !j.url) throw new Error(j.message || 'تعذّر الرابط')
+      setPayUrl(j.url); navigator.clipboard?.writeText(j.url); toast.success('نسخت رابط الدفع')
+    } catch (e) { toast.error(e.message) }
+  }
   const t = totals(o)
   const link = o.tracking_token ? TRACK_BASE + o.tracking_token : null
   const phone = (c?.phone || '').replace(/\D/g, '')
@@ -253,15 +298,39 @@ function OrderDetail({ o, c, driver, busy, onStatus, onPrint }) {
   return (
     <div>
       <div style={{ background: 'linear-gradient(135deg,#6b0f19,#350304)', color: '#fff', borderRadius: 18, padding: 20, marginBottom: 16 }}>
-        <div style={{ fontSize: 13, opacity: .75, direction: 'ltr', textAlign: 'right' }}>{invoiceNo(o)} · {o.waybill_no}</div>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, direction: 'ltr', justifyContent: 'flex-end' }}>
+          <span style={{ fontSize: 12, opacity: .7 }}>{invoiceNo(o)} · {o.waybill_no}</span>
+          <span style={{ fontSize: 20, fontWeight: 800 }}>#{refOf(o)}</span>
+        </div>
         <div style={{ fontSize: 22, fontWeight: 800, margin: '6px 0 2px' }}>{c?.name || '—'}</div>
         <div style={{ fontSize: 13, opacity: .8, direction: 'ltr', textAlign: 'right' }}>{c?.phone || ''}{c?.city ? ` · ${c.city}` : ''}</div>
         <div style={{ display: 'flex', gap: 8, marginTop: 14, flexWrap: 'wrap' }}>
           <button onClick={onPrint} style={btn('#CEAE6E', '#350304')}><RiPrinterLine /> البوليصة</button>
+          {o.store_order_id && <button onClick={invoice} style={btn('rgba(255,255,255,.14)', '#fff')}><RiFileList3Line /> الفاتورة</button>}
+          {t.remaining > 0.0005 && <button onClick={payLink} style={btn('rgba(255,255,255,.14)', '#fff')}><RiBankCardLine /> رابط دفع</button>}
           {wa && <a href={wa} target="_blank" rel="noreferrer" style={btn('#25D366', '#fff')}><RiWhatsappLine /> واتساب</a>}
           {link && <button onClick={() => { navigator.clipboard.writeText(link); toast.success('نسخت رابط التتبّع') }} style={btn('rgba(255,255,255,.14)', '#fff')}><RiLinksLine /> رابط التتبّع</button>}
         </div>
       </div>
+
+      {wa && (
+        <Card title="رسالة جاهزة للعميل" icon={<RiWhatsappLine />}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, paddingTop: 4 }}>
+            {[
+              ['استلمنا طلبك', `هلا ${c?.name || ''} 🤍 استلمنا طلبك رقم ${refOf(o)} وبنبدأ بتجهيزه.`],
+              ['اشترينا القطعة', `هلا ${c?.name || ''}، اشترينا قطعتك لطلب ${refOf(o)} من البوتيك وبنجهزها لك.`],
+              ['وصل عُمان', `هلا ${c?.name || ''}، طلبك ${refOf(o)} وصل عُمان وبنرتب التوصيل لك.`],
+              ['في الطريق', `هلا ${c?.name || ''}، طلبك ${refOf(o)} في الطريق إليك 🚚`],
+              ['تم التسليم', `هلا ${c?.name || ''}، تم تسليم طلبك ${refOf(o)}. نتمنى تعجبك القطعة 🤍`],
+              ...(t.remaining > 0.0005 ? [['المبلغ المتبقي', `هلا ${c?.name || ''}، المتبقي على طلبك ${refOf(o)}: ${omr(t.remaining)}${payUrl ? `\nرابط الدفع: ${payUrl}` : ''}`]] : []),
+              ...(link ? [['رابط التتبع', `تقدر تتابع طلبك ${refOf(o)} من هنا: ${link}`]] : []),
+            ].map(([label, text]) => (
+              <a key={label} href={`${wa}?text=${encodeURIComponent(text)}`} target="_blank" rel="noreferrer"
+                style={{ padding: '7px 12px', borderRadius: 999, border: '1.5px solid #d9f2e1', background: '#f2fbf5', color: '#137a3f', fontWeight: 700, fontSize: 12.5, textDecoration: 'none' }}>{label}</a>
+            ))}
+          </div>
+        </Card>
+      )}
 
       <Card title="القطع" icon={<RiShoppingBag3Line />} action={active.length > 1 && nextFor(overall(o)) && (
         <button disabled={busy} onClick={() => onStatus(active.filter((i) => i.status === overall(o)).map((i) => i.id), nextFor(overall(o)))} style={btn('#f8fafc', '#334155', true)}>
@@ -317,20 +386,28 @@ function OrderDetail({ o, c, driver, busy, onStatus, onPrint }) {
         {o.driver_note && <Row k="ملاحظة" v={o.driver_note} />}
       </Card>
 
-      {o.events?.length > 0 && (
-        <Card title="سجل الطلب" icon={<RiTimeLine />}>
-          {[...o.events].reverse().map((e, k) => (
-            <div key={k} style={{ display: 'flex', gap: 10, padding: '8px 0', borderTop: k ? '1px solid #f1f5f9' : 0 }}>
-              <div style={{ width: 9, height: 9, borderRadius: 9, background: 'var(--color-gold)', marginTop: 6 }} />
+      <Card title="سجل الطلب والملاحظات" icon={<RiTimeLine />}>
+        <div style={{ display: 'flex', gap: 8, margin: '6px 0 10px' }}>
+          <input value={note} onChange={(e) => setNote(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && addNote()}
+            placeholder="ملاحظة داخلية (ما يشوفها العميل)…" style={{ flex: 1, padding: '9px 12px', borderRadius: 10, border: '1.5px solid #e2e8f0', fontSize: 13.5, outline: 'none' }} />
+          <button disabled={saving || !note.trim()} onClick={addNote} style={btn('var(--color-primary)', '#fff')}><RiSendPlane2Line /></button>
+        </div>
+        {[
+          ...(o.events || []).map((e) => ({ ...e, kind: e.type })),
+          ...o.payments.map((p) => ({ kind: 'paid', type: 'paid', note: `${omr(p.amount)}${p.method ? ' · ' + p.method : ''}${p.note ? ' · ' + p.note : ''}`, at: p.created_at || p.paid_on })),
+        ].filter((e, k, all) => !(e.kind === 'paid' && e.type === 'paid' && all.some((x) => x !== e && x.type === 'paid' && x.kind !== 'paid' && x.note && e.note && x.note.includes(e.note.slice(0, 6)))))
+          .sort((a, b) => new Date(b.at || 0) - new Date(a.at || 0))
+          .map((e, k) => (
+            <div key={k} style={{ display: 'flex', gap: 10, padding: '8px 0', borderTop: k ? '1px solid #f1f5f9' : 0, background: e.type === 'note' ? '#FFFBEA' : 'transparent', borderRadius: e.type === 'note' ? 8 : 0, paddingInline: e.type === 'note' ? 8 : 0 }}>
+              <div style={{ width: 9, height: 9, borderRadius: 9, background: e.type === 'note' ? '#C9A465' : e.type === 'paid' ? '#16804A' : 'var(--color-primary)', marginTop: 6, flexShrink: 0 }} />
               <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 600, fontSize: 14 }}>{EVENT_LABEL[e.type] || e.type}</div>
-                {e.note && <div style={{ fontSize: 12.5, color: '#64748b' }}>{e.note}</div>}
+                <div style={{ fontWeight: 600, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>{e.type === 'note' && <RiStickyNoteLine color="#A07C3C" />}{EVENT_LABEL[e.type] || e.type}{e.by ? <span style={{ fontWeight: 400, color: '#94a3b8', fontSize: 12 }}>· {e.by}</span> : null}</div>
+                {e.note && <div style={{ fontSize: 12.5, color: '#64748b', whiteSpace: 'pre-wrap' }}>{e.note}</div>}
               </div>
               <div style={{ fontSize: 12, color: '#94a3b8', whiteSpace: 'nowrap' }}>{dateTime(e.at)}</div>
             </div>
           ))}
-        </Card>
-      )}
+      </Card>
       {o.notes && <Card title="ملاحظات"><div style={{ whiteSpace: 'pre-wrap', color: '#334155' }}>{o.notes}</div></Card>}
     </div>
   )

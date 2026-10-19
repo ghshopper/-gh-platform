@@ -24,6 +24,9 @@ import {
 import toast from 'react-hot-toast'
 import OmrSymbol from '../../components/OmrSymbol'
 import GHPagination from '../../components/GHPagination'
+import CustomerProfile from '../../components/CustomerProfile'
+import { EmptyRow } from '../../components/Empty'
+import { useSearchParams } from 'react-router-dom'
 
 // The three loyalty tiers: Beige (0–20k points), Burgundy (20k–50k), Black (50k+).
 const TIER_LOOKS = [
@@ -115,6 +118,16 @@ export default function Customers() {
   useEffect(() => {
     fetchCustomers(1)
   }, [selectedTier, selectedStatus])
+
+  // ?open=<id> (from the search or an order) opens that customer's card
+  const [params, setParams] = useSearchParams()
+  useEffect(() => {
+    const id = params.get('open')
+    if (!id) return
+    setCurrentCustomer({ id })
+    setShowDetailsModal(true)
+    params.delete('open'); setParams(params, { replace: true })
+  }, [params]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSearchSubmit = (e) => {
     e.preventDefault()
@@ -349,7 +362,7 @@ export default function Customers() {
               {loading ? (
                 <tr><td colSpan="8" style={{ textAlign: 'center', padding: '32px', color: 'var(--text-light)' }}>جاري التحميل...</td></tr>
               ) : customers.length === 0 ? (
-                <tr><td colSpan="8" style={{ textAlign: 'center', padding: '32px', color: 'var(--text-light)' }}>لا يوجد عملاء مطابقون لمعايير البحث</td></tr>
+                <EmptyRow cols={8} icon={RiGroupLine} title={search || selectedTier !== 'all' || selectedStatus !== 'all' ? 'ما فيه عملاء بهذا البحث' : 'ما فيه عملاء للحين'} hint={search ? 'جرّب الاسم أو آخر 4 أرقام من الهاتف' : 'العملاء يظهرون هنا أول ما يسجلون من التطبيق أو الموقع'} />
               ) : (
                 customers.map((customer) => {
                   const tier = tierStyle(tiers, customer.loyalty_tier)
@@ -451,82 +464,9 @@ export default function Customers() {
       </div>
 
       {/* --- MODALS --- */}
-      {/* Customer Details Modal */}
+      {/* Customer card: spend, orders, tier, notes and tags */}
       {showDetailsModal && currentCustomer && (
-        <div className="modal-backdrop">
-          <div className="modal-content" style={{ maxWidth: '800px', width: '90%' }}>
-            <div className="modal-header">
-              <h3 className="modal-title flex items-center gap-2"><RiUserStarLine className="text-amber-500" /> الملف التعريفي للعميل</h3>
-              <button className="close-btn" onClick={() => setShowDetailsModal(false)}><RiCloseLine size={24} /></button>
-            </div>
-            <div className="modal-body" style={{ padding: '0' }}>
-              <div style={{ background: 'var(--bg-body)', padding: '24px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <div style={{ display: 'flex', gap: '16px' }}>
-                  <div style={{ width: 80, height: 80, borderRadius: '24px', background: '#fff', border: '2px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '32px', fontWeight: 'bold', color: 'var(--color-primary)' }}>
-                    {currentCustomer.name?.charAt(0).toUpperCase()}
-                  </div>
-                  <div>
-                    <h2 style={{ fontSize: '20px', fontWeight: 800, margin: '0 0 4px 0' }}>{currentCustomer.name}</h2>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '13px', color: 'var(--text-secondary)' }}>
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><RiMailLine /> {currentCustomer.email}</span>
-                      {currentCustomer.phone && <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><RiPhoneLine /> <span dir="ltr">{currentCustomer.phone}</span></span>}
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><RiCalendarLine /> انضم في: {currentCustomer.created_at ? new Date(currentCustomer.created_at).toLocaleDateString('ar-OM') : '-'}</span>
-                    </div>
-                  </div>
-                </div>
-                
-                <div style={{ background: '#fff', padding: '16px', borderRadius: '16px', border: '1px solid var(--border)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', minWidth: '160px' }}>
-                  {(() => {
-                    const t = tierStyle(tiers, currentCustomer.loyalty_tier)
-                    const Icon = t.icon
-                    return (
-                      <>
-                        <div style={{ width: 48, height: 48, borderRadius: '50%', background: t.bg, color: t.text, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          <Icon size={24} />
-                        </div>
-                        <span style={{ fontWeight: 800, color: t.text }}>{t.label}</span>
-                      </>
-                    )
-                  })()}
-                  <span className="badge" style={{ background: 'var(--color-gold-bg)', color: 'var(--color-gold-dark)' }}>{currentCustomer.loyalty_points || 0} نقطة ولاء</span>
-                </div>
-              </div>
-
-              <div style={{ padding: '24px' }}>
-                <h4 style={{ fontSize: '16px', fontWeight: 800, margin: '0 0 16px 0', display: 'flex', alignItems: 'center', gap: '8px' }}><RiShoppingBag3Line /> سجل الطلبات (أحدث 5)</h4>
-                
-                {(!currentCustomer.recent_orders || currentCustomer.recent_orders.length === 0) ? (
-                  <div style={{ padding: '32px', textAlign: 'center', background: 'var(--bg-body)', borderRadius: '12px', color: 'var(--text-secondary)' }}>
-                    لم يقم هذا العميل بأي طلبات بعد.
-                  </div>
-                ) : (
-                  <div className="table-wrap" style={{ border: '1px solid var(--border)' }}>
-                    <table>
-                      <thead>
-                        <tr>
-                          <th>رقم الطلب</th>
-                          <th>التاريخ</th>
-                          <th>المبلغ</th>
-                          <th>الحالة</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {currentCustomer.recent_orders.map(o => (
-                          <tr key={o.id}>
-                            <td style={{ fontWeight: 700, fontFamily: 'monospace' }}>{o.order_number}</td>
-                            <td style={{ fontSize: 12 }}>{new Date(o.created_at).toLocaleDateString('ar-OM')}</td>
-                            <td style={{ fontWeight: 700 }}><div style={{ display: 'flex', alignItems: 'center', gap: 4 }}><OmrSymbol size={11} primaryColor="var(--text-primary)" secondaryColor="var(--color-gold)" /> <span className="font-mono">{parseFloat(o.total_amount).toFixed(3)}</span></div></td>
-                            <td><span className="badge" style={{ background: 'var(--bg-body)', color: 'var(--text-secondary)' }}>{o.status}</span></td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
+        <CustomerProfile id={currentCustomer.id} onClose={() => setShowDetailsModal(false)} />
       )}
 
       {/* Add / Edit Customer Modal */}
