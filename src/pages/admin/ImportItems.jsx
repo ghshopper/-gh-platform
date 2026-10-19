@@ -207,6 +207,16 @@ export default function ImportItems() {
     [items, rows, defaultCat], // eslint-disable-line react-hooks/exhaustive-deps
   )
   const selectedIds = Object.keys(selected).filter((k) => selected[k]).map(Number)
+  // Priced but no category: they can't be added until a category is chosen.
+  const pricedNoCat = items.filter((it) => parseFloat(rows[it.id]?.price) > 0 && !catOf(it.id))
+  const unpriced = items.filter((it) => !(parseFloat(rows[it.id]?.price) > 0))
+  const [view, setView] = useState('all')
+  const shown = view === 'ready' ? ready : view === 'nocat' ? pricedNoCat : view === 'unpriced' ? unpriced : items
+  const setCatFor = (list, category_id) => setRows((r) => {
+    const n = { ...r }
+    list.forEach((it) => { n[it.id] = { ...n[it.id], category_id } })
+    return n
+  })
 
   const publishReady = async () => {
     if (!ready.length) return toast.error('اكتب السعر والتصنيف أول')
@@ -333,7 +343,7 @@ export default function ImportItems() {
             </button>
           )}
           <button className="btn btn-primary" disabled={bulkBusy || !ready.length} onClick={publishReady}>
-            {bulkBusy ? <RiLoader4Line className="spin" /> : <RiCheckLine />} إضافة اللي لها سعر ({ready.length})
+            {bulkBusy ? <RiLoader4Line className="spin" /> : <RiCheckLine />} إضافة الجاهزة ({ready.length})
           </button>
         </div>
       </div>
@@ -361,13 +371,33 @@ export default function ImportItems() {
         </div>
       )}
 
+      {pricedNoCat.length > 0 && (
+        <div className="card imp-warn">
+          <b>{pricedNoCat.length} منتج كتبت لها سعر بس ما لها تصنيف، فما تنضاف.</b>
+          <span>اختر تصنيفها:</span>
+          <select value="" onChange={(e) => e.target.value && setCatFor(pricedNoCat, e.target.value)}>
+            <option value="">اختر…</option>
+            {categories.map((c) => <option key={c.id} value={c.id}>{c.name_ar || c.name_en}</option>)}
+          </select>
+          <button className="btn btn-ghost" onClick={() => setView('nocat')}>اعرضها</button>
+        </div>
+      )}
+
+      {items.length > 0 && (
+        <div className="imp-tabs">
+          {[['all', 'الكل', items.length], ['ready', 'جاهزة للإضافة', ready.length], ['nocat', 'ناقصها تصنيف', pricedNoCat.length], ['unpriced', 'بدون سعر', unpriced.length]].map(([k, l, n]) => (
+            <button key={k} className={view === k ? 'on' : ''} onClick={() => setView(k)}>{l} <span>{n}</span></button>
+          ))}
+        </div>
+      )}
+
       {loading ? (
         <div className="imp-empty"><RiLoader4Line className="spin" size={28} /></div>
       ) : !items.length ? (
         <div className="imp-empty">ما في منتجات تنتظر. استخدم زر الجمع على صفحة البراند.</div>
       ) : (
         <div className="imp-list">
-          {items.map((it) => {
+          {shown.map((it) => {
             const img = (it.images || [])[0]
             const hint = it.source_price && HINT_RATES[it.currency] ? it.source_price * HINT_RATES[it.currency] : null
             return (
@@ -454,7 +484,7 @@ export default function ImportItems() {
                   </div>
                   {hint ? <small>≈ {money(hint)} ر.ع بدون ربح</small> : <small>&nbsp;</small>}
                   <select
-                    className={!rows[it.id]?.category_id && it.category_id ? 'imp-auto' : ''}
+                    className={!catOf(it.id) && parseFloat(rows[it.id]?.price) > 0 ? 'imp-need' : !rows[it.id]?.category_id && it.category_id ? 'imp-auto' : ''}
                     value={rows[it.id]?.category_id || it.category_id || ''}
                     onChange={(e) => setRow(it.id, { category_id: e.target.value })}
                   >
@@ -620,6 +650,13 @@ const CSS = `
 .imp-src-cur{font-size:12px;color:var(--text-secondary)}
 .imp-price{display:flex;flex-direction:column;gap:4px}
 .imp-omr{display:flex;align-items:center;gap:6px}
+.imp-warn{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:14px 18px;margin-bottom:14px;background:#FFF6E8;border:1px solid #F0D7A8}
+.imp-warn b{color:#8A4B00;font-size:14px}
+.imp-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}
+.imp-tabs button{border:1px solid var(--border);background:var(--bg-card,#fff);border-radius:999px;padding:7px 14px;font:inherit;font-size:13px;cursor:pointer;color:var(--text-primary)}
+.imp-tabs button span{opacity:.6;margin-inline-start:4px}
+.imp-tabs button.on{background:#1F1915;border-color:#1F1915;color:#fff}
+.imp select.imp-need{border-color:#D92D20;background:#FEF3F2;color:#B42318}
 .imp-omr input{width:100%;font-size:16px;font-weight:700;direction:ltr;text-align:left}
 .imp-omr span{font-size:12px;color:var(--text-secondary)}
 .imp-price small{font-size:11.5px;color:var(--text-secondary)}
