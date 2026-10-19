@@ -9,6 +9,7 @@ import 'package:share_plus/share_plus.dart';
 
 import '../config.dart';
 import '../data/api.dart';
+import '../story/cutout.dart';
 import '../story/story_canvas.dart';
 import '../ui/colors.dart';
 import '../ui/kit.dart';
@@ -44,7 +45,7 @@ class StoryProduct {
     return StoryProduct(
       id: int.tryParse('${j['id']}') ?? 0,
       name: ((j['name_ar'] ?? '').toString().trim().isNotEmpty ? j['name_ar'] : j['name_en'] ?? '').toString(),
-      brand: (j['brand_name_en'] ?? j['brand_name'] ?? '').toString(),
+      brand: (j['brand_name_en'] ?? j['brand_name'] ?? j['brand_name_ar'] ?? '').toString(),
       price: onSale ? compare : price,
       was: onSale ? price : null,
       image: img.isEmpty ? null : storyImageUrl(img),
@@ -81,6 +82,9 @@ class _StoryPickPageState extends State<StoryPickPage> {
   List<StoryProduct> _items = [];
   final Map<int, StoryProduct> _chosen = {};
   bool _loading = true;
+  bool _more = false;
+  int _page = 1;
+  int _total = 0;
   String? _error;
   Timer? _debounce;
 
@@ -97,18 +101,26 @@ class _StoryPickPageState extends State<StoryPickPage> {
     super.dispose();
   }
 
-  Future<void> _load() async {
+  /// Every product in the store (search by name or brand), 60 at a time.
+  Future<void> _load({bool next = false}) async {
     setState(() {
       _loading = true;
       _error = null;
     });
     try {
       final q = Uri.encodeQueryComponent(_search.text.trim());
-      final res = await Api.i.get('/customer/products?per_page=40&sort_by=created_at&sort_order=desc${q.isEmpty ? '' : '&search=$q'}');
-      dynamic rows = res is Map ? (res['data'] ?? res) : res;
-      if (rows is Map) rows = rows['data'] ?? [];
+      final page = next ? _page + 1 : 1;
+      final res = await Api.i.get('/admin/products?per_page=60&page=$page${q.isEmpty ? '' : '&search=$q'}');
+      final rows = res is Map ? (res['data'] ?? []) : res;
       final list = (rows as List).whereType<Map>().map((e) => StoryProduct.fromJson(Map<String, dynamic>.from(e))).toList();
-      if (mounted) setState(() => _items = list);
+      if (mounted) {
+        setState(() {
+          _items = next ? [..._items, ...list] : list;
+          _page = page;
+          _total = res is Map ? int.tryParse('${res['total'] ?? ''}') ?? _items.length : _items.length;
+          _more = res is Map && (int.tryParse('${res['last_page'] ?? 1}') ?? 1) > page;
+        });
+      }
     } catch (e) {
       if (mounted) setState(() => _error = e.toString());
     } finally {
@@ -139,7 +151,7 @@ class _StoryPickPageState extends State<StoryPickPage> {
           padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
           child: CupertinoSearchTextField(
             controller: _search,
-            placeholder: 'ابحث باسم المنتج',
+            placeholder: 'ابحث باسم المنتج أو البراند',
             onChanged: _onSearch,
             backgroundColor: GH.card,
           ),
@@ -157,7 +169,8 @@ class _StoryPickPageState extends State<StoryPickPage> {
           const EmptyState(icon: CupertinoIcons.search, title: 'ما في منتجات بهذا الاسم')
         else
           Section(
-            header: 'اختر المنتجات',
+            header: 'اختر المنتجات · $_total',
+            footer: _more ? null : (_items.length > 8 ? 'هذي كل المنتجات' : null),
             children: _items.map((p) {
               final on = _chosen.containsKey(p.id);
               return Tile(
@@ -177,6 +190,11 @@ class _StoryPickPageState extends State<StoryPickPage> {
                 onTap: () => setState(() => on ? _chosen.remove(p.id) : _chosen[p.id] = p),
               );
             }).toList(),
+          ),
+        if (_more)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
+            child: SecondaryButton(_loading ? 'يحمّل…' : 'عرض المزيد', onPressed: _loading ? null : () => _load(next: true)),
           ),
       ],
     );
@@ -228,6 +246,30 @@ class _StoryComposePageState extends State<StoryComposePage> {
   int _page = 0;
   bool _busy = false;
 
+  /// Photos with the background taken out (ready one by one).
+  late final List<Future<void>> _cutouts = [
+    for (var i = 0; i < _data.length; i++) _cut(i),
+  ];
+  int _cutting = 0;
+
+  Future<void> _cut(int i) async {
+    final url = widget.dataOverride == null && i < widget.products.length ? widget.products[i].image : null;
+    if (url == null) return;
+    setState(() => _cutting++);
+    try {
+      final img = await cutoutImage(url);
+      if (img != null && mounted) setState(() => _data[i].image = img);
+    } finally {
+      if (mounted) setState(() => _cutting--);
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _cutouts.length);
+  }
+
   @override
   void dispose() {
     _pages.dispose();
@@ -256,6 +298,8 @@ class _StoryComposePageState extends State<StoryComposePage> {
   }
 
   Future<File> _capture(int i) async {
+    await _cutouts[i];
+    await Future<void>.delayed(const Duration(milliseconds: 120));
     final ctx = _keys[i].currentContext;
     if (ctx == null) throw Exception('الصورة مب جاهزة');
     final img = _data[i].image;
@@ -347,11 +391,15 @@ class _StoryComposePageState extends State<StoryComposePage> {
                 ),
               ),
             ),
-            if (many)
-              Padding(
-                padding: const EdgeInsets.only(top: 6),
-                child: Text('${_page + 1} من ${_data.length} · اسحب للمنتج الثاني', style: T.small),
-              ),
+            Padding(
+              padding: const EdgeInsets.only(top: 6),
+              child: Text(
+                  [
+                    if (_cutting > 0) 'يشيل خلفية الصور…',
+                    if (many) '${_page + 1} من ${_data.length} · اسحب للمنتج الثاني',
+                  ].join(' · '),
+                  style: T.small),
+            ),
             // Designs.
             SizedBox(
               height: 128,

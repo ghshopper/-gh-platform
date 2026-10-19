@@ -18,6 +18,7 @@ import 'package:gh_shopper/pages/trips_page.dart';
 import 'package:gh_shopper/pages/requests_page.dart';
 import 'package:gh_shopper/pages/story_page.dart';
 import 'package:gh_shopper/story/story_canvas.dart';
+import 'package:gh_shopper/story/cutout.dart';
 import 'package:gh_shopper/pdf_waybill.dart';
 import 'dart:io';
 
@@ -202,6 +203,21 @@ void main() {
       await expectLater(find.byType(RepaintBoundary).first, matchesGoldenFile('goldens/story-${t.name}.png'));
     });
   }
+
+  // A brand photo on a grey studio background: the background comes out.
+  testWidgets('story-cutout', (tester) async {
+    tester.view.physicalSize = const Size(1080, 1920);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final bytes = File('test_shots/sample_grey.jpg').readAsBytesSync();
+    final img = await tester.runAsync(() => cutoutBytes(bytes));
+    final d = StoryData(brand: 'DIOR', name: 'Dior Glycine Dioramour wallet', price: 283, image: img);
+    await tester.pumpWidget(RepaintBoundary(
+      child: Directionality(textDirection: TextDirection.rtl, child: StoryCanvas(data: d, template: StoryTemplate.classic)),
+    ));
+    await warmImages(tester, [img!, ...storyAssets]);
+    await expectLater(find.byType(RepaintBoundary).first, matchesGoldenFile('goldens/story-cutout.png'));
+  });
 
   for (final screen in ['story-compose', 'today2', 'more']) {
     testWidgets(screen, (tester) async {
