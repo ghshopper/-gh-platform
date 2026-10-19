@@ -69,6 +69,30 @@ export default function ImportItems() {
 
   useEffect(() => { load() }, [brand]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Arabic names come from the server's translator, a batch at a time.
+  const [translating, setTranslating] = useState(false)
+  const needAr = items.some((x) => !x.name_ar)
+  useEffect(() => {
+    if (loading || translating || !needAr) return
+    let stop = false
+    ;(async () => {
+      setTranslating(true)
+      try {
+        for (let round = 0; round < 10 && !stop; round++) {
+          const r = await api.post('/admin/import-items/translate')
+          const got = Array.isArray(r.data.data) ? r.data.data : []
+          if (got.length) {
+            const byId = Object.fromEntries(got.map((g) => [g.id, g]))
+            setItems((list) => list.map((x) => (byId[x.id] ? { ...x, ...byId[x.id] } : x)))
+          }
+          if (!r.data.left || !got.some((g) => g.name_ar)) break
+        }
+      } catch { /* names stay English; can be typed by hand */ }
+      setTranslating(false)
+    })()
+    return () => { stop = true }
+  }, [loading, needAr]) // eslint-disable-line react-hooks/exhaustive-deps
+
   useEffect(() => {
     const added = params.get('added')
     if (added !== null) {
@@ -275,8 +299,9 @@ export default function ImportItems() {
                   <div className="imp-name">{it.name_en}</div>
                   <input
                     className="imp-ar"
+                    key={'ar' + it.id + (it.name_ar || '')}
                     defaultValue={it.name_ar || ''}
-                    placeholder="الاسم بالعربي (اختياري)"
+                    placeholder={translating && !it.name_ar ? 'يترجم…' : 'الاسم بالعربي'}
                     onBlur={(e) => saveName(it, e.target.value.trim())}
                   />
                   <div className="imp-meta">
