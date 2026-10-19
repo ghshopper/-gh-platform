@@ -82,7 +82,24 @@ export function optionsExtra(p: Product, chosen: Record<string, string>, pick: (
 
 /** A choice the customer must make before adding to the bag (engraving is optional). */
 export function mustChoose(a: ProductAttribute): boolean {
+  if (a.type !== 'engraving' && (a.values ?? []).length <= 1) return false; // one option: nothing to choose
   return a.is_selectable !== false && (a.type !== 'engraving' || !!a.required);
+}
+
+/** Options with a single value are chosen for the customer (e.g. the only colour). */
+export function withSingles(p: Product, chosen: Record<string, string>, pick: (o: object, f: string) => string): Record<string, string> {
+  const out = { ...chosen };
+  for (const a of productAttributes(p)) {
+    if (a.is_selectable === false || a.type === 'engraving' || (a.values ?? []).length !== 1) continue;
+    const label = pick(a, 'name');
+    if (label && !out[label]) out[label] = pick((a.values ?? [])[0], 'value');
+  }
+  return out;
+}
+
+/** True when adding to the bag needs a choice first (more than one option, or engraving). */
+export function needsChoice(p: Product): boolean {
+  return productAttributes(p).some((a) => a.is_selectable !== false && (a.type === 'engraving' || (a.values ?? []).length > 1));
 }
 
 export function inStock(p: Product): boolean {

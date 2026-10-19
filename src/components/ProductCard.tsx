@@ -1,8 +1,9 @@
 import { createContext, useContext, useState, type ReactNode } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { imageUrl } from '../lib/api';
+import { SafeImg } from './SafeImg';
 import { originOf } from '../lib/eta';
-import { inStock, isOnOrder, mustChoose, num, omr, optionsExtra, productAttributes, productImages, productPrice, productWasPrice } from '../lib/format';
+import { inStock, isOnOrder, mustChoose, needsChoice, num, omr, optionsExtra, withSingles, productAttributes, productImages, productPrice, productWasPrice } from '../lib/format';
 import { usePrefs } from '../lib/prefs';
 import { useCart, useToast, useWishlist } from '../lib/store';
 import type { Product } from '../lib/types';
@@ -15,7 +16,8 @@ export function useAddToBag() {
   const cart = useCart();
   const { pick, tr } = usePrefs();
   const { show } = useToast();
-  return (p: Product, chosen: Record<string, string>) => {
+  return (p: Product, picked: Record<string, string>) => {
+    const chosen = withSingles(p, picked, pick);
     cart.add({
       productId: p.id,
       name: pick(p, 'name'),
@@ -67,6 +69,15 @@ export function OptionPicker({ product, chosen, setChosen }: { product: Product;
             </div>
           );
         }
+        if ((a.values ?? []).length === 1) {
+          // Only one: shown, not asked.
+          const v = (a.values ?? [])[0];
+          return (
+            <div key={i} className="opt one">
+              <div className="opt-label">{label}<span>: {pick(v, 'value')}</span></div>
+            </div>
+          );
+        }
         return (
           <div key={i} className="opt">
             <div className="opt-label">
@@ -83,7 +94,7 @@ export function OptionPicker({ product, chosen, setChosen }: { product: Product;
                 const on = chosen[label] === val;
                 return v.image ? (
                   <button key={k} type="button" className={`swatch img${on ? ' on' : ''}`} title={val} aria-label={val} aria-pressed={on} onClick={() => setChosen({ ...chosen, [label]: val })}>
-                    <img src={imageUrl(v.image)} alt="" />
+                    <SafeImg src={imageUrl(v.image)} alt="" />
                   </button>
                 ) : v.color_code ? (
                   <button key={k} type="button" className={`swatch${on ? ' on' : ''}`} title={val} aria-label={val} aria-pressed={on} onClick={() => setChosen({ ...chosen, [label]: val })}>
@@ -121,7 +132,7 @@ function QuickAddModal({ product, onClose }: { product: Product; onClose: () => 
       <div className="modal-card" onClick={(e) => e.stopPropagation()}>
         <button className="icon-btn modal-x" onClick={onClose} aria-label={tr('إغلاق', 'Close')}><Icon name="close" /></button>
         <div className="qa-head">
-          <div className="qa-img">{productImages(product)[0] ? <img src={imageUrl(productImages(product)[0])} alt="" /> : null}</div>
+          <div className="qa-img">{productImages(product)[0] ? <SafeImg src={imageUrl(productImages(product)[0])} alt="" /> : null}</div>
           <div>
             <div className="brand">{brandOf(product).toUpperCase()}</div>
             <div className="muted">{pick(product, 'name')}</div>
@@ -166,8 +177,8 @@ export function ProductCard({ product }: { product: Product }) {
   return (
     <article className="pcard">
       <Link to={`/product/${product.id}`} className="pcard-media" aria-label={`${brandOf(product)} ${pick(product, 'name')}`}>
-        {imgs[0] ? <img src={imageUrl(imgs[0])} alt={`${brandOf(product)} ${pick(product, 'name')}`.trim()} loading="lazy" /> : <span className="ph">{brandOf(product).toUpperCase()}</span>}
-        {imgs[1] ? <img src={imageUrl(imgs[1])} alt="" loading="lazy" className="alt" /> : null}
+        {imgs[0] ? <SafeImg src={imageUrl(imgs[0])} alt={`${brandOf(product)} ${pick(product, 'name')}`.trim()} loading="lazy" /> : <span className="ph">{brandOf(product).toUpperCase()}</span>}
+        {imgs[1] ? <SafeImg src={imageUrl(imgs[1])} alt="" loading="lazy" className="alt" /> : null}
         {out ? <span className="badge soft">{tr('نفدت الكمية', 'Sold out')}</span> : off >= 5 ? <span className="badge">-{off}%</span> : null}
       </Link>
       <button
@@ -185,7 +196,7 @@ export function ProductCard({ product }: { product: Product }) {
         <button
           className="pcard-add"
           aria-label={tr('أضف إلى السلة', 'Add to bag')}
-          onClick={() => (productAttributes(product).some((a) => a.is_selectable !== false) ? quick(product) : add(product, {}))}
+          onClick={() => (needsChoice(product) ? quick(product) : add(product, {}))}
         >
           <Icon name="bagAdd" size={18} />
           <span>{tr('أضف للسلة', 'Add to bag')}</span>

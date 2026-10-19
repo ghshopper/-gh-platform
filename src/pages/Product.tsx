@@ -8,6 +8,7 @@ import { useAuth, useData, useToast, useWishlist } from '../lib/store';
 import { etaDates, etaDuration, ORIGIN_LABEL, productEta } from '../lib/eta';
 import type { Product } from '../lib/types';
 import { Icon } from '../components/Icon';
+import { SafeImg } from '../components/SafeImg';
 import { brandOf, OptionPicker, Price, ProductCard, useAddToBag } from '../components/ProductCard';
 
 const WA = '96877246972';
@@ -36,6 +37,8 @@ export default function ProductPage() {
     return listOf<Product>(await api.get<unknown>('/customer/products', { category_id: p.category_id, per_page: 9, gender: gender || undefined })).filter((x) => x.id !== p.id).slice(0, 8);
   }, [p?.category_id, p?.id, gender]);
   const [img, setImg] = useState(0);
+  const [badImgs, setBadImgs] = useState<string[]>([]);
+  const dropImg = (u: string) => { setBadImgs((b) => (b.includes(u) ? b : [...b, u])); setImg(0); };
   const [chosen, setChosen] = useState<Record<string, string>>({});
   const [missing, setMissing] = useState<string | null>(null);
   const [zoom, setZoom] = useState(false);
@@ -45,13 +48,14 @@ export default function ProductPage() {
   useTitle(p ? `${brandOf(p)} ${pick(p, 'name')}` : '');
   useEffect(() => {
     setImg(0);
+    setBadImgs([]);
     setChosen({});
   }, [id]);
 
   if (product.loading && !p) return <div className="container page"><div className="pdp"><div className="skeleton tall" /><div className="skeleton" /></div></div>;
   if (!p) return <div className="container page empty"><p>{tr('القطعة غير متوفرة حالياً', 'This piece is not available')}</p><Link to="/shop" className="btn outline">{tr('تسوّق', 'Shop')}</Link></div>;
 
-  const images = productImages(p);
+  const images = productImages(p).filter((u) => !badImgs.includes(u));
   const attrs = productAttributes(p);
   const selectable = attrs.filter((a) => a.is_selectable !== false);
   const specs = attrs.filter((a) => a.is_selectable === false);
@@ -79,11 +83,11 @@ export default function ProductPage() {
         <div className="gallery">
           <div className="thumbs">
             {images.map((im, i) => (
-              <button key={i} className={i === img ? 'on' : ''} onClick={() => setImg(i)} aria-label={`${i + 1}`}><img src={imageUrl(im)} alt="" /></button>
+              <button key={im} className={i === img ? 'on' : ''} onClick={() => setImg(i)} aria-label={`${i + 1}`}><SafeImg src={imageUrl(im)} alt="" onFail={() => dropImg(im)} /></button>
             ))}
           </div>
           <div className="main-img" onClick={() => images.length && setZoom(true)}>
-            {images[img] ? <img src={imageUrl(images[img])} alt={name} /> : <span className="ph">{brandOf(p).toUpperCase()}</span>}
+            {images[img] ? <SafeImg key={images[img]} src={imageUrl(images[img])} alt={name} onFail={() => dropImg(images[img])} /> : <span className="ph">{brandOf(p).toUpperCase()}</span>}
           </div>
           {p.video_url ? <video className="pdp-video" src={imageUrl(p.video_url)} controls playsInline muted /> : null}
         </div>
@@ -117,7 +121,7 @@ export default function ProductPage() {
                   const pic = v.variant_image || (!v.variant_hex ? v.primary_image : null);
                   return (
                     <Link key={v.id} to={`/product/${v.id}`} replace className={`vswatch${v.id === p.id ? ' on' : ''}`} title={label} aria-label={label} aria-current={v.id === p.id ? 'true' : undefined}>
-                      {pic ? <img src={imageUrl(pic)} alt="" /> : v.variant_hex ? <span style={{ background: v.variant_hex }} /> : <b>{label}</b>}
+                      {pic ? <SafeImg src={imageUrl(pic)} alt="" /> : v.variant_hex ? <span style={{ background: v.variant_hex }} /> : <b>{label}</b>}
                     </Link>
                   );
                 })}
@@ -193,7 +197,7 @@ export default function ProductPage() {
 
       {zoom ? (
         <div className="lightbox" onClick={() => setZoom(false)}>
-          <img src={imageUrl(images[img])} alt="" />
+          <SafeImg src={imageUrl(images[img])} alt="" />
           <button className="icon-btn" aria-label={tr('إغلاق', 'Close')}><Icon name="close" /></button>
         </div>
       ) : null}
