@@ -159,7 +159,7 @@ export default function Account() {
       </header>
       <div className="acc-grid">
         <aside>
-          <div className="member">
+          <div className={`member ${/beige|بيج/i.test(user.loyalty_tier ?? '') ? 'tier-beige' : /black|أسود/i.test(user.loyalty_tier ?? '') ? 'tier-black' : 'tier-burgundy'}`}>
             <span className="kicker gold">GH MEMBER{bal?.tier_id ? ` · ${tierName(bal.tier_id).toUpperCase()}` : ''}</span>
             <b>{user.name}</b>
             <span className="l small">{user.email}</span>

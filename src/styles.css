@@ -491,6 +491,12 @@ summary::-webkit-details-marker { display: none; }
 .member .kicker.gold { color: #d6b08c; }
 .member b { font-size: 19px; font-weight: 500; }
 .member .small, .member small { color: rgba(255,255,255,.72); }
+.member.tier-beige { background: linear-gradient(135deg, #ECDFC9, #CDB794); color: #2A1A10; }
+.member.tier-beige .kicker.gold { color: #6B4E2E; }
+.member.tier-beige .small, .member.tier-beige small { color: rgba(42,26,16,.7); }
+.member.tier-burgundy { background: linear-gradient(135deg, #6A0E1A, #2E0306); }
+.member.tier-black { background: linear-gradient(135deg, #1C1C1C, #000); }
+.member.tier-black .kicker.gold { color: #C9A465; }
 .member-pts { display: flex; align-items: baseline; gap: 8px; }
 .member-pts .l { font-size: 30px; }
 .acc-links { display: grid; margin-top: 14px; border-top: 1px solid var(--line); }
