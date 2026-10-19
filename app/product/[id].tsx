@@ -268,8 +268,8 @@ export default function ProductScreen() {
           </View>
           <T size={12.5} color={C.sub}>
             {tr(
-              `مندوبنا لباب البيت ${app.delivery.home_fee} ر.ع. · نول وجيناكم للبيت ${app.delivery.home_fee} ر.ع. أو من الفرع ${app.delivery.branch_fee} ر.ع.`,
-              `Our driver to your door OMR ${app.delivery.home_fee} · Nool / Genacom to your door OMR ${app.delivery.home_fee} or branch pickup OMR ${app.delivery.branch_fee}`,
+              `مسقط وبركاء: مندوبنا لباب البيت ${app.delivery.home_fee} ر.ع. · باقي السلطنة: جيناكم للبيت ${app.delivery.home_fee} ر.ع. · أو استلام من مكتب جيناكم ${app.delivery.branch_fee} ر.ع.`,
+              `Muscat & Barka: our driver to your door OMR ${app.delivery.home_fee} · Rest of Oman: Genacom to your door OMR ${app.delivery.home_fee} · or pick up at a Genacom office OMR ${app.delivery.branch_fee}`,
             )}
           </T>
         </View>
