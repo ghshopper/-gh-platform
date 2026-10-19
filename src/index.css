@@ -1068,3 +1068,5 @@ tbody tr:last-child td { border-bottom: none; }
   .page-inner { padding: 18px 14px !important; }
   .page-title-main { font-size: 22px !important; }
 }
+.table-container th, .table-container td { padding: 12px 12px !important; }
+.table-container table { min-width: 0 !important; }
