@@ -94,6 +94,15 @@ function Feature({ icon, title, sub, middle }: { icon: IconName; title: string; 
   );
 }
 
+/** Sections (beauty / fashion / gifts) hold the categories: show a mix of them. */
+function homeCategories(cats: Category[]): Category[] {
+  const lists = cats.map((c) => (c.children?.length ? c.children : [c]));
+  if (lists.every((l, i) => l[0] === cats[i])) return cats;
+  const out: Category[] = [];
+  for (let k = 0; lists.some((l) => l[k]); k++) lists.forEach((l) => l[k] && out.push(l[k]));
+  return out;
+}
+
 export default function Home() {
   const insets = useSafeAreaInsets();
   const { isAr, tr, pick } = useLang();
@@ -195,7 +204,7 @@ export default function Home() {
               onAction={() => router.push('/categories')}
             />
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: S.gutter, gap: 10 }}>
-              {app.categories.slice(0, num(sections.categories?.items_count, 12) || 12).map((c: Category, i: number) => (
+              {homeCategories(app.categories).slice(0, num(sections.categories?.items_count, 12) || 12).map((c: Category, i: number) => (
                 <Pressable key={c.id} onPress={() => router.push({ pathname: '/products', params: { category_id: String(c.id), title: pick(c, 'name') } })} style={{ width: 124 }} accessibilityRole="button">
                   <CategoryArt c={c} index={i} width={124} height={156} compact />
                 </Pressable>

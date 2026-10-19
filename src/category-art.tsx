@@ -20,9 +20,14 @@ export const BRAND = {
   white: '#FFFFFF',
 };
 
-type Kind = 'bag' | 'shoe' | 'watch' | 'perfume' | 'jewel' | 'glasses' | 'clothes' | 'wallet' | 'beauty' | 'kids' | 'gift' | 'other';
+type Kind = 'bag' | 'shoe' | 'watch' | 'perfume' | 'jewel' | 'glasses' | 'clothes' | 'wallet' | 'beauty' | 'kids' | 'gift' | 'pen' | 'belt' | 'travel' | 'home' | 'other';
 
 const WORDS: [Kind, RegExp][] = [
+  ['home', /منزل|شمع|home|candle/i],
+  ['gift', /هدي|هدايا|gift/i],
+  ['travel', /سفر|travel|luggage/i],
+  ['pen', /قلم|اقلام|أقلام|pen/i],
+  ['belt', /حزام|أحزمة|احزمة|belt/i],
   ['bag', /حقيب|حقائب|شنط|شنطة|bag|tote|clutch/i],
   ['shoe', /حذاء|احذي|أحذي|جزم|نعال|كعب|سنيكر|shoe|sneaker|heel|boot|sandal/i],
   ['watch', /ساع|watch/i],
@@ -57,6 +62,10 @@ export function CategoryIcon({ kind, size = 40, color = BRAND.gold, stroke = 1.1
       {kind === 'kids' && (<><Circle cx={24} cy={15} r={5} {...p} /><Path d="M15 40l2-14h14l2 14M19 26l-5 5M29 26l5 5" {...p} /></>)}
       {kind === 'gift' && (<><Rect x={10} y={20} width={28} height={20} {...p} /><Path d="M8 15h32v5H8zM24 15v25M24 15c-3-6-10-6-8-1M24 15c3-6 10-6 8-1" {...p} /></>)}
       {kind === 'clothes' && (<><Path d="M24 13a3 3 0 1 1 3 3c-1.6 0-3 1-3 2.5v1.5M24 20L8 31h32z" {...p} /><Path d="M8 31v2h32v-2" {...p} /></>)}
+      {kind === 'pen' && (<><Path d="M30 8l10 10-20 20-12 2 2-12z" {...p} /><Path d="M26 12l10 10M10 38l6-6" {...p} /></>)}
+      {kind === 'belt' && (<><Rect x={6} y={20} width={36} height={9} rx={1.5} {...p} /><Rect x={15} y={17} width={11} height={15} rx={2} {...p} /><Path d="M20.5 24.5h8" {...p} /></>)}
+      {kind === 'travel' && (<><Rect x={12} y={15} width={24} height={25} rx={3} {...p} /><Path d="M19 15v-5h10v5M18 40v3M30 40v3M12 25h24" {...p} /></>)}
+      {kind === 'home' && (<><Path d="M16 22h16v18H16z" {...p} /><Path d="M24 22v-5M24 8c3 3 3 6 0 9-3-3-3-6 0-9z" {...p} /><Path d="M14 40h20" {...p} /></>)}
       {kind === 'other' && (<><Path d="M24 9l4 10 11 1-8 7 2.5 11L24 32l-9.5 6L17 27l-8-7 11-1z" {...p} /></>)}
     </Svg>
   );

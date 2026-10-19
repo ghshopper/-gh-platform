@@ -7,6 +7,7 @@ import { Icon } from '@/icons';
 import { useLang } from '@/lang';
 import { C, S } from '@/theme';
 import type { LoyaltyTier } from '@/types';
+import { tierLook } from '@/tier-look';
 import { Header, Loader, T } from '@/ui';
 
 const W = Dimensions.get('window').width;
@@ -56,8 +57,12 @@ function TierCard({ tier, index, width, current, reached, points, worth }: {
   tier: LoyaltyTier; index: number; width: number; current: boolean; reached: boolean; points?: number; worth?: string;
 }) {
   const { tr, pick, isAr } = useLang();
-  const look = lookOf(index);
   const name = (isAr ? tier.name_ar : tier.name_en) || tier.name || pick(tier, 'name');
+  // same colours as the member card when the tier name is known
+  const named = tierLook(`${tier.name_en ?? ''} ${tier.name_ar ?? ''} ${tier.name ?? ''}`);
+  const look = /bronze|silver|gold|platinum|privilege|vip|برونز|فض|ذهب|بلاتين/i.test(`${tier.name_en ?? ''} ${tier.name_ar ?? ''} ${tier.name ?? ''}`)
+    ? { bg: named.bg[1], ink: named.ink, soft: named.soft, line: named.line }
+    : lookOf(index);
   const mult = num(tier.reward_multiplier, 1);
   return (
     <View style={{ width, aspectRatio: 1.58, backgroundColor: look.bg, padding: 20, justifyContent: 'space-between', overflow: 'hidden', opacity: reached || current ? 1 : 0.92 }}>

@@ -11,6 +11,8 @@ import { pushEnabled, setPushEnabled } from '@/push';
 import { C, S } from '@/theme';
 import { Btn, Row, T } from '@/ui';
 import { useWishlist } from '@/wishlist';
+import { LinearGradient } from 'expo-linear-gradient';
+import { tierLook } from '@/tier-look';
 
 const COMPANY_WA = '96877246972';
 const INSTAGRAM = 'https://instagram.com/shopper.gh';
@@ -79,25 +81,32 @@ export default function Account() {
       </View>
 
       {/* Member card */}
-      {loggedIn && user ? (
+      {loggedIn && user ? (() => {
+        const look = tierLook(user.loyalty_tier);
+        return (
         <Pressable onPress={() => router.push('/loyalty')} accessibilityRole="button"
-          style={{ marginHorizontal: S.gutter, marginTop: 16, padding: 20, backgroundColor: CARD, minHeight: 176, justifyContent: 'space-between' }}>
+          style={{ marginHorizontal: S.gutter, marginTop: 16, minHeight: 176, overflow: 'hidden' }}>
+          <LinearGradient colors={look.bg} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ padding: 20, minHeight: 176, justifyContent: 'space-between' }}>
+          <View style={{ position: 'absolute', top: 8, left: 8, right: 8, bottom: 8, borderWidth: 0.7, borderColor: look.line, opacity: 0.45 }} />
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <T latin size={11} spacing={3} color={CARD_GOLD}>{`GH MEMBER${user.loyalty_tier ? ` · ${user.loyalty_tier.toUpperCase()}` : ''}`}</T>
-            <Icon name="crown" size={20} color={CARD_GOLD} stroke={1.2} />
+            <T latin size={11} spacing={3} color={look.soft}>{`GH MEMBER${user.loyalty_tier ? ` · ${user.loyalty_tier.toUpperCase()}` : ''}`}</T>
+            <Icon name="crown" size={20} color={look.soft} stroke={1.2} />
           </View>
           <View style={{ gap: 2, marginTop: 18 }}>
-            <T size={19} w="medium" color={C.pure} lines={1}>{user.name}</T>
-            {user.email ? <T latin size={12.5} color="rgba(255,255,255,0.7)" lines={1} ltr>{user.email}</T> : null}
+            <T size={19} w="medium" color={look.ink} lines={1}>{user.name}</T>
+            {user.email ? <T latin size={12.5} color={look.sub} lines={1} ltr>{user.email}</T> : null}
           </View>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: 16 }}>
             <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 8 }}>
-              <T latin size={28} color={C.pure} lh={32}>{points.toLocaleString('en-US')}</T>
-              <T size={12.5} color="rgba(255,255,255,0.75)">{tr('نقطة', 'points')}</T>
+              <T latin size={28} color={look.ink} lh={32}>{points.toLocaleString('en-US')}</T>
+              <T size={12.5} color={look.sub}>{tr('نقطة', 'points')}</T>
             </View>
-            <T size={12} color={CARD_GOLD} style={{ textDecorationLine: 'underline' }}>{tr('تفاصيل النقاط', 'Points details')}</T>
+            <T size={12} color={look.soft} style={{ textDecorationLine: 'underline' }}>{tr('تفاصيل النقاط', 'Points details')}</T>
           </View>
+          </LinearGradient>
         </Pressable>
+        );
+      })()
       ) : (
         <View style={{ marginHorizontal: S.gutter, marginTop: 16, padding: 22, backgroundColor: CARD, gap: 10 }}>
           <T latin size={11} spacing={3} color={CARD_GOLD}>GH MEMBER</T>
