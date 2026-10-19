@@ -113,6 +113,9 @@ export default function ImportItems() {
     return a ? (a.values || []).length : 0
   }
   const splitOf = (it) => colorCount(it) >= 2 && (rows[it.id]?.split ?? true)
+  const genderOf = (it) => rows[it.id]?.gender ?? it.gender ?? ''
+  const originOf = (it) => rows[it.id]?.origin ?? it.origin ?? ''
+  const extra = (it) => ({ gender: genderOf(it) || undefined, origin: originOf(it) || undefined })
   const catOf = (id) => rows[id]?.category_id || items.find((x) => x.id === id)?.category_id || defaultCat
   const setRow = (id, patch) => setRows((r) => ({ ...r, [id]: { ...r[id], ...patch } }))
 
@@ -170,7 +173,7 @@ export default function ImportItems() {
     if (!catOf(it.id)) return toast.error('اختر التصنيف')
     setBusy((b) => ({ ...b, [it.id]: true }))
     try {
-      await api.post(`/admin/import-items/${it.id}/publish`, { price, category_id: Number(catOf(it.id)), availability, split: splitOf(it) })
+      await api.post(`/admin/import-items/${it.id}/publish`, { price, category_id: Number(catOf(it.id)), availability, split: splitOf(it), ...extra(it) })
       toast.success('انضاف للمتجر')
       drop([it.id])
     } catch (e) {
@@ -211,7 +214,7 @@ export default function ImportItems() {
     try {
       const r = await api.post('/admin/import-items/publish', {
         availability,
-        items: ready.map((it) => ({ id: it.id, price: parseFloat(rows[it.id].price), category_id: Number(catOf(it.id)), split: splitOf(it) })),
+        items: ready.map((it) => ({ id: it.id, price: parseFloat(rows[it.id].price), category_id: Number(catOf(it.id)), split: splitOf(it), ...extra(it) })),
       })
       toast.success(`انضاف ${r.data.added} منتج للمتجر`)
       drop(Object.keys(r.data.products || {}).map(Number))
@@ -439,6 +442,20 @@ export default function ImportItems() {
                     <option value="">{defaultCat ? 'التصنيف العام' : 'التصنيف…'}</option>
                     {categories.map((c) => <option key={c.id} value={c.id}>{c.name_ar || c.name_en}</option>)}
                   </select>
+                  <div className="imp-two">
+                    <select value={genderOf(it)} onChange={(e) => setRow(it.id, { gender: e.target.value })} className={!rows[it.id]?.gender && it.gender ? 'imp-auto' : ''}>
+                      <option value="">القسم…</option>
+                      <option value="women">نسائي</option>
+                      <option value="men">رجالي</option>
+                      <option value="unisex">للجنسين</option>
+                    </select>
+                    <select value={originOf(it)} onChange={(e) => setRow(it.id, { origin: e.target.value })} className={!rows[it.id]?.origin && it.origin ? 'imp-auto' : ''}>
+                      <option value="">يُشحن من…</option>
+                      <option value="dubai">دبي</option>
+                      <option value="europe">أوروبا</option>
+                      <option value="oman">عُمان</option>
+                    </select>
+                  </div>
                   {colorCount(it) >= 2 && (
                     <label className="imp-split">
                       <input type="checkbox" checked={splitOf(it)} onChange={(e) => setRow(it.id, { split: e.target.checked })} />
@@ -567,6 +584,8 @@ const CSS = `
 .imp-dots i{width:16px;height:16px;border-radius:50%;background:var(--bg-body);border:1px solid var(--border);overflow:hidden;display:inline-block}
 .imp-dots i img{width:100%;height:100%;object-fit:cover}
 .imp-dots b{font-weight:600;font-size:11px}
+.imp-two{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.imp-two select{padding:6px 6px;font-size:12.5px}
 .imp-split{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-secondary);cursor:pointer}
 .imp select.imp-auto{border-color:#c9a25c;background:rgba(201,162,92,.08)}
 .imp-meta a{color:var(--color-primary);display:inline-flex;align-items:center;gap:3px;text-decoration:none}

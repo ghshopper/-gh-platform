@@ -33,6 +33,22 @@ export default function Products() {
   const [selected, setSelected] = useState([])
   const [bulkBusy, setBulkBusy] = useState(false)
 
+  const bulkSet = async (patch, label) => {
+    if (!selected.length) return
+    setBulkBusy(true)
+    try {
+      await api.post('/admin/products/bulk-update', { ids: selected, ...patch })
+      const apply = Object.fromEntries(Object.entries(patch).map(([k, v]) => [k, v === 'none' ? null : v]))
+      setProducts(list => list.map(p => selected.includes(p.id) ? { ...p, ...apply } : p))
+      toast.success(`${label}: ${selected.length} منتج`)
+      setSelected([])
+    } catch {
+      toast.error('تعذّر التحديث')
+    } finally {
+      setBulkBusy(false)
+    }
+  }
+
   const setAvailability = async (availability) => {
     if (!selected.length) return
     setBulkBusy(true)
@@ -60,7 +76,9 @@ export default function Products() {
     attributes: [],
     is_featured: 0,
     delivery_badge: '',
-    availability: 'instant'
+    availability: 'instant',
+    gender: '',
+    origin: ''
   }
   const [formData, setFormData] = useState(emptyForm)
   const [imgPreview, setImgPreview] = useState('')
@@ -253,6 +271,8 @@ export default function Products() {
       is_featured: product.is_featured || 0,
       delivery_badge: product.delivery_badge || '',
       availability: product.availability || 'instant',
+      gender: product.gender || '',
+      origin: product.origin || '',
       discount_expires_at: product.discount_expires_at ? product.discount_expires_at.slice(0, 16) : ''
     })
     setImgPreview(getImageUrl(product.primary_image))
@@ -491,6 +511,29 @@ export default function Products() {
                           background: formData.availability === k ? 'rgba(74,13,23,0.06)' : '#fff', color: formData.availability === k ? 'var(--color-primary)' : '#374151' }}>{l}</button>
                     ))}
                   </div>
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#6B7280', marginBottom: 8 }}>القسم</label>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    {[['women', 'نسائي'], ['men', 'رجالي'], ['unisex', 'للجنسين']].map(([k, l]) => (
+                      <button type="button" key={k} onClick={() => setFormData(f => ({ ...f, gender: f.gender === k ? '' : k }))}
+                        style={{ flex: 1, padding: '11px 10px', borderRadius: 10, fontSize: 14, fontFamily: 'inherit', cursor: 'pointer', fontWeight: 700,
+                          border: formData.gender === k ? '1.5px solid var(--color-primary)' : '1.5px solid #E5E7EB',
+                          background: formData.gender === k ? 'rgba(74,13,23,0.06)' : '#fff', color: formData.gender === k ? 'var(--color-primary)' : '#374151' }}>{l}</button>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#6B7280', marginBottom: 8 }}>يُشحن من (يحدد مدة التوصيل)</label>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    {[['oman', '🇴🇲 عُمان'], ['dubai', '🇦🇪 دبي'], ['europe', '🇪🇺 أوروبا']].map(([k, l]) => (
+                      <button type="button" key={k} onClick={() => setFormData(f => ({ ...f, origin: f.origin === k ? '' : k }))}
+                        style={{ flex: 1, padding: '11px 10px', borderRadius: 10, fontSize: 14, fontFamily: 'inherit', cursor: 'pointer', fontWeight: 700,
+                          border: formData.origin === k ? '1.5px solid var(--color-primary)' : '1.5px solid #E5E7EB',
+                          background: formData.origin === k ? 'rgba(74,13,23,0.06)' : '#fff', color: formData.origin === k ? 'var(--color-primary)' : '#374151' }}>{l}</button>
+                    ))}
+                  </div>
+                  <p style={{ fontSize: 11.5, color: '#9CA3AF', margin: '6px 0 0' }}>إذا ما اخترت: تسليم فوري = عُمان، بالطلب = أوروبا.</p>
                 </div>
                 <div>
                   <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#6B7280', marginBottom: 8 }}>شارة التوصيل (Delivery Badge)</label>
@@ -792,6 +835,22 @@ export default function Products() {
           <span style={{ opacity: 0.6, fontSize: 13 }}>غيّر التوفر إلى:</span>
           <button disabled={bulkBusy} onClick={() => setAvailability('instant')} style={{ background: '#16804A', color: '#fff', border: 'none', borderRadius: 8, padding: '8px 14px', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>⚡ تسليم فوري</button>
           <button disabled={bulkBusy} onClick={() => setAvailability('on_order')} style={{ background: '#C26A00', color: '#fff', border: 'none', borderRadius: 8, padding: '8px 14px', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>🕓 بالطلب</button>
+          <span style={{ opacity: 0.6, fontSize: 13 }}>القسم:</span>
+          <select disabled={bulkBusy} value="" onChange={e => e.target.value && bulkSet({ gender: e.target.value }, 'القسم')} style={{ borderRadius: 8, padding: '7px 10px', fontFamily: 'inherit', border: 'none' }}>
+            <option value="">اختر…</option>
+            <option value="women">نسائي</option>
+            <option value="men">رجالي</option>
+            <option value="unisex">للجنسين</option>
+            <option value="none">بدون</option>
+          </select>
+          <span style={{ opacity: 0.6, fontSize: 13 }}>يُشحن من:</span>
+          <select disabled={bulkBusy} value="" onChange={e => e.target.value && bulkSet({ origin: e.target.value }, 'مصدر الشحن')} style={{ borderRadius: 8, padding: '7px 10px', fontFamily: 'inherit', border: 'none' }}>
+            <option value="">اختر…</option>
+            <option value="oman">عُمان</option>
+            <option value="dubai">دبي</option>
+            <option value="europe">أوروبا</option>
+            <option value="none">تلقائي</option>
+          </select>
           <button onClick={() => setSelected([])} style={{ marginInlineStart: 'auto', background: 'transparent', color: '#fff', border: '1px solid rgba(255,255,255,0.3)', borderRadius: 8, padding: '7px 12px', cursor: 'pointer', fontFamily: 'inherit' }}>إلغاء التحديد</button>
         </div>
       )}
@@ -873,6 +932,9 @@ export default function Products() {
                       color: p.availability === 'on_order' ? '#C26A00' : '#16804A' }}>
                       {p.availability === 'on_order' ? 'بالطلب' : 'تسليم فوري'}
                     </span>
+                    <div style={{ fontSize: 11, color: '#9CA3AF', marginTop: 4, whiteSpace: 'nowrap' }}>
+                      {{ women: 'نسائي', men: 'رجالي', unisex: 'للجنسين' }[p.gender] || '—'} · {{ oman: 'عُمان', dubai: 'دبي', europe: 'أوروبا' }[p.origin] || (p.availability === 'on_order' ? 'أوروبا' : 'عُمان')}
+                    </div>
                   </td>
                   <td style={{ padding: '14px 20px' }}>
                     <span style={{ padding: '5px 14px', borderRadius: 20, fontSize: 11, fontWeight: 700, background: p.status === 'active' ? 'rgba(16,185,129,0.1)' : 'rgba(107,114,128,0.1)', color: p.status === 'active' ? '#10B981' : '#6B7280' }}>
