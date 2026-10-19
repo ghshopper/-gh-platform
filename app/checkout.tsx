@@ -126,6 +126,7 @@ export default function Checkout() {
       if (p) {
         setCoords(p);
         clearPickedLocation();
+        fillFrom(p.lat, p.lng);
       }
     }, []),
   );
@@ -148,6 +149,28 @@ export default function Checkout() {
   const branches = allBranches.filter((b) => (zone === 'local' ? b.local : !b.local));
   const pickedBranch = branchOnly ? allBranches.find((b) => b.id === branchId) ?? null : null;
 
+  // Fill the address from a point on the map (Apple's / Google's reverse geocoding, no key needed).
+  const fillFrom = async (lat: number, lng: number) => {
+    try {
+      const [r] = await Location.reverseGeocodeAsync({ latitude: lat, longitude: lng });
+      if (!r) return;
+      const region = `${r.region ?? ''} ${r.subregion ?? ''}`.toLowerCase();
+      const g = GOVERNORATES.find((x) => region.includes(x.en.toLowerCase()) || region.includes(x.ar) || (x.en === 'Muscat' && /masqat|مسقط/.test(region)));
+      if (g) setGov(g.ar);
+      const town = r.city || r.subregion || '';
+      if (town) setCity(town);
+      const st = [r.district, r.street].filter((x) => x && x !== town).join('، ');
+      if (st) setStreet(st);
+      if (r.streetNumber) setBuilding(r.streetNumber);
+      // Muscat and Barka: our own driver; the rest of Oman: Genacom.
+      const where = `${region} ${town}`.toLowerCase();
+      if (/muscat|masqat|مسقط|barka|بركاء|بركا/.test(where)) setZone('local');
+      else if (g) setZone('oman');
+    } catch {
+      // the fields stay as they are; the pin is still saved
+    }
+  };
+
   const locate = async () => {
     setLocating(true);
     try {
@@ -158,6 +181,7 @@ export default function Checkout() {
       }
       const pos = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
       setCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+      await fillFrom(pos.coords.latitude, pos.coords.longitude);
     } catch {
       Alert.alert(tr('ما قدرنا نحدد موقعك', 'Could not get your location'));
     } finally {
