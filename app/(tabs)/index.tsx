@@ -14,6 +14,7 @@ import { useLang } from '@/lang';
 import { ProductCard } from '@/product-card';
 import { C, S, gridCardW } from '@/theme';
 import type { Category, HeroSlide, Product, SectionSetting } from '@/types';
+import { GenderSwitch, useGender } from '@/gender';
 import { Btn, IconBtn, Kicker, Photo, SectionTitle, T } from '@/ui';
 import { CategoryArt } from '@/category-art';
 
@@ -100,8 +101,9 @@ export default function Home() {
   const app = useAppData();
   const sections = app.home?.sections ?? {};
 
-  const featured = useLoad(async () => listOf<Product>(await api.get<unknown>('/customer/products/featured')), []);
-  const latest = useLoad(async () => listOf<Product>(await api.get<unknown>('/customer/products', { per_page: 40 })), []);
+  const { gender } = useGender();
+  const featured = useLoad(async () => listOf<Product>(await api.get<unknown>('/customer/products/featured')), [gender]);
+  const latest = useLoad(async () => listOf<Product>(await api.get<unknown>('/customer/products', { per_page: 40 })), [gender]);
 
   const featuredCount = num(sections.featured_products?.items_count, 8) || 8;
   const brandCount = num(sections.brands?.items_count, 6) || 6;
@@ -182,6 +184,7 @@ export default function Home() {
         </Pressable>
 
         <Hero slides={app.home?.hero_slides ?? []} />
+        <View style={{ marginTop: 16 }}><GenderSwitch /></View>
 
         {/* Categories */}
         {active(sections.categories) && app.categories.length ? (

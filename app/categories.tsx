@@ -1,3 +1,4 @@
+import { useGender } from '@/gender';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Dimensions, FlatList, Pressable, ScrollView, View } from 'react-native';
@@ -28,6 +29,7 @@ export default function Categories() {
   const [loading, setLoading] = useState(false);
 
   const current = useMemo(() => categories.find((c) => c.id === selected) ?? categories[0], [categories, selected]);
+  const { gender } = useGender();
   const showId = sub ?? current?.id;
 
   useEffect(() => {
@@ -42,7 +44,7 @@ export default function Categories() {
     return () => {
       alive = false;
     };
-  }, [showId]);
+  }, [showId, gender]);
 
   const openAll = (c: Category) => router.push({ pathname: '/products', params: { category_id: String(c.id), title: pick(c, 'name') } });
   const contentW = W - RAIL;

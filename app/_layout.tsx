@@ -14,6 +14,7 @@ import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AppDataProvider } from '@/appdata';
+import { GenderProvider } from '@/gender';
 import { AppearanceProvider, useAppearance } from '@/appearance';
 import { AuthProvider, useAuth } from '@/auth';
 import { CartProvider } from '@/cart';
@@ -80,6 +81,7 @@ export default function RootLayout() {
         <LangProvider>
           <AuthProvider>
             <AppDataProvider>
+              <GenderProvider>
               <WishlistProvider>
                 <CartProvider>
                   <AppearanceProvider>
@@ -87,6 +89,7 @@ export default function RootLayout() {
                   </AppearanceProvider>
                 </CartProvider>
               </WishlistProvider>
+              </GenderProvider>
             </AppDataProvider>
           </AuthProvider>
         </LangProvider>

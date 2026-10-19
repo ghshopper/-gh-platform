@@ -4,6 +4,7 @@ import { api, listOf } from './api';
 import { num } from './format';
 import type { Brand, Category, DeliveryOptions, HomeConfig, Policy } from './types';
 import { GENACOM_BRANCHES, type GenacomBranch } from './genacom';
+import { DEFAULT_ETA, type EtaTable } from './eta';
 
 /** Things every screen may need, fetched once and cached for offline starts. */
 interface AppData {
@@ -62,6 +63,10 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
           branches: (() => {
             const gb = (delivery.value as unknown as { genacom_branches?: unknown }).genacom_branches;
             return Array.isArray(gb) && gb.length ? (gb as GenacomBranch[]) : GENACOM_BRANCHES;
+          })(),
+          eta: (() => {
+            const e = (delivery.value as unknown as { eta?: unknown }).eta;
+            return e && typeof e === 'object' ? { ...DEFAULT_ETA, ...(e as Partial<EtaTable>) } : DEFAULT_ETA;
           })(),
         };
       }

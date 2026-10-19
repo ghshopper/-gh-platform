@@ -63,7 +63,14 @@ function messageFrom(body: unknown, status: number): string {
 
 type Query = Record<string, string | number | boolean | undefined | null>;
 
+// Women's / men's choice, added to every product list request.
+let listGender = '';
+export function setListGender(g: string): void {
+  listGender = g;
+}
+
 function buildUrl(path: string, query?: Query): string {
+  if (listGender && /^\/customer\/products(\/featured)?$/.test(path) && !(query && 'gender' in query)) query = { ...(query ?? {}), gender: listGender };
   const url = path.startsWith('http') ? path : `${API_BASE}${path.startsWith('/') ? '' : '/'}${path}`;
   if (!query) return url;
   const qs = Object.entries(query)

@@ -1,4 +1,5 @@
 import { type ReactNode, useCallback, useEffect, useRef, useState } from 'react';
+import { useGender } from './gender';
 import { ActivityIndicator, Dimensions, FlatList, Modal, Pressable, RefreshControl, ScrollView, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { api, listOf } from './api';
@@ -203,9 +204,10 @@ export function ProductBrowser({ initial, header, showSearch = true, autoFocus, 
     }
   }, []);
 
+  const { gender } = useGender();
   useEffect(() => {
     load(filters, 1);
-  }, [filters, load]);
+  }, [filters, load, gender]);
 
   useEffect(() => {
     if (search === undefined) return;

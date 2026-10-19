@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useCart } from './cart';
 import { chosenOptions, inStock, isOnOrder, mustChoose, omr, productAttributes, productImages, productPrice, productWasPrice } from './format';
 import { EngraveInput } from './engrave';
+import { originOf } from './eta';
 import { Icon } from './icons';
 import { useLang } from './lang';
 import { rememberProduct } from './product-cache';
@@ -62,6 +63,7 @@ function useAddToBag() {
       price: productPrice(p),
       comparePrice: productWasPrice(p),
       image: productImages(p)[0] ?? '',
+      origin: originOf(p),
       options: chosenOptions(chosen),
     });
     showToast(tr('تمت الإضافة للسلة', 'Added to your bag'));

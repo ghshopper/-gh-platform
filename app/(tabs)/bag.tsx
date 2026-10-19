@@ -5,6 +5,7 @@ import { useAppData } from '@/appdata';
 import { useCart } from '@/cart';
 import { CouponBox } from '@/coupon-box';
 import { omr } from '@/format';
+import { etaDates, etaForMany, type Origin } from '@/eta';
 import { Icon } from '@/icons';
 import { useLang } from '@/lang';
 import { C, S } from '@/theme';
@@ -12,7 +13,7 @@ import { BrandText, Btn, Empty, Photo, SummaryRow, T } from '@/ui';
 
 export default function Bag() {
   const insets = useSafeAreaInsets();
-  const { tr } = useLang();
+  const { tr, isAr } = useLang();
   const cart = useCart();
   const app = useAppData();
   const service = cart.items.length ? app.serviceFee : 0;
@@ -84,6 +85,15 @@ export default function Bag() {
             {service > 0 ? <SummaryRow label={tr('رسوم الخدمة وتجهيز الهدايا', 'Service & gift wrapping')} value={omr(service)} /> : null}
             {tax > 0 ? <SummaryRow label={tr(`الضريبة (${app.taxPercent}٪)`, `Tax (${app.taxPercent}%)`)} value={omr(tax)} /> : null}
             {cart.coupon ? <SummaryRow label={tr(`كود الخصم (${cart.coupon.code})`, `Discount (${cart.coupon.code})`)} value={`-${omr(cart.coupon.discount)}`} color={C.green} /> : null}
+            {(() => {
+              const e = etaForMany(cart.items.map((i) => (i.origin ?? 'europe') as Origin), app.delivery.eta);
+              return e ? (
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                  <Icon name="truck" size={16} color={C.sub} />
+                  <T size={12.5} color={C.sub}>{tr('يوصلك تقريباً ', 'Arrives around ')}{etaDates(e, isAr)}</T>
+                </View>
+              ) : null;
+            })()}
             <T size={12} color={C.muted}>{tr('التوصيل يتحدد في الخطوة الجاية', 'Delivery is set in the next step')}</T>
             <Btn label={tr('إتمام الطلب', 'Checkout')} onPress={() => router.push('/checkout')} style={{ marginTop: 8 }} />
           </View>
