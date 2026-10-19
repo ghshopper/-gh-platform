@@ -206,7 +206,7 @@ export default function Home() {
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: S.gutter, gap: 10 }}>
               {homeCategories(app.categories).slice(0, num(sections.categories?.items_count, 12) || 12).map((c: Category, i: number) => (
                 <Pressable key={c.id} onPress={() => router.push({ pathname: '/products', params: { category_id: String(c.id), title: pick(c, 'name') } })} style={{ width: 124 }} accessibilityRole="button">
-                  <CategoryArt c={c} index={1} width={124} height={156} compact />
+                  <CategoryArt c={c} index={i} width={124} height={156} compact />
                 </Pressable>
               ))}
             </ScrollView>
