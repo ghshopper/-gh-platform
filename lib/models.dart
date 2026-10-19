@@ -597,6 +597,7 @@ class Order {
   Order({
     required this.id,
     required this.orderNo,
+    this.refNo,
     required this.customerId,
     this.tripId,
     this.trackingToken,
@@ -628,6 +629,9 @@ class Order {
 
   final String id;
   final int orderNo;
+
+  /// The short number from the server (191001 = 19 Oct, first order).
+  final String? refNo;
   final String customerId;
   final String? tripId;
   final String? trackingToken;
@@ -689,7 +693,7 @@ class Order {
   /// Shipping label number, e.g. GH-000123.
   String get waybillNo => 'GH-${orderNo.toString().padLeft(6, '0')}';
 
-  String get invoiceNo => invoiceNumber(orderNo, createdAt);
+  String get invoiceNo => (refNo != null && refNo!.isNotEmpty) ? refNo! : invoiceNumber(orderNo, createdAt);
 
   List<OrderItem> get activeItems =>
       items.where((i) => i.status != ItemStatus.cancelled).toList();
@@ -752,6 +756,7 @@ class Order {
     return Order(
       id: m['id'].toString(),
       orderNo: n is num ? n.toInt() : int.tryParse('$n') ?? 0,
+      refNo: _s(m['ref_no']),
       customerId: m['customer_id'].toString(),
       tripId: _s(m['trip_id']),
       trackingToken: _s(m['tracking_token']),
@@ -944,7 +949,7 @@ class DriverOrder {
     final n = m['order_no'];
     return DriverOrder(
       id: m['id'].toString(),
-      invoiceNo: invoiceNumber(
+      invoiceNo: _s(m['ref_no']) ?? invoiceNumber(
           n is num ? n.toInt() : int.tryParse('$n') ?? 0, _dt(m['created_at'])),
       customerName: (m['customer_name'] ?? '').toString(),
       customerPhone: _s(m['customer_phone']),

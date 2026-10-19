@@ -60,6 +60,8 @@ class PastDelivery {
   double get pay => _d(m['pay']);
   String get invoiceNo {
     final n = int.tryParse('${m['order_no'] ?? 0}') ?? 0;
+    final ref = m['ref_no']?.toString();
+    if (ref != null && ref.isNotEmpty) return ref;
     return invoiceNumber(n, DateTime.tryParse('${m['created_at'] ?? ''}'));
   }
 }
