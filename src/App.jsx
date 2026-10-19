@@ -25,6 +25,7 @@ import Coupons from './pages/admin/Coupons'
 import CustomizeApp from './pages/admin/CustomizeApp'
 import Profile from './pages/admin/Profile'
 import ImportItems from './pages/admin/ImportItems'
+import AbandonedCarts from './pages/admin/AbandonedCarts'
 import './index.css'
 
 import LandingPage from './pages/website/LandingPage'
@@ -61,6 +62,7 @@ export default function App() {
           <Route path="coupons" element={<Coupons />} />
           <Route path="products" element={<Products />} />
           <Route path="import-items" element={<ImportItems />} />
+          <Route path="abandoned-carts" element={<AbandonedCarts />} />
           <Route path="reviews" element={<Reviews />} />
           <Route path="customers" element={<Customers />} />
           <Route path="categories" element={<Categories />} />

@@ -57,6 +57,7 @@ const navItems = [
   { label: 'المستخدمون',  icon: RiUserSettingsLine, path: '/admin/users' },
   { label: 'الإعدادات',   icon: RiSettings4Line, path: '/admin/settings' },
   { label: 'طلبات المنتجات', icon: RiSearchFill, path: '/admin/product-requests' },
+  { label: 'سلات متروكة', icon: RiShoppingBag3Line, path: '/admin/abandoned-carts' },
   { label: 'تخصيص التطبيق', icon: RiSmartphoneLine, path: '/admin/customize-app' },
 ]
 
