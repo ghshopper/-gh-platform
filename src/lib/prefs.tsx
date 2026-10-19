@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { Lang } from './types';
+import { countryCode, setCountryCode } from './region';
 
 export type ThemeMode = 'system' | 'light' | 'dark';
 
@@ -14,6 +15,9 @@ interface Prefs {
   /** Women's / men's shopping ('' = everything). */
   gender: Gender;
   setGender: (g: Gender) => void;
+  /** 'OM' or a Gulf country we ship to (prices shown in its currency). */
+  country: string;
+  setCountry: (code: string) => void;
 }
 
 export type Gender = '' | 'women' | 'men';
@@ -45,6 +49,15 @@ export function PrefsProvider({ children }: { children: ReactNode }) {
     const g = read('gh_gender');
     return g === 'women' || g === 'men' ? g : '';
   });
+
+  // the country/currency lives in lib/region; this re-renders the site when it changes
+  const [country, setCountryState] = useState(countryCode);
+  useEffect(() => {
+    const on = () => setCountryState(countryCode());
+    window.addEventListener('gh-region', on);
+    return () => window.removeEventListener('gh-region', on);
+  }, []);
+  const setCountry = useCallback((code: string) => setCountryCode(code), []);
 
   useEffect(() => {
     document.documentElement.lang = lang;
@@ -90,8 +103,10 @@ export function PrefsProvider({ children }: { children: ReactNode }) {
       setTheme,
       gender,
       setGender,
+      country,
+      setCountry,
     };
-  }, [lang, setLang, theme, setTheme, gender, setGender]);
+  }, [lang, setLang, theme, setTheme, gender, setGender, country, setCountry]);
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

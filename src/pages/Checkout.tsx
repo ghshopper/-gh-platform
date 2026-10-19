@@ -1,10 +1,11 @@
-import { etaDates, etaForMany, type Origin } from '../lib/eta';
+import { etaDates, etaForMany, withGulf, type Origin } from '../lib/eta';
+import { gccConfig, gccCountry, gulfEta, OMAN, showingOtherCurrency } from '../lib/region';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { api, imageUrl, listOf } from '../lib/api';
 import { payOrder } from '../lib/amwal';
 import { bankDetails, type BankDetails } from '../lib/bank';
-import { num, omr } from '../lib/format';
+import { num, omr, omrReal } from '../lib/format';
 import { useTitle } from '../lib/hooks';
 import { deliveryKey, GOVERNORATES, type Carrier } from '../lib/oman';
 import { GENACOM_BRANCHES } from '../lib/genacom';
@@ -58,7 +59,10 @@ function CouponBox() {
 }
 
 export default function Checkout() {
-  const { tr, isAr, lang } = usePrefs();
+  const { tr, isAr, lang, country, setCountry } = usePrefs();
+  // Gulf shipping: another country = Genacom/DHL to the door, fixed price, paid in OMR
+  const gcc = gccConfig();
+  const abroad = gccCountry(country);
   useTitle(tr('إتمام الطلب', 'Checkout'));
   const navigate = useNavigate();
   const cart = useCart();
@@ -119,7 +123,24 @@ export default function Checkout() {
     );
   }
 
-  const fee = carrier !== 'own' && branch ? app.delivery.branch_fee : app.delivery.home_fee;
+  const pickCountry = (code: string) => {
+    if (code === country) return;
+    setCountry(code);
+    // Omani governorates mean nothing abroad (and the other way round)
+    setGov(code === 'OM' ? 'مسقط' : '');
+    setCity('');
+    setBranchId(null);
+    setMode('door');
+  };
+  const fee = abroad ? abroad.fee : carrier !== 'own' && branch ? app.delivery.branch_fee : app.delivery.home_fee;
+  const dial = abroad ? abroad.dial : OMAN.dial;
+  const minDigits = abroad ? abroad.digits : 8;
+  // the number as the courier needs it: +966… abroad, the usual 8 digits in Oman
+  const fullPhone = (p: string) => {
+    const d = p.replace(/[٠-٩]/g, (x) => String('٠١٢٣٤٥٦٧٨٩'.indexOf(x))).replace(/\D/g, '').replace(/^00/, '');
+    if (!abroad) return p.trim();
+    return d.startsWith(dial) ? `+${d}` : `+${dial}${d.replace(/^0/, '')}`;
+  };
   const service = app.serviceFee;
   const tax = (cart.subtotal * app.taxPercent) / 100;
   const gross = cart.subtotal + fee + service + tax;
@@ -130,9 +151,29 @@ export default function Checkout() {
   const allBranches = app.delivery.branches?.length ? app.delivery.branches : GENACOM_BRANCHES;
   const branches = allBranches.filter((b) => (zone === 'local' ? b.local : !b.local));
   const pickedBranch = branch ? allBranches.find((b) => b.id === branchId) ?? null : null;
-  const chosen = branch || addressId === 'new' ? null : saved.find((a) => a.id === addressId) ?? null;
+  const chosen = abroad || branch || addressId === 'new' ? null : saved.find((a) => a.id === addressId) ?? null;
 
   const address = () => {
+    if (abroad) {
+      const carrierName = gcc.carrier_name || 'جيناكم';
+      const label = `شحن خليجي — ${carrierName} لباب البيت (${abroad.name_ar})`;
+      return {
+        delivery_method: `gcc_${gcc.carrier || 'genacom'}`,
+        delivery_label: label,
+        country: abroad.name_ar,
+        country_code: abroad.code,
+        display_currency: abroad.currency,
+        recipient_name: gift ? giftName.trim() : name.trim(),
+        phone: fullPhone(gift && giftPhone.trim() ? giftPhone : phone),
+        area: gov.trim(),
+        city: city.trim(),
+        street: street.trim(),
+        building: building.trim(),
+        postal_code: landmark.trim(),
+        notes: label,
+        text: [abroad.name_ar, city.trim(), gov.trim(), street.trim(), building.trim()].filter(Boolean).join('، '),
+      };
+    }
     const methodText = carrier === 'own' ? 'مندوب GH لباب البيت' : pickedBranch ? `جيناكم — استلام من مكتب ${pickedBranch.name}` : 'جيناكم — لباب البيت';
     const parts = chosen ? [chosen.governorate, chosen.city, chosen.street, chosen.building, chosen.details].filter(Boolean) : [gov, city, street, building, landmark].filter(Boolean);
     return {
@@ -153,12 +194,16 @@ export default function Checkout() {
 
   const place = async () => {
     setError(null);
-    const needAddress = !branch && !chosen;
-    if (branch && !pickedBranch) {
+    const needAddress = abroad ? true : !branch && !chosen;
+    if (!abroad && branch && !pickedBranch) {
       setError(tr('اختر مكتب جيناكم اللي بتستلم منه', 'Choose the Genacom office to pick up from'));
       return;
     }
-    if (!name.trim() || phone.replace(/\D/g, '').length < 8 || (needAddress && !city.trim()) || (gift && !giftName.trim())) {
+    if (abroad && (!gov.trim() || !street.trim())) {
+      setError(tr('أكمل المنطقة والشارع عشان شركة الشحن توصلك', 'Please add your area and street for the courier'));
+      return;
+    }
+    if (!name.trim() || phone.replace(/\D/g, '').length < minDigits || (needAddress && !city.trim()) || (gift && !giftName.trim())) {
       setError(tr('أكمل الاسم ورقم الهاتف والعنوان', 'Please complete your name, phone and address'));
       return;
     }
@@ -173,7 +218,7 @@ export default function Checkout() {
       }
       const res = await api.post<{ data?: { order_number: string; guest_token?: string } }>('/customer/orders', {
         customer_name: name.trim(),
-        customer_phone: phone.trim(),
+        customer_phone: fullPhone(phone),
         customer_email: email.trim() || null,
         is_gift: gift,
         gift_recipient_name: gift ? giftName.trim() : null,
@@ -240,13 +285,45 @@ export default function Checkout() {
             {!user ? <p className="small muted">{tr('عندك حساب؟', 'Have an account?')} <Link to="/account?next=/checkout" className="link">{tr('سجّل دخولك', 'Sign in')}</Link> {tr('لتجمع النقاط وتتابع طلباتك.', 'to earn points and follow your orders.')}</p> : null}
             <div className="fields">
               {field(tr('الاسم', 'Name'), name, setName)}
-              {field(tr('رقم الهاتف', 'Phone'), phone, setPhone, { type: 'tel', dir: 'ltr', placeholder: '9XXXXXXX' })}
+              {abroad ? (
+                <label className="field">
+                  <span>{tr('رقم الهاتف', 'Phone')}</span>
+                  <div className="phone-wrap" dir="ltr"><span className="dial">+{abroad.dial}</span><input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder={'5'.padEnd(abroad.digits, 'X')} /></div>
+                </label>
+              ) : field(tr('رقم الهاتف', 'Phone'), phone, setPhone, { type: 'tel', dir: 'ltr', placeholder: '9XXXXXXX' })}
               {field(tr('البريد الإلكتروني (للفاتورة)', 'Email (for the receipt)'), email, setEmail, { type: 'email', dir: 'ltr', wide: true })}
             </div>
           </section>
 
           <section className="co-sec">
             <h3><b>02</b>{tr('التوصيل', 'Delivery')}</h3>
+            {gcc.enabled && gcc.countries.length ? (
+              <div className="co-country" role="radiogroup" aria-label={tr('بلد التوصيل', 'Ship to')}>
+                {[{ code: 'OM', name_ar: 'عُمان', name_en: 'Oman' }, ...gcc.countries].map((c) => (
+                  <button type="button" key={c.code} className={country === c.code ? 'on' : ''} onClick={() => pickCountry(c.code)}>{isAr ? c.name_ar : c.name_en}</button>
+                ))}
+              </div>
+            ) : null}
+            {abroad ? (
+              <>
+                <div className="choice-row">
+                  <div className="choice on">
+                    <b>{tr(`شحن لباب البيت مع ${gcc.carrier_name || 'جيناكم'}`, `Door delivery by ${gcc.carrier === 'dhl' ? 'DHL' : 'Genacom'}`)}</b>
+                    <span>{omr(abroad.fee)}</span>
+                  </div>
+                </div>
+                <p className="small muted">{tr(`الشحن إلى ${abroad.name_ar} يأخذ ${gcc.eta?.min ?? 3}–${gcc.eta?.max ?? 5} أيام عمل بعد تجهيز طلبك.`, `Shipping to ${abroad.name_en} takes ${gcc.eta?.min ?? 3}–${gcc.eta?.max ?? 5} working days after your order is ready.`)}</p>
+                <div className="fields">
+                  {field(tr('المدينة', 'City'), city, setCity)}
+                  {field(tr('المنطقة / الحي', 'District'), gov, setGov)}
+                  {field(tr('الشارع', 'Street'), street, setStreet)}
+                  {field(tr('رقم المبنى / الشقة', 'Building / apartment'), building, setBuilding)}
+                  {field(tr('الرمز البريدي أو العنوان الوطني (اختياري)', 'Postal code / national address (optional)'), landmark, setLandmark, { wide: true, dir: 'ltr' })}
+                </div>
+                {(isAr ? gcc.note_ar : gcc.note_en) ? <p className="gcc-note">{isAr ? gcc.note_ar : gcc.note_en}</p> : null}
+              </>
+            ) : (
+              <>
             <div className="seg">
               <button type="button" className={zone === 'local' ? 'on' : ''} onClick={() => { setZone('local'); setBranchId(null); }}>{tr('مسقط أو بركاء', 'Muscat or Barka')}</button>
               <button type="button" className={zone === 'oman' ? 'on' : ''} onClick={() => { setZone('oman'); setBranchId(null); }}>{tr('باقي ولايات السلطنة', 'Rest of Oman')}</button>
@@ -303,6 +380,8 @@ export default function Checkout() {
                 ) : null}
               </>
             ) : <p className="small muted">{tr('نرسل طلبك لمكتب جيناكم اللي اخترته، ونبلغك أول ما يوصل.', 'We send your order to the Genacom office you chose and let you know when it arrives.')}</p>}
+              </>
+            )}
           </section>
 
           <section className="co-sec">
@@ -357,12 +436,16 @@ export default function Checkout() {
             {loyaltyValue > 0 ? <div className="green"><span>{tr('خصم النقاط', 'Points')}</span><span className="num">-{omr(loyaltyValue)}</span></div> : null}
             <div className="total"><span>{tr('الإجمالي', 'Total')}</span><span className="num">{omr(total)}</span></div>
           </div>
+          {showingOtherCurrency() ? (
+            <p className="charge-line">{tr('المبلغ يُخصم بالريال العماني: ', 'You will be charged in Omani rials: ')}<b>{omrReal(total)}</b><br />{tr('الأسعار بعملتك تقريبية حسب سعر الصرف، وبنكك قد يحوّلها.', 'Prices in your currency are approximate; your bank converts the charge.')}</p>
+          ) : null}
           {(() => {
-            const e = etaForMany(cart.items.map((i) => (i.origin ?? "europe") as Origin), app.delivery.eta);
+            const base = etaForMany(cart.items.map((i) => (i.origin ?? "europe") as Origin), app.delivery.eta);
+            const e = base ? withGulf(base, gulfEta()) : null;
             return e ? <p className="eta-line"><Icon name="truck" size={16} />{tr('يوصلك تقريباً ', 'Arrives around ')}{etaDates(e, isAr)}</p> : null;
           })()}
           {error ? <p className="err">{error}</p> : null}
-          <button className="btn wide" onClick={place} disabled={busy}>{busy ? tr('لحظات…', 'One moment…') : tr(`ادفع ${omr(total)}`, `Pay ${omr(total)}`)}</button>
+          <button className="btn wide" onClick={place} disabled={busy}>{busy ? tr('لحظات…', 'One moment…') : tr(`ادفع ${omrReal(total)}`, `Pay ${omrReal(total)}`)}</button>
           <p className="small muted center"><Icon name="lock" size={13} /> {tr('بياناتك وبطاقتك محمية', 'Your details and card are protected')}</p>
         </aside>
       </div>

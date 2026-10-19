@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { api } from '../lib/api';
-import { omr } from '../lib/format';
+import { omrReal } from '../lib/format';
 import { useTitle } from '../lib/hooks';
 import { usePrefs } from '../lib/prefs';
 import { useAuth } from '../lib/store';
@@ -75,7 +75,7 @@ export default function GiftCard() {
           <p>{tr('بطاقة هدية من GH Shopper يختار فيها اللي يحبه من أرقى البراندات. توصله على جواله مع رسالتك، ويستخدمها في الدفع.', 'A GH Shopper gift card to choose from the finest designers. Sent to their phone with your message, used at checkout.')}</p>
           <div className="gift-card-visual">
             <span className="kicker">GH SHOPPER</span>
-            <b className="num">{omr(value || 0)}</b>
+            <b className="num">{omrReal(value || 0)}</b>
             <span>{toName ? tr(`إلى ${toName}`, `To ${toName}`) : tr('بطاقة هدية', 'Gift card')}</span>
           </div>
           <ul className="gift-points">
@@ -88,7 +88,7 @@ export default function GiftCard() {
           <h3 className="gift-h">{tr('القيمة', 'Amount')}</h3>
           <div className="opt-values">
             {AMOUNTS.map((a) => (
-              <button type="button" key={a} className={`chip${value === a ? ' on' : ''}`} onClick={() => setAmount(String(a))}>{omr(a)}</button>
+              <button type="button" key={a} className={`chip${value === a ? ' on' : ''}`} onClick={() => setAmount(String(a))}>{omrReal(a)}</button>
             ))}
             <input className="gift-other" inputMode="decimal" placeholder={tr('مبلغ آخر', 'Other')} value={AMOUNTS.includes(value) ? '' : amount} onChange={(e) => setAmount(e.target.value.replace(/[^0-9.]/g, ''))} />
           </div>
@@ -108,7 +108,7 @@ export default function GiftCard() {
           </div>
 
           {err ? <p className="err">{err}</p> : null}
-          <button className="btn wide" disabled={busy}>{busy ? '…' : tr(`ادفع ${omr(value || 0)}`, `Pay ${omr(value || 0)}`)}</button>
+          <button className="btn wide" disabled={busy}>{busy ? '…' : tr(`ادفع ${omrReal(value || 0)}`, `Pay ${omrReal(value || 0)}`)}</button>
           <p className="small muted center">{tr('الدفع بالبطاقة أو Apple Pay أو تحويل بنكي. البطاقة تنرسل للمستلم أول ما يتأكد الدفع.', 'Pay by card, Apple Pay or bank transfer. The card goes out once payment is confirmed.')}</p>
         </form>
       </div>
@@ -121,7 +121,7 @@ export default function GiftCard() {
         </div>
         {bal ? (
           <p className="gift-bal-result">
-            {tr('الرصيد', 'Balance')}: <b className="num">{omr(bal.balance)}</b> {tr(`من ${omr(bal.amount)}`, `of ${omr(bal.amount)}`)}
+            {tr('الرصيد', 'Balance')}: <b className="num">{omrReal(bal.balance)}</b> {tr(`من ${omrReal(bal.amount)}`, `of ${omrReal(bal.amount)}`)}
             {bal.expires_at ? <span className="muted"> · {tr('صالحة إلى', 'valid until')} {bal.expires_at}</span> : null}
             {!bal.usable ? <span className="err"> · {tr('ما تقدر تستخدمها', 'not usable')}</span> : null}
           </p>

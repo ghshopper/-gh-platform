@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { api } from '../lib/api';
-import { dateText, num, omr } from '../lib/format';
+import { dateText, num, omrReal } from '../lib/format';
 import { useLoad, useTitle } from '../lib/hooks';
 import { usePrefs } from '../lib/prefs';
 import { useAuth } from '../lib/store';
@@ -104,7 +104,7 @@ function OrderCard({ o }: { o: MyOrder }) {
           <span className="small muted">{dateText(o.created_at, isAr)} · {o.items.length} {tr('قطعة', 'pieces')}</span>
         </div>
         <div className="ord-right">
-          <span className="num">{omr(o.total)}</span>
+          <span className="num">{omrReal(o.total)}</span>
           <span className={`pill${o.status === 'delivered' ? ' green' : ''}`}>{tr(STEPS[Math.max(0, step)][0], STEPS[Math.max(0, step)][1])}</span>
           <Icon name="down" size={18} />
         </div>
@@ -116,15 +116,15 @@ function OrderCard({ o }: { o: MyOrder }) {
             <div key={i} className="ord-item">
               <div className="co-img">{it.photo_url ? <img src={it.photo_url} alt="" /> : null}</div>
               <div>{it.brand ? <div className="brand">{it.brand.toUpperCase()}</div> : null}<div className="small">{it.name}</div>{it.details ? <div className="small muted">{it.details}</div> : null}</div>
-              <span className="num">{omr(it.price)}</span>
+              <span className="num">{omrReal(it.price)}</span>
             </div>
           ))}
           <div className="sums">
-            {o.delivery_fee > 0 ? <div><span>{tr('التوصيل', 'Delivery')}</span><span className="num">{omr(o.delivery_fee)}</span></div> : null}
-            {(o.discount ?? 0) > 0 ? <div className="green"><span>{o.discount_label || tr('خصم', 'Discount')}</span><span className="num">-{omr(o.discount)}</span></div> : null}
-            <div className="total"><span>{tr('الإجمالي', 'Total')}</span><span className="num">{omr(o.total)}</span></div>
-            {o.remaining > 0.0005 ? <div className="red"><span>{tr('المتبقي', 'Balance due')}</span><span className="num">{omr(o.remaining)}</span></div> : <div className="green"><span>{tr('مدفوع', 'Paid')}</span><span /></div>}
-            {o.pay_url && o.remaining > 0.0005 ? <a className="btn wide" href={o.pay_url}>{tr('ادفع الآن', 'Pay now')} · <span className="num">{omr(o.remaining)}</span></a> : null}
+            {o.delivery_fee > 0 ? <div><span>{tr('التوصيل', 'Delivery')}</span><span className="num">{omrReal(o.delivery_fee)}</span></div> : null}
+            {(o.discount ?? 0) > 0 ? <div className="green"><span>{o.discount_label || tr('خصم', 'Discount')}</span><span className="num">-{omrReal(o.discount)}</span></div> : null}
+            <div className="total"><span>{tr('الإجمالي', 'Total')}</span><span className="num">{omrReal(o.total)}</span></div>
+            {o.remaining > 0.0005 ? <div className="red"><span>{tr('المتبقي', 'Balance due')}</span><span className="num">{omrReal(o.remaining)}</span></div> : <div className="green"><span>{tr('مدفوع', 'Paid')}</span><span /></div>}
+            {o.pay_url && o.remaining > 0.0005 ? <a className="btn wide" href={o.pay_url}>{tr('ادفع الآن', 'Pay now')} · <span className="num">{omrReal(o.remaining)}</span></a> : null}
           </div>
           {o.tracking_token ? <a className="link small" href={`/track/?t=${o.tracking_token}`}>{tr('صفحة تتبع الطلب', 'Tracking page')}</a> : null}
         </div>

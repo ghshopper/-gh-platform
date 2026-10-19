@@ -580,3 +580,17 @@ summary::-webkit-details-marker { display: none; }
 .cat-photo.compact .cat-photo-name { font-size: 16px; bottom: 10px; }
 a:hover .cat-photo img { transform: scale(1.04); }
 .cat-grid .wide .cat-photo { aspect-ratio: auto; }
+
+/* ship-to country / currency picker (Gulf shipping) */
+.country-pick { position: relative; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+.country-pick select { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; font-size: 16px; }
+.country-pick .l { font-size: 12px; letter-spacing: .08em; }
+.co-country { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.co-country button { display: inline-flex; align-items: center; gap: 6px; height: 40px; padding: 0 14px; border: 1px solid var(--line-strong); background: transparent; font-size: 13.5px; cursor: pointer; color: var(--ink); }
+.co-country button.on { background: var(--ink); color: var(--on-ink); border-color: var(--ink); }
+.charge-line { font-size: 12.5px; color: var(--sub); text-align: center; margin: 8px 0 0; }
+.charge-line b { color: var(--ink); direction: ltr; unicode-bidi: isolate; }
+.gcc-note { font-size: 12.5px; color: var(--sub); background: var(--surface, rgba(0,0,0,.03)); padding: 10px 12px; margin-top: 10px; line-height: 1.6; }
+.phone-wrap { display: flex; align-items: stretch; }
+.phone-wrap .dial { display: inline-flex; align-items: center; padding: 0 10px; border: 1px solid var(--line-strong); border-inline-end: 0; font-size: 14px; color: var(--sub); direction: ltr; }
+.phone-wrap input { flex: 1; min-width: 0; }

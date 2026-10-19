@@ -3,6 +3,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import { GENACOM_BRANCHES, type GenacomBranch } from './genacom';
 import { api, ApiError, hasToken, listOf, setToken, setUnauthorizedHandler } from './api';
 import { num } from './format';
+import { setGccConfig, type GccConfig } from './region';
 import type { Brand, CartItem, Category, DeliveryOptions, HomeConfig, Policy, Product, User } from './types';
 
 /* ------------------------------- App data ------------------------------- */
@@ -24,7 +25,11 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [d, setD] = useState<AppData>(() => {
     try {
       const raw = sessionStorage.getItem('gh_data');
-      if (raw) return { ...(JSON.parse(raw) as AppData), ready: true };
+      if (raw) {
+        const cached = JSON.parse(raw) as AppData;
+        setGccConfig(cached.delivery?.gcc);
+        return { ...cached, ready: true };
+      }
     } catch {
       // ignore
     }
@@ -59,7 +64,9 @@ export function DataProvider({ children }: { children: ReactNode }) {
             branch_fee: num(delivery.value.branch_fee, 1),
             branches: Array.isArray(gb) ? (gb as GenacomBranch[]) : GENACOM_BRANCHES,
             eta: eta && typeof eta === 'object' ? { ...DEFAULT_ETA, ...(eta as Partial<EtaTable>) } : DEFAULT_ETA,
+            gcc: (delivery.value as { gcc?: GccConfig }).gcc ?? { enabled: false, countries: [] },
           };
+          setGccConfig(next.delivery.gcc);
         }
         if (fp.status === 'fulfilled') next.policies = fp.value?.policies ?? [];
         try {

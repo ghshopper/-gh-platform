@@ -5,7 +5,8 @@ import { inStock, isOnOrder, mustChoose, num, optionsExtra, productAttributes, p
 import { useLoad, useTitle } from '../lib/hooks';
 import { usePrefs } from '../lib/prefs';
 import { useAuth, useData, useToast, useWishlist } from '../lib/store';
-import { etaDates, etaDuration, ORIGIN_LABEL, productEta } from '../lib/eta';
+import { etaDates, etaDuration, ORIGIN_LABEL, productEta, withGulf } from '../lib/eta';
+import { gccCountry, gulfEta } from '../lib/region';
 import type { Product } from '../lib/types';
 import { Icon } from '../components/Icon';
 import { SafeImg } from '../components/SafeImg';
@@ -101,13 +102,14 @@ export default function ProductPage() {
             {avg > 0 ? <span className="tag"><Icon name="star" size={14} /> {avg.toFixed(1)} ({num(p.reviews_count)})</span> : null}
           </div>
           {available ? (() => {
-            const e = productEta(p, delivery.eta);
+            const e = withGulf(productEta(p, delivery.eta), gulfEta());
+            const abroad = gccCountry();
             return (
               <div className="eta">
                 <Icon name="truck" size={20} />
                 <div>
                   <b>{tr('يوصلك خلال ', 'Arrives in ')}{etaDuration(e, isAr)}</b>
-                  <span>{tr(ORIGIN_LABEL[e.origin].ar, ORIGIN_LABEL[e.origin].en)} · {tr('تقريباً ', 'around ')}{etaDates(e, isAr)}</span>
+                  <span>{tr(ORIGIN_LABEL[e.origin].ar, ORIGIN_LABEL[e.origin].en)}{abroad ? ` · ${tr('شحن إلى ' + abroad.name_ar, 'shipping to ' + abroad.name_en)}` : ''} · {tr('تقريباً ', 'around ')}{etaDates(e, isAr)}</span>
                 </div>
               </div>
             );

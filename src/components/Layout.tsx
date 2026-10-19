@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
+import { gccConfig, gulfEta } from '../lib/region';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
-import { etaDates, etaForMany, type Origin } from '../lib/eta';
+import { etaDates, etaForMany, withGulf, type Origin } from '../lib/eta';
 import { asset, imageUrl } from '../lib/api';
 import { omr } from '../lib/format';
 import { usePrefs } from '../lib/prefs';
@@ -38,7 +39,8 @@ function CartDrawer() {
   const { delivery } = useData();
   const navigate = useNavigate();
   if (!cart.open) return null;
-  const eta = etaForMany(cart.items.map((i) => (i.origin ?? 'europe') as Origin), delivery.eta);
+  const base = etaForMany(cart.items.map((i) => (i.origin ?? 'europe') as Origin), delivery.eta);
+  const eta = base ? withGulf(base, gulfEta()) : null;
   return (
     <div className="drawer-ov" onClick={() => cart.setOpen(false)}>
       <aside className="drawer" onClick={(e) => e.stopPropagation()} aria-label={tr('السلة', 'Bag')}>
@@ -104,6 +106,25 @@ function Toast() {
   );
 }
 
+const FLAG: Record<string, string> = { OM: '🇴🇲', SA: '🇸🇦', AE: '🇦🇪', KW: '🇰🇼', QA: '🇶🇦', BH: '🇧🇭' };
+
+/** Ship-to country and the currency prices are shown in (only when Gulf shipping is on). */
+function CountryPicker({ chip }: { chip?: boolean }) {
+  const { tr, isAr, country, setCountry } = usePrefs();
+  const gcc = gccConfig();
+  if (!gcc.enabled || !gcc.countries.length) return null;
+  const list = [{ code: 'OM', name_ar: 'عُمان', name_en: 'Oman', currency: 'OMR' }, ...gcc.countries];
+  return (
+    <label className={chip ? 'chip country-pick' : 'text-btn only-desktop country-pick'} title={tr('بلد التوصيل والعملة', 'Ship to & currency')}>
+      <span aria-hidden>{FLAG[country] ?? '🌍'}</span>
+      <span className="l">{list.find((c) => c.code === country)?.currency ?? 'OMR'}</span>
+      <select value={country} onChange={(e) => setCountry(e.target.value)} aria-label={tr('بلد التوصيل والعملة', 'Ship to & currency')}>
+        {list.map((c) => <option key={c.code} value={c.code}>{FLAG[c.code]} {isAr ? c.name_ar : c.name_en} · {c.currency}</option>)}
+      </select>
+    </label>
+  );
+}
+
 function Header() {
   const { tr, pick, isAr, setLang, theme, setTheme } = usePrefs();
   const { user } = useAuth();
@@ -124,7 +145,9 @@ function Header() {
   return (
     <>
       <div className="topbar">
-        <span>{tr('تسوّق شخصي من بوتيكات العالم · توصيل لكل عُمان', 'Personal shopping from the world’s boutiques · Delivery across Oman')}</span>
+        <span>{gccConfig().enabled
+          ? tr('تسوّق شخصي من بوتيكات العالم · توصيل لكل عُمان ودول الخليج', 'Personal shopping from the world’s boutiques · Delivery across Oman & the Gulf')
+          : tr('تسوّق شخصي من بوتيكات العالم · توصيل لكل عُمان', 'Personal shopping from the world’s boutiques · Delivery across Oman')}</span>
       </div>
       <header className="header">
         <div className="header-row container">
@@ -132,6 +155,7 @@ function Header() {
             <button className="icon-btn only-mobile" onClick={() => setMenu(true)} aria-label={tr('القائمة', 'Menu')}><Icon name="menu" /></button>
             <button className="icon-btn" onClick={() => setSearch(true)} aria-label={tr('بحث', 'Search')}><Icon name="search" /></button>
             <button className="text-btn only-desktop" onClick={() => setLang(isAr ? 'en' : 'ar')}>{isAr ? 'English' : 'العربية'}</button>
+            <CountryPicker />
           </div>
           <Link to="/" className="logo" aria-label="GH Shopper">
             <img src={home?.logo_url ? imageUrl(home.logo_url) : asset('logo.png')} alt="GH Shopper" />
@@ -196,6 +220,7 @@ function Header() {
               <div className="menu-tools">
                 <button className="chip" onClick={() => setLang(isAr ? 'en' : 'ar')}><Icon name="globe" size={16} /> {isAr ? 'English' : 'العربية'}</button>
                 <button className="chip" onClick={() => setTheme(dark ? 'light' : 'dark')}><Icon name={dark ? 'sun' : 'moon'} size={16} /> {dark ? tr('فاتح', 'Light') : tr('ليلي', 'Dark')}</button>
+                <CountryPicker chip />
               </div>
             </div>
           </aside>
@@ -230,7 +255,7 @@ function Footer() {
     <footer className="footer">
       <div className="container features">
         <div><Icon name="shield" size={26} stroke={1.1} /><b>{tr('أصلية ١٠٠٪', '100% authentic')}</b><span>{tr('من البوتيك مباشرة، مع الفاتورة', 'Straight from the boutique, with receipt')}</span></div>
-        <div><Icon name="truck" size={26} stroke={1.1} /><b>{tr('توصيل لكل عُمان', 'Delivery across Oman')}</b><span>{tr('مندوبنا أو جيناكم لباب البيت أو مكتبهم', 'Our driver or Genacom, door or office')}</span></div>
+        <div><Icon name="truck" size={26} stroke={1.1} /><b>{gccConfig().enabled ? tr('توصيل لعُمان والخليج', 'Oman & Gulf delivery') : tr('توصيل لكل عُمان', 'Delivery across Oman')}</b><span>{gccConfig().enabled ? tr('لباب البيت في عُمان ودول الخليج', 'To your door in Oman and the Gulf') : tr('مندوبنا أو جيناكم لباب البيت أو مكتبهم', 'Our driver or Genacom, door or office')}</span></div>
         <div><Icon name="lock" size={26} stroke={1.1} /><b>{tr('دفع آمن', 'Secure payment')}</b><span>{tr('بطاقة أو Apple Pay عبر أموال', 'Card or Apple Pay via Amwal')}</span></div>
         <div><Icon name="gift" size={26} stroke={1.1} /><b>{tr('تغليف هدايا', 'Gift wrapping')}</b><span>{tr('مع رسالة إهداء باسمك', 'With your personal message')}</span></div>
       </div>
