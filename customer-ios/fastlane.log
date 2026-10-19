@@ -1,387 +1,387 @@
-[20:40:27]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/XCFrameworkIntermediates/ExpoFileSystem/ExpoFileSystem.framework/Headers/EXSessionTaskDelegate.h,line=14,col=83::pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)[0m
-[20:40:27]: ▸ [35m12 |                                  reject:(EXPromiseRejectBlock)reject;[0m
-[20:40:27]: ▸ [35m13 | [0m
-[20:40:27]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/XCFrameworkIntermediates/ExpoFileSystem/ExpoFileSystem.framework/Headers/EXSessionTaskDelegate.h,line=14,col=131::pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)[0m
-[20:40:27]: ▸ [35m12 |                                  reject:(EXPromiseRejectBlock)reject;[0m
-[20:40:27]: ▸ [35m13 | [0m
-[20:40:27]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/XCFrameworkIntermediates/ExpoFileSystem/ExpoFileSystem.framework/Headers/EXSessionTaskDelegate.h,line=16,col=34::pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)[0m
-[20:40:27]: ▸ [35m14 | - (void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didFinishDownloadingToURL:(NSURL *)location;[0m
-[20:40:27]: ▸ [35m15 | [0m
-[20:40:27]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/XCFrameworkIntermediates/ExpoFileSystem/ExpoFileSystem.framework/Headers/EXSessionTaskDelegate.h,line=16,col=67::pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)[0m
-[20:40:27]: ▸ [35m14 | - (void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didFinishDownloadingToURL:(NSURL *)location;[0m
-[20:40:27]: ▸ [35m15 | [0m
-[20:40:27]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/XCFrameworkIntermediates/ExpoFileSystem/ExpoFileSystem.framework/Headers/EXSessionTaskDelegate.h,line=16,col=104::pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)[0m
-[20:40:27]: ▸ [35m14 | - (void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didFinishDownloadingToURL:(NSURL *)location;[0m
-[20:40:27]: ▸ [35m15 | [0m
-[20:40:27]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/XCFrameworkIntermediates/ExpoFileSystem/ExpoFileSystem.framework/Headers/EXSessionTaskDelegate.h,line=18,col=34::pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)[0m
-[20:40:27]: ▸ [35m16 | - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error;[0m
-[20:40:27]: ▸ [35m17 | [0m
-[20:40:27]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/XCFrameworkIntermediates/ExpoFileSystem/ExpoFileSystem.framework/Headers/EXSessionTaskDelegate.h,line=18,col=83::pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)[0m
-[20:40:27]: ▸ [35m16 | - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error;[0m
-[20:40:27]: ▸ [35m17 | [0m
-[20:40:27]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/XCFrameworkIntermediates/ExpoFileSystem/ExpoFileSystem.framework/Headers/EXSessionTaskDelegate.h,line=23,col=34::pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)[0m
-[20:40:27]: ▸ [35m21 |                               totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite;[0m
-[20:40:27]: ▸ [35m22 | [0m
-[20:40:27]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/XCFrameworkIntermediates/ExpoFileSystem/ExpoFileSystem.framework/Headers/EXSessionTaskDelegate.h,line=23,col=75::pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)[0m
-[20:40:27]: ▸ [35m21 |                               totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite;[0m
-[20:40:27]: ▸ [35m22 | [0m
-[20:40:27]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/XCFrameworkIntermediates/ExpoFileSystem/ExpoFileSystem.framework/Headers/EXSessionTaskDelegate.h,line=23,col=109::pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)[0m
-[20:40:27]: ▸ [35m21 |                               totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite;[0m
-[20:40:27]: ▸ [35m22 | [0m
-[20:40:27]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/XCFrameworkIntermediates/ExpoFileSystem/ExpoFileSystem.framework/Headers/EXSessionTaskDelegate.h,line=25,col=34::pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)[0m
-[20:40:27]: ▸ [35m23 | - (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveData:(NSData *)data;[0m
-[20:40:27]: ▸ [35m24 | [0m
-[20:40:27]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/XCFrameworkIntermediates/ExpoFileSystem/ExpoFileSystem.framework/Headers/EXSessionTaskDelegate.h,line=25,col=67::pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)[0m
-[20:40:27]: ▸ [35m23 | - (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveData:(NSData *)data;[0m
-[20:40:27]: ▸ [35m24 | [0m
-[20:40:27]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/XCFrameworkIntermediates/ExpoFileSystem/ExpoFileSystem.framework/Headers/EXSessionTaskDelegate.h,line=30,col=17::pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)[0m
-[20:40:27]: ▸ [35m28 |                        totalBytesExpectedToSend:(int64_t)totalBytesExpectedToSend;[0m
-[20:40:27]: ▸ [35m29 | [0m
-[20:40:27]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/XCFrameworkIntermediates/ExpoFileSystem/ExpoFileSystem.framework/Headers/EXSessionTaskDelegate.h,line=30,col=54::pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)[0m
-[20:40:27]: ▸ [35m28 |                        totalBytesExpectedToSend:(int64_t)totalBytesExpectedToSend;[0m
-[20:40:27]: ▸ [35m29 | [0m
-[20:40:27]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/XCFrameworkIntermediates/ExpoFileSystem/ExpoFileSystem.framework/Headers/EXSessionCancelableUploadTaskDelegate.h,line=6,col=71::pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)[0m
-[20:40:27]: ▸ [35m 4 | #import <ExpoFileSystem/EXTaskHandlersManager.h>[0m
-[20:40:27]: ▸ [35m 5 | [0m
-[20:40:27]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/XCFrameworkIntermediates/ExpoFileSystem/ExpoFileSystem.framework/Headers/EXSessionCancelableUploadTaskDelegate.h,line=10,col=42::block pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)[0m
-[20:40:27]: ▸ [35m 8 | @interface EXSessionCancelableUploadTaskDelegate : EXSessionUploadTaskDelegate[0m
-[20:40:27]: ▸ [35m 9 | [0m
-[20:40:27]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/XCFrameworkIntermediates/ExpoFileSystem/ExpoFileSystem.framework/Headers/EXSessionCancelableUploadTaskDelegate.h,line=11,col=42::block pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)[0m
-[20:40:27]: ▸ [35m 9 | [0m
-[20:40:27]: ▸ [35m10 | - (nonnull instancetype)initWithResolve:(EXPromiseResolveBlock)resolve[0m
-[20:40:27]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/XCFrameworkIntermediates/ExpoFileSystem/ExpoFileSystem.framework/Headers/EXSessionCancelableUploadTaskDelegate.h,line=12,col=42::block pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)[0m
-[20:40:27]: ▸ [35m10 | - (nonnull instancetype)initWithResolve:(EXPromiseResolveBlock)resolve[0m
-[20:40:27]: ▸ [35m11 |                                  reject:(EXPromiseRejectBlock)reject[0m
-[20:40:27]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/XCFrameworkIntermediates/ExpoFileSystem/ExpoFileSystem.framework/Headers/EXSessionCancelableUploadTaskDelegate.h,line=13,col=64::pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)[0m
-[20:40:27]: ▸ [35m11 |                                  reject:(EXPromiseRejectBlock)reject[0m
-[20:40:27]: ▸ [35m12 |                          onSendCallback:(EXUploadDelegateOnSendCallback)onSendCallback[0m
-[20:40:27]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/XCFrameworkIntermediates/ExpoFileSystem/ExpoFileSystem.framework/Headers/EXSessionCancelableUploadTaskDelegate.h,line=14,col=51::pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)[0m
-[20:40:27]: ▸ [35m12 |                          onSendCallback:(EXUploadDelegateOnSendCallback)onSendCallback[0m
-[20:40:27]: ▸ [35m13 |                        resumableManager:(EXTaskHandlersManager *)manager[0m
-[20:40:27]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/XCFrameworkIntermediates/ExpoFileSystem/ExpoFileSystem.framework/Headers/EXSessionDownloadTaskDelegate.h,line=7,col=42::block pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)[0m
-[20:40:27]: ▸ [35m 5 | @interface EXSessionDownloadTaskDelegate : EXSessionTaskDelegate[0m
-[20:40:27]: ▸ [35m 6 | [0m
-[20:40:27]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/XCFrameworkIntermediates/ExpoFileSystem/ExpoFileSystem.framework/Headers/EXSessionDownloadTaskDelegate.h,line=8,col=42::block pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)[0m
-[20:40:27]: ▸ [35m 6 | [0m
-[20:40:27]: ▸ [35m 7 | - (nonnull instancetype)initWithResolve:(EXPromiseResolveBlock)resolve[0m
-[20:40:27]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/XCFrameworkIntermediates/ExpoFileSystem/ExpoFileSystem.framework/Headers/EXSessionDownloadTaskDelegate.h,line=9,col=48::pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)[0m
-[20:40:27]: ▸ [35m 7 | - (nonnull instancetype)initWithResolve:(EXPromiseResolveBlock)resolve[0m
-[20:40:27]: ▸ [35m 8 |                                  reject:(EXPromiseRejectBlock)reject[0m
-[20:40:27]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/XCFrameworkIntermediates/ExpoFileSystem/ExpoFileSystem.framework/Headers/EXSessionResumableDownloadTaskDelegate.h,line=6,col=76::pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)[0m
-[20:40:27]: ▸ [35m 4 | #import <ExpoFileSystem/EXTaskHandlersManager.h>[0m
-[20:40:27]: ▸ [35m 5 | [0m
-[20:40:27]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/XCFrameworkIntermediates/ExpoFileSystem/ExpoFileSystem.framework/Headers/EXSessionResumableDownloadTaskDelegate.h,line=10,col=42::block pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)[0m
-[20:40:27]: ▸ [35m 8 | @interface EXSessionResumableDownloadTaskDelegate : EXSessionDownloadTaskDelegate[0m
-[20:40:27]: ▸ [35m 9 | [0m
-[20:40:27]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/XCFrameworkIntermediates/ExpoFileSystem/ExpoFileSystem.framework/Headers/EXSessionResumableDownloadTaskDelegate.h,line=11,col=42::block pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)[0m
-[20:40:27]: ▸ [35m 9 | [0m
-[20:40:27]: ▸ [35m10 | - (nonnull instancetype)initWithResolve:(EXPromiseResolveBlock)resolve[0m
-[20:40:27]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/XCFrameworkIntermediates/ExpoFileSystem/ExpoFileSystem.framework/Headers/EXSessionResumableDownloadTaskDelegate.h,line=12,col=48::pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)[0m
-[20:40:27]: ▸ [35m10 | - (nonnull instancetype)initWithResolve:(EXPromiseResolveBlock)resolve[0m
-[20:40:27]: ▸ [35m11 |                                  reject:(EXPromiseRejectBlock)reject[0m
-[20:40:27]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/XCFrameworkIntermediates/ExpoFileSystem/ExpoFileSystem.framework/Headers/EXSessionResumableDownloadTaskDelegate.h,line=14,col=42::block pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)[0m
-[20:40:27]: ▸ [35m12 |                                localUrl:(NSURL *)localUrl[0m
-[20:40:27]: ▸ [35m13 |                      shouldCalculateMd5:(BOOL)shouldCalculateMd5[0m
-[20:40:27]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/XCFrameworkIntermediates/ExpoFileSystem/ExpoFileSystem.framework/Headers/EXSessionResumableDownloadTaskDelegate.h,line=15,col=64::pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)[0m
-[20:40:27]: ▸ [35m13 |                      shouldCalculateMd5:(BOOL)shouldCalculateMd5[0m
-[20:40:27]: ▸ [35m14 |                         onWriteCallback:(EXDownloadDelegateOnWriteCallback)onWriteCallback[0m
-[20:40:27]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/XCFrameworkIntermediates/ExpoFileSystem/ExpoFileSystem.framework/Headers/EXSessionResumableDownloadTaskDelegate.h,line=16,col=51::pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)[0m
-[20:40:27]: ▸ [35m14 |                         onWriteCallback:(EXDownloadDelegateOnWriteCallback)onWriteCallback[0m
-[20:40:27]: ▸ [35m15 |                        resumableManager:(EXTaskHandlersManager *)manager[0m
-[20:40:29]: ▸ [35m::warning file=/Users/runner/work/-gh-platform/-gh-platform/ios/Pods/Headers/Public/Expo/Expo/ExpoReactNativeFactory.h,line=11,col=58::cannot find protocol definition for 'RCTHostDelegate'[0m
-[20:40:29]: ▸ [35m 4 | #import <Expo/RCTAppDelegateUmbrella.h>[0m
-[20:40:29]: ▸ [35m 5 | [0m
-[20:40:30]: ▸ [35m[[36mGHShopper[0m] [1mCopy[0m arm64-apple-ios.swiftdoc -> GHShopper.swiftdoc[0m
-[20:40:30]: ▸ [35m[[36mGHShopper[0m] [1mCopy[0m arm64-apple-ios.swiftmodule -> GHShopper.swiftmodule[0m
-[20:40:30]: ▸ [35m[[36mGHShopper[0m] [1mCopy[0m arm64-apple-ios.abi.json -> GHShopper.abi.json[0m
-[20:40:30]: ▸ [35m[[36mGHShopper[0m] [1mCompiling[0m GHShopper_vers.c[0m
-[20:40:30]: ▸ [35m[[36mGHShopper[0m] [1mLinking[0m GHShopper[0m
-[20:40:31]: ▸ [35m[[36mGHShopper[0m] [1mRunning script[0m Bundle React Native code and images[0m
-[20:40:46]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/main.jsbundle,line=919,col=13::the variable "Promise" was not declared in anonymous function[0m
-[20:40:46]: ▸ [35m    var z = Promise,[0m
-[20:40:46]: ▸ [35m            ^~~~~~~[0m
-[20:40:46]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/main.jsbundle,line=3498,col=26::the variable "URL" was not declared in anonymous arrow function[0m
-[20:40:46]: ▸ [35m          props[0] = new URL(props[0], origin).toString();[0m
-[20:40:46]: ▸ [35m                         ^~~[0m
-[20:40:46]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/main.jsbundle,line=3523,col=42::the variable "fetch" was not declared in anonymous function[0m
-[20:40:46]: ▸ [35m      value: wrapFetchWithWindowLocation(fetch)[0m
-[20:40:46]: ▸ [35m                                         ^~~~~[0m
-[20:40:46]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/main.jsbundle,line=5890,col=57::the variable "AbortSignal" was not declared in anonymous function[0m
-[20:40:46]: ▸ [35m        if (signal !== undefined && !(signal instanceof AbortSignal)) {[0m
-[20:40:46]: ▸ [35m                                                        ^~~~~~~~~~~[0m
-[20:40:46]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/main.jsbundle,line=6150,col=5::the variable "setTimeout" was not declared in function "reportListenerError"[0m
-[20:40:46]: ▸ [35m    setTimeout(() => {[0m
-[20:40:46]: ▸ [35m    ^~~~~~~~~~[0m
-[20:40:46]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/main.jsbundle,line=6196,col=71::the variable "performance" was not declared in anonymous function[0m
-[20:40:46]: ▸ [35m...!== undefined ? initTimestamp : performance.now();[0m
-[20:40:46]: ▸ [35m                                   ^~~~~~~~~~~[0m
-[20:40:46]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/main.jsbundle,line=22451,col=21::the variable "clearTimeout" was not declared in anonymous function[0m
-[20:40:46]: ▸ [35m    cancelTimeout = clearTimeout;[0m
-[20:40:46]: ▸ [35m                    ^~~~~~~~~~~~[0m
-[20:40:46]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/main.jsbundle,line=22489,col=42::the variable "Node" was not declared in anonymous function[0m
-[20:40:46]: ▸ [35m    if (null === parentHostFiber) return Node.DOCUMENT_POSITION_DISCONNECTED;[0m
-[20:40:46]: ▸ [35m                                         ^~~~[0m
-[20:40:46]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/main.jsbundle,line=27286,col=15::the variable "Blob" was not declared in anonymous function[0m
-[20:40:46]: ▸ [35m          new Blob();[0m
-[20:40:46]: ▸ [35m              ^~~~[0m
-[20:40:46]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/main.jsbundle,line=27425,col=24::the variable "FileReader" was not declared in function "readBlobAsArrayBuffer"[0m
-[20:40:46]: ▸ [35m      var reader = new FileReader();[0m
-[20:40:46]: ▸ [35m                       ^~~~~~~~~~[0m
-[20:40:46]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/main.jsbundle,line=27478,col=40::the variable "FormData" was not declared in anonymous function[0m
-[20:40:46]: ▸ [35m        } else if (support.formData && FormData.prototype.isPrototypeOf(body)) {[0m
-[20:40:46]: ▸ [35m                                       ^~~~~~~~[0m
-[20:40:46]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/main.jsbundle,line=27480,col=44::the variable "URLSearchParams" was not declared in anonymous function[0m
-[20:40:46]: ▸ [35m...e if (support.searchParams && URLSearchParams.prototype.isPrototypeOf(body...[0m
-[20:40:46]: ▸ [35m                                 ^~~~~~~~~~~~~~~[0m
-[20:40:50]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/main.jsbundle,line=27733,col=23::the variable "XMLHttpRequest" was not declared in anonymous function[0m
-[20:40:50]: ▸ [35m        var xhr = new XMLHttpRequest();[0m
-[20:40:50]: ▸ [35m                      ^~~~~~~~~~~~~~[0m
-[20:40:50]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/main.jsbundle,line=31771,col=25::the variable "ErrorUtils" was not declared in anonymous function[0m
-[20:40:50]: ▸ [35m    var globalHandler = ErrorUtils.getGlobalHandler();[0m
-[20:40:50]: ▸ [35m                        ^~~~~~~~~~[0m
-[20:40:50]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/main.jsbundle,line=32106,col=35::the variable "TransformStream" was not declared in anonymous function[0m
-[20:40:50]: ▸ [35m  class TextDecoderStream extends TransformStream {[0m
-[20:40:50]: ▸ [35m                                  ^~~~~~~~~~~~~~~[0m
-[20:40:50]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/main.jsbundle,line=32108,col=25::the variable "TextDecoder" was not declared in anonymous function[0m
-[20:40:50]: ▸ [35m      var decoder = new TextDecoder(label, options);[0m
-[20:40:50]: ▸ [35m                        ^~~~~~~~~~~[0m
-[20:40:50]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/main.jsbundle,line=32546,col=72::the variable "atob" was not declared in function "prepareBitmap"[0m
-[20:40:50]: ▸ [35m... parseInt(A, 36)), Uint8Array.from(atob(t), A => A.charCodeAt(0))];[0m
-[20:40:50]: ▸ [35m                                      ^~~~[0m
-[20:40:50]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/main.jsbundle,line=35074,col=7::Direct call to eval(), but lexical scope is not supported.[0m
-[20:40:50]: ▸ [35m      eval(code);[0m
-[20:40:50]: ▸ [35m      ^~~~[0m
-[20:40:50]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/main.jsbundle,line=35164,col=30::the variable "setInterval" was not declared in anonymous function[0m
-[20:40:50]: ▸ [35m      this._heartbeatTimer = setInterval(() => {[0m
-[20:40:50]: ▸ [35m                             ^~~~~~~~~~~[0m
-[20:40:50]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/main.jsbundle,line=35172,col=9::the variable "clearInterval" was not declared in anonymous function[0m
-[20:40:50]: ▸ [35m        clearInterval(this._heartbeatTimer);[0m
-[20:40:50]: ▸ [35m        ^~~~~~~~~~~~~[0m
-[20:40:50]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/main.jsbundle,line=39629,col=5::the variable "clearImmediate" was not declared in function "scheduleQueueFlush"[0m
-[20:40:50]: ▸ [35m    clearImmediate(flushQueueImmediate);[0m
-[20:40:50]: ▸ [35m    ^~~~~~~~~~~~~~[0m
-[20:40:50]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/main.jsbundle,line=41473,col=32::the variable "requestAnimationFrame" was not declared in anonymous function[0m
-[20:40:50]: ▸ [35m        this._animationFrame = requestAnimationFrame(() => this.onUpdate());[0m
-[20:40:50]: ▸ [35m                               ^~~~~~~~~~~~~~~~~~~~~[0m
-[20:40:50]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/main.jsbundle,line=57646,col=50::the variable "Request" was not declared in anonymous arrow function[0m
-[20:40:50]: ▸ [35m...ody' in input || input instanceof Request || input[Symbol.toStringTag] ===...[0m
-[20:40:50]: ▸ [35m                                     ^~~~~~~[0m
-[20:40:50]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/main.jsbundle,line=59107,col=22::the variable "ReadableStream" was not declared in function "wrapWithConsumption"[0m
-[20:40:50]: ▸ [35m    var stream = new ReadableStream({[0m
-[20:40:50]: ▸ [35m                     ^~~~~~~~~~~~~~[0m
-[20:40:50]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/main.jsbundle,line=59365,col=18::the variable "Headers" was not declared in anonymous function[0m
-[20:40:50]: ▸ [35m      return new Headers(this._rawHeaders);[0m
-[20:40:50]: ▸ [35m                 ^~~~~~~[0m
-[20:40:50]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/main.jsbundle,line=59998,col=16::Direct call to eval(), but lexical scope is not supported.[0m
-[20:40:50]: ▸ [35m        return eval(body);[0m
-[20:40:50]: ▸ [35m               ^~~~[0m
-[20:40:50]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/main.jsbundle,line=61062,col=21::the variable "Image" was not declared in anonymous arrow function[0m
-[20:40:50]: ▸ [35m      var img = new Image();[0m
-[20:40:50]: ▸ [35m                    ^~~~~[0m
-[20:40:50]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/main.jsbundle,line=81683,col=26::the variable "ResizeObserver" was not declared in anonymous arrow function[0m
-[20:40:50]: ▸ [35m      var observer = new ResizeObserver(entries => {[0m
-[20:40:50]: ▸ [35m                         ^~~~~~~~~~~~~~[0m
-[20:40:50]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/main.jsbundle,line=83145,col=16::the variable "requestIdleCallback" was not declared in anonymous arrow function[0m
-[20:40:50]: ▸ [35m      var id = requestIdleCallback(() => {[0m
-[20:40:50]: ▸ [35m               ^~~~~~~~~~~~~~~~~~~[0m
-[20:40:50]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/main.jsbundle,line=83148,col=20::the variable "cancelIdleCallback" was not declared in anonymous arrow function[0m
-[20:40:50]: ▸ [35m      return () => cancelIdleCallback(id);[0m
-[20:40:50]: ▸ [35m                   ^~~~~~~~~~~~~~~~~~[0m
-[20:40:50]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/main.jsbundle,line=90820,col=7::the variable "cancelAnimationFrame" was not declared in function "cancelSplashScreenAnimationFrame"[0m
-[20:40:50]: ▸ [35m      cancelAnimationFrame(splashScreenAnimationFrame);[0m
-[20:40:50]: ▸ [35m      ^~~~~~~~~~~~~~~~~~~~[0m
-[20:40:50]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/main.jsbundle,line=97077,col=9::the variable "REACT_NAVIGATION_DEVTOOLS" was not declared in anonymous arrow function[0m
-[20:40:50]: ▸ [35m        REACT_NAVIGATION_DEVTOOLS.set(containerRef.current, {[0m
-[20:40:50]: ▸ [35m        ^~~~~~~~~~~~~~~~~~~~~~~~~[0m
-[20:40:50]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/main.jsbundle,line=145962,col=7::the variable "alert" was not declared in function "throwOrAlert"[0m
-[20:40:50]: ▸ [35m      alert(msg);[0m
-[20:40:50]: ▸ [35m      ^~~~~[0m
-[20:40:50]: ▸ [35m[[36mGHShopper[0m] [1mGenerating[0m GHShopper.app.dSYM[0m
-[20:40:50]: ▸ [35m::warning ::/Users/builder/clone/AnwalPaySDKNativeiOSExample/amwalsdk/Flutter/Release/iphoneos/ExplicitPrecompiledModules/UIKit-LU9PGQH8IL3YY1FLT1I3KLQH.pcm: No such file or directory[0m
-[20:40:50]: ▸ [35m[36;1mnote: [0mwhile processing /Users/builder/clone/AnwalPaySDKNativeiOSExample/amwalsdk/Flutter/Release/iphoneos/ExplicitPrecompiledModules/UIKit-LU9PGQH8IL3YY1FLT1I3KLQH.pcm[0m
-[20:40:50]: ▸ [35m[36;1mnote: [0mLinking a static library that was built with -gmodules, but the module cache was not found.  Redistributable static libraries should never be built with module debugging enabled.  The debug experience will be degraded due to incomplete debug information.[0m
-[20:40:50]: ▸ [35m::warning ::/Users/builder/clone/AnwalPaySDKNativeiOSExample/amwalsdk/Flutter/Release/iphoneos/ExplicitPrecompiledModules/Foundation-5JX0JQS6Q0C4LZQ3YM3MSKWT8.pcm: No such file or directory[0m
-[20:40:50]: ▸ [35m[36;1mnote: [0mwhile processing /Users/builder/clone/AnwalPaySDKNativeiOSExample/amwalsdk/Flutter/Release/iphoneos/ExplicitPrecompiledModules/Foundation-5JX0JQS6Q0C4LZQ3YM3MSKWT8.pcm[0m
-[20:40:50]: ▸ [35m::warning ::/Users/builder/clone/AnwalPaySDKNativeiOSExample/amwalsdk/Flutter/Release/iphoneos/ExplicitPrecompiledModules/ObjectiveC-DVI8F0D226J2A2PDLFODD7Q57.pcm: No such file or directory[0m
-[20:40:50]: ▸ [35m[36;1mnote: [0mwhile processing /Users/builder/clone/AnwalPaySDKNativeiOSExample/amwalsdk/Flutter/Release/iphoneos/ExplicitPrecompiledModules/ObjectiveC-DVI8F0D226J2A2PDLFODD7Q57.pcm[0m
-[20:40:50]: ▸ [35m::warning ::/Users/builder/clone/AnwalPaySDKNativeiOSExample/amwalsdk/Flutter/Release/iphoneos/ExplicitPrecompiledModules/UIKit-DH3G3VWDH0EDSEXRYCI7CNUUP.pcm: No such file or directory[0m
-[20:40:50]: ▸ [35m[36;1mnote: [0mwhile processing /Users/builder/clone/AnwalPaySDKNativeiOSExample/amwalsdk/Flutter/Release/iphoneos/ExplicitPrecompiledModules/UIKit-DH3G3VWDH0EDSEXRYCI7CNUUP.pcm[0m
-[20:40:50]: ▸ [35m::warning ::/Users/builder/clone/AnwalPaySDKNativeiOSExample/amwalsdk/Flutter/Release/iphoneos/ExplicitPrecompiledModules/Flutter-5USTO7RI97I29Q50AGD699I1F.pcm: No such file or directory[0m
-[20:40:50]: ▸ [35m[36;1mnote: [0mwhile processing /Users/builder/clone/AnwalPaySDKNativeiOSExample/amwalsdk/Flutter/Release/iphoneos/ExplicitPrecompiledModules/Flutter-5USTO7RI97I29Q50AGD699I1F.pcm[0m
-[20:40:50]: ▸ [35m::warning ::/Users/builder/clone/AnwalPaySDKNativeiOSExample/amwalsdk/Flutter/Release/iphoneos/ExplicitPrecompiledModules/amwal_pay_sdk-6JS6GFP9PUIU7HGFQZFTOAMJL.pcm: No such file or directory[0m
-[20:40:50]: ▸ [35m[36;1mnote: [0mwhile processing /Users/builder/clone/AnwalPaySDKNativeiOSExample/amwalsdk/Flutter/Release/iphoneos/ExplicitPrecompiledModules/amwal_pay_sdk-6JS6GFP9PUIU7HGFQZFTOAMJL.pcm[0m
-[20:40:50]: ▸ [35m::warning ::/Users/builder/clone/AnwalPaySDKNativeiOSExample/amwalsdk/Flutter/Release/iphoneos/ExplicitPrecompiledModules/path_provider_foundation-5TG73N3892RAFEOQZZH31ZGG2.pcm: No such file or directory[0m
-[20:40:50]: ▸ [35m[36;1mnote: [0mwhile processing /Users/builder/clone/AnwalPaySDKNativeiOSExample/amwalsdk/Flutter/Release/iphoneos/ExplicitPrecompiledModules/path_provider_foundation-5TG73N3892RAFEOQZZH31ZGG2.pcm[0m
-[20:40:50]: ▸ [35m::warning ::/Users/builder/clone/AnwalPaySDKNativeiOSExample/amwalsdk/Flutter/Release/iphoneos/ExplicitPrecompiledModules/pay_ios-DBLAVHT5ICIIZM6QXIIFPVXWI.pcm: No such file or directory[0m
-[20:40:50]: ▸ [35m[36;1mnote: [0mwhile processing /Users/builder/clone/AnwalPaySDKNativeiOSExample/amwalsdk/Flutter/Release/iphoneos/ExplicitPrecompiledModules/pay_ios-DBLAVHT5ICIIZM6QXIIFPVXWI.pcm[0m
-[20:40:50]: ▸ [35m::warning ::/Users/builder/clone/AnwalPaySDKNativeiOSExample/amwalsdk/Flutter/Release/iphoneos/ExplicitPrecompiledModules/share_plus-9NSZJJV83Y22E0DN9JFAR0ZAS.pcm: No such file or directory[0m
-[20:40:50]: ▸ [35m[36;1mnote: [0mwhile processing /Users/builder/clone/AnwalPaySDKNativeiOSExample/amwalsdk/Flutter/Release/iphoneos/ExplicitPrecompiledModules/share_plus-9NSZJJV83Y22E0DN9JFAR0ZAS.pcm[0m
-[20:40:50]: ▸ [35m::warning ::/Users/builder/clone/AnwalPaySDKNativeiOSExample/amwalsdk/Flutter/Release/iphoneos/ExplicitPrecompiledModules/shared_preferences_foundation-76S9KHJEACRJESQT5K0I3I36L.pcm: No such file or directory[0m
-[20:40:50]: ▸ [35m[36;1mnote: [0mwhile processing /Users/builder/clone/AnwalPaySDKNativeiOSExample/amwalsdk/Flutter/Release/iphoneos/ExplicitPrecompiledModules/shared_preferences_foundation-76S9KHJEACRJESQT5K0I3I36L.pcm[0m
-[20:40:50]: ▸ [35m::warning ::/Users/builder/clone/AnwalPaySDKNativeiOSExample/amwalsdk/Flutter/Release/iphoneos/ExplicitPrecompiledModules/webview_flutter_wkwebview-7D37ABIWJC88F7CSTIT2BI6JW.pcm: No such file or directory[0m
-[20:40:50]: ▸ [35m[36;1mnote: [0mwhile processing /Users/builder/clone/AnwalPaySDKNativeiOSExample/amwalsdk/Flutter/Release/iphoneos/ExplicitPrecompiledModules/webview_flutter_wkwebview-7D37ABIWJC88F7CSTIT2BI6JW.pcm[0m
-[20:40:50]: ▸ [35m::warning ::/Users/builder/clone/AnwalPaySDKNativeiOSExample/amwalsdk/Flutter/Release/iphoneos/ExplicitPrecompiledModules/ObjectiveC-9QSXRCHJ82LEV5TO7YR75GFCR.pcm: No such file or directory[0m
-[20:40:50]: ▸ [35m[36;1mnote: [0mwhile processing /Users/builder/clone/AnwalPaySDKNativeiOSExample/amwalsdk/Flutter/Release/iphoneos/ExplicitPrecompiledModules/ObjectiveC-9QSXRCHJ82LEV5TO7YR75GFCR.pcm[0m
-[20:40:50]: ▸ [35m[[36mGHShopper[0m] [1mRunning script[0m [CP] Copy Pods Resources[0m
-[20:40:52]: ▸ [35m[[36mGHShopper[0m] [1mRunning script[0m [CP] Embed Pods Frameworks[0m
-[20:41:00]: ▸ [35m[[36mGHShopper[0m] [1mRunning script[0m [CP-User] [RNFB] Core Configuration[0m
-[20:41:00]: ▸ [35m[36;1mnote: [0m-> RNFB build script started[0m
-[20:41:00]: ▸ [35m[36;1mnote: [0m1) Locating firebase.json file:[0m
-[20:41:00]: ▸ [35m[36;1mnote: [0m     (1 of 2) Searching in '/Users/runner/work/-gh-platform/-gh-platform' for a firebase.json file.[0m
-[20:41:00]: ▸ [35m[36;1mnote: [0m     (2 of 2) Searching in '/Users/runner/work/-gh-platform' for a firebase.json file.[0m
-[20:41:00]: ▸ [35m::warning ::  A firebase.json file was not found, whilst this file is optional it is recommended to include it to configure firebase services in React Native Firebase.[0m
-[20:41:00]: ▸ [35m[36;1mnote: [0m2) Injecting Info.plist entries: [0m
-[20:41:00]: ▸ [35m[36;1mnote: [0m     setting plist entry 'firebase_json_raw' of type 'string' in file '/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/GHShopper.app/Info.plist'[0m
-[20:41:00]: ▸ [35m[36;1mnote: [0m     setting plist entry 'firebase_json_raw' of type 'string' in file '/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/GHShopper.app.dSYM/Contents/Info.plist'[0m
-[20:41:00]: ▸ [35m[36;1mnote: [0m<- RNFB build script finished[0m
-[20:41:00]: ▸ [35m[[36mGHShopper[0m] [1mExtract App Intents Metadata[0m
-[20:41:00]: ▸ [35m[1mSigning[0m GHShopper.app (in target 'GHShopper' from project 'GHShopper')[0m
-[20:41:01]: ▸ [35m[[36mGHShopper[0m] [1mRegisterExecutionPolicyException[0m GHShopper.app[0m
-[20:41:01]: ▸ [35m[[36mGHShopper[0m] [1mValidate[0m GHShopper.app[0m
-[20:41:01]: ▸ [35m[[36mGHShopper[0m] [1mTouching[0m GHShopper.app[0m
-[20:41:01]: ▸ [35m[36;1mnote: [0mRun script build phase '[CP-User] [Hermes] Replace Hermes for the right configuration, if needed' will be run during every build because the option to run the script phase "Based on dependency analysis" is unchecked. (in target 'hermes-engine' from project 'Pods')[0m
-[20:41:01]: ▸ [35m[36;1mnote: [0mRun script build phase '[CP-User] [RNDeps] Replace React Native Dependencies for the right configuration, if needed' will be run during every build because the option to run the script phase "Based on dependency analysis" is unchecked. (in target 'ReactNativeDependencies' from project 'Pods')[0m
-[20:41:01]: ▸ [35m[36;1mnote: [0mRun script build phase '[CP-User] [RN]Check FBReactNativeSpec' will be run during every build because the option to run the script phase "Based on dependency analysis" is unchecked. (in target 'React-RCTFBReactNativeSpec' from project 'Pods')[0m
-[20:41:01]: ▸ [35m[36;1mnote: [0mRun script build phase '[CP-User] [RNCore] Replace React Native Core for the right configuration, if needed' will be run during every build because the option to run the script phase "Based on dependency analysis" is unchecked. (in target 'React-Core-prebuilt' from project 'Pods')[0m
-[20:41:01]: ▸ [35m[36;1mnote: [0mRun script build phase '[CP-User] [Expo] Switch ExpoVideo XCFramework for build configuration' will be run during every build because the option to run the script phase "Based on dependency analysis" is unchecked. (in target 'ExpoVideo' from project 'Pods')[0m
-[20:41:01]: ▸ [35m[36;1mnote: [0mRun script build phase '[CP-User] [Expo] Switch ExpoModulesWorklets XCFramework for build configuration' will be run during every build because the option to run the script phase "Based on dependency analysis" is unchecked. (in target 'ExpoModulesWorklets' from project 'Pods')[0m
-[20:41:01]: ▸ [35m[36;1mnote: [0mRun script build phase '[CP-User] Build ExpoModulesJSI xcframework' will be run during every build because the option to run the script phase "Based on dependency analysis" is unchecked. (in target 'ExpoModulesJSI' from project 'Pods')[0m
-[20:41:01]: ▸ [35m[36;1mnote: [0mRun script build phase '[CP-User] [Expo] Switch ExpoModulesCore XCFramework for build configuration' will be run during every build because the option to run the script phase "Based on dependency analysis" is unchecked. (in target 'ExpoModulesCore' from project 'Pods')[0m
-[20:41:01]: ▸ [35m[36;1mnote: [0mRun script build phase '[CP-User] [Expo] Switch ExpoImage XCFramework for build configuration' will be run during every build because the option to run the script phase "Based on dependency analysis" is unchecked. (in target 'ExpoImage' from project 'Pods')[0m
-[20:41:01]: ▸ [35m[36;1mnote: [0mRun script build phase '[CP-User] [Expo] Switch ExpoFont XCFramework for build configuration' will be run during every build because the option to run the script phase "Based on dependency analysis" is unchecked. (in target 'ExpoFont' from project 'Pods')[0m
-[20:41:01]: ▸ [35m[36;1mnote: [0mRun script build phase '[CP-User] [Expo] Switch ExpoFileSystem XCFramework for build configuration' will be run during every build because the option to run the script phase "Based on dependency analysis" is unchecked. (in target 'ExpoFileSystem' from project 'Pods')[0m
-[20:41:01]: ▸ [35m[36;1mnote: [0mRun script build phase '[Expo] Configure project' will be run during every build because the option to run the script phase "Based on dependency analysis" is unchecked. (in target 'GHShopper' from project 'GHShopper')[0m
-[20:41:01]: ▸ [35m[36;1mnote: [0mRun script build phase 'Bundle React Native code and images' will be run during every build because the option to run the script phase "Based on dependency analysis" is unchecked. (in target 'GHShopper' from project 'GHShopper')[0m
-[20:41:01]: ▸ [35m::warning ::Run script build phase '[CP-User] [RNFB] Core Configuration' will be run during every build because it does not specify any outputs. To address this issue, either add output dependencies to the script phase, or configure it to run in every build by unchecking "Based on dependency analysis" in the script phase. (in target 'GHShopper' from project 'GHShopper')[0m
-[20:41:01]: ▸ [35m::warning ::Run script build phase '[CP-User] react-native-maps patches' will be run during every build because it does not specify any outputs. To address this issue, either add output dependencies to the script phase, or configure it to run in every build by unchecking "Based on dependency analysis" in the script phase. (in target 'react-native-maps' from project 'Pods')[0m
-[20:41:01]: ▸ [35m[36;1mnote: [0mRun script build phase '[CP-User] Generate app.config for prebuilt Constants.manifest' will be run during every build because the option to run the script phase "Based on dependency analysis" is unchecked. (in target 'EXConstants' from project 'Pods')[0m
-[20:41:01]: ▸ [35m[32;1mArchive Succeeded[0m
-[20:41:01]: [33mGenerated plist file with the following values:[0m
-[20:41:01]: ▸ [35m-----------------------------------------[0m
-[20:41:01]: ▸ [35m{[0m
-[20:41:01]: ▸ [35m  "provisioningProfiles": {[0m
-[20:41:01]: ▸ [35m    "com.example.ghShopper": "match AppStore com.example.ghShopper"[0m
-[20:41:01]: ▸ [35m  },[0m
-[20:41:01]: ▸ [35m  "method": "app-store",[0m
-[20:41:01]: ▸ [35m  "signingStyle": "manual",[0m
-[20:41:01]: ▸ [35m  "teamID": "4AS6WC855S"[0m
-[20:41:01]: ▸ [35m}[0m
-[20:41:01]: ▸ [35m-----------------------------------------[0m
-[20:41:01]: [36m$ /usr/bin/xcrun /Users/runner/work/-gh-platform/-gh-platform/vendor/bundle/ruby/3.3.0/gems/fastlane-2.241.1/gym/lib/assets/wrap_xcodebuild/xcbuild-safe.sh -exportArchive -exportOptionsPlist /var/folders/n6/hn37q6pj7sj_9dmqqc2113800000gn/T/gym_config20261019-4653-cmkwag.plist -archivePath /Users/runner/Library/Developer/Xcode/Archives/2026-10-19/GHShopper\ 2026-10-19\ 20.33.41.xcarchive -exportPath /var/folders/n6/hn37q6pj7sj_9dmqqc2113800000gn/T/gym_output20261019-4653-rsf8x0 -allowProvisioningUpdates [0m
-[20:41:13]: Compressing 9 dSYM(s)
-[20:41:13]: [36m$ cd /Users/runner/Library/Developer/Xcode/Archives/2026-10-19/GHShopper\ 2026-10-19\ 20.33.41.xcarchive/dSYMs && zip -r /Users/runner/work/-gh-platform/-gh-platform/build/ipa/GHShopper.app.dSYM.zip *.dSYM[0m
-[20:41:18]: ▸ [35m  adding: ExpoFileSystem.framework.dSYM/ (stored 0%)[0m
-[20:41:18]: ▸ [35m  adding: ExpoFileSystem.framework.dSYM/Contents/ (stored 0%)[0m
-[20:41:18]: ▸ [35m  adding: ExpoFileSystem.framework.dSYM/Contents/Resources/ (stored 0%)[0m
-[20:41:18]: ▸ [35m  adding: ExpoFileSystem.framework.dSYM/Contents/Resources/Relocations/ (stored 0%)[0m
-[20:41:18]: ▸ [35m  adding: ExpoFileSystem.framework.dSYM/Contents/Resources/Relocations/aarch64/ (stored 0%)[0m
-[20:41:18]: ▸ [35m  adding: ExpoFileSystem.framework.dSYM/Contents/Resources/Relocations/aarch64/ExpoFileSystem.yml (deflated 87%)[0m
-[20:41:18]: ▸ [35m  adding: ExpoFileSystem.framework.dSYM/Contents/Resources/DWARF/ (stored 0%)[0m
-[20:41:18]: ▸ [35m  adding: ExpoFileSystem.framework.dSYM/Contents/Resources/DWARF/ExpoFileSystem (deflated 71%)[0m
-[20:41:18]: ▸ [35m  adding: ExpoFileSystem.framework.dSYM/Contents/Resources/Swift/ (stored 0%)[0m
-[20:41:18]: ▸ [35m  adding: ExpoFileSystem.framework.dSYM/Contents/Resources/Swift/aarch64/ (stored 0%)[0m
-[20:41:18]: ▸ [35m  adding: ExpoFileSystem.framework.dSYM/Contents/Info.plist (deflated 52%)[0m
-[20:41:18]: ▸ [35m  adding: ExpoFont.framework.dSYM/ (stored 0%)[0m
-[20:41:18]: ▸ [35m  adding: ExpoFont.framework.dSYM/Contents/ (stored 0%)[0m
-[20:41:18]: ▸ [35m  adding: ExpoFont.framework.dSYM/Contents/Resources/ (stored 0%)[0m
-[20:41:18]: ▸ [35m  adding: ExpoFont.framework.dSYM/Contents/Resources/Relocations/ (stored 0%)[0m
-[20:41:18]: ▸ [35m  adding: ExpoFont.framework.dSYM/Contents/Resources/Relocations/aarch64/ (stored 0%)[0m
-[20:41:18]: ▸ [35m  adding: ExpoFont.framework.dSYM/Contents/Resources/Relocations/aarch64/ExpoFont.yml (deflated 84%)[0m
-[20:41:18]: ▸ [35m  adding: ExpoFont.framework.dSYM/Contents/Resources/DWARF/ (stored 0%)[0m
-[20:41:18]: ▸ [35m  adding: ExpoFont.framework.dSYM/Contents/Resources/DWARF/ExpoFont (deflated 65%)[0m
-[20:41:18]: ▸ [35m  adding: ExpoFont.framework.dSYM/Contents/Resources/Swift/ (stored 0%)[0m
-[20:41:18]: ▸ [35m  adding: ExpoFont.framework.dSYM/Contents/Resources/Swift/aarch64/ (stored 0%)[0m
-[20:41:18]: ▸ [35m  adding: ExpoFont.framework.dSYM/Contents/Info.plist (deflated 52%)[0m
-[20:41:18]: ▸ [35m  adding: ExpoModulesCore.framework.dSYM/ (stored 0%)[0m
-[20:41:18]: ▸ [35m  adding: ExpoModulesCore.framework.dSYM/Contents/ (stored 0%)[0m
-[20:41:18]: ▸ [35m  adding: ExpoModulesCore.framework.dSYM/Contents/Resources/ (stored 0%)[0m
-[20:41:18]: ▸ [35m  adding: ExpoModulesCore.framework.dSYM/Contents/Resources/Relocations/ (stored 0%)[0m
-[20:41:18]: ▸ [35m  adding: ExpoModulesCore.framework.dSYM/Contents/Resources/Relocations/aarch64/ (stored 0%)[0m
-[20:41:18]: ▸ [35m  adding: ExpoModulesCore.framework.dSYM/Contents/Resources/Relocations/aarch64/ExpoModulesCore.yml (deflated 88%)[0m
-[20:41:18]: ▸ [35m  adding: ExpoModulesCore.framework.dSYM/Contents/Resources/DWARF/ (stored 0%)[0m
-[20:41:18]: ▸ [35m  adding: ExpoModulesCore.framework.dSYM/Contents/Resources/DWARF/ExpoModulesCore (deflated 73%)[0m
-[20:41:18]: ▸ [35m  adding: ExpoModulesCore.framework.dSYM/Contents/Info.plist (deflated 52%)[0m
-[20:41:18]: ▸ [35m  adding: ExpoModulesJSI.framework.dSYM/ (stored 0%)[0m
-[20:41:18]: ▸ [35m  adding: ExpoModulesJSI.framework.dSYM/Contents/ (stored 0%)[0m
-[20:41:18]: ▸ [35m  adding: ExpoModulesJSI.framework.dSYM/Contents/Resources/ (stored 0%)[0m
-[20:41:18]: ▸ [35m  adding: ExpoModulesJSI.framework.dSYM/Contents/Resources/Relocations/ (stored 0%)[0m
-[20:41:18]: ▸ [35m  adding: ExpoModulesJSI.framework.dSYM/Contents/Resources/Relocations/aarch64/ (stored 0%)[0m
-[20:41:18]: ▸ [35m  adding: ExpoModulesJSI.framework.dSYM/Contents/Resources/Relocations/aarch64/ExpoModulesJSI.yml (deflated 87%)[0m
-[20:41:18]: ▸ [35m  adding: ExpoModulesJSI.framework.dSYM/Contents/Resources/DWARF/ (stored 0%)[0m
-[20:41:18]: ▸ [35m  adding: ExpoModulesJSI.framework.dSYM/Contents/Resources/DWARF/ExpoModulesJSI (deflated 71%)[0m
-[20:41:18]: ▸ [35m  adding: ExpoModulesJSI.framework.dSYM/Contents/Info.plist (deflated 52%)[0m
-[20:41:18]: ▸ [35m  adding: ExpoModulesWorklets.framework.dSYM/ (stored 0%)[0m
-[20:41:18]: ▸ [35m  adding: ExpoModulesWorklets.framework.dSYM/Contents/ (stored 0%)[0m
-[20:41:18]: ▸ [35m  adding: ExpoModulesWorklets.framework.dSYM/Contents/Resources/ (stored 0%)[0m
-[20:41:18]: ▸ [35m  adding: ExpoModulesWorklets.framework.dSYM/Contents/Resources/Relocations/ (stored 0%)[0m
-[20:41:18]: ▸ [35m  adding: ExpoModulesWorklets.framework.dSYM/Contents/Resources/Relocations/aarch64/ (stored 0%)[0m
-[20:41:18]: ▸ [35m  adding: ExpoModulesWorklets.framework.dSYM/Contents/Resources/Relocations/aarch64/ExpoModulesWorklets.yml (deflated 86%)[0m
-[20:41:18]: ▸ [35m  adding: ExpoModulesWorklets.framework.dSYM/Contents/Resources/DWARF/ (stored 0%)[0m
-[20:41:18]: ▸ [35m  adding: ExpoModulesWorklets.framework.dSYM/Contents/Resources/DWARF/ExpoModulesWorklets (deflated 64%)[0m
-[20:41:18]: ▸ [35m  adding: ExpoModulesWorklets.framework.dSYM/Contents/Resources/Swift/ (stored 0%)[0m
-[20:41:18]: ▸ [35m  adding: ExpoModulesWorklets.framework.dSYM/Contents/Resources/Swift/aarch64/ (stored 0%)[0m
-[20:41:18]: ▸ [35m  adding: ExpoModulesWorklets.framework.dSYM/Contents/Info.plist (deflated 52%)[0m
-[20:41:18]: ▸ [35m  adding: ExpoVideo.framework.dSYM/ (stored 0%)[0m
-[20:41:18]: ▸ [35m  adding: ExpoVideo.framework.dSYM/Contents/ (stored 0%)[0m
-[20:41:18]: ▸ [35m  adding: ExpoVideo.framework.dSYM/Contents/Resources/ (stored 0%)[0m
-[20:41:18]: ▸ [35m  adding: ExpoVideo.framework.dSYM/Contents/Resources/Relocations/ (stored 0%)[0m
-[20:41:18]: ▸ [35m  adding: ExpoVideo.framework.dSYM/Contents/Resources/Relocations/aarch64/ (stored 0%)[0m
-[20:41:18]: ▸ [35m  adding: ExpoVideo.framework.dSYM/Contents/Resources/Relocations/aarch64/ExpoVideo.yml (deflated 87%)[0m
-[20:41:18]: ▸ [35m  adding: ExpoVideo.framework.dSYM/Contents/Resources/DWARF/ (stored 0%)[0m
-[20:41:18]: ▸ [35m  adding: ExpoVideo.framework.dSYM/Contents/Resources/DWARF/ExpoVideo (deflated 71%)[0m
-[20:41:18]: ▸ [35m  adding: ExpoVideo.framework.dSYM/Contents/Resources/Swift/ (stored 0%)[0m
-[20:41:18]: ▸ [35m  adding: ExpoVideo.framework.dSYM/Contents/Resources/Swift/aarch64/ (stored 0%)[0m
-[20:41:18]: ▸ [35m  adding: ExpoVideo.framework.dSYM/Contents/Info.plist (deflated 52%)[0m
-[20:41:18]: ▸ [35m  adding: GHShopper.app.dSYM/ (stored 0%)[0m
-[20:41:18]: ▸ [35m  adding: GHShopper.app.dSYM/Contents/ (stored 0%)[0m
-[20:41:18]: ▸ [35m  adding: GHShopper.app.dSYM/Contents/Resources/ (stored 0%)[0m
-[20:41:18]: ▸ [35m  adding: GHShopper.app.dSYM/Contents/Resources/Relocations/ (stored 0%)[0m
-[20:41:18]: ▸ [35m  adding: GHShopper.app.dSYM/Contents/Resources/Relocations/aarch64/ (stored 0%)[0m
-[20:41:18]: ▸ [35m  adding: GHShopper.app.dSYM/Contents/Resources/Relocations/aarch64/GHShopper.yml (deflated 90%)[0m
-[20:41:18]: ▸ [35m  adding: GHShopper.app.dSYM/Contents/Resources/DWARF/ (stored 0%)[0m
-[20:41:18]: ▸ [35m  adding: GHShopper.app.dSYM/Contents/Resources/DWARF/GHShopper (deflated 70%)[0m
-[20:41:18]: ▸ [35m  adding: GHShopper.app.dSYM/Contents/Resources/Swift/ (stored 0%)[0m
-[20:41:18]: ▸ [35m  adding: GHShopper.app.dSYM/Contents/Resources/Swift/aarch64/ (stored 0%)[0m
-[20:41:18]: ▸ [35m  adding: GHShopper.app.dSYM/Contents/Resources/Swift/aarch64/ExpoFileSystem.swiftinterface (deflated 64%)[0m
-[20:41:18]: ▸ [35m  adding: GHShopper.app.dSYM/Contents/Resources/Swift/aarch64/ExpoFont.swiftinterface (deflated 58%)[0m
-[20:41:18]: ▸ [35m  adding: GHShopper.app.dSYM/Contents/Resources/Swift/aarch64/ExpoImage.swiftinterface (deflated 70%)[0m
-[20:41:18]: ▸ [35m  adding: GHShopper.app.dSYM/Contents/Resources/Swift/aarch64/ExpoModulesCore.swiftinterface (deflated 87%)[0m
-[20:41:18]: ▸ [35m  adding: GHShopper.app.dSYM/Contents/Resources/Swift/aarch64/ExpoVideo.swiftinterface (deflated 73%)[0m
-[20:41:18]: ▸ [35m  adding: GHShopper.app.dSYM/Contents/Info.plist (deflated 52%)[0m
-[20:41:18]: ▸ [35m  adding: libavif.framework.dSYM/ (stored 0%)[0m
-[20:41:18]: ▸ [35m  adding: libavif.framework.dSYM/Contents/ (stored 0%)[0m
-[20:41:18]: ▸ [35m  adding: libavif.framework.dSYM/Contents/Resources/ (stored 0%)[0m
-[20:41:18]: ▸ [35m  adding: libavif.framework.dSYM/Contents/Resources/Relocations/ (stored 0%)[0m
-[20:41:18]: ▸ [35m  adding: libavif.framework.dSYM/Contents/Resources/Relocations/aarch64/ (stored 0%)[0m
-[20:41:18]: ▸ [35m  adding: libavif.framework.dSYM/Contents/Resources/Relocations/aarch64/libavif.yml (deflated 87%)[0m
-[20:41:18]: ▸ [35m  adding: libavif.framework.dSYM/Contents/Resources/DWARF/ (stored 0%)[0m
-[20:41:18]: ▸ [35m  adding: libavif.framework.dSYM/Contents/Resources/DWARF/libavif (deflated 69%)[0m
-[20:41:18]: ▸ [35m  adding: libavif.framework.dSYM/Contents/Info.plist (deflated 52%)[0m
-[20:41:18]: ▸ [35m  adding: webview_flutter_wkwebview.framework.dSYM/ (stored 0%)[0m
-[20:41:18]: ▸ [35m  adding: webview_flutter_wkwebview.framework.dSYM/Contents/ (stored 0%)[0m
-[20:41:18]: ▸ [35m  adding: webview_flutter_wkwebview.framework.dSYM/Contents/Resources/ (stored 0%)[0m
-[20:41:18]: ▸ [35m  adding: webview_flutter_wkwebview.framework.dSYM/Contents/Resources/Relocations/ (stored 0%)[0m
-[20:41:18]: ▸ [35m  adding: webview_flutter_wkwebview.framework.dSYM/Contents/Resources/Relocations/aarch64/ (stored 0%)[0m
-[20:41:18]: ▸ [35m  adding: webview_flutter_wkwebview.framework.dSYM/Contents/Resources/Relocations/aarch64/webview_flutter_wkwebview.yml (deflated 88%)[0m
-[20:41:18]: ▸ [35m  adding: webview_flutter_wkwebview.framework.dSYM/Contents/Resources/DWARF/ (stored 0%)[0m
-[20:41:18]: ▸ [35m  adding: webview_flutter_wkwebview.framework.dSYM/Contents/Resources/DWARF/webview_flutter_wkwebview (deflated 70%)[0m
-[20:41:18]: ▸ [35m  adding: webview_flutter_wkwebview.framework.dSYM/Contents/Info.plist (deflated 52%)[0m
+[21:16:06]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/XCFrameworkIntermediates/ExpoFileSystem/ExpoFileSystem.framework/Headers/EXSessionTaskDelegate.h,line=14,col=131::pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)[0m
+[21:16:06]: ▸ [35m12 |                                  reject:(EXPromiseRejectBlock)reject;[0m
+[21:16:06]: ▸ [35m13 | [0m
+[21:16:06]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/XCFrameworkIntermediates/ExpoFileSystem/ExpoFileSystem.framework/Headers/EXSessionTaskDelegate.h,line=16,col=34::pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)[0m
+[21:16:06]: ▸ [35m14 | - (void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didFinishDownloadingToURL:(NSURL *)location;[0m
+[21:16:06]: ▸ [35m15 | [0m
+[21:16:06]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/XCFrameworkIntermediates/ExpoFileSystem/ExpoFileSystem.framework/Headers/EXSessionTaskDelegate.h,line=16,col=67::pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)[0m
+[21:16:06]: ▸ [35m14 | - (void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didFinishDownloadingToURL:(NSURL *)location;[0m
+[21:16:06]: ▸ [35m15 | [0m
+[21:16:06]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/XCFrameworkIntermediates/ExpoFileSystem/ExpoFileSystem.framework/Headers/EXSessionTaskDelegate.h,line=16,col=104::pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)[0m
+[21:16:06]: ▸ [35m14 | - (void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didFinishDownloadingToURL:(NSURL *)location;[0m
+[21:16:06]: ▸ [35m15 | [0m
+[21:16:06]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/XCFrameworkIntermediates/ExpoFileSystem/ExpoFileSystem.framework/Headers/EXSessionTaskDelegate.h,line=18,col=34::pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)[0m
+[21:16:06]: ▸ [35m16 | - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error;[0m
+[21:16:06]: ▸ [35m17 | [0m
+[21:16:06]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/XCFrameworkIntermediates/ExpoFileSystem/ExpoFileSystem.framework/Headers/EXSessionTaskDelegate.h,line=18,col=83::pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)[0m
+[21:16:06]: ▸ [35m16 | - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error;[0m
+[21:16:06]: ▸ [35m17 | [0m
+[21:16:06]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/XCFrameworkIntermediates/ExpoFileSystem/ExpoFileSystem.framework/Headers/EXSessionTaskDelegate.h,line=23,col=34::pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)[0m
+[21:16:06]: ▸ [35m21 |                               totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite;[0m
+[21:16:06]: ▸ [35m22 | [0m
+[21:16:06]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/XCFrameworkIntermediates/ExpoFileSystem/ExpoFileSystem.framework/Headers/EXSessionTaskDelegate.h,line=23,col=75::pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)[0m
+[21:16:06]: ▸ [35m21 |                               totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite;[0m
+[21:16:06]: ▸ [35m22 | [0m
+[21:16:06]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/XCFrameworkIntermediates/ExpoFileSystem/ExpoFileSystem.framework/Headers/EXSessionTaskDelegate.h,line=23,col=109::pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)[0m
+[21:16:06]: ▸ [35m21 |                               totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite;[0m
+[21:16:06]: ▸ [35m22 | [0m
+[21:16:06]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/XCFrameworkIntermediates/ExpoFileSystem/ExpoFileSystem.framework/Headers/EXSessionTaskDelegate.h,line=25,col=34::pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)[0m
+[21:16:06]: ▸ [35m23 | - (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveData:(NSData *)data;[0m
+[21:16:06]: ▸ [35m24 | [0m
+[21:16:06]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/XCFrameworkIntermediates/ExpoFileSystem/ExpoFileSystem.framework/Headers/EXSessionTaskDelegate.h,line=25,col=67::pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)[0m
+[21:16:06]: ▸ [35m23 | - (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveData:(NSData *)data;[0m
+[21:16:06]: ▸ [35m24 | [0m
+[21:16:06]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/XCFrameworkIntermediates/ExpoFileSystem/ExpoFileSystem.framework/Headers/EXSessionTaskDelegate.h,line=30,col=17::pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)[0m
+[21:16:06]: ▸ [35m28 |                        totalBytesExpectedToSend:(int64_t)totalBytesExpectedToSend;[0m
+[21:16:06]: ▸ [35m29 | [0m
+[21:16:06]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/XCFrameworkIntermediates/ExpoFileSystem/ExpoFileSystem.framework/Headers/EXSessionTaskDelegate.h,line=30,col=54::pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)[0m
+[21:16:06]: ▸ [35m28 |                        totalBytesExpectedToSend:(int64_t)totalBytesExpectedToSend;[0m
+[21:16:06]: ▸ [35m29 | [0m
+[21:16:06]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/XCFrameworkIntermediates/ExpoFileSystem/ExpoFileSystem.framework/Headers/EXSessionCancelableUploadTaskDelegate.h,line=6,col=71::pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)[0m
+[21:16:06]: ▸ [35m 4 | #import <ExpoFileSystem/EXTaskHandlersManager.h>[0m
+[21:16:06]: ▸ [35m 5 | [0m
+[21:16:06]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/XCFrameworkIntermediates/ExpoFileSystem/ExpoFileSystem.framework/Headers/EXSessionCancelableUploadTaskDelegate.h,line=10,col=42::block pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)[0m
+[21:16:06]: ▸ [35m 8 | @interface EXSessionCancelableUploadTaskDelegate : EXSessionUploadTaskDelegate[0m
+[21:16:06]: ▸ [35m 9 | [0m
+[21:16:06]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/XCFrameworkIntermediates/ExpoFileSystem/ExpoFileSystem.framework/Headers/EXSessionCancelableUploadTaskDelegate.h,line=11,col=42::block pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)[0m
+[21:16:06]: ▸ [35m 9 | [0m
+[21:16:06]: ▸ [35m10 | - (nonnull instancetype)initWithResolve:(EXPromiseResolveBlock)resolve[0m
+[21:16:06]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/XCFrameworkIntermediates/ExpoFileSystem/ExpoFileSystem.framework/Headers/EXSessionCancelableUploadTaskDelegate.h,line=12,col=42::block pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)[0m
+[21:16:06]: ▸ [35m10 | - (nonnull instancetype)initWithResolve:(EXPromiseResolveBlock)resolve[0m
+[21:16:06]: ▸ [35m11 |                                  reject:(EXPromiseRejectBlock)reject[0m
+[21:16:06]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/XCFrameworkIntermediates/ExpoFileSystem/ExpoFileSystem.framework/Headers/EXSessionCancelableUploadTaskDelegate.h,line=13,col=64::pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)[0m
+[21:16:06]: ▸ [35m11 |                                  reject:(EXPromiseRejectBlock)reject[0m
+[21:16:06]: ▸ [35m12 |                          onSendCallback:(EXUploadDelegateOnSendCallback)onSendCallback[0m
+[21:16:06]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/XCFrameworkIntermediates/ExpoFileSystem/ExpoFileSystem.framework/Headers/EXSessionCancelableUploadTaskDelegate.h,line=14,col=51::pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)[0m
+[21:16:06]: ▸ [35m12 |                          onSendCallback:(EXUploadDelegateOnSendCallback)onSendCallback[0m
+[21:16:06]: ▸ [35m13 |                        resumableManager:(EXTaskHandlersManager *)manager[0m
+[21:16:06]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/XCFrameworkIntermediates/ExpoFileSystem/ExpoFileSystem.framework/Headers/EXSessionDownloadTaskDelegate.h,line=7,col=42::block pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)[0m
+[21:16:06]: ▸ [35m 5 | @interface EXSessionDownloadTaskDelegate : EXSessionTaskDelegate[0m
+[21:16:06]: ▸ [35m 6 | [0m
+[21:16:06]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/XCFrameworkIntermediates/ExpoFileSystem/ExpoFileSystem.framework/Headers/EXSessionDownloadTaskDelegate.h,line=8,col=42::block pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)[0m
+[21:16:06]: ▸ [35m 6 | [0m
+[21:16:06]: ▸ [35m 7 | - (nonnull instancetype)initWithResolve:(EXPromiseResolveBlock)resolve[0m
+[21:16:06]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/XCFrameworkIntermediates/ExpoFileSystem/ExpoFileSystem.framework/Headers/EXSessionDownloadTaskDelegate.h,line=9,col=48::pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)[0m
+[21:16:06]: ▸ [35m 7 | - (nonnull instancetype)initWithResolve:(EXPromiseResolveBlock)resolve[0m
+[21:16:06]: ▸ [35m 8 |                                  reject:(EXPromiseRejectBlock)reject[0m
+[21:16:06]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/XCFrameworkIntermediates/ExpoFileSystem/ExpoFileSystem.framework/Headers/EXSessionResumableDownloadTaskDelegate.h,line=6,col=76::pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)[0m
+[21:16:06]: ▸ [35m 4 | #import <ExpoFileSystem/EXTaskHandlersManager.h>[0m
+[21:16:06]: ▸ [35m 5 | [0m
+[21:16:06]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/XCFrameworkIntermediates/ExpoFileSystem/ExpoFileSystem.framework/Headers/EXSessionResumableDownloadTaskDelegate.h,line=10,col=42::block pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)[0m
+[21:16:06]: ▸ [35m 8 | @interface EXSessionResumableDownloadTaskDelegate : EXSessionDownloadTaskDelegate[0m
+[21:16:06]: ▸ [35m 9 | [0m
+[21:16:06]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/XCFrameworkIntermediates/ExpoFileSystem/ExpoFileSystem.framework/Headers/EXSessionResumableDownloadTaskDelegate.h,line=11,col=42::block pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)[0m
+[21:16:06]: ▸ [35m 9 | [0m
+[21:16:06]: ▸ [35m10 | - (nonnull instancetype)initWithResolve:(EXPromiseResolveBlock)resolve[0m
+[21:16:06]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/XCFrameworkIntermediates/ExpoFileSystem/ExpoFileSystem.framework/Headers/EXSessionResumableDownloadTaskDelegate.h,line=12,col=48::pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)[0m
+[21:16:06]: ▸ [35m10 | - (nonnull instancetype)initWithResolve:(EXPromiseResolveBlock)resolve[0m
+[21:16:06]: ▸ [35m11 |                                  reject:(EXPromiseRejectBlock)reject[0m
+[21:16:06]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/XCFrameworkIntermediates/ExpoFileSystem/ExpoFileSystem.framework/Headers/EXSessionResumableDownloadTaskDelegate.h,line=14,col=42::block pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)[0m
+[21:16:06]: ▸ [35m12 |                                localUrl:(NSURL *)localUrl[0m
+[21:16:06]: ▸ [35m13 |                      shouldCalculateMd5:(BOOL)shouldCalculateMd5[0m
+[21:16:06]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/XCFrameworkIntermediates/ExpoFileSystem/ExpoFileSystem.framework/Headers/EXSessionResumableDownloadTaskDelegate.h,line=15,col=64::pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)[0m
+[21:16:06]: ▸ [35m13 |                      shouldCalculateMd5:(BOOL)shouldCalculateMd5[0m
+[21:16:06]: ▸ [35m14 |                         onWriteCallback:(EXDownloadDelegateOnWriteCallback)onWriteCallback[0m
+[21:16:06]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/XCFrameworkIntermediates/ExpoFileSystem/ExpoFileSystem.framework/Headers/EXSessionResumableDownloadTaskDelegate.h,line=16,col=51::pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)[0m
+[21:16:06]: ▸ [35m14 |                         onWriteCallback:(EXDownloadDelegateOnWriteCallback)onWriteCallback[0m
+[21:16:06]: ▸ [35m15 |                        resumableManager:(EXTaskHandlersManager *)manager[0m
+[21:16:06]: ▸ [35m::warning file=/Users/runner/work/-gh-platform/-gh-platform/ios/Pods/React-Core-prebuilt/Headers/React_RCTAppDelegate/RCTUIConfiguratorProtocol.h,line=40,col=28::'RCTRootView' is deprecated: This API will be removed along with the legacy architecture.[0m
+[21:16:06]: ▸ [35m38 |  * @parameter: rootView - The root view to customize.[0m
+[21:16:06]: ▸ [35m39 |  */[0m
+[21:16:06]: ▸ [35m::warning file=/Users/runner/work/-gh-platform/-gh-platform/ios/Pods/Headers/Public/Expo/Expo/ExpoReactNativeFactory.h,line=11,col=58::cannot find protocol definition for 'RCTHostDelegate'[0m
+[21:16:06]: ▸ [35m 4 | #import <Expo/RCTAppDelegateUmbrella.h>[0m
+[21:16:06]: ▸ [35m 5 | [0m
+[21:16:10]: ▸ [35m[[36mGHShopper[0m] [1mCopy[0m arm64-apple-ios.swiftmodule -> GHShopper.swiftmodule[0m
+[21:16:10]: ▸ [35m[[36mGHShopper[0m] [1mCopy[0m arm64-apple-ios.swiftdoc -> GHShopper.swiftdoc[0m
+[21:16:10]: ▸ [35m[[36mGHShopper[0m] [1mCopy[0m arm64-apple-ios.abi.json -> GHShopper.abi.json[0m
+[21:16:10]: ▸ [35m[[36mGHShopper[0m] [1mCompiling[0m GHShopper_vers.c[0m
+[21:16:10]: ▸ [35m[[36mGHShopper[0m] [1mLinking[0m GHShopper[0m
+[21:16:12]: ▸ [35m[[36mGHShopper[0m] [1mGenerating[0m GHShopper.app.dSYM[0m
+[21:16:27]: ▸ [35m::warning ::/Users/builder/clone/AnwalPaySDKNativeiOSExample/amwalsdk/Flutter/Release/iphoneos/ExplicitPrecompiledModules/UIKit-LU9PGQH8IL3YY1FLT1I3KLQH.pcm: No such file or directory[0m
+[21:16:27]: ▸ [35m[36;1mnote: [0mwhile processing /Users/builder/clone/AnwalPaySDKNativeiOSExample/amwalsdk/Flutter/Release/iphoneos/ExplicitPrecompiledModules/UIKit-LU9PGQH8IL3YY1FLT1I3KLQH.pcm[0m
+[21:16:27]: ▸ [35m[36;1mnote: [0mLinking a static library that was built with -gmodules, but the module cache was not found.  Redistributable static libraries should never be built with module debugging enabled.  The debug experience will be degraded due to incomplete debug information.[0m
+[21:16:27]: ▸ [35m::warning ::/Users/builder/clone/AnwalPaySDKNativeiOSExample/amwalsdk/Flutter/Release/iphoneos/ExplicitPrecompiledModules/Foundation-5JX0JQS6Q0C4LZQ3YM3MSKWT8.pcm: No such file or directory[0m
+[21:16:27]: ▸ [35m[36;1mnote: [0mwhile processing /Users/builder/clone/AnwalPaySDKNativeiOSExample/amwalsdk/Flutter/Release/iphoneos/ExplicitPrecompiledModules/Foundation-5JX0JQS6Q0C4LZQ3YM3MSKWT8.pcm[0m
+[21:16:27]: ▸ [35m::warning ::/Users/builder/clone/AnwalPaySDKNativeiOSExample/amwalsdk/Flutter/Release/iphoneos/ExplicitPrecompiledModules/ObjectiveC-DVI8F0D226J2A2PDLFODD7Q57.pcm: No such file or directory[0m
+[21:16:27]: ▸ [35m[36;1mnote: [0mwhile processing /Users/builder/clone/AnwalPaySDKNativeiOSExample/amwalsdk/Flutter/Release/iphoneos/ExplicitPrecompiledModules/ObjectiveC-DVI8F0D226J2A2PDLFODD7Q57.pcm[0m
+[21:16:27]: ▸ [35m::warning ::/Users/builder/clone/AnwalPaySDKNativeiOSExample/amwalsdk/Flutter/Release/iphoneos/ExplicitPrecompiledModules/UIKit-DH3G3VWDH0EDSEXRYCI7CNUUP.pcm: No such file or directory[0m
+[21:16:27]: ▸ [35m[36;1mnote: [0mwhile processing /Users/builder/clone/AnwalPaySDKNativeiOSExample/amwalsdk/Flutter/Release/iphoneos/ExplicitPrecompiledModules/UIKit-DH3G3VWDH0EDSEXRYCI7CNUUP.pcm[0m
+[21:16:27]: ▸ [35m::warning ::/Users/builder/clone/AnwalPaySDKNativeiOSExample/amwalsdk/Flutter/Release/iphoneos/ExplicitPrecompiledModules/Flutter-5USTO7RI97I29Q50AGD699I1F.pcm: No such file or directory[0m
+[21:16:27]: ▸ [35m[36;1mnote: [0mwhile processing /Users/builder/clone/AnwalPaySDKNativeiOSExample/amwalsdk/Flutter/Release/iphoneos/ExplicitPrecompiledModules/Flutter-5USTO7RI97I29Q50AGD699I1F.pcm[0m
+[21:16:27]: ▸ [35m::warning ::/Users/builder/clone/AnwalPaySDKNativeiOSExample/amwalsdk/Flutter/Release/iphoneos/ExplicitPrecompiledModules/amwal_pay_sdk-6JS6GFP9PUIU7HGFQZFTOAMJL.pcm: No such file or directory[0m
+[21:16:27]: ▸ [35m[36;1mnote: [0mwhile processing /Users/builder/clone/AnwalPaySDKNativeiOSExample/amwalsdk/Flutter/Release/iphoneos/ExplicitPrecompiledModules/amwal_pay_sdk-6JS6GFP9PUIU7HGFQZFTOAMJL.pcm[0m
+[21:16:27]: ▸ [35m::warning ::/Users/builder/clone/AnwalPaySDKNativeiOSExample/amwalsdk/Flutter/Release/iphoneos/ExplicitPrecompiledModules/path_provider_foundation-5TG73N3892RAFEOQZZH31ZGG2.pcm: No such file or directory[0m
+[21:16:27]: ▸ [35m[36;1mnote: [0mwhile processing /Users/builder/clone/AnwalPaySDKNativeiOSExample/amwalsdk/Flutter/Release/iphoneos/ExplicitPrecompiledModules/path_provider_foundation-5TG73N3892RAFEOQZZH31ZGG2.pcm[0m
+[21:16:27]: ▸ [35m::warning ::/Users/builder/clone/AnwalPaySDKNativeiOSExample/amwalsdk/Flutter/Release/iphoneos/ExplicitPrecompiledModules/pay_ios-DBLAVHT5ICIIZM6QXIIFPVXWI.pcm: No such file or directory[0m
+[21:16:27]: ▸ [35m[36;1mnote: [0mwhile processing /Users/builder/clone/AnwalPaySDKNativeiOSExample/amwalsdk/Flutter/Release/iphoneos/ExplicitPrecompiledModules/pay_ios-DBLAVHT5ICIIZM6QXIIFPVXWI.pcm[0m
+[21:16:27]: ▸ [35m::warning ::/Users/builder/clone/AnwalPaySDKNativeiOSExample/amwalsdk/Flutter/Release/iphoneos/ExplicitPrecompiledModules/share_plus-9NSZJJV83Y22E0DN9JFAR0ZAS.pcm: No such file or directory[0m
+[21:16:27]: ▸ [35m[36;1mnote: [0mwhile processing /Users/builder/clone/AnwalPaySDKNativeiOSExample/amwalsdk/Flutter/Release/iphoneos/ExplicitPrecompiledModules/share_plus-9NSZJJV83Y22E0DN9JFAR0ZAS.pcm[0m
+[21:16:27]: ▸ [35m::warning ::/Users/builder/clone/AnwalPaySDKNativeiOSExample/amwalsdk/Flutter/Release/iphoneos/ExplicitPrecompiledModules/shared_preferences_foundation-76S9KHJEACRJESQT5K0I3I36L.pcm: No such file or directory[0m
+[21:16:27]: ▸ [35m[36;1mnote: [0mwhile processing /Users/builder/clone/AnwalPaySDKNativeiOSExample/amwalsdk/Flutter/Release/iphoneos/ExplicitPrecompiledModules/shared_preferences_foundation-76S9KHJEACRJESQT5K0I3I36L.pcm[0m
+[21:16:27]: ▸ [35m::warning ::/Users/builder/clone/AnwalPaySDKNativeiOSExample/amwalsdk/Flutter/Release/iphoneos/ExplicitPrecompiledModules/webview_flutter_wkwebview-7D37ABIWJC88F7CSTIT2BI6JW.pcm: No such file or directory[0m
+[21:16:27]: ▸ [35m[36;1mnote: [0mwhile processing /Users/builder/clone/AnwalPaySDKNativeiOSExample/amwalsdk/Flutter/Release/iphoneos/ExplicitPrecompiledModules/webview_flutter_wkwebview-7D37ABIWJC88F7CSTIT2BI6JW.pcm[0m
+[21:16:27]: ▸ [35m::warning ::/Users/builder/clone/AnwalPaySDKNativeiOSExample/amwalsdk/Flutter/Release/iphoneos/ExplicitPrecompiledModules/ObjectiveC-9QSXRCHJ82LEV5TO7YR75GFCR.pcm: No such file or directory[0m
+[21:16:27]: ▸ [35m[36;1mnote: [0mwhile processing /Users/builder/clone/AnwalPaySDKNativeiOSExample/amwalsdk/Flutter/Release/iphoneos/ExplicitPrecompiledModules/ObjectiveC-9QSXRCHJ82LEV5TO7YR75GFCR.pcm[0m
+[21:16:27]: ▸ [35m[[36mGHShopper[0m] [1mRunning script[0m Bundle React Native code and images[0m
+[21:16:40]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/main.jsbundle,line=919,col=13::the variable "Promise" was not declared in anonymous function[0m
+[21:16:40]: ▸ [35m    var z = Promise,[0m
+[21:16:40]: ▸ [35m            ^~~~~~~[0m
+[21:16:40]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/main.jsbundle,line=3498,col=26::the variable "URL" was not declared in anonymous arrow function[0m
+[21:16:40]: ▸ [35m          props[0] = new URL(props[0], origin).toString();[0m
+[21:16:40]: ▸ [35m                         ^~~[0m
+[21:16:40]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/main.jsbundle,line=3523,col=42::the variable "fetch" was not declared in anonymous function[0m
+[21:16:40]: ▸ [35m      value: wrapFetchWithWindowLocation(fetch)[0m
+[21:16:40]: ▸ [35m                                         ^~~~~[0m
+[21:16:40]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/main.jsbundle,line=5890,col=57::the variable "AbortSignal" was not declared in anonymous function[0m
+[21:16:40]: ▸ [35m        if (signal !== undefined && !(signal instanceof AbortSignal)) {[0m
+[21:16:40]: ▸ [35m                                                        ^~~~~~~~~~~[0m
+[21:16:40]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/main.jsbundle,line=6150,col=5::the variable "setTimeout" was not declared in function "reportListenerError"[0m
+[21:16:40]: ▸ [35m    setTimeout(() => {[0m
+[21:16:40]: ▸ [35m    ^~~~~~~~~~[0m
+[21:16:40]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/main.jsbundle,line=6196,col=71::the variable "performance" was not declared in anonymous function[0m
+[21:16:40]: ▸ [35m...!== undefined ? initTimestamp : performance.now();[0m
+[21:16:40]: ▸ [35m                                   ^~~~~~~~~~~[0m
+[21:16:40]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/main.jsbundle,line=22451,col=21::the variable "clearTimeout" was not declared in anonymous function[0m
+[21:16:40]: ▸ [35m    cancelTimeout = clearTimeout;[0m
+[21:16:40]: ▸ [35m                    ^~~~~~~~~~~~[0m
+[21:16:40]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/main.jsbundle,line=22489,col=42::the variable "Node" was not declared in anonymous function[0m
+[21:16:40]: ▸ [35m    if (null === parentHostFiber) return Node.DOCUMENT_POSITION_DISCONNECTED;[0m
+[21:16:40]: ▸ [35m                                         ^~~~[0m
+[21:16:40]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/main.jsbundle,line=27286,col=15::the variable "Blob" was not declared in anonymous function[0m
+[21:16:40]: ▸ [35m          new Blob();[0m
+[21:16:40]: ▸ [35m              ^~~~[0m
+[21:16:40]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/main.jsbundle,line=27425,col=24::the variable "FileReader" was not declared in function "readBlobAsArrayBuffer"[0m
+[21:16:40]: ▸ [35m      var reader = new FileReader();[0m
+[21:16:40]: ▸ [35m                       ^~~~~~~~~~[0m
+[21:16:40]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/main.jsbundle,line=27478,col=40::the variable "FormData" was not declared in anonymous function[0m
+[21:16:40]: ▸ [35m        } else if (support.formData && FormData.prototype.isPrototypeOf(body)) {[0m
+[21:16:40]: ▸ [35m                                       ^~~~~~~~[0m
+[21:16:40]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/main.jsbundle,line=27480,col=44::the variable "URLSearchParams" was not declared in anonymous function[0m
+[21:16:40]: ▸ [35m...e if (support.searchParams && URLSearchParams.prototype.isPrototypeOf(body...[0m
+[21:16:40]: ▸ [35m                                 ^~~~~~~~~~~~~~~[0m
+[21:16:48]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/main.jsbundle,line=27733,col=23::the variable "XMLHttpRequest" was not declared in anonymous function[0m
+[21:16:48]: ▸ [35m        var xhr = new XMLHttpRequest();[0m
+[21:16:48]: ▸ [35m                      ^~~~~~~~~~~~~~[0m
+[21:16:48]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/main.jsbundle,line=31771,col=25::the variable "ErrorUtils" was not declared in anonymous function[0m
+[21:16:48]: ▸ [35m    var globalHandler = ErrorUtils.getGlobalHandler();[0m
+[21:16:48]: ▸ [35m                        ^~~~~~~~~~[0m
+[21:16:48]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/main.jsbundle,line=32106,col=35::the variable "TransformStream" was not declared in anonymous function[0m
+[21:16:48]: ▸ [35m  class TextDecoderStream extends TransformStream {[0m
+[21:16:48]: ▸ [35m                                  ^~~~~~~~~~~~~~~[0m
+[21:16:48]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/main.jsbundle,line=32108,col=25::the variable "TextDecoder" was not declared in anonymous function[0m
+[21:16:48]: ▸ [35m      var decoder = new TextDecoder(label, options);[0m
+[21:16:48]: ▸ [35m                        ^~~~~~~~~~~[0m
+[21:16:48]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/main.jsbundle,line=32546,col=72::the variable "atob" was not declared in function "prepareBitmap"[0m
+[21:16:48]: ▸ [35m... parseInt(A, 36)), Uint8Array.from(atob(t), A => A.charCodeAt(0))];[0m
+[21:16:48]: ▸ [35m                                      ^~~~[0m
+[21:16:48]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/main.jsbundle,line=35074,col=7::Direct call to eval(), but lexical scope is not supported.[0m
+[21:16:48]: ▸ [35m      eval(code);[0m
+[21:16:48]: ▸ [35m      ^~~~[0m
+[21:16:48]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/main.jsbundle,line=35164,col=30::the variable "setInterval" was not declared in anonymous function[0m
+[21:16:48]: ▸ [35m      this._heartbeatTimer = setInterval(() => {[0m
+[21:16:48]: ▸ [35m                             ^~~~~~~~~~~[0m
+[21:16:48]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/main.jsbundle,line=35172,col=9::the variable "clearInterval" was not declared in anonymous function[0m
+[21:16:48]: ▸ [35m        clearInterval(this._heartbeatTimer);[0m
+[21:16:48]: ▸ [35m        ^~~~~~~~~~~~~[0m
+[21:16:48]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/main.jsbundle,line=39629,col=5::the variable "clearImmediate" was not declared in function "scheduleQueueFlush"[0m
+[21:16:48]: ▸ [35m    clearImmediate(flushQueueImmediate);[0m
+[21:16:48]: ▸ [35m    ^~~~~~~~~~~~~~[0m
+[21:16:48]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/main.jsbundle,line=41473,col=32::the variable "requestAnimationFrame" was not declared in anonymous function[0m
+[21:16:48]: ▸ [35m        this._animationFrame = requestAnimationFrame(() => this.onUpdate());[0m
+[21:16:48]: ▸ [35m                               ^~~~~~~~~~~~~~~~~~~~~[0m
+[21:16:48]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/main.jsbundle,line=57646,col=50::the variable "Request" was not declared in anonymous arrow function[0m
+[21:16:48]: ▸ [35m...ody' in input || input instanceof Request || input[Symbol.toStringTag] ===...[0m
+[21:16:48]: ▸ [35m                                     ^~~~~~~[0m
+[21:16:48]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/main.jsbundle,line=59107,col=22::the variable "ReadableStream" was not declared in function "wrapWithConsumption"[0m
+[21:16:48]: ▸ [35m    var stream = new ReadableStream({[0m
+[21:16:48]: ▸ [35m                     ^~~~~~~~~~~~~~[0m
+[21:16:48]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/main.jsbundle,line=59365,col=18::the variable "Headers" was not declared in anonymous function[0m
+[21:16:48]: ▸ [35m      return new Headers(this._rawHeaders);[0m
+[21:16:48]: ▸ [35m                 ^~~~~~~[0m
+[21:16:48]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/main.jsbundle,line=59998,col=16::Direct call to eval(), but lexical scope is not supported.[0m
+[21:16:48]: ▸ [35m        return eval(body);[0m
+[21:16:48]: ▸ [35m               ^~~~[0m
+[21:16:48]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/main.jsbundle,line=61062,col=21::the variable "Image" was not declared in anonymous arrow function[0m
+[21:16:48]: ▸ [35m      var img = new Image();[0m
+[21:16:48]: ▸ [35m                    ^~~~~[0m
+[21:16:48]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/main.jsbundle,line=81683,col=26::the variable "ResizeObserver" was not declared in anonymous arrow function[0m
+[21:16:48]: ▸ [35m      var observer = new ResizeObserver(entries => {[0m
+[21:16:48]: ▸ [35m                         ^~~~~~~~~~~~~~[0m
+[21:16:48]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/main.jsbundle,line=83145,col=16::the variable "requestIdleCallback" was not declared in anonymous arrow function[0m
+[21:16:48]: ▸ [35m      var id = requestIdleCallback(() => {[0m
+[21:16:48]: ▸ [35m               ^~~~~~~~~~~~~~~~~~~[0m
+[21:16:48]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/main.jsbundle,line=83148,col=20::the variable "cancelIdleCallback" was not declared in anonymous arrow function[0m
+[21:16:48]: ▸ [35m      return () => cancelIdleCallback(id);[0m
+[21:16:48]: ▸ [35m                   ^~~~~~~~~~~~~~~~~~[0m
+[21:16:48]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/main.jsbundle,line=90820,col=7::the variable "cancelAnimationFrame" was not declared in function "cancelSplashScreenAnimationFrame"[0m
+[21:16:48]: ▸ [35m      cancelAnimationFrame(splashScreenAnimationFrame);[0m
+[21:16:48]: ▸ [35m      ^~~~~~~~~~~~~~~~~~~~[0m
+[21:16:48]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/main.jsbundle,line=97077,col=9::the variable "REACT_NAVIGATION_DEVTOOLS" was not declared in anonymous arrow function[0m
+[21:16:48]: ▸ [35m        REACT_NAVIGATION_DEVTOOLS.set(containerRef.current, {[0m
+[21:16:48]: ▸ [35m        ^~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[21:16:48]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/main.jsbundle,line=146066,col=7::the variable "alert" was not declared in function "throwOrAlert"[0m
+[21:16:48]: ▸ [35m      alert(msg);[0m
+[21:16:48]: ▸ [35m      ^~~~~[0m
+[21:16:48]: ▸ [35m[[36mGHShopper[0m] [1mRunning script[0m [CP] Copy Pods Resources[0m
+[21:16:51]: ▸ [35m[[36mGHShopper[0m] [1mRunning script[0m [CP] Embed Pods Frameworks[0m
+[21:17:04]: ▸ [35m[[36mGHShopper[0m] [1mRunning script[0m [CP-User] [RNFB] Core Configuration[0m
+[21:17:04]: ▸ [35m[36;1mnote: [0m-> RNFB build script started[0m
+[21:17:04]: ▸ [35m[36;1mnote: [0m1) Locating firebase.json file:[0m
+[21:17:04]: ▸ [35m[36;1mnote: [0m     (1 of 2) Searching in '/Users/runner/work/-gh-platform/-gh-platform' for a firebase.json file.[0m
+[21:17:04]: ▸ [35m[36;1mnote: [0m     (2 of 2) Searching in '/Users/runner/work/-gh-platform' for a firebase.json file.[0m
+[21:17:04]: ▸ [35m::warning ::  A firebase.json file was not found, whilst this file is optional it is recommended to include it to configure firebase services in React Native Firebase.[0m
+[21:17:04]: ▸ [35m[36;1mnote: [0m2) Injecting Info.plist entries: [0m
+[21:17:04]: ▸ [35m[36;1mnote: [0m     setting plist entry 'firebase_json_raw' of type 'string' in file '/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/GHShopper.app/Info.plist'[0m
+[21:17:04]: ▸ [35m[36;1mnote: [0m     setting plist entry 'firebase_json_raw' of type 'string' in file '/Users/runner/Library/Developer/Xcode/DerivedData/GHShopper-ewdhgyodqmdephbplytvwiiuahme/Build/Intermediates.noindex/ArchiveIntermediates/GHShopper/BuildProductsPath/Release-iphoneos/GHShopper.app.dSYM/Contents/Info.plist'[0m
+[21:17:04]: ▸ [35m[36;1mnote: [0m<- RNFB build script finished[0m
+[21:17:05]: ▸ [35m[[36mGHShopper[0m] [1mExtract App Intents Metadata[0m
+[21:17:05]: ▸ [35m[1mSigning[0m GHShopper.app (in target 'GHShopper' from project 'GHShopper')[0m
+[21:17:05]: ▸ [35m[[36mGHShopper[0m] [1mRegisterExecutionPolicyException[0m GHShopper.app[0m
+[21:17:05]: ▸ [35m[[36mGHShopper[0m] [1mValidate[0m GHShopper.app[0m
+[21:17:05]: ▸ [35m[[36mGHShopper[0m] [1mTouching[0m GHShopper.app[0m
+[21:17:06]: ▸ [35m[36;1mnote: [0mRun script build phase '[CP-User] [Hermes] Replace Hermes for the right configuration, if needed' will be run during every build because the option to run the script phase "Based on dependency analysis" is unchecked. (in target 'hermes-engine' from project 'Pods')[0m
+[21:17:06]: ▸ [35m[36;1mnote: [0mRun script build phase '[CP-User] [RNDeps] Replace React Native Dependencies for the right configuration, if needed' will be run during every build because the option to run the script phase "Based on dependency analysis" is unchecked. (in target 'ReactNativeDependencies' from project 'Pods')[0m
+[21:17:06]: ▸ [35m[36;1mnote: [0mRun script build phase '[CP-User] [RN]Check FBReactNativeSpec' will be run during every build because the option to run the script phase "Based on dependency analysis" is unchecked. (in target 'React-RCTFBReactNativeSpec' from project 'Pods')[0m
+[21:17:06]: ▸ [35m[36;1mnote: [0mRun script build phase '[CP-User] [RNCore] Replace React Native Core for the right configuration, if needed' will be run during every build because the option to run the script phase "Based on dependency analysis" is unchecked. (in target 'React-Core-prebuilt' from project 'Pods')[0m
+[21:17:06]: ▸ [35m[36;1mnote: [0mRun script build phase '[CP-User] [Expo] Switch ExpoVideo XCFramework for build configuration' will be run during every build because the option to run the script phase "Based on dependency analysis" is unchecked. (in target 'ExpoVideo' from project 'Pods')[0m
+[21:17:06]: ▸ [35m[36;1mnote: [0mRun script build phase '[CP-User] [Expo] Switch ExpoModulesWorklets XCFramework for build configuration' will be run during every build because the option to run the script phase "Based on dependency analysis" is unchecked. (in target 'ExpoModulesWorklets' from project 'Pods')[0m
+[21:17:06]: ▸ [35m[36;1mnote: [0mRun script build phase '[CP-User] Build ExpoModulesJSI xcframework' will be run during every build because the option to run the script phase "Based on dependency analysis" is unchecked. (in target 'ExpoModulesJSI' from project 'Pods')[0m
+[21:17:06]: ▸ [35m[36;1mnote: [0mRun script build phase '[CP-User] [Expo] Switch ExpoModulesCore XCFramework for build configuration' will be run during every build because the option to run the script phase "Based on dependency analysis" is unchecked. (in target 'ExpoModulesCore' from project 'Pods')[0m
+[21:17:06]: ▸ [35m[36;1mnote: [0mRun script build phase '[CP-User] [Expo] Switch ExpoImage XCFramework for build configuration' will be run during every build because the option to run the script phase "Based on dependency analysis" is unchecked. (in target 'ExpoImage' from project 'Pods')[0m
+[21:17:06]: ▸ [35m[36;1mnote: [0mRun script build phase '[CP-User] [Expo] Switch ExpoFont XCFramework for build configuration' will be run during every build because the option to run the script phase "Based on dependency analysis" is unchecked. (in target 'ExpoFont' from project 'Pods')[0m
+[21:17:06]: ▸ [35m[36;1mnote: [0mRun script build phase '[CP-User] [Expo] Switch ExpoFileSystem XCFramework for build configuration' will be run during every build because the option to run the script phase "Based on dependency analysis" is unchecked. (in target 'ExpoFileSystem' from project 'Pods')[0m
+[21:17:06]: ▸ [35m::warning ::Run script build phase '[CP-User] react-native-maps patches' will be run during every build because it does not specify any outputs. To address this issue, either add output dependencies to the script phase, or configure it to run in every build by unchecking "Based on dependency analysis" in the script phase. (in target 'react-native-maps' from project 'Pods')[0m
+[21:17:06]: ▸ [35m[36;1mnote: [0mRun script build phase '[Expo] Configure project' will be run during every build because the option to run the script phase "Based on dependency analysis" is unchecked. (in target 'GHShopper' from project 'GHShopper')[0m
+[21:17:06]: ▸ [35m[36;1mnote: [0mRun script build phase 'Bundle React Native code and images' will be run during every build because the option to run the script phase "Based on dependency analysis" is unchecked. (in target 'GHShopper' from project 'GHShopper')[0m
+[21:17:06]: ▸ [35m::warning ::Run script build phase '[CP-User] [RNFB] Core Configuration' will be run during every build because it does not specify any outputs. To address this issue, either add output dependencies to the script phase, or configure it to run in every build by unchecking "Based on dependency analysis" in the script phase. (in target 'GHShopper' from project 'GHShopper')[0m
+[21:17:06]: ▸ [35m[36;1mnote: [0mRun script build phase '[CP-User] Generate app.config for prebuilt Constants.manifest' will be run during every build because the option to run the script phase "Based on dependency analysis" is unchecked. (in target 'EXConstants' from project 'Pods')[0m
+[21:17:06]: ▸ [35m[32;1mArchive Succeeded[0m
+[21:17:06]: [33mGenerated plist file with the following values:[0m
+[21:17:06]: ▸ [35m-----------------------------------------[0m
+[21:17:06]: ▸ [35m{[0m
+[21:17:06]: ▸ [35m  "provisioningProfiles": {[0m
+[21:17:06]: ▸ [35m    "com.example.ghShopper": "match AppStore com.example.ghShopper"[0m
+[21:17:06]: ▸ [35m  },[0m
+[21:17:06]: ▸ [35m  "method": "app-store",[0m
+[21:17:06]: ▸ [35m  "signingStyle": "manual",[0m
+[21:17:06]: ▸ [35m  "teamID": "4AS6WC855S"[0m
+[21:17:06]: ▸ [35m}[0m
+[21:17:06]: ▸ [35m-----------------------------------------[0m
+[21:17:06]: [36m$ /usr/bin/xcrun /Users/runner/work/-gh-platform/-gh-platform/vendor/bundle/ruby/3.3.0/gems/fastlane-2.241.1/gym/lib/assets/wrap_xcodebuild/xcbuild-safe.sh -exportArchive -exportOptionsPlist /var/folders/n6/hn37q6pj7sj_9dmqqc2113800000gn/T/gym_config20261019-7532-4vunty.plist -archivePath /Users/runner/Library/Developer/Xcode/Archives/2026-10-19/GHShopper\ 2026-10-19\ 21.03.34.xcarchive -exportPath /var/folders/n6/hn37q6pj7sj_9dmqqc2113800000gn/T/gym_output20261019-7532-rrw1y6 -allowProvisioningUpdates [0m
+[21:17:20]: Compressing 9 dSYM(s)
+[21:17:20]: [36m$ cd /Users/runner/Library/Developer/Xcode/Archives/2026-10-19/GHShopper\ 2026-10-19\ 21.03.34.xcarchive/dSYMs && zip -r /Users/runner/work/-gh-platform/-gh-platform/build/ipa/GHShopper.app.dSYM.zip *.dSYM[0m
+[21:17:25]: ▸ [35m  adding: ExpoFileSystem.framework.dSYM/ (stored 0%)[0m
+[21:17:25]: ▸ [35m  adding: ExpoFileSystem.framework.dSYM/Contents/ (stored 0%)[0m
+[21:17:25]: ▸ [35m  adding: ExpoFileSystem.framework.dSYM/Contents/Resources/ (stored 0%)[0m
+[21:17:25]: ▸ [35m  adding: ExpoFileSystem.framework.dSYM/Contents/Resources/Relocations/ (stored 0%)[0m
+[21:17:25]: ▸ [35m  adding: ExpoFileSystem.framework.dSYM/Contents/Resources/Relocations/aarch64/ (stored 0%)[0m
+[21:17:25]: ▸ [35m  adding: ExpoFileSystem.framework.dSYM/Contents/Resources/Relocations/aarch64/ExpoFileSystem.yml (deflated 87%)[0m
+[21:17:25]: ▸ [35m  adding: ExpoFileSystem.framework.dSYM/Contents/Resources/DWARF/ (stored 0%)[0m
+[21:17:25]: ▸ [35m  adding: ExpoFileSystem.framework.dSYM/Contents/Resources/DWARF/ExpoFileSystem (deflated 71%)[0m
+[21:17:25]: ▸ [35m  adding: ExpoFileSystem.framework.dSYM/Contents/Resources/Swift/ (stored 0%)[0m
+[21:17:25]: ▸ [35m  adding: ExpoFileSystem.framework.dSYM/Contents/Resources/Swift/aarch64/ (stored 0%)[0m
+[21:17:25]: ▸ [35m  adding: ExpoFileSystem.framework.dSYM/Contents/Info.plist (deflated 52%)[0m
+[21:17:25]: ▸ [35m  adding: ExpoFont.framework.dSYM/ (stored 0%)[0m
+[21:17:25]: ▸ [35m  adding: ExpoFont.framework.dSYM/Contents/ (stored 0%)[0m
+[21:17:25]: ▸ [35m  adding: ExpoFont.framework.dSYM/Contents/Resources/ (stored 0%)[0m
+[21:17:25]: ▸ [35m  adding: ExpoFont.framework.dSYM/Contents/Resources/Relocations/ (stored 0%)[0m
+[21:17:25]: ▸ [35m  adding: ExpoFont.framework.dSYM/Contents/Resources/Relocations/aarch64/ (stored 0%)[0m
+[21:17:25]: ▸ [35m  adding: ExpoFont.framework.dSYM/Contents/Resources/Relocations/aarch64/ExpoFont.yml (deflated 84%)[0m
+[21:17:25]: ▸ [35m  adding: ExpoFont.framework.dSYM/Contents/Resources/DWARF/ (stored 0%)[0m
+[21:17:25]: ▸ [35m  adding: ExpoFont.framework.dSYM/Contents/Resources/DWARF/ExpoFont (deflated 65%)[0m
+[21:17:25]: ▸ [35m  adding: ExpoFont.framework.dSYM/Contents/Resources/Swift/ (stored 0%)[0m
+[21:17:25]: ▸ [35m  adding: ExpoFont.framework.dSYM/Contents/Resources/Swift/aarch64/ (stored 0%)[0m
+[21:17:25]: ▸ [35m  adding: ExpoFont.framework.dSYM/Contents/Info.plist (deflated 52%)[0m
+[21:17:25]: ▸ [35m  adding: ExpoModulesCore.framework.dSYM/ (stored 0%)[0m
+[21:17:25]: ▸ [35m  adding: ExpoModulesCore.framework.dSYM/Contents/ (stored 0%)[0m
+[21:17:25]: ▸ [35m  adding: ExpoModulesCore.framework.dSYM/Contents/Resources/ (stored 0%)[0m
+[21:17:25]: ▸ [35m  adding: ExpoModulesCore.framework.dSYM/Contents/Resources/Relocations/ (stored 0%)[0m
+[21:17:25]: ▸ [35m  adding: ExpoModulesCore.framework.dSYM/Contents/Resources/Relocations/aarch64/ (stored 0%)[0m
+[21:17:25]: ▸ [35m  adding: ExpoModulesCore.framework.dSYM/Contents/Resources/Relocations/aarch64/ExpoModulesCore.yml (deflated 88%)[0m
+[21:17:25]: ▸ [35m  adding: ExpoModulesCore.framework.dSYM/Contents/Resources/DWARF/ (stored 0%)[0m
+[21:17:25]: ▸ [35m  adding: ExpoModulesCore.framework.dSYM/Contents/Resources/DWARF/ExpoModulesCore (deflated 73%)[0m
+[21:17:25]: ▸ [35m  adding: ExpoModulesCore.framework.dSYM/Contents/Info.plist (deflated 52%)[0m
+[21:17:25]: ▸ [35m  adding: ExpoModulesJSI.framework.dSYM/ (stored 0%)[0m
+[21:17:25]: ▸ [35m  adding: ExpoModulesJSI.framework.dSYM/Contents/ (stored 0%)[0m
+[21:17:25]: ▸ [35m  adding: ExpoModulesJSI.framework.dSYM/Contents/Resources/ (stored 0%)[0m
+[21:17:25]: ▸ [35m  adding: ExpoModulesJSI.framework.dSYM/Contents/Resources/Relocations/ (stored 0%)[0m
+[21:17:25]: ▸ [35m  adding: ExpoModulesJSI.framework.dSYM/Contents/Resources/Relocations/aarch64/ (stored 0%)[0m
+[21:17:25]: ▸ [35m  adding: ExpoModulesJSI.framework.dSYM/Contents/Resources/Relocations/aarch64/ExpoModulesJSI.yml (deflated 87%)[0m
+[21:17:25]: ▸ [35m  adding: ExpoModulesJSI.framework.dSYM/Contents/Resources/DWARF/ (stored 0%)[0m
+[21:17:25]: ▸ [35m  adding: ExpoModulesJSI.framework.dSYM/Contents/Resources/DWARF/ExpoModulesJSI (deflated 71%)[0m
+[21:17:25]: ▸ [35m  adding: ExpoModulesJSI.framework.dSYM/Contents/Info.plist (deflated 52%)[0m
+[21:17:25]: ▸ [35m  adding: ExpoModulesWorklets.framework.dSYM/ (stored 0%)[0m
+[21:17:25]: ▸ [35m  adding: ExpoModulesWorklets.framework.dSYM/Contents/ (stored 0%)[0m
+[21:17:25]: ▸ [35m  adding: ExpoModulesWorklets.framework.dSYM/Contents/Resources/ (stored 0%)[0m
+[21:17:25]: ▸ [35m  adding: ExpoModulesWorklets.framework.dSYM/Contents/Resources/Relocations/ (stored 0%)[0m
+[21:17:25]: ▸ [35m  adding: ExpoModulesWorklets.framework.dSYM/Contents/Resources/Relocations/aarch64/ (stored 0%)[0m
+[21:17:25]: ▸ [35m  adding: ExpoModulesWorklets.framework.dSYM/Contents/Resources/Relocations/aarch64/ExpoModulesWorklets.yml (deflated 86%)[0m
+[21:17:25]: ▸ [35m  adding: ExpoModulesWorklets.framework.dSYM/Contents/Resources/DWARF/ (stored 0%)[0m
+[21:17:25]: ▸ [35m  adding: ExpoModulesWorklets.framework.dSYM/Contents/Resources/DWARF/ExpoModulesWorklets (deflated 64%)[0m
+[21:17:25]: ▸ [35m  adding: ExpoModulesWorklets.framework.dSYM/Contents/Resources/Swift/ (stored 0%)[0m
+[21:17:25]: ▸ [35m  adding: ExpoModulesWorklets.framework.dSYM/Contents/Resources/Swift/aarch64/ (stored 0%)[0m
+[21:17:25]: ▸ [35m  adding: ExpoModulesWorklets.framework.dSYM/Contents/Info.plist (deflated 52%)[0m
+[21:17:25]: ▸ [35m  adding: ExpoVideo.framework.dSYM/ (stored 0%)[0m
+[21:17:25]: ▸ [35m  adding: ExpoVideo.framework.dSYM/Contents/ (stored 0%)[0m
+[21:17:25]: ▸ [35m  adding: ExpoVideo.framework.dSYM/Contents/Resources/ (stored 0%)[0m
+[21:17:25]: ▸ [35m  adding: ExpoVideo.framework.dSYM/Contents/Resources/Relocations/ (stored 0%)[0m
+[21:17:25]: ▸ [35m  adding: ExpoVideo.framework.dSYM/Contents/Resources/Relocations/aarch64/ (stored 0%)[0m
+[21:17:25]: ▸ [35m  adding: ExpoVideo.framework.dSYM/Contents/Resources/Relocations/aarch64/ExpoVideo.yml (deflated 87%)[0m
+[21:17:25]: ▸ [35m  adding: ExpoVideo.framework.dSYM/Contents/Resources/DWARF/ (stored 0%)[0m
+[21:17:25]: ▸ [35m  adding: ExpoVideo.framework.dSYM/Contents/Resources/DWARF/ExpoVideo (deflated 71%)[0m
+[21:17:25]: ▸ [35m  adding: ExpoVideo.framework.dSYM/Contents/Resources/Swift/ (stored 0%)[0m
+[21:17:25]: ▸ [35m  adding: ExpoVideo.framework.dSYM/Contents/Resources/Swift/aarch64/ (stored 0%)[0m
+[21:17:25]: ▸ [35m  adding: ExpoVideo.framework.dSYM/Contents/Info.plist (deflated 52%)[0m
+[21:17:25]: ▸ [35m  adding: GHShopper.app.dSYM/ (stored 0%)[0m
+[21:17:25]: ▸ [35m  adding: GHShopper.app.dSYM/Contents/ (stored 0%)[0m
+[21:17:25]: ▸ [35m  adding: GHShopper.app.dSYM/Contents/Resources/ (stored 0%)[0m
+[21:17:25]: ▸ [35m  adding: GHShopper.app.dSYM/Contents/Resources/Relocations/ (stored 0%)[0m
+[21:17:25]: ▸ [35m  adding: GHShopper.app.dSYM/Contents/Resources/Relocations/aarch64/ (stored 0%)[0m
+[21:17:25]: ▸ [35m  adding: GHShopper.app.dSYM/Contents/Resources/Relocations/aarch64/GHShopper.yml (deflated 90%)[0m
+[21:17:25]: ▸ [35m  adding: GHShopper.app.dSYM/Contents/Resources/DWARF/ (stored 0%)[0m
+[21:17:25]: ▸ [35m  adding: GHShopper.app.dSYM/Contents/Resources/DWARF/GHShopper (deflated 70%)[0m
+[21:17:25]: ▸ [35m  adding: GHShopper.app.dSYM/Contents/Resources/Swift/ (stored 0%)[0m
+[21:17:25]: ▸ [35m  adding: GHShopper.app.dSYM/Contents/Resources/Swift/aarch64/ (stored 0%)[0m
+[21:17:25]: ▸ [35m  adding: GHShopper.app.dSYM/Contents/Resources/Swift/aarch64/ExpoFileSystem.swiftinterface (deflated 64%)[0m
+[21:17:25]: ▸ [35m  adding: GHShopper.app.dSYM/Contents/Resources/Swift/aarch64/ExpoFont.swiftinterface (deflated 58%)[0m
+[21:17:25]: ▸ [35m  adding: GHShopper.app.dSYM/Contents/Resources/Swift/aarch64/ExpoImage.swiftinterface (deflated 70%)[0m
+[21:17:25]: ▸ [35m  adding: GHShopper.app.dSYM/Contents/Resources/Swift/aarch64/ExpoModulesCore.swiftinterface (deflated 87%)[0m
+[21:17:25]: ▸ [35m  adding: GHShopper.app.dSYM/Contents/Resources/Swift/aarch64/ExpoVideo.swiftinterface (deflated 73%)[0m
+[21:17:25]: ▸ [35m  adding: GHShopper.app.dSYM/Contents/Info.plist (deflated 52%)[0m
+[21:17:25]: ▸ [35m  adding: libavif.framework.dSYM/ (stored 0%)[0m
+[21:17:25]: ▸ [35m  adding: libavif.framework.dSYM/Contents/ (stored 0%)[0m
+[21:17:25]: ▸ [35m  adding: libavif.framework.dSYM/Contents/Resources/ (stored 0%)[0m
+[21:17:25]: ▸ [35m  adding: libavif.framework.dSYM/Contents/Resources/Relocations/ (stored 0%)[0m
+[21:17:25]: ▸ [35m  adding: libavif.framework.dSYM/Contents/Resources/Relocations/aarch64/ (stored 0%)[0m
+[21:17:25]: ▸ [35m  adding: libavif.framework.dSYM/Contents/Resources/Relocations/aarch64/libavif.yml (deflated 87%)[0m
+[21:17:25]: ▸ [35m  adding: libavif.framework.dSYM/Contents/Resources/DWARF/ (stored 0%)[0m
+[21:17:25]: ▸ [35m  adding: libavif.framework.dSYM/Contents/Resources/DWARF/libavif (deflated 69%)[0m
+[21:17:25]: ▸ [35m  adding: libavif.framework.dSYM/Contents/Info.plist (deflated 52%)[0m
+[21:17:25]: ▸ [35m  adding: webview_flutter_wkwebview.framework.dSYM/ (stored 0%)[0m
+[21:17:25]: ▸ [35m  adding: webview_flutter_wkwebview.framework.dSYM/Contents/ (stored 0%)[0m
+[21:17:25]: ▸ [35m  adding: webview_flutter_wkwebview.framework.dSYM/Contents/Resources/ (stored 0%)[0m
+[21:17:25]: ▸ [35m  adding: webview_flutter_wkwebview.framework.dSYM/Contents/Resources/Relocations/ (stored 0%)[0m
+[21:17:25]: ▸ [35m  adding: webview_flutter_wkwebview.framework.dSYM/Contents/Resources/Relocations/aarch64/ (stored 0%)[0m
+[21:17:25]: ▸ [35m  adding: webview_flutter_wkwebview.framework.dSYM/Contents/Resources/Relocations/aarch64/webview_flutter_wkwebview.yml (deflated 88%)[0m
+[21:17:25]: ▸ [35m  adding: webview_flutter_wkwebview.framework.dSYM/Contents/Resources/DWARF/ (stored 0%)[0m
+[21:17:25]: ▸ [35m  adding: webview_flutter_wkwebview.framework.dSYM/Contents/Resources/DWARF/webview_flutter_wkwebview (deflated 70%)[0m
+[21:17:25]: ▸ [35m  adding: webview_flutter_wkwebview.framework.dSYM/Contents/Info.plist (deflated 52%)[0m
 
-[20:41:18]: [32mSuccessfully exported and compressed dSYM file[0m
-[20:41:18]: [32mSuccessfully exported and signed the ipa file:[0m
-[20:41:18]: /Users/runner/work/-gh-platform/-gh-platform/build/ipa/GHShopper.ipa
-[20:41:18]: [32m----------------------------------[0m
-[20:41:18]: [32m--- Step: upload_to_testflight ---[0m
-[20:41:18]: [32m----------------------------------[0m
-[20:41:18]: Creating authorization token for App Store Connect API
-[20:41:18]: [32mReady to upload new build to TestFlight (App: 6801456059)...[0m
-[20:41:18]: Going to upload updated app to App Store Connect
-[20:41:18]: [32mThis might take a few minutes. Please don't interrupt the script.[0m
-[20:43:05]: [32m--------------------------------------------------------------------[0m
-[20:43:05]: [32mSuccessfully uploaded package to App Store Connect. It might take a few minutes until it's visible online.[0m
-[20:43:05]: [32m--------------------------------------------------------------------[0m
-[20:43:05]: [32mSuccessfully uploaded the new binary to App Store Connect[0m
-[20:43:05]: [33m`skip_waiting_for_build_processing` used and no `changelog` supplied - skipping waiting for build processing[0m
+[21:17:25]: [32mSuccessfully exported and compressed dSYM file[0m
+[21:17:25]: [32mSuccessfully exported and signed the ipa file:[0m
+[21:17:25]: /Users/runner/work/-gh-platform/-gh-platform/build/ipa/GHShopper.ipa
+[21:17:26]: [32m----------------------------------[0m
+[21:17:26]: [32m--- Step: upload_to_testflight ---[0m
+[21:17:26]: [32m----------------------------------[0m
+[21:17:26]: Creating authorization token for App Store Connect API
+[21:17:26]: [32mReady to upload new build to TestFlight (App: 6801456059)...[0m
+[21:17:26]: Going to upload updated app to App Store Connect
+[21:17:26]: [32mThis might take a few minutes. Please don't interrupt the script.[0m
+[21:19:31]: [32m--------------------------------------------------------------------[0m
+[21:19:31]: [32mSuccessfully uploaded package to App Store Connect. It might take a few minutes until it's visible online.[0m
+[21:19:31]: [32m--------------------------------------------------------------------[0m
+[21:19:31]: [32mSuccessfully uploaded the new binary to App Store Connect[0m
+[21:19:31]: [33m`skip_waiting_for_build_processing` used and no `changelog` supplied - skipping waiting for build processing[0m
 
 +---------------------------------------------------+
 |                 [32mfastlane summary[0m                  |
@@ -391,10 +391,10 @@
 | 1    | default_platform             | 0           |
 | 2    | setup_ci                     | 0           |
 | 3    | app_store_connect_api_key    | 0           |
-| 4    | match                        | 3           |
+| 4    | match                        | 4           |
 | 5    | update_code_signing_settings | 0           |
-| 6    | build_app                    | 473         |
-| 7    | upload_to_testflight         | 107         |
+| 6    | build_app                    | 858         |
+| 7    | upload_to_testflight         | 125         |
 +------+------------------------------+-------------+
 
-[20:43:05]: [32mfastlane.tools just saved you 10 minutes! 🎉[0m
+[21:19:31]: [32mfastlane.tools just saved you 16 minutes! 🎉[0m
