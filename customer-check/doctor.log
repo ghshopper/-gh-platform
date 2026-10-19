@@ -1,3 +1,33 @@
 npm warn exec The following package was not found and will be installed: expo-doctor@1.21.5
 Running 20 checks on your project...
-20/20 checks passed. No issues detected!
+19/20 checks passed. 1 checks failed. Possible issues detected:
+Use the --verbose flag to see more details about passed checks.
+
+✖ Check that packages match versions required by installed Expo SDK
+
+🔧 Patch version mismatches
+package           expected  found    
+expo              ~58.0.16  58.0.14  
+expo-blur         ~58.0.5   58.0.4   
+expo-file-system  ~58.0.10  58.0.9   
+expo-font         ~58.0.9   58.0.8   
+expo-image        ~58.0.16  58.0.15  
+expo-location     ~58.0.18  58.0.17  
+expo-router       ~58.0.24  58.0.23  
+expo-video        ~58.0.12  58.0.11  
+
+Changelogs:
+- expo-blur → https://github.com/expo/expo/blob/sdk-58/packages/expo-blur/CHANGELOG.md
+- expo-file-system → https://github.com/expo/expo/blob/sdk-58/packages/expo-file-system/CHANGELOG.md
+- expo-font → https://github.com/expo/expo/blob/sdk-58/packages/expo-font/CHANGELOG.md
+- expo-image → https://github.com/expo/expo/blob/sdk-58/packages/expo-image/CHANGELOG.md
+- expo-location → https://github.com/expo/expo/blob/sdk-58/packages/expo-location/CHANGELOG.md
+- expo-router → https://github.com/expo/expo/blob/sdk-58/packages/expo-router/CHANGELOG.md
+- expo-video → https://github.com/expo/expo/blob/sdk-58/packages/expo-video/CHANGELOG.md
+
+8 packages out of date.
+Advice:
+Use 'npx expo install --check' to review and upgrade your dependencies.
+To ignore specific packages, add them to "expo.install.exclude" in package.json. Learn more: https://expo.fyi/dependency-validation
+
+1 check failed, indicating possible issues with the project.
