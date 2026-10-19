@@ -208,6 +208,25 @@ _Out? _cut(_Job job) {
     }
   }
 
+  // Lone specks left in the backdrop (photo noise): clear them.
+  if (plain) {
+    for (var pass = 0; pass < 2; pass++) {
+      for (var y = 1; y < h - 1; y++) {
+        for (var x = 1; x < w - 1; x++) {
+          final k = y * w + x;
+          if (p[k * 4 + 3] == 0) continue;
+          var clear = 0;
+          for (var dy = -1; dy <= 1; dy++) {
+            for (var dx = -1; dx <= 1; dx++) {
+              if ((dx != 0 || dy != 0) && p[(k + dy * w + dx) * 4 + 3] == 0) clear++;
+            }
+          }
+          if (clear >= 6) p[k * 4 + 3] = 0;
+        }
+      }
+    }
+  }
+
   // Trim the empty space around the piece.
   var minX = w, minY = h, maxX = -1, maxY = -1;
   if (plain || transparentAlready) {
