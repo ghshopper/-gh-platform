@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { RiTruckLine, RiSave3Line, RiStore2Line, RiHome4Line } from 'react-icons/ri'
 import toast from 'react-hot-toast'
+import Settings from './Settings'
 
 const API = import.meta.env.VITE_API_URL || '/api'
 const auth = () => ({ Authorization: 'Bearer ' + localStorage.getItem('token'), Accept: 'application/json', 'Content-Type': 'application/json' })
@@ -38,8 +39,8 @@ export default function Shipping() {
   const input = { width: '100%', border: '1px solid #E5E7EB', borderRadius: 10, padding: '12px 14px', fontSize: 18, fontFamily: 'inherit', boxSizing: 'border-box' }
 
   return (
-    <div dir="rtl" style={{ padding: 24, maxWidth: 900, margin: '0 auto' }}>
-      <h1 style={{ margin: 0, fontSize: 24, display: 'flex', alignItems: 'center', gap: 10 }}><RiTruckLine /> التوصيل</h1>
+    <div dir="rtl" style={{ padding: 24, maxWidth: 1100, margin: '0 auto' }}>
+      <h1 style={{ margin: 0, fontSize: 24, display: 'flex', alignItems: 'center', gap: 10 }}><RiTruckLine /> الشحن والتوصيل</h1>
       <p style={{ color: '#6B7280', fontSize: 14, margin: '6px 0 22px' }}>هذي الأسعار تظهر للعميل في التطبيق والموقع، وهي نفسها اللي في إعدادات تطبيق الإدارة.</p>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 16 }}>
@@ -60,6 +61,11 @@ export default function Shipping() {
       <button onClick={save} disabled={saving} style={{ marginTop: 20, background: '#111', color: '#fff', border: 0, borderRadius: 10, padding: '13px 26px', fontSize: 15, cursor: 'pointer', fontFamily: 'inherit', display: 'inline-flex', alignItems: 'center', gap: 8, opacity: saving ? 0.6 : 1 }}>
         <RiSave3Line /> {saving ? 'جاري الحفظ…' : 'حفظ'}
       </button>
+
+      {/* Countries and their shipping cost (was "رسوم الشحن" in the settings) */}
+      <div style={{ marginTop: 36 }}>
+        <Settings onlyTab="shipping" />
+      </div>
     </div>
   )
 }

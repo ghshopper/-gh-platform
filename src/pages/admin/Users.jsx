@@ -32,6 +32,7 @@ const ROLE_COLORS = {
   shipping_manager: { bg: '#E65100', text: '#fff', border: '#BF360C', label: 'مسؤول الشحن (Shipping)' },
   accountant:       { bg: '#00838F', text: '#fff', border: '#006064', label: 'محاسب مالي (Accountant)' },
   support:          { bg: '#455A64', text: '#fff', border: '#263238', label: 'خدمة العملاء (Support)' },
+  product_editor:   { bg: '#8C6A2E', text: '#fff', border: '#6B4F1E', label: 'مسؤول المنتجات (Products)' },
   customer:         { bg: '#9E9E9E', text: '#fff', border: '#616161', label: 'عميل (Customer)' },
 }
 
@@ -39,6 +40,7 @@ export default function Users() {
   const [users, setUsers] = useState([])
   const [summary, setSummary] = useState({ total: 0, admins: 0, staff: 0, active: 0 })
   const [roles, setRoles] = useState([])
+  const [areaList, setAreaList] = useState([])
   const [loading, setLoading] = useState(true)
   
   // Filters
@@ -102,6 +104,7 @@ export default function Users() {
       const json = await res.json()
       if (json.success) {
         setRoles(json.data || [])
+        setAreaList(json.areas || [])
       }
     } catch (err) {}
   }
@@ -492,15 +495,24 @@ export default function Users() {
                 <div className="form-group">
                   <label className="label">الصلاحية / الدور <span style={{ color: 'red' }}>*</span></label>
                   <select className="input" value={formData.role} onChange={(e) => setFormData({...formData, role: e.target.value})}>
-                    <option value="super_admin">المدير العام (Super Admin)</option>
-                    <option value="admin">مدير نظام (Admin)</option>
-                    <option value="manager">مدير متجر (Store Manager)</option>
-                    <option value="sales_manager">مدير مبيعات (Sales)</option>
-                    <option value="shipping_manager">مسؤول الشحن (Shipping)</option>
-                    <option value="accountant">محاسب مالي (Accountant)</option>
-                    <option value="support">خدمة العملاء (Support)</option>
-                    <option value="customer">عميل المتجر (Customer)</option>
+                    {roles.map(r => <option key={r.id} value={r.id}>{r.name_ar}</option>)}
+                    <option value="customer">عميل المتجر (بدون لوحة التحكم)</option>
                   </select>
+                  {(() => {
+                    const r = roles.find(x => x.id === formData.role)
+                    if (!r) return null
+                    return (
+                      <div style={{ marginTop: 10, padding: 12, borderRadius: 10, background: '#FAF7F2', border: '1px solid #EFE6D8' }}>
+                        <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 8 }}>{r.description}</div>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                          {areaList.map(a => {
+                            const on = (r.areas || []).includes(a.key)
+                            return <span key={a.key} title={a.description} style={{ fontSize: 12, padding: '4px 10px', borderRadius: 999, background: on ? '#1F1915' : '#fff', color: on ? '#fff' : '#B9AEA7', border: '1px solid ' + (on ? '#1F1915' : '#E5DCCF'), textDecoration: on ? 'none' : 'line-through' }}>{a.label}</span>
+                          })}
+                        </div>
+                      </div>
+                    )
+                  })()}
                 </div>
                 <div className="form-group">
                   <label className="label">كلمة المرور {showEditModal && <span style={{ fontSize: 11, color: 'var(--text-light)' }}>(اتركه فارغاً لعدم التغيير)</span>}</label>

@@ -17,8 +17,8 @@ import './Settings.css'
 
 const API = import.meta.env.VITE_API_URL
 
-export default function Settings() {
-  const [activeTab, setActiveTab] = useState('payment')
+export default function Settings({ onlyTab = null }) {
+  const [activeTab, setActiveTab] = useState(onlyTab || 'payment')
   const [languages, setLanguages] = useState([])
   const [gateways, setGateways] = useState([])
   const [shippingCountries, setShippingCountries] = useState([])
@@ -332,25 +332,24 @@ export default function Settings() {
   const tabs = [
     { id: 'general', label: 'إعدادات عامة', icon: <RiGlobalLine size={20} /> },
     { id: 'payment', label: 'بوابات الدفع', icon: <RiBankCardLine size={20} /> },
-    { id: 'shipping', label: 'رسوم الشحن', icon: <RiTruckLine size={20} /> },
     { id: 'languages', label: 'اللغات', icon: <RiTranslate2 size={20} /> },
     { id: 'smtp', label: 'إعدادات البريد SMTP', icon: <RiGlobalLine size={20} /> },
     { id: 'firebase', label: 'تنبيهات Firebase', icon: <RiGlobalLine size={20} /> },
   ]
 
   return (
-    <div className="settings-wrapper page-container" style={{ padding: '32px' }}>
-      <div className="page-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '32px' }}>
+    <div className={onlyTab ? '' : 'settings-wrapper page-container'} style={{ padding: onlyTab ? 0 : '32px' }}>
+      {!onlyTab && <div className="page-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '32px' }}>
         <div>
           <h1 className="page-title">الإعدادات</h1>
           <p className="page-subtitle">إدارة إعدادات المتجر العامة واللغات وتخصيص النظام</p>
         </div>
-      </div>
+      </div>}
 
       <div className="settings-layout-wrapper" style={{ display: 'flex', gap: '24px', alignItems: 'flex-start' }}>
         
         {/* Settings Sidebar Tabs (Glassmorphic) */}
-        <div className="settings-glass-card settings-sidebar" style={{ width: '280px', padding: '16px', position: 'sticky', top: '24px' }}>
+        {!onlyTab && <div className="settings-glass-card settings-sidebar" style={{ width: '280px', padding: '16px', position: 'sticky', top: '24px' }}>
           <h3 style={{ fontSize: '15px', color: 'var(--text-secondary)', marginBottom: '16px', padding: '0 12px' }}>القائمة الرئيسية</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
             {tabs.map(tab => (
@@ -364,7 +363,7 @@ export default function Settings() {
               </button>
             ))}
           </div>
-        </div>
+        </div>}
 
         {/* Settings Content Area */}
         <div className="settings-glass-card settings-content-area" style={{ flex: 1, padding: '32px', minHeight: '600px', width: '100%' }}>
@@ -989,6 +988,20 @@ export default function Settings() {
                       })}
                     />
                   </div>
+                </>
+              )}
+
+              {editingGateway.code === 'bank_transfer' && (
+                <>
+                  <p style={{ fontSize: 13, color: '#64748B', margin: '0 0 14px' }}>يطلع للعميل وقت الدفع وبعد الطلب، مع زر يرسل لك إيصال التحويل بالواتساب.</p>
+                  {[['bank_name', 'اسم البنك', 'مثال: بنك مسقط'], ['account_name', 'اسم صاحب الحساب', 'GH Shopper'], ['account_number', 'رقم الحساب', ''], ['iban', 'IBAN', 'OM..'], ['note', 'ملاحظة للعميل (اختياري)', 'اكتب رقم الطلب في وصف التحويل']].map(([k, label, ph]) => (
+                    <div key={k} className="form-group" style={{ marginBottom: '14px' }}>
+                      <label className="settings-label">{label}</label>
+                      <input type="text" className="settings-input" style={{ width: '100%' }} dir={['account_number', 'iban'].includes(k) ? 'ltr' : 'rtl'} placeholder={ph}
+                        value={editingGateway.credentials?.[k] || ''}
+                        onChange={e => setEditingGateway({ ...editingGateway, credentials: { ...editingGateway.credentials, [k]: e.target.value } })} />
+                    </div>
+                  ))}
                 </>
               )}
 

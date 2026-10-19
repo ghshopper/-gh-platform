@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { STAFF_ROLES } from './lib/access'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import AdminLayout from './layouts/AdminLayout'
@@ -35,7 +36,7 @@ import LandingPage from './pages/website/LandingPage'
 const AdminRoute = ({ children }) => {
   const token = localStorage.getItem('token')
   const user = JSON.parse(localStorage.getItem('user') || '{}')
-  if (!token || user.role !== 'super_admin') {
+  if (!token || !STAFF_ROLES.includes(user.role)) {
     return <Navigate to="/admin/login" replace />
   }
   return children

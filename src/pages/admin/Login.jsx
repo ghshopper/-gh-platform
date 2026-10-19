@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../../services/api'
+import { STAFF_ROLES } from '../../lib/access'
 import toast from 'react-hot-toast'
 import { RiMailLine, RiLockPasswordLine, RiAdminFill, RiArrowLeftLine } from 'react-icons/ri'
 
@@ -15,7 +16,7 @@ export default function AdminLogin() {
     setLoading(true)
     try {
       const res = await api.post('/auth/login', { email, password, device: 'web-admin' })
-      if (res.data.success && res.data.user.role === 'super_admin') {
+      if (res.data.success && STAFF_ROLES.includes(res.data.user.role)) {
         localStorage.setItem('token', res.data.token)
         localStorage.setItem('user', JSON.stringify(res.data.user))
         toast.success('تم تسجيل الدخول بنجاح')

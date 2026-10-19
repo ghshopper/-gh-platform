@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { Outlet, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import ghLogo from '../assets/gh-logo.png'
+import { canOpen } from '../lib/access'
+import api from '../services/api'
 import toast from 'react-hot-toast'
 import {
   RiHome5Line,
@@ -89,7 +91,15 @@ export default function AdminLayout() {
 
   const user = JSON.parse(localStorage.getItem('user') || '{}');
   const adminName = user.name || 'المدير العام';
-  const adminRole = user.role === 'super_admin' ? 'المدير العام' : 'أدمن';
+  const adminRole = user.access?.label || (user.role === 'super_admin' ? 'المدير العام' : 'أدمن');
+  // Keep the role and areas fresh (an admin may have changed them).
+  useEffect(() => {
+    api.get('/admin/access').then((r) => {
+      if (!r?.data?.role) return
+      localStorage.setItem('user', JSON.stringify({ ...user, role: r.data.role, access: r.data }))
+    }).catch(() => {})
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  const allowedHere = canOpen(window.location.pathname, user)
 
   const handleLogout = () => {
     localStorage.removeItem('token')
@@ -328,7 +338,7 @@ export default function AdminLayout() {
         </div>
 
         <nav className="sidebar-nav">
-          {navSections.map((sec, i) => (
+          {navSections.map((s0) => ({ ...s0, items: s0.items.filter((it) => canOpen(it.path, user)) })).filter((s0) => s0.items.length).map((sec, i) => (
             <div key={sec.title || i} className="nav-section">
               {sec.title && !isCollapsed ? <div className="nav-section-title">{sec.title}</div> : null}
               {sec.items.map((item) => {
@@ -662,7 +672,12 @@ export default function AdminLayout() {
         {/* Page Content */}
         <div className="page-container">
           <div className="page-inner" style={{ maxWidth: '1600px', margin: '0 auto', width: '100%', padding: '32px' }}>
-            <Outlet />
+            {allowedHere ? <Outlet /> : (
+              <div style={{ textAlign: 'center', padding: '90px 20px', color: 'var(--text-secondary)' }}>
+                <h2 style={{ color: 'var(--text-primary)' }}>ما عندك صلاحية على هذا القسم</h2>
+                <p>صلاحيتك: {adminRole}. اطلب من المدير يغيّرها إذا تحتاج هذا القسم.</p>
+              </div>
+            )}
           </div>
         </div>
       </div>
