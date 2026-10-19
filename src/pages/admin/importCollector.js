@@ -83,7 +83,16 @@ function collector(API, KEY) {
     var baseName = String(x.name || '').trim()
     var SIZE_RE = /(\d+(?:[.,]\d+)?\s?(?:ml|mL|ML|g|gr|oz|fl\.?\s?oz|cl))\b/
     var prices = []
-    function addSize(label, vp) { if (label && !sizes.some(function (k) { return k.en === label })) sizes.push({ en: label, price: vp }) }
+    // "ml_00_100", "SIZE_100ML", "100ML" → "100 ml"
+    function cleanSize(x) {
+      var t = String(x || '').trim()
+      var m = /^(ml|g|gr|oz|cl)[_\s-]*(?:0+[_\s-]+)*0*(\d+(?:[.,]\d+)?)$/i.exec(t) || null
+      if (m) return m[2].replace(',', '.') + ' ' + m[1].toLowerCase()
+      m = /(\d+(?:[.,]\d+)?)\s*_?(ml|g|gr|oz|cl)\b/i.exec(t.replace(/_/g, ' '))
+      if (m) return m[1].replace(',', '.') + ' ' + m[2].toLowerCase()
+      return t.replace(/^size[_\s-]*/i, '').replace(/_/g, ' ').trim()
+    }
+    function addSize(label, vp) { label = cleanSize(label); if (label && !sizes.some(function (k) { return k.en === label })) sizes.push({ en: label, price: vp }) }
     variants.forEach(function (v) {
       var vp = num(offerOf(v).price || offerOf(v).lowPrice || '') || null
       if (vp) prices.push(vp)
