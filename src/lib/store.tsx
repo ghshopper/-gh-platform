@@ -1,3 +1,4 @@
+import { DEFAULT_ETA, type EtaTable } from './eta';
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { GENACOM_BRANCHES, type GenacomBranch } from './genacom';
 import { api, ApiError, hasToken, listOf, setToken, setUnauthorizedHandler } from './api';
@@ -52,7 +53,13 @@ export function DataProvider({ children }: { children: ReactNode }) {
         }
         if (delivery.status === 'fulfilled' && delivery.value) {
           const gb = (delivery.value as { genacom_branches?: unknown }).genacom_branches;
-          next.delivery = { home_fee: num(delivery.value.home_fee, 2), branch_fee: num(delivery.value.branch_fee, 1), branches: Array.isArray(gb) ? (gb as GenacomBranch[]) : GENACOM_BRANCHES };
+          const eta = (delivery.value as { eta?: unknown }).eta;
+          next.delivery = {
+            home_fee: num(delivery.value.home_fee, 2),
+            branch_fee: num(delivery.value.branch_fee, 1),
+            branches: Array.isArray(gb) ? (gb as GenacomBranch[]) : GENACOM_BRANCHES,
+            eta: eta && typeof eta === 'object' ? { ...DEFAULT_ETA, ...(eta as Partial<EtaTable>) } : DEFAULT_ETA,
+          };
         }
         if (fp.status === 'fulfilled') next.policies = fp.value?.policies ?? [];
         try {

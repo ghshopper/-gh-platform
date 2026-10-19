@@ -1,3 +1,4 @@
+import { etaDates, etaForMany, type Origin } from '../lib/eta';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { api, imageUrl, listOf } from '../lib/api';
@@ -342,6 +343,10 @@ export default function Checkout() {
             {loyaltyValue > 0 ? <div className="green"><span>{tr('خصم النقاط', 'Points')}</span><span className="num">-{omr(loyaltyValue)}</span></div> : null}
             <div className="total"><span>{tr('الإجمالي', 'Total')}</span><span className="num">{omr(total)}</span></div>
           </div>
+          {(() => {
+            const e = etaForMany(cart.items.map((i) => (i.origin ?? "europe") as Origin), app.delivery.eta);
+            return e ? <p className="eta-line"><Icon name="truck" size={16} />{tr('يوصلك تقريباً ', 'Arrives around ')}{etaDates(e, isAr)}</p> : null;
+          })()}
           {error ? <p className="err">{error}</p> : null}
           <button className="btn wide" onClick={place} disabled={busy}>{busy ? tr('لحظات…', 'One moment…') : tr(`ادفع ${omr(total)}`, `Pay ${omr(total)}`)}</button>
           <p className="small muted center"><Icon name="lock" size={13} /> {tr('بياناتك وبطاقتك محمية', 'Your details and card are protected')}</p>

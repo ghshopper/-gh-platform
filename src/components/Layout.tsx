@@ -1,5 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { etaDates, etaForMany, type Origin } from '../lib/eta';
 import { asset, imageUrl } from '../lib/api';
 import { omr } from '../lib/format';
 import { usePrefs } from '../lib/prefs';
@@ -33,9 +34,11 @@ function SearchOverlay({ onClose }: { onClose: () => void }) {
 
 function CartDrawer() {
   const cart = useCart();
-  const { tr } = usePrefs();
+  const { tr, isAr } = usePrefs();
+  const { delivery } = useData();
   const navigate = useNavigate();
   if (!cart.open) return null;
+  const eta = etaForMany(cart.items.map((i) => (i.origin ?? 'europe') as Origin), delivery.eta);
   return (
     <div className="drawer-ov" onClick={() => cart.setOpen(false)}>
       <aside className="drawer" onClick={(e) => e.stopPropagation()} aria-label={tr('السلة', 'Bag')}>
@@ -74,6 +77,7 @@ function CartDrawer() {
             </div>
             <footer className="drawer-foot">
               <div className="sum"><span>{tr('المجموع', 'Subtotal')}</span><b className="num">{omr(cart.subtotal)}</b></div>
+              {eta ? <p className="eta-line"><Icon name="truck" size={16} />{tr('يوصلك تقريباً ', 'Arrives around ')}{etaDates(eta, isAr)}</p> : null}
               <p className="small muted">{tr('التوصيل وكود الخصم في الخطوة الجاية', 'Delivery and discount codes at checkout')}</p>
               <button className="btn" onClick={() => { cart.setOpen(false); navigate('/checkout'); }}>{tr('إتمام الطلب', 'Checkout')}</button>
             </footer>
@@ -147,6 +151,7 @@ function Header() {
         </div>
         <nav className="nav only-desktop" onMouseLeave={() => setMega(null)}>
           <div className="container nav-row">
+            <GenderSwitch />
             <NavLink to="/shop" end>{tr('وصل حديثاً', 'New in')}</NavLink>
             {top.map((c) => (
               <div key={c.id} className="nav-item" onMouseEnter={() => setMega(c.children?.length ? c.id : null)}>
@@ -177,6 +182,7 @@ function Header() {
               <button className="icon-btn" onClick={() => setMenu(false)} aria-label={tr('إغلاق', 'Close')}><Icon name="close" /></button>
             </header>
             <div className="drawer-body menu">
+              <GenderSwitch />
               <Link to="/shop">{tr('وصل حديثاً', 'New in')}</Link>
               {categories.map((c) => (
                 <Link key={c.id} to={`/shop?category=${c.id}`}>{pick(c, 'name')}</Link>
@@ -195,6 +201,23 @@ function Header() {
       ) : null}
       {search ? <SearchOverlay onClose={() => setSearch(false)} /> : null}
     </>
+  );
+}
+
+/** Women's / men's / everything: remembered, applied to every product list. */
+export function GenderSwitch() {
+  const { tr, gender, setGender } = usePrefs();
+  const opts: { k: '' | 'women' | 'men'; ar: string; en: string }[] = [
+    { k: 'women', ar: 'نسائي', en: 'Women' },
+    { k: 'men', ar: 'رجالي', en: 'Men' },
+    { k: '', ar: 'الكل', en: 'All' },
+  ];
+  return (
+    <div className="g-switch" role="group" aria-label={tr('القسم', 'Department')}>
+      {opts.map((o) => (
+        <button key={o.k || 'all'} className={gender === o.k ? 'on' : ''} aria-pressed={gender === o.k} onClick={() => setGender(o.k)}>{tr(o.ar, o.en)}</button>
+      ))}
+    </div>
   );
 }
 

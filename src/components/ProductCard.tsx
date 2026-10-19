@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, type ReactNode } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { imageUrl } from '../lib/api';
+import { originOf } from '../lib/eta';
 import { inStock, isOnOrder, mustChoose, omr, productAttributes, productImages, productPrice, productWasPrice } from '../lib/format';
 import { usePrefs } from '../lib/prefs';
 import { useCart, useToast, useWishlist } from '../lib/store';
@@ -23,6 +24,7 @@ export function useAddToBag() {
       price: productPrice(p),
       comparePrice: productWasPrice(p),
       image: productImages(p)[0] ?? '',
+      origin: originOf(p),
       options: Object.entries(chosen).filter(([, value]) => value.trim() !== '').map(([label, value]) => ({ label, value: value.trim() })),
     });
     show(tr('تمت الإضافة إلى السلة', 'Added to your bag'), { label: tr('عرض السلة', 'View bag'), to: '#bag' });

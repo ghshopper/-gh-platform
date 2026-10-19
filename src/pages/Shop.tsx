@@ -24,7 +24,7 @@ const SORTS = [
 
 /** Product listing for everything: new in, a category, a brand, a search. */
 export default function Shop() {
-  const { tr, pick } = usePrefs();
+  const { tr, pick, gender } = usePrefs();
   const { brand: brandParam } = useParams();
   const [sp, setSp] = useSearchParams();
   const { categories, brands } = useData();
@@ -43,19 +43,20 @@ export default function Shop() {
   const chosenAttrs = (sp.get('attributes') ?? '').split(',').filter(Boolean);
   const min = sp.get('min') ?? '';
   const max = sp.get('max') ?? '';
+  const fast = sp.get('fast') === '1';
 
   const allCats = useMemo(() => categories.flatMap((c) => [c, ...(c.children ?? [])]), [categories]);
   const cat = allCats.find((c) => String(c.id) === category);
   const parent = cat?.parent_id ? categories.find((c) => c.id === cat.parent_id) : cat;
   const br = brands.find((b) => String(b.id) === brand);
-  const title = q ? tr(`نتائج "${q}"`, `Results for "${q}"`) : br ? (br.name_en || br.name_ar || '').toUpperCase() : cat ? pick(cat, 'name') : tr('وصل حديثاً', 'New in');
+  const title = q ? tr(`نتائج "${q}"`, `Results for "${q}"`) : br ? (br.name_en || br.name_ar || '').toUpperCase() : cat ? pick(cat, 'name') : fast ? tr('توصيل سريع', 'Fast delivery') : tr('وصل حديثاً', 'New in');
   useTitle(title);
 
   useEffect(() => {
     api.get<unknown>('/customer/attributes').then((r) => setAttrs(listOf<AttributeRow>(r))).catch(() => undefined);
   }, []);
 
-  const key = `${category}|${brand}|${q}|${sort}|${chosenAttrs.join(',')}|${min}|${max}`;
+  const key = `${category}|${brand}|${q}|${sort}|${chosenAttrs.join(',')}|${min}|${max}|${fast}|${gender}`;
   const load = async (p: number) => {
     setLoading(true);
     const s = SORTS.find((x) => x.key === sort) ?? SORTS[0];
@@ -63,7 +64,7 @@ export default function Shop() {
       const r = await api.get<Paginated<Product>>('/customer/products', {
         page: p, per_page: 24, search: q || undefined, category_id: category || undefined, brand_id: brand || undefined,
         attributes: chosenAttrs.length ? chosenAttrs.join(',') : undefined, min_price: min || undefined, max_price: max || undefined,
-        sort_field: s.field, sort_direction: s.dir,
+        sort_field: s.field, sort_direction: s.dir, fast: fast ? 1 : undefined, gender: gender || undefined,
       });
       const rows = listOf<Product>(r);
       setItems((prev) => (p === 1 ? rows : [...prev, ...rows.filter((x) => !prev.some((y) => y.id === x.id))]));
@@ -143,6 +144,13 @@ export default function Shop() {
         </div>
       ))}
       <div className="f-group">
+        <h4>{tr('التوصيل', 'Delivery')}</h4>
+        <label className="f-check">
+          <input type="checkbox" checked={fast} onChange={(e) => set('fast', e.target.checked ? '1' : null)} />
+          <span>{tr('توصيل سريع (من عُمان ودبي)', 'Fast delivery (Oman & Dubai)')}</span>
+        </label>
+      </div>
+      <div className="f-group">
         <h4>{tr('السعر (ر.ع.)', 'Price (OMR)')}</h4>
         <div className="f-price">
           <input inputMode="decimal" placeholder={tr('من', 'Min')} defaultValue={min} onBlur={(e) => set('min', e.target.value.replace(/[^0-9.]/g, '') || null)} />
@@ -150,7 +158,7 @@ export default function Shop() {
           <input inputMode="decimal" placeholder={tr('إلى', 'Max')} defaultValue={max} onBlur={(e) => set('max', e.target.value.replace(/[^0-9.]/g, '') || null)} />
         </div>
       </div>
-      {category || (!brandParam && brand) || chosenAttrs.length || min || max ? (
+      {category || (!brandParam && brand) || chosenAttrs.length || min || max || fast ? (
         <button className="btn outline small-btn" onClick={() => setSp(q ? { q } : {}, { replace: true })}>{tr('مسح الفلاتر', 'Clear filters')}</button>
       ) : null}
     </div>

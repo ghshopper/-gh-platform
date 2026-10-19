@@ -97,6 +97,16 @@ p { margin: 0; }
 .swatch span { display: block; width: 100%; height: 100%; border-radius: 50%; }
 .swatch.on { border-color: var(--ink); box-shadow: 0 0 0 1px var(--ink); }
 .swatch.img { padding: 2px; overflow: hidden; }
+.eta { display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; background: var(--surface); }
+.eta b { display: block; font-weight: 600; font-size: 14px; }
+.eta span { display: block; font-size: 12.5px; color: var(--sub); margin-top: 2px; }
+.eta-line { display: flex; gap: 8px; align-items: center; font-size: 12.5px; color: var(--sub); }
+.g-home { display: flex; justify-content: center; padding-top: 18px; }
+.menu .g-switch { margin-bottom: 8px; align-self: flex-start; }
+.nav-row .g-switch { margin-inline-end: 10px; }
+.g-switch { display: inline-flex; border: 1px solid var(--line-strong); }
+.g-switch button { height: 30px; padding: 0 14px; font-size: 12.5px; background: transparent; color: var(--sub); border: none; cursor: pointer; letter-spacing: .5px; }
+.g-switch button.on { background: var(--ink); color: var(--on-ink); }
 .engrave { height: 44px; border: 1px solid var(--line-strong); background: transparent; padding: 0 14px; font: inherit; font-size: 15px; letter-spacing: 2px; color: var(--ink); max-width: 320px; }
 .engrave:focus { outline: none; border-color: var(--ink); }
 .swatch.img img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; }

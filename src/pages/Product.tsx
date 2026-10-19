@@ -4,7 +4,8 @@ import { api, imageUrl, listOf } from '../lib/api';
 import { inStock, isOnOrder, mustChoose, num, productAttributes, productImages } from '../lib/format';
 import { useLoad, useTitle } from '../lib/hooks';
 import { usePrefs } from '../lib/prefs';
-import { useAuth, useToast, useWishlist } from '../lib/store';
+import { useAuth, useData, useToast, useWishlist } from '../lib/store';
+import { etaDates, etaDuration, ORIGIN_LABEL, productEta } from '../lib/eta';
 import type { Product } from '../lib/types';
 import { Icon } from '../components/Icon';
 import { brandOf, OptionPicker, Price, ProductCard, useAddToBag } from '../components/ProductCard';
@@ -21,7 +22,8 @@ interface Review {
 
 export default function ProductPage() {
   const { id } = useParams();
-  const { tr, pick } = usePrefs();
+  const { tr, pick, gender, isAr } = usePrefs();
+  const { delivery } = useData();
   const { user } = useAuth();
   const wish = useWishlist();
   const { show } = useToast();
@@ -31,8 +33,8 @@ export default function ProductPage() {
   const reviews = useLoad(async () => listOf<Review>(await api.get<unknown>(`/customer/products/${id}/reviews`)), [id]);
   const related = useLoad(async () => {
     if (!p?.category_id) return [] as Product[];
-    return listOf<Product>(await api.get<unknown>('/customer/products', { category_id: p.category_id, per_page: 9 })).filter((x) => x.id !== p.id).slice(0, 8);
-  }, [p?.category_id, p?.id]);
+    return listOf<Product>(await api.get<unknown>('/customer/products', { category_id: p.category_id, per_page: 9, gender: gender || undefined })).filter((x) => x.id !== p.id).slice(0, 8);
+  }, [p?.category_id, p?.id, gender]);
   const [img, setImg] = useState(0);
   const [chosen, setChosen] = useState<Record<string, string>>({});
   const [missing, setMissing] = useState<string | null>(null);
@@ -94,6 +96,18 @@ export default function ProductPage() {
             <span className="tag">{tr('أصلية ١٠٠٪', '100% authentic')}</span>
             {avg > 0 ? <span className="tag"><Icon name="star" size={14} /> {avg.toFixed(1)} ({num(p.reviews_count)})</span> : null}
           </div>
+          {available ? (() => {
+            const e = productEta(p, delivery.eta);
+            return (
+              <div className="eta">
+                <Icon name="truck" size={20} />
+                <div>
+                  <b>{tr('يوصلك خلال ', 'Arrives in ')}{etaDuration(e, isAr)}</b>
+                  <span>{tr(ORIGIN_LABEL[e.origin].ar, ORIGIN_LABEL[e.origin].en)} · {tr('تقريباً ', 'around ')}{etaDates(e, isAr)}</span>
+                </div>
+              </div>
+            );
+          })() : null}
           {(p.variants ?? []).length > 1 ? (
             <div className="opt">
               <div className="opt-label">{tr('اللون', 'Colour')}{pick(p, 'variant') ? <span>: {pick(p, 'variant')}</span> : null}</div>

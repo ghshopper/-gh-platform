@@ -47,6 +47,8 @@ export interface Product {
   is_featured?: number | boolean;
   images?: { image_path: string }[];
   group_key?: string | null;
+  gender?: 'women' | 'men' | 'unisex' | null;
+  origin?: 'oman' | 'dubai' | 'europe' | null;
   variant_ar?: string | null;
   variant_en?: string | null;
   /** Same piece in other colours, each its own product (product page only). */
@@ -152,6 +154,8 @@ export interface CartItem {
   image: string;
   options: { label: string; value: string }[];
   quantity: number;
+  /** Where it ships from, for the delivery time. */
+  origin?: import('./eta').Origin;
 }
 
 export interface PaymentGateway {
@@ -187,6 +191,8 @@ export interface DeliveryOptions {
   branches?: import('./genacom').GenacomBranch[];
   home_fee: number;
   branch_fee: number;
+  /** Delivery time per origin (Oman / Dubai / Europe), set in the admin app. */
+  eta?: import('./eta').EtaTable;
 }
 
 /** One order as the customer sees it (from /ps/my-orders). */

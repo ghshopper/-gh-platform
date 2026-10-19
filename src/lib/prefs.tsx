@@ -11,7 +11,12 @@ interface Prefs {
   pick: (obj: object | null | undefined, field: string) => string;
   theme: ThemeMode;
   setTheme: (t: ThemeMode) => void;
+  /** Women's / men's shopping ('' = everything). */
+  gender: Gender;
+  setGender: (g: Gender) => void;
 }
+
+export type Gender = '' | 'women' | 'men';
 
 const Ctx = createContext<Prefs | null>(null);
 const read = (k: string) => {
@@ -36,6 +41,11 @@ export function PrefsProvider({ children }: { children: ReactNode }) {
     return t === 'light' || t === 'dark' ? t : 'system';
   });
 
+  const [gender, setGenderState] = useState<Gender>(() => {
+    const g = read('gh_gender');
+    return g === 'women' || g === 'men' ? g : '';
+  });
+
   useEffect(() => {
     document.documentElement.lang = lang;
     document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
@@ -56,6 +66,11 @@ export function PrefsProvider({ children }: { children: ReactNode }) {
     write('gh_theme', t);
   }, []);
 
+  const setGender = useCallback((g: Gender) => {
+    setGenderState(g);
+    write('gh_gender', g);
+  }, []);
+
   const value = useMemo<Prefs>(() => {
     const isAr = lang === 'ar';
     return {
@@ -73,8 +88,10 @@ export function PrefsProvider({ children }: { children: ReactNode }) {
       },
       theme,
       setTheme,
+      gender,
+      setGender,
     };
-  }, [lang, setLang, theme, setTheme]);
+  }, [lang, setLang, theme, setTheme, gender, setGender]);
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

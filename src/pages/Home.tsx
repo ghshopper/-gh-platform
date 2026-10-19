@@ -9,6 +9,7 @@ import type { HeroSlide, Product, SectionSetting } from '../lib/types';
 import { CategoryArt } from '../components/CategoryArt';
 import { Icon } from '../components/Icon';
 import { ProductCard } from '../components/ProductCard';
+import { GenderSwitch } from '../components/Layout';
 
 const active = (s?: SectionSetting) => !s || (s.is_active !== 0 && s.is_active !== false);
 
@@ -86,18 +87,21 @@ function Rail({ title, kicker, to, products }: { title: string; kicker: string; 
 }
 
 export default function Home() {
-  const { tr, pick } = usePrefs();
+  const { tr, pick, gender } = usePrefs();
   useTitle('');
   const { home, categories, brands } = useData();
   const sections = home?.sections ?? {};
-  const featured = useLoad(async () => listOf<Product>(await api.get<unknown>('/customer/products/featured')), []);
-  const latest = useLoad(async () => listOf<Product>(await api.get<unknown>('/customer/products', { per_page: 24 })), []);
+  const g = gender || undefined;
+  const featured = useLoad(async () => listOf<Product>(await api.get<unknown>('/customer/products/featured', { gender: g })), [gender]);
+  const latest = useLoad(async () => listOf<Product>(await api.get<unknown>('/customer/products', { per_page: 24, gender: g })), [gender]);
+  const fast = useLoad(async () => listOf<Product>(await api.get<unknown>('/customer/products', { per_page: 12, fast: 1, gender: g })), [gender]);
   const sale = (latest.data ?? []).filter((p) => num(p.compare_price) > 0);
   const t = (s: SectionSetting | undefined, ar: string, en: string) => (s ? pick(s, 'title') : '') || tr(ar, en);
 
   return (
     <>
       <Hero slides={home?.hero_slides ?? []} />
+      <div className="container only-mobile g-home"><GenderSwitch /></div>
 
       {active(sections.categories) && categories.length ? (
         <section className="section container">
@@ -114,6 +118,8 @@ export default function Home() {
       ) : null}
 
       <Rail kicker="NEW IN" title={tr('وصل حديثاً', 'New in')} to="/shop" products={(latest.data ?? []).slice(0, 12)} />
+
+      <Rail kicker="FAST DELIVERY" title={tr('توصيل سريع', 'Fast delivery')} to="/shop?fast=1" products={(fast.data ?? []).slice(0, 12)} />
 
       <section className="editorial container">
         <div className="editorial-img"><img src={asset('bags.jpg')} alt="" loading="lazy" /></div>
