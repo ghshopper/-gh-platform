@@ -99,6 +99,50 @@ export default function ProductRequests() {
     } catch { toast.error('فشل الحذف') }
   }
 
+  // ── Turn the request into a real order ──
+  const [conv, setConv] = useState(null)
+  const [convBusy, setConvBusy] = useState(false)
+  const [converted, setConverted] = useState(null)
+
+  const openDetail = async (req) => {
+    setSelected(req); setIsDetailOpen(true); setConv(null); setConverted(null)
+    try {
+      const r = await fetch(`${API}/admin/product-requests/${req.id}`, { headers })
+      const j = await r.json()
+      if (j?.data) setSelected(j.data)
+    } catch { /* list data is enough to show */ }
+  }
+
+  const startConvert = () => setConv({
+    brand: selected.brand || '', name: selected.product_name_ar || selected.product_name_en || '',
+    details: selected.description || '', price: '', delivery_fee: '', deposit: '', deposit_method: 'تحويل بنكي', notify: true,
+  })
+
+  const submitConvert = async () => {
+    if (!conv.name.trim() || !(Number(conv.price) > 0)) { toast.error('اكتب اسم القطعة وسعرها'); return }
+    setConvBusy(true)
+    try {
+      const body = { ...conv, price: Number(conv.price), delivery_fee: Number(conv.delivery_fee) || 0, deposit: Number(conv.deposit) || 0 }
+      const r = await fetch(`${API}/admin/product-requests/${selected.id}/convert`, { method: 'POST', headers, body: JSON.stringify(body) })
+      const j = await r.json()
+      if (!r.ok) throw new Error(j?.message || 'تعذّر التحويل')
+      toast.success(j.message)
+      setConverted(j); setConv(null)
+      setSelected((s) => ({ ...s, status: 'ordered', order_no: j.order_no, pay_url: j.pay_url }))
+      fetchRequests()
+    } catch (e) {
+      toast.error(e.message)
+    } finally {
+      setConvBusy(false)
+    }
+  }
+
+  const sendPayLink = (msg) => {
+    const p = String(selected.customer_phone || '').replace(/\D/g, '')
+    const phone = p.length === 8 ? '968' + p : p
+    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank')
+  }
+
   const openWhatsApp = (phone, name, product) => {
     const msg = encodeURIComponent(
       `السلام عليكم ${name}،\n\nبخصوص طلبكم للمنتج: ${product}\n\nنحن من فريق GH Shopper، وقد وصلنا طلبكم وسنتواصل معكم قريباً بشأن توفر هذا المنتج.\n\nشكراً لثقتكم بنا! 🛍️`
@@ -203,7 +247,7 @@ export default function ProductRequests() {
                     style={{ borderBottom: '1px solid #f8fafc', transition: 'background 0.15s', cursor: 'pointer' }}
                     onMouseEnter={e => e.currentTarget.style.background = '#fafafa'}
                     onMouseLeave={e => e.currentTarget.style.background = '#fff'}
-                    onClick={() => { setSelected(req); setIsDetailOpen(true) }}
+                    onClick={() => openDetail(req)}
                   >
                     <td style={{ padding: '16px 20px' }}>
                       <div style={{ fontWeight: 700, fontSize: 14, color: '#1e293b' }}>{req.product_name_ar}</div>
@@ -349,6 +393,53 @@ export default function ProductRequests() {
                 <img src={selected.image_url} alt="product" style={{ width: '100%', borderRadius: 12, maxHeight: 200, objectFit: 'cover' }} />
               </div>
             )}
+
+            {/* Turn into an order */}
+            <div style={{ background: '#FBF7F0', border: '1.5px solid #E9DCC4', borderRadius: 16, padding: 20, marginBottom: 20 }}>
+              {selected.order_no ? (
+                <div style={{ display: 'grid', gap: 10 }}>
+                  <div style={{ fontWeight: 800, color: '#4B1828' }}>✓ تحوّل لطلب رقم {selected.order_no}</div>
+                  <div style={{ fontSize: 13, color: '#64748b' }}>الطلب في تطبيق الأدمن وفي «طلباتي» عند العميل{selected.order_remaining > 0 ? ` · المتبقي ${Number(selected.order_remaining).toFixed(3)} ر.ع` : ''}</div>
+                  {selected.pay_url ? (
+                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                      <button onClick={() => sendPayLink(converted?.whatsapp_message || `رابط الدفع لطلبك من GH Shopper:\n${selected.pay_url}`)} style={{ padding: '10px 14px', borderRadius: 10, background: '#25D366', color: '#fff', border: 'none', fontWeight: 700, cursor: 'pointer' }}>أرسل رابط الدفع واتساب</button>
+                      <button onClick={() => { navigator.clipboard.writeText(selected.pay_url); toast.success('نسخت الرابط') }} style={{ padding: '10px 14px', borderRadius: 10, background: '#fff', border: '1.5px solid #E9DCC4', fontWeight: 700, cursor: 'pointer' }}>نسخ رابط الدفع</button>
+                    </div>
+                  ) : null}
+                </div>
+              ) : conv ? (
+                <div style={{ display: 'grid', gap: 12 }}>
+                  <div style={{ fontWeight: 800, color: '#4B1828' }}>تحويل إلى طلب للعميل</div>
+                  {[['brand', 'البراند'], ['name', 'اسم القطعة *'], ['details', 'تفاصيل (المقاس، اللون…)']].map(([k, l]) => (
+                    <label key={k} style={{ display: 'grid', gap: 4, fontSize: 12.5, color: '#64748b' }}>{l}
+                      <input value={conv[k]} onChange={(e) => setConv({ ...conv, [k]: e.target.value })} style={{ padding: '10px 12px', borderRadius: 10, border: '1.5px solid #e2e8f0', fontSize: 14 }} />
+                    </label>
+                  ))}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                    {[['price', 'السعر للعميل (ر.ع) *'], ['delivery_fee', 'التوصيل (ر.ع)'], ['deposit', 'عربون مستلم (ر.ع)'], ['deposit_method', 'طريقة العربون']].map(([k, l]) => (
+                      <label key={k} style={{ display: 'grid', gap: 4, fontSize: 12.5, color: '#64748b' }}>{l}
+                        <input value={conv[k]} inputMode={k === 'deposit_method' ? 'text' : 'decimal'} onChange={(e) => setConv({ ...conv, [k]: e.target.value })} style={{ padding: '10px 12px', borderRadius: 10, border: '1.5px solid #e2e8f0', fontSize: 14, direction: k === 'deposit_method' ? 'rtl' : 'ltr' }} />
+                      </label>
+                    ))}
+                  </div>
+                  <label style={{ display: 'flex', gap: 8, alignItems: 'center', fontSize: 13 }}>
+                    <input type="checkbox" checked={conv.notify} onChange={(e) => setConv({ ...conv, notify: e.target.checked })} /> أرسل إشعار للعميل في التطبيق
+                  </label>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <button onClick={submitConvert} disabled={convBusy} style={{ flex: 1, padding: 12, borderRadius: 12, background: '#4B1828', color: '#fff', border: 'none', fontWeight: 800, cursor: 'pointer' }}>{convBusy ? '...' : 'إنشاء الطلب'}</button>
+                    <button onClick={() => setConv(null)} style={{ padding: '12px 16px', borderRadius: 12, background: '#fff', border: '1.5px solid #e2e8f0', cursor: 'pointer' }}>إلغاء</button>
+                  </div>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
+                  <div>
+                    <div style={{ fontWeight: 800, color: '#4B1828' }}>لقيت القطعة؟</div>
+                    <div style={{ fontSize: 12.5, color: '#64748b' }}>حوّلها لطلب حقيقي بسعرها: تدخل تطبيق الأدمن وتطلع للعميل في طلباته مع رابط دفع.</div>
+                  </div>
+                  <button onClick={startConvert} style={{ padding: '10px 16px', borderRadius: 12, background: '#4B1828', color: '#fff', border: 'none', fontWeight: 800, cursor: 'pointer', whiteSpace: 'nowrap' }}>تحويل لطلب</button>
+                </div>
+              )}
+            </div>
 
             {/* Status Update */}
             <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: 20, marginTop: 20 }}>
