@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
-import { RiAddLine, RiCheckLine, RiCloseLine, RiFileCopyLine, RiGiftLine, RiLoader4Line, RiMailSendLine, RiSearchLine } from 'react-icons/ri'
+import { RiAddLine, RiCheckLine, RiCloseLine, RiFileCopyLine, RiGiftLine, RiLoader4Line, RiSearchLine, RiWhatsappLine } from 'react-icons/ri'
 import api from '../../services/api'
 
 const STATUS = {
@@ -38,7 +38,7 @@ export default function GiftCards() {
 
   const shown = useMemo(() => {
     const s = q.trim().toLowerCase()
-    return rows.filter((g) => (!status || g.status === status) && (!s || [g.code, g.recipient_name, g.recipient_email, g.buyer_name, g.buyer_phone].some((x) => (x || '').toLowerCase().includes(s))))
+    return rows.filter((g) => (!status || g.status === status) && (!s || [g.code, g.recipient_name, g.recipient_phone, g.recipient_email, g.buyer_name, g.buyer_phone].some((x) => (x || '').toLowerCase().includes(s))))
   }, [rows, q, status])
 
   const act = async (g, path, ok) => {
@@ -76,7 +76,7 @@ export default function GiftCards() {
       </div>
 
       <div className="card gc-bar">
-        <label className="gc-search"><RiSearchLine /><input value={q} onChange={(e) => setQ(e.target.value)} placeholder="ابحث بالكود أو الاسم أو الإيميل…" /></label>
+        <label className="gc-search"><RiSearchLine /><input value={q} onChange={(e) => setQ(e.target.value)} placeholder="ابحث بالكود أو الاسم أو الرقم…" /></label>
         <select value={status} onChange={(e) => setStatus(e.target.value)}>
           <option value="">كل الحالات</option>
           <option value="active">فعّالة</option>
@@ -102,18 +102,18 @@ export default function GiftCards() {
                 return (
                   <tr key={g.id} onClick={() => setOpen(open === g.id ? null : g.id)} className={open === g.id ? 'on' : ''}>
                     <td><button className="gc-code" onClick={(e) => { e.stopPropagation(); copy(g.code) }} title="نسخ">{g.code} <RiFileCopyLine /></button></td>
-                    <td><b>{g.recipient_name || '—'}</b><small>{g.recipient_email || g.recipient_phone || ''}</small></td>
+                    <td><b>{g.recipient_name || '—'}</b><small dir="ltr">{g.recipient_phone || g.recipient_email || ''}</small></td>
                     <td>{g.buyer_name || '—'}<small dir="ltr">{g.buyer_phone || ''}</small></td>
                     <td className="num">{omr(g.amount)}</td>
                     <td className="num">{omr(g.balance)}{used > 0.0005 ? <small>استُخدم {omr(used)}</small> : null}</td>
-                    <td><span className="gc-pill" style={{ color: st.color, background: st.bg }}>{st.label}</span>{g.status === 'active' ? <small>{g.sent_at ? 'انرسلت بالإيميل' : 'ما انرسلت'}</small> : null}</td>
+                    <td><span className="gc-pill" style={{ color: st.color, background: st.bg }}>{st.label}</span>{g.status === 'active' && !g.recipient_phone ? <small>ما في رقم للمستلم</small> : null}</td>
                     <td>{day(g.created_at)}{g.expires_at ? <small>تنتهي {day(g.expires_at)}</small> : null}</td>
                     <td className="gc-actions" onClick={(e) => e.stopPropagation()}>
                       {g.status === 'pending' && (
-                        <button className="btn btn-sm btn-primary" disabled={busy[g.id]} onClick={() => window.confirm('تأكدت إن البطاقة مدفوعة؟ بتتفعّل وتنرسل للمستلم.') && act(g, 'activate', 'تفعّلت وانرسلت')}><RiCheckLine /> مدفوعة</button>
+                        <button className="btn btn-sm btn-primary" disabled={busy[g.id]} onClick={() => window.confirm('تأكدت إن البطاقة مدفوعة؟ بتتفعّل، وبعدها أرسلها للمستلم بالواتساب.') && act(g, 'activate', 'تفعّلت · أرسلها بالواتساب')}><RiCheckLine /> مدفوعة</button>
                       )}
-                      {g.status === 'active' && (g.recipient_email || g.buyer_email) && (
-                        <button className="btn btn-sm btn-ghost" disabled={busy[g.id]} onClick={() => act(g, 'resend', 'انرسلت مرة ثانية')}><RiMailSendLine /> إرسال</button>
+                      {g.status === 'active' && g.recipient_phone && (
+                        <a className="btn btn-sm btn-ghost" href={waLink(g)} target="_blank" rel="noreferrer" style={{ color: '#128C4B' }}><RiWhatsappLine /> واتساب</a>
                       )}
                       {g.status !== 'cancelled' && (
                         <button className="btn btn-sm btn-ghost gc-danger" disabled={busy[g.id]} onClick={() => window.confirm(`تلغي البطاقة ${g.code}؟ الرصيد الباقي ما يقدر يُستخدم.`) && act(g, 'cancel', 'انلغت')}><RiCloseLine /></button>
@@ -147,8 +147,22 @@ export default function GiftCards() {
   )
 }
 
+// The card as a WhatsApp message to the recipient's phone.
+export function waLink(g) {
+  let d = String(g.recipient_phone || '').replace(/[^0-9]/g, '')
+  if (d.length === 8) d = '968' + d
+  const lines = [
+    `مرحبا ${g.recipient_name || ''} 🎁`,
+    `وصلتك بطاقة هدية من ${g.from_name || g.buyer_name || 'GH Shopper'} بقيمة ${Number(g.amount).toFixed(3)} ر.ع`,
+    g.message ? `\n«${g.message}»\n` : '',
+    `الكود: ${g.code}`,
+    'استخدمه وقت الدفع في تطبيق GH Shopper أو ghshopper.com (خانة «استخدم بطاقة هدية»).',
+  ].filter(Boolean)
+  return `https://wa.me/${d}?text=${encodeURIComponent(lines.join('\n'))}`
+}
+
 function IssueForm({ onClose, onDone }) {
-  const [f, setF] = useState({ amount: '', recipient_name: '', recipient_email: '', recipient_phone: '', message: '', from_name: 'GH Shopper', send: true })
+  const [f, setF] = useState({ amount: '', recipient_name: '', recipient_phone: '', message: '', from_name: 'GH Shopper', send: true })
   const [saving, setSaving] = useState(false)
   const set = (k) => (e) => setF((x) => ({ ...x, [k]: e.target.type === 'checkbox' ? e.target.checked : e.target.value }))
   const save = async (e) => {
@@ -156,10 +170,12 @@ function IssueForm({ onClose, onDone }) {
     if (!(Number(f.amount) > 0)) return toast.error('اكتب القيمة')
     setSaving(true)
     try {
-      const r = await api.post('/admin/gift-cards', { ...f, amount: Number(f.amount), recipient_email: f.recipient_email || null })
-      const code = r.data?.data?.code
+      const r = await api.post('/admin/gift-cards', { ...f, amount: Number(f.amount), recipient_email: null, send: false })
+      const card = r.data?.data
+      const code = card?.code
       toast.success(code ? `تم إصدار ${code}` : 'تم الإصدار')
       if (code) navigator.clipboard?.writeText(code).catch(() => undefined)
+      if (f.send && card?.recipient_phone) window.open(waLink({ ...card, from_name: f.from_name, message: f.message }), '_blank')
       onDone()
     } catch (x) {
       toast.error(x.response?.data?.message || 'ما تم الإصدار')
@@ -178,13 +194,10 @@ function IssueForm({ onClose, onDone }) {
           <input type="number" min="1" step="0.001" placeholder="مبلغ آخر" value={f.amount} onChange={set('amount')} />
         </div>
         <label>اسم المستلم<input required value={f.recipient_name} onChange={set('recipient_name')} /></label>
-        <div className="gc-two">
-          <label>إيميل المستلم<input type="email" dir="ltr" value={f.recipient_email} onChange={set('recipient_email')} placeholder="اختياري" /></label>
-          <label>جواله<input dir="ltr" value={f.recipient_phone} onChange={set('recipient_phone')} placeholder="اختياري" /></label>
-        </div>
+        <label>جوال المستلم<input dir="ltr" value={f.recipient_phone} onChange={set('recipient_phone')} placeholder="9XXXXXXX" /></label>
         <label>من<input value={f.from_name} onChange={set('from_name')} /></label>
-        <label>رسالة<textarea rows={3} value={f.message} onChange={set('message')} placeholder="تطلع في الإيميل" /></label>
-        <label className="gc-check"><input type="checkbox" checked={f.send} onChange={set('send')} /> أرسلها للمستلم بالإيميل</label>
+        <label>رسالة<textarea rows={3} value={f.message} onChange={set('message')} placeholder="تطلع في رسالة الواتساب" /></label>
+        <label className="gc-check"><input type="checkbox" checked={f.send} onChange={set('send')} /> افتح الواتساب وأرسلها للمستلم</label>
         <div className="gc-form-actions">
           <button className="btn btn-primary" disabled={saving}>{saving ? <RiLoader4Line className="spin" /> : <RiGiftLine />} إصدار</button>
           <button type="button" className="btn btn-ghost" onClick={onClose}>إلغاء</button>

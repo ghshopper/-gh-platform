@@ -48,7 +48,7 @@ export default function Products() {
     try {
       await api.post('/admin/products/bulk-update', { ids: selected, ...patch })
       const apply = Object.fromEntries(Object.entries(patch).map(([k, v]) => [k, v === 'none' ? null : v]))
-      setProducts(list => list.map(p => selected.includes(p.id) ? { ...p, ...apply } : p))
+      setProducts(list => list.map(p => selected.includes(p.id) ? { ...p, ...apply, ...(patch.category_id ? { category_name: categories.find(c => c.id === patch.category_id)?.name_ar } : {}) } : p))
       toast.success(`${label}: ${selected.length} منتج`)
       setSelected([])
     } catch {
@@ -1017,6 +1017,14 @@ export default function Products() {
           <span style={{ opacity: 0.6, fontSize: 13 }}>غيّر التوفر إلى:</span>
           <button disabled={bulkBusy} onClick={() => setAvailability('instant')} style={{ background: '#16804A', color: '#fff', border: 'none', borderRadius: 8, padding: '8px 14px', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>⚡ تسليم فوري</button>
           <button disabled={bulkBusy} onClick={() => setAvailability('on_order')} style={{ background: '#C26A00', color: '#fff', border: 'none', borderRadius: 8, padding: '8px 14px', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>🕓 بالطلب</button>
+          <span style={{ opacity: 0.6, fontSize: 13 }}>التصنيف:</span>
+          <select disabled={bulkBusy} value="" onChange={e => e.target.value && bulkSet({ category_id: Number(e.target.value) }, 'التصنيف')} style={{ borderRadius: 8, padding: '7px 10px', fontFamily: 'inherit', border: 'none', maxWidth: 190 }}>
+            <option value="">انقل إلى…</option>
+            {categories.filter(c => !c.parent_id).map(sec => [
+              <option key={'s' + sec.id} value={sec.id}>{sec.name_ar}</option>,
+              ...categories.filter(c => c.parent_id === sec.id).map(c => <option key={c.id} value={c.id}>— {c.name_ar}</option>),
+            ])}
+          </select>
           <span style={{ opacity: 0.6, fontSize: 13 }}>القسم:</span>
           <select disabled={bulkBusy} value="" onChange={e => e.target.value && bulkSet({ gender: e.target.value }, 'القسم')} style={{ borderRadius: 8, padding: '7px 10px', fontFamily: 'inherit', border: 'none' }}>
             <option value="">اختر…</option>

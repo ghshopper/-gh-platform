@@ -102,10 +102,30 @@ export default function Categories() {
     } catch { toast.error('خطأ في الحذف') }
   }
 
-  const filtered = categories.filter(c =>
+  // Tree order: section, its categories, their sub-categories.
+  const ordered = (() => {
+    const kids = (pid) => categories.filter(c => (c.parent_id || null) === pid)
+    const out = []
+    const walk = (pid, depth) => kids(pid).forEach(c => { out.push({ ...c, depth }); if (depth < 3) walk(c.id, depth + 1) })
+    walk(null, 0)
+    categories.forEach(c => { if (!out.find(o => o.id === c.id)) out.push({ ...c, depth: 0 }) })
+    return out
+  })()
+  const filtered = ordered.filter(c =>
     (c.name_ar || '').toLowerCase().includes(search.toLowerCase()) ||
     (c.name_en || '').toLowerCase().includes(search.toLowerCase())
   )
+  const [adding, setAdding] = useState(null)
+  const [sorting, setSorting] = useState(false)
+  const autoSort = async () => {
+    if (!confirm('أرتّب المنتجات في التصنيفات حسب أسمائها؟\nالمنتجات اللي حطيتها بنفسك في تصنيف محدد ما تتغير.')) return
+    setSorting(true)
+    try {
+      const r = await api.post('/admin/categories/auto-sort')
+      toast.success(`انترتّب ${r.data?.moved ?? 0} منتج`)
+      fetchCategories()
+    } catch { toast.error('تعذّر الترتيب') } finally { setSorting(false) }
+  }
 
   return (
     <div style={{ padding: '32px', maxWidth: 1200, margin: '0 auto' }}>
@@ -115,9 +135,14 @@ export default function Categories() {
           <h1 style={{ fontSize: 28, fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>التصنيفات</h1>
           <p style={{ color: '#9CA3AF', fontSize: 14, marginTop: 4 }}>{categories.length} تصنيف في المتجر</p>
         </div>
+        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+        <button onClick={autoSort} disabled={sorting} className="btn btn-ghost" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          {sorting ? 'يرتّب…' : 'رتّب المنتجات تلقائياً'}
+        </button>
         <button onClick={openAdd} style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--color-primary)', color: '#fff', border: 'none', borderRadius: 10, padding: '12px 24px', fontSize: 14, fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 12px rgba(74,13,23,0.25)' }}>
           <RiAddLine size={18} /> إضافة تصنيف
         </button>
+        </div>
       </div>
 
       {/* Search */}
@@ -134,7 +159,7 @@ export default function Categories() {
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ background: '#FAFAFA', borderBottom: '1px solid #F3F4F6' }}>
-                {['الصورة', 'الاسم (عربي)', 'الاسم (إنجليزي)', 'الرابط', 'الحالة', 'الإجراءات'].map(h => (
+                {['الصورة', 'الاسم (عربي)', 'الاسم (إنجليزي)', 'المنتجات', 'الحالة', 'الإجراءات'].map(h => (
                   <th key={h} style={{ padding: '14px 20px', fontSize: 12, fontWeight: 700, color: '#9CA3AF', textAlign: 'right', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{h}</th>
                 ))}
               </tr>
@@ -157,15 +182,23 @@ export default function Categories() {
                       </div>
                     </div>
                   </td>
-                  <td style={{ padding: '14px 20px', fontWeight: 700, color: 'var(--text-primary)', fontSize: 14 }}>{cat.name_ar || '-'}</td>
+                  <td style={{ padding: '14px 20px', paddingInlineStart: 20 + cat.depth * 28, fontWeight: cat.depth ? 600 : 800, color: 'var(--text-primary)', fontSize: cat.depth ? 14 : 15 }}>
+                    {cat.depth ? <span style={{ color: '#C9BFB3', marginInlineEnd: 6 }}>└</span> : null}{cat.name_ar || '-'}
+                    {cat.smart ? <small style={{ display: 'block', color: '#9CA3AF', fontWeight: 400, fontSize: 11 }}>تتعبّى تلقائياً من {cat.smart === 'men' ? 'الرجالي' : 'النسائي'} + اللي تضيفه</small> : null}
+                  </td>
 
                   <td style={{ padding: '14px 20px', color: '#6B7280', fontSize: 13, fontFamily: 'sans-serif' }}>{cat.name_en || '-'}</td>
-                  <td style={{ padding: '14px 20px' }}><code style={{ fontSize: 12, background: '#F3F4F6', padding: '3px 8px', borderRadius: 6, color: '#6B7280' }}>{cat.slug || '-'}</code></td>
+                  <td style={{ padding: '14px 20px', fontWeight: 700, fontFamily: 'sans-serif' }}>{cat.products_count ?? 0}</td>
                   <td style={{ padding: '14px 20px' }}>
-                    <span style={{ padding: '4px 12px', borderRadius: 20, fontSize: 11, fontWeight: 700, background: 'rgba(16,185,129,0.1)', color: '#10B981' }}>نشط</span>
+                    {Number(cat.is_active) !== 0
+                      ? <span style={{ padding: '4px 12px', borderRadius: 20, fontSize: 11, fontWeight: 700, background: 'rgba(16,185,129,0.1)', color: '#10B981' }}>نشط</span>
+                      : <span style={{ padding: '4px 12px', borderRadius: 20, fontSize: 11, fontWeight: 700, background: '#F3F4F6', color: '#6B7280' }}>مخفي</span>}
                   </td>
                   <td style={{ padding: '14px 20px' }}>
                     <div style={{ display: 'flex', gap: 8 }}>
+                      <button onClick={() => setAdding(cat)} title="أضف منتجات لهذا التصنيف" style={{ height: 34, borderRadius: 8, background: 'rgba(176,138,69,0.12)', color: '#8A6A2A', border: 'none', padding: '0 12px', display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer', fontFamily: 'inherit', fontWeight: 700, fontSize: 12 }}>
+                        <RiAddLine size={15} /> منتجات
+                      </button>
                       <button onClick={() => openEdit(cat)} style={{ width: 34, height: 34, borderRadius: 8, background: '#F3F4F6', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
                         <RiPencilLine size={15} color="#6B7280" />
                       </button>
@@ -180,6 +213,8 @@ export default function Categories() {
           </table>
         )}
       </div>
+
+      {adding && <AddProducts cat={adding} categories={categories} onClose={() => setAdding(null)} onDone={() => { setAdding(null); fetchCategories() }} />}
 
       {/* Modal */}
       {showModal && (
@@ -319,6 +354,69 @@ export default function Categories() {
           </div>
         </div>
       )}
+    </div>
+  )
+}
+
+
+/** Pick products (search by name or brand) and move them into a category. */
+function AddProducts({ cat, categories, onClose, onDone }) {
+  const [q, setQ] = useState('')
+  const [rows, setRows] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [chosen, setChosen] = useState([])
+  const [saving, setSaving] = useState(false)
+  const catName = (id) => categories.find(c => c.id === id)?.name_ar || '—'
+  useEffect(() => {
+    const t = setTimeout(async () => {
+      setLoading(true)
+      try {
+        const p = new URLSearchParams({ per_page: 80 })
+        if (q.trim()) p.set('search', q.trim())
+        const r = await api.get(`/admin/products?${p}`)
+        setRows(r.data.data || [])
+      } catch { setRows([]) } finally { setLoading(false) }
+    }, 300)
+    return () => clearTimeout(t)
+  }, [q])
+  const toggle = (id) => setChosen(c => c.includes(id) ? c.filter(x => x !== id) : [...c, id])
+  const save = async () => {
+    setSaving(true)
+    try {
+      await api.post('/admin/products/bulk-update', { ids: chosen, category_id: cat.id })
+      toast.success(`انضاف ${chosen.length} منتج إلى ${cat.name_ar}`)
+      onDone()
+    } catch { toast.error('تعذّر النقل'); setSaving(false) }
+  }
+  return (
+    <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(17,12,10,0.45)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
+      <div onClick={e => e.stopPropagation()} style={{ background: '#fff', borderRadius: 18, width: '100%', maxWidth: 620, maxHeight: '86vh', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: '0 24px 60px rgba(0,0,0,0.25)' }}>
+        <div style={{ padding: '20px 22px 12px' }}>
+          <h3 style={{ margin: 0, fontSize: 18 }}>أضف منتجات إلى «{cat.name_ar}»</h3>
+          <div style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 10, border: '1px solid #E5E7EB', borderRadius: 10, padding: '10px 12px' }}>
+            <RiSearchLine color="#9CA3AF" />
+            <input autoFocus value={q} onChange={e => setQ(e.target.value)} placeholder="ابحث باسم المنتج أو البراند…" style={{ flex: 1, border: 'none', outline: 'none', fontSize: 14, fontFamily: 'inherit' }} />
+          </div>
+        </div>
+        <div style={{ overflowY: 'auto', flex: 1, borderTop: '1px solid #F3F4F6' }}>
+          {loading ? <div style={{ padding: 40, textAlign: 'center', color: '#9CA3AF' }}>يحمّل…</div> : rows.length === 0 ? <div style={{ padding: 40, textAlign: 'center', color: '#9CA3AF' }}>ما في منتجات</div> : rows.map(p => (
+            <label key={p.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 22px', borderBottom: '1px solid #F9FAFB', cursor: 'pointer', background: chosen.includes(p.id) ? '#FBF7F0' : '#fff' }}>
+              <input type="checkbox" checked={chosen.includes(p.id)} onChange={() => toggle(p.id)} />
+              <div style={{ width: 44, height: 44, borderRadius: 8, background: '#F3F4F6', overflow: 'hidden', flexShrink: 0 }}>
+                {p.primary_image ? <img src={getImageUrl(p.primary_image)} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : null}
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontWeight: 700, fontSize: 13.5, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.name_ar || p.name_en}</div>
+                <div style={{ fontSize: 12, color: '#9CA3AF' }}>{p.brand_name_en || p.brand_name_ar || ''} · الحين في: {p.category_id === cat.id ? <b style={{ color: '#16804A' }}>هذا التصنيف</b> : catName(p.category_id)}</div>
+              </div>
+            </label>
+          ))}
+        </div>
+        <div style={{ padding: 16, display: 'flex', gap: 10, borderTop: '1px solid #F3F4F6' }}>
+          <button className="btn btn-primary" disabled={!chosen.length || saving} onClick={save} style={{ flex: 1 }}>{saving ? 'يحفظ…' : `أضف ${chosen.length || ''} للتصنيف`}</button>
+          <button className="btn btn-ghost" onClick={onClose}>إلغاء</button>
+        </div>
+      </div>
     </div>
   )
 }
