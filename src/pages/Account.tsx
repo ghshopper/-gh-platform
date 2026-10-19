@@ -98,6 +98,7 @@ function OrderCard({ o }: { o: MyOrder }) {
             {(o.discount ?? 0) > 0 ? <div className="green"><span>{o.discount_label || tr('خصم', 'Discount')}</span><span className="num">-{omr(o.discount)}</span></div> : null}
             <div className="total"><span>{tr('الإجمالي', 'Total')}</span><span className="num">{omr(o.total)}</span></div>
             {o.remaining > 0.0005 ? <div className="red"><span>{tr('المتبقي', 'Balance due')}</span><span className="num">{omr(o.remaining)}</span></div> : <div className="green"><span>{tr('مدفوع', 'Paid')}</span><span /></div>}
+            {o.pay_url && o.remaining > 0.0005 ? <a className="btn wide" href={o.pay_url}>{tr('ادفع الآن', 'Pay now')} · <span className="num">{omr(o.remaining)}</span></a> : null}
           </div>
           {o.tracking_token ? <a className="link small" href={`/track/?t=${o.tracking_token}`}>{tr('صفحة تتبع الطلب', 'Tracking page')}</a> : null}
         </div>

@@ -201,6 +201,7 @@ export interface MyOrder {
   total: number;
   paid: number;
   remaining: number;
+  pay_url?: string | null;
   payments: { amount: number; paid_on?: string | null }[];
   events: { type: string; at?: string | null }[];
 }
