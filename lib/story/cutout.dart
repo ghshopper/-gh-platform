@@ -120,13 +120,15 @@ _Out? _cut(_Job job) {
     // Shine and white rims on the piece are lighter than the backdrop:
     // keep them (unless the backdrop is pure white, where nothing is lighter).
     final bgLum = bg[0] * 0.3 + bg[1] * 0.59 + bg[2] * 0.11;
-    bool lighter(int i) => bgLum < 248 && p[i] * 0.3 + p[i + 1] * 0.59 + p[i + 2] * 0.11 > bgLum + 3;
+    bool lighter(int i) => bgLum < 248 && p[i] * 0.3 + p[i + 1] * 0.59 + p[i + 2] * 0.11 > bgLum + 5;
 
     void push(int x, int y) {
       final k = y * w + x;
       if (seen[k] != 0) return;
-      if (dist(k * 4) >= t2) return;
-      if (lighter(k * 4)) return;
+      final d = dist(k * 4);
+      if (d >= t2) return;
+      // backdrop noise is always taken; only clearly lighter pixels are kept
+      if (d > t1 && lighter(k * 4)) return;
       seen[k] = 1;
       queue[tail++] = k;
     }
