@@ -1,1 +1,22 @@
-sh: 1: expo: not found
+Starting Metro Bundler
+
+Android Bundling failed 20844ms node_modules/expo-router/entry.js (1460 modules)
+ ERROR  SyntaxError: /home/runner/work/-gh-platform/-gh-platform/app/(tabs)/account.tsx: Unexpected token, expected ":" (110:6)
+
+  108 |         );
+  109 |       })()
+> 110 |       ) : (
+      |       ^
+  111 |         <View style={{ marginHorizontal: S.gutter, marginTop: 16, padding: 22, backgroundColor: CARD, gap: 10 }}>
+  112 |           <T latin size={11} spacing={3} color={CARD_GOLD}>GH MEMBER</T>
+  113 |           <T size={18} w="medium" color={C.pure}>{tr('أهلاً بك في GH Shopper', 'Welcome to GH Shopper')}</T>
+
+SyntaxError: SyntaxError: /home/runner/work/-gh-platform/-gh-platform/app/(tabs)/account.tsx: Unexpected token, expected ":" (110:6)
+
+[0m [90m 108 |[39m         )[33m;[39m
+ [90m 109 |[39m       })()
+[31m[1m>[22m[39m[90m 110 |[39m       ) [33m:[39m (
+ [90m     |[39m       [31m[1m^[22m[39m
+ [90m 111 |[39m         [33m<[39m[33mView[39m style[33m=[39m{{ marginHorizontal[33m:[39m [33mS[39m[33m.[39mgutter[33m,[39m marginTop[33m:[39m [35m16[39m[33m,[39m padding[33m:[39m [35m22[39m[33m,[39m backgroundColor[33m:[39m [33mCARD[39m[33m,[39m gap[33m:[39m [35m10[39m }}[33m>[39m
+ [90m 112 |[39m           [33m<[39m[33mT[39m latin size[33m=[39m{[35m11[39m} spacing[33m=[39m{[35m3[39m} color[33m=[39m{[33mCARD_GOLD[39m}[33m>[39m[33mGH[39m [33mMEMBER[39m[33m<[39m[33m/[39m[33mT[39m[33m>[39m
+ [90m 113 |[39m           [33m<[39m[33mT[39m size[33m=[39m{[35m18[39m} w[33m=[39m[32m"medium"[39m color[33m=[39m{[33mC[39m[33m.[39mpure}[33m>[39m{tr([32m'أهلاً بك في GH Shopper'[39m[33m,[39m [32m'Welcome to GH Shopper'[39m)}[33m<[39m[33m/[39m[33mT[39m[33m>[39m[0m
