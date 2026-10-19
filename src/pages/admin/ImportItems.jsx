@@ -107,6 +107,12 @@ export default function ImportItems() {
     if (bmRef.current && key) bmRef.current.setAttribute('href', bookmarkletHref(apiBase(), key))
   }, [key, showHelp])
 
+  // Colours (not makeup shades) become one product each, linked together.
+  const colorCount = (it) => {
+    const a = (it.attributes || []).find((x) => x.type === 'color' && x.name_en !== 'Shade')
+    return a ? (a.values || []).length : 0
+  }
+  const splitOf = (it) => colorCount(it) >= 2 && (rows[it.id]?.split ?? true)
   const catOf = (id) => rows[id]?.category_id || items.find((x) => x.id === id)?.category_id || defaultCat
   const setRow = (id, patch) => setRows((r) => ({ ...r, [id]: { ...r[id], ...patch } }))
   const drop = (ids) => {
@@ -120,7 +126,7 @@ export default function ImportItems() {
     if (!catOf(it.id)) return toast.error('اختر التصنيف')
     setBusy((b) => ({ ...b, [it.id]: true }))
     try {
-      await api.post(`/admin/import-items/${it.id}/publish`, { price, category_id: Number(catOf(it.id)), availability })
+      await api.post(`/admin/import-items/${it.id}/publish`, { price, category_id: Number(catOf(it.id)), availability, split: splitOf(it) })
       toast.success('انضاف للمتجر')
       drop([it.id])
     } catch (e) {
@@ -161,7 +167,7 @@ export default function ImportItems() {
     try {
       const r = await api.post('/admin/import-items/publish', {
         availability,
-        items: ready.map((it) => ({ id: it.id, price: parseFloat(rows[it.id].price), category_id: Number(catOf(it.id)) })),
+        items: ready.map((it) => ({ id: it.id, price: parseFloat(rows[it.id].price), category_id: Number(catOf(it.id)), split: splitOf(it) })),
       })
       toast.success(`انضاف ${r.data.added} منتج للمتجر`)
       drop(Object.keys(r.data.products || {}).map(Number))
@@ -362,6 +368,12 @@ export default function ImportItems() {
                     <option value="">{defaultCat ? 'التصنيف العام' : 'التصنيف…'}</option>
                     {categories.map((c) => <option key={c.id} value={c.id}>{c.name_ar || c.name_en}</option>)}
                   </select>
+                  {colorCount(it) >= 2 && (
+                    <label className="imp-split">
+                      <input type="checkbox" checked={splitOf(it)} onChange={(e) => setRow(it.id, { split: e.target.checked })} />
+                      كل لون منتج لحاله ({colorCount(it)})، مربوطين
+                    </label>
+                  )}
                 </div>
                 <div className="imp-btns">
                   <button className="btn btn-primary btn-sm" disabled={busy[it.id]} onClick={() => publish(it)}>
@@ -412,6 +424,7 @@ const CSS = `
 .imp-dots i{width:16px;height:16px;border-radius:50%;background:var(--bg-body);border:1px solid var(--border);overflow:hidden;display:inline-block}
 .imp-dots i img{width:100%;height:100%;object-fit:cover}
 .imp-dots b{font-weight:600;font-size:11px}
+.imp-split{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-secondary);cursor:pointer}
 .imp select.imp-auto{border-color:#c9a25c;background:rgba(201,162,92,.08)}
 .imp-meta a{color:var(--color-primary);display:inline-flex;align-items:center;gap:3px;text-decoration:none}
 .imp-exist{margin-top:8px;font-size:12.5px;color:#8a6a2e;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
