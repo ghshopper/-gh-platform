@@ -30,12 +30,14 @@ import {
   RiLogoutBoxRLine,
   RiEdit2Line,
   RiCoupon3Line,
+  RiGiftLine,
 } from 'react-icons/ri'
 
 const navItems = [
   { label: 'الرئيسية',    icon: RiHome5Line, path: '/admin/dashboard' },
   { label: 'الطلبات', icon: RiShoppingBag3Line, path: '/admin/app-orders' },
   { label: 'كوبونات الخصم', icon: RiCoupon3Line, path: '/admin/coupons' },
+  { label: 'بطاقات الهدايا', icon: RiGiftLine, path: '/admin/gift-cards' },
   { label: 'العملاء',     icon: RiGroupLine, path: '/admin/customers' },
   { label: 'إرسال إشعارات', icon: RiNotification3Fill, path: '/admin/notify-users' },
   { 

@@ -22,6 +22,7 @@ import Login from './pages/admin/Login'
 import ProductRequests from './pages/admin/ProductRequests'
 import AppOrders from './pages/admin/AppOrders'
 import Coupons from './pages/admin/Coupons'
+import GiftCards from './pages/admin/GiftCards'
 import CustomizeApp from './pages/admin/CustomizeApp'
 import Profile from './pages/admin/Profile'
 import ImportItems from './pages/admin/ImportItems'
@@ -60,6 +61,7 @@ export default function App() {
           <Route path="store-orders" element={<Orders />} />
           <Route path="app-orders" element={<AppOrders />} />
           <Route path="coupons" element={<Coupons />} />
+          <Route path="gift-cards" element={<GiftCards />} />
           <Route path="products" element={<Products />} />
           <Route path="import-items" element={<ImportItems />} />
           <Route path="abandoned-carts" element={<AbandonedCarts />} />
