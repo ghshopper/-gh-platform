@@ -8,7 +8,7 @@ import { SITE_BASE } from '@/api';
 import { dateText, omr, waNumber } from '@/format';
 import { Icon } from '@/icons';
 import { useLang } from '@/lang';
-import { CARRIER, cachedOrder, cachedOrders, STATUS } from '@/orders';
+import { CARRIER, cachedOrder, cachedOrders, fetchMyOrders, STATUS } from '@/orders';
 import { C, S } from '@/theme';
 import { BrandText, Btn, Divider, Empty, Header, Photo, SummaryRow, T } from '@/ui';
 
@@ -30,6 +30,13 @@ export default function OrderDetail() {
   const customer = cachedOrders()?.customer;
   const [invoice, setInvoice] = useState(false);
   const [gallery, setGallery] = useState<{ url: string; caption: string }[] | null>(null);
+  const [, setTick] = useState(0);
+  // Pay what's left on the secure Amwal page, then refresh the order.
+  const pay = async (url: string) => {
+    await WebBrowser.openBrowserAsync(url);
+    await fetchMyOrders().catch(() => undefined);
+    setTick((t) => t + 1);
+  };
 
   if (!o) {
     return (
@@ -149,6 +156,12 @@ export default function OrderDetail() {
               ? <SummaryRow label={tr('المتبقي', 'Balance')} value={omr(o.remaining)} color={C.red} strong />
               : <SummaryRow label={tr('مدفوع بالكامل', 'Paid in full')} value="✓" color={C.green} />}
           </View>
+          {o.pay_url && o.remaining > 0 ? (
+            <View style={{ gap: 6, paddingTop: 14 }}>
+              <Btn icon="card" label={tr(`ادفع الآن · ${omr(o.remaining)}`, `Pay now · ${omr(o.remaining)}`)} onPress={() => pay(o.pay_url as string)} />
+              <T size={11.5} color={C.muted} center>{tr('بطاقة أو Apple Pay · دفع آمن عبر أموال', 'Card or Apple Pay · secure payment via Amwal')}</T>
+            </View>
+          ) : null}
         </View>
 
         {companyWa ? (

@@ -202,6 +202,8 @@ export interface MyOrder {
   total: number;
   paid: number;
   remaining: number;
+  /** Card / Apple Pay page for what's left (server makes it). */
+  pay_url?: string | null;
   payments: { amount: number; paid_on?: string | null }[];
   events: { type: string; at?: string | null }[];
 }
