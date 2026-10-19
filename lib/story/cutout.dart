@@ -120,26 +120,36 @@ _Out? _cut(_Job job) {
     // Shine and white rims on the piece are lighter than the backdrop:
     // keep them (unless the backdrop is pure white, where nothing is lighter).
     final bgLum = bg[0] * 0.3 + bg[1] * 0.59 + bg[2] * 0.11;
-    bool lighter(int i) => bgLum < 248 && p[i] * 0.3 + p[i + 1] * 0.59 + p[i + 2] * 0.11 > bgLum + 5;
+    bool lighter(int i) => bgLum < 248 && p[i] * 0.3 + p[i + 1] * 0.59 + p[i + 2] * 0.11 > bgLum + 3;
 
     void push(int x, int y) {
       final k = y * w + x;
       if (seen[k] != 0) return;
       final d = dist(k * 4);
       if (d >= t2) return;
-      // backdrop noise is always taken; only clearly lighter pixels are kept
-      if (d > t1 && lighter(k * 4)) return;
+      if (lighter(k * 4)) return;
       seen[k] = 1;
       queue[tail++] = k;
     }
 
-    for (var x = 0; x < w; x++) {
-      push(x, 0);
-      push(x, h - 1);
-    }
+    // The outer 2 pixels are often a white or dark line from the photo's
+    // edge: always backdrop. Start from just inside them.
     for (var y = 0; y < h; y++) {
-      push(0, y);
-      push(w - 1, y);
+      for (var x = 0; x < w; x++) {
+        if (x < 2 || y < 2 || x >= w - 2 || y >= h - 2) {
+          final k = y * w + x;
+          seen[k] = 1;
+          p[k * 4 + 3] = 0;
+        }
+      }
+    }
+    for (var x = 2; x < w - 2; x++) {
+      push(x, 2);
+      push(x, h - 3);
+    }
+    for (var y = 2; y < h - 2; y++) {
+      push(2, y);
+      push(w - 3, y);
     }
     while (head < tail) {
       final k = queue[head++];
