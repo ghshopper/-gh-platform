@@ -53,7 +53,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const t = await loadToken();
       if (t) {
         await refresh();
-        registerPushToken().catch(() => undefined);
       }
       setReady(true);
     })();

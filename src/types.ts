@@ -250,6 +250,8 @@ export interface AppNotification {
   body_en?: string | null;
   read_at?: string | null;
   created_at?: string | null;
+  type?: string | null;
+  data?: Record<string, string | number | null> | null;
 }
 
 export interface LoyaltyTier {

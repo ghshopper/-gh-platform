@@ -9,6 +9,7 @@ import { Jost_400Regular, Jost_500Medium } from '@expo-google-fonts/jost';
 import { useFonts } from 'expo-font';
 import { router, Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
+import * as WebBrowser from 'expo-web-browser';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
 import { View } from 'react-native';
@@ -20,7 +21,7 @@ import { AuthProvider, useAuth } from '@/auth';
 import { CartProvider } from '@/cart';
 import { LangProvider, useLang } from '@/lang';
 import { QuickAddHost, showToast } from '@/product-card';
-import { listenForPushes } from '@/push';
+import { listenForPushes, registerPushToken } from '@/push';
 import { BrandSplash } from '@/splash';
 import { C } from '@/theme';
 import { WishlistProvider } from '@/wishlist';
@@ -37,18 +38,29 @@ function Shell() {
     if (ready) SplashScreen.hideAsync().catch(() => undefined);
   }, [ready]);
 
-  // Order updates: tapping the notification opens My orders.
+  // Tapping a notification opens what it is about.
   useEffect(() => {
     if (!ready) return;
     return listenForPushes(
       (data) => {
         const t = data.type ?? '';
-        if (data.order_id || t.startsWith('order')) router.push('/orders');
+        if (data.product_id) router.push({ pathname: '/product/[id]', params: { id: data.product_id } });
+        else if (data.brand_id) router.push({ pathname: '/brand/[id]', params: { id: data.brand_id } });
+        else if (data.category_id) router.push({ pathname: '/products', params: { category_id: data.category_id } });
+        else if (data.url) WebBrowser.openBrowserAsync(data.url).catch(() => undefined);
+        else if (data.order_id || t.startsWith('order')) router.push('/orders');
         else router.push('/notifications');
       },
       (title, body) => showToast([title, body].filter(Boolean).join(' · '), false),
     );
   }, [ready]);
+
+  // After the splash, every phone (signed in or not) is asked once for notifications.
+  useEffect(() => {
+    if (!ready || !splashDone) return;
+    const t = setTimeout(() => registerPushToken().catch(() => undefined), 1200);
+    return () => clearTimeout(t);
+  }, [ready, splashDone]);
 
   return (
     // Arabic mirrors natively (see lang.tsx); `dir` is only a fallback.
