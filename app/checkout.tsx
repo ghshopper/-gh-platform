@@ -279,7 +279,7 @@ export default function Checkout() {
       const order = res?.data;
       if (order?.guest_token) await rememberGuestOrder(order.guest_token).catch(() => undefined);
       cart.clear();
-      router.replace({ pathname: '/order-placed', params: { number: order?.order_number ?? '', gift: gift ? giftName : '', paid: paidSure ? '1' : '' } });
+      router.replace({ pathname: '/order-placed', params: { number: order?.order_number ?? '', gift: gift ? giftName : '', paid: paidSure ? '1' : '', bank: realCode === 'bank_transfer' ? '1' : '' } });
     } catch (e) {
       Alert.alert(
         tr('ما قدرنا نرسل الطلب', 'Could not place the order'),
