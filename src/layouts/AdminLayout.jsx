@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { Outlet, NavLink, useLocation, useNavigate } from 'react-router-dom'
+import ghLogo from '../assets/gh-logo.png'
 import toast from 'react-hot-toast'
 import {
   RiHome5Line,
@@ -33,35 +34,41 @@ import {
   RiGiftLine,
 } from 'react-icons/ri'
 
-const navItems = [
-  { label: 'الرئيسية',    icon: RiHome5Line, path: '/admin/dashboard' },
-  { label: 'الطلبات', icon: RiShoppingBag3Line, path: '/admin/app-orders' },
-  { label: 'كوبونات الخصم', icon: RiCoupon3Line, path: '/admin/coupons' },
-  { label: 'بطاقات الهدايا', icon: RiGiftLine, path: '/admin/gift-cards' },
-  { label: 'العملاء',     icon: RiGroupLine, path: '/admin/customers' },
-  { label: 'إرسال إشعارات', icon: RiNotification3Fill, path: '/admin/notify-users' },
-  { 
-    label: 'كتالوج المنتجات', icon: RiShoppingBag3Line, 
-    subItems: [
-        { label: 'المنتجات', path: '/admin/products' },
-        { label: 'منتجات للإضافة', path: '/admin/import-items' },
-        { label: 'التصنيفات', path: '/admin/categories' },
-        { label: 'العلامات التجارية', path: '/admin/brands' },
-        { label: 'الخصائص (Attributes)', path: '/admin/attributes' },
-        { label: 'التقييمات', path: '/admin/reviews' }
-    ]
-  },
-  { label: 'الفواتير',    icon: RiBillLine, path: '/admin/invoices' },
-  { label: 'الشحن',       icon: RiTruckLine, path: '/admin/shipping' },
-  { label: 'المدفوعات',   icon: RiBankCardLine, path: '/admin/payments' },
-  { label: 'نظام الولاء', icon: RiStarSmileLine, path: '/admin/loyalty' },
-  { label: 'التقارير',    icon: RiBarChartBoxLine, path: '/admin/reports' },
-  { label: 'المستخدمون',  icon: RiUserSettingsLine, path: '/admin/users' },
-  { label: 'الإعدادات',   icon: RiSettings4Line, path: '/admin/settings' },
-  { label: 'طلبات المنتجات', icon: RiSearchFill, path: '/admin/product-requests' },
-  { label: 'سلات متروكة', icon: RiShoppingBag3Line, path: '/admin/abandoned-carts' },
-  { label: 'تخصيص التطبيق', icon: RiSmartphoneLine, path: '/admin/customize-app' },
+// Sidebar, grouped the way the work flows: sell → products → customers → store.
+const navSections = [
+  { items: [{ label: 'الرئيسية', icon: RiHome5Line, path: '/admin/dashboard' }] },
+  { title: 'البيع', items: [
+    { label: 'الطلبات', icon: RiShoppingBag3Line, path: '/admin/app-orders' },
+    { label: 'طلبات القطع', icon: RiSearchFill, path: '/admin/product-requests' },
+    { label: 'السلات المتروكة', icon: RiShoppingBag3Line, path: '/admin/abandoned-carts' },
+    { label: 'الفواتير', icon: RiBillLine, path: '/admin/invoices' },
+    { label: 'المدفوعات', icon: RiBankCardLine, path: '/admin/payments' },
+  ] },
+  { title: 'المنتجات', items: [
+    { label: 'المنتجات', icon: RiShoppingBag3Line, path: '/admin/products' },
+    { label: 'منتجات للإضافة', icon: RiSearchFill, path: '/admin/import-items' },
+    { label: 'التصنيفات', icon: RiBillLine, path: '/admin/categories' },
+    { label: 'البراندات', icon: RiStarSmileLine, path: '/admin/brands' },
+    { label: 'الخصائص', icon: RiSettings4Line, path: '/admin/attributes' },
+    { label: 'التقييمات', icon: RiStarSmileLine, path: '/admin/reviews' },
+  ] },
+  { title: 'العملاء', items: [
+    { label: 'العملاء', icon: RiGroupLine, path: '/admin/customers' },
+    { label: 'نظام الولاء', icon: RiStarSmileLine, path: '/admin/loyalty' },
+    { label: 'كوبونات الخصم', icon: RiCoupon3Line, path: '/admin/coupons' },
+    { label: 'بطاقات الهدايا', icon: RiGiftLine, path: '/admin/gift-cards' },
+    { label: 'إرسال إشعارات', icon: RiNotification3Fill, path: '/admin/notify-users' },
+  ] },
+  { title: 'المتجر', items: [
+    { label: 'واجهة التطبيق', icon: RiSmartphoneLine, path: '/admin/customize-app' },
+    { label: 'الشحن', icon: RiTruckLine, path: '/admin/shipping' },
+    { label: 'التقارير', icon: RiBarChartBoxLine, path: '/admin/reports' },
+    { label: 'المستخدمون', icon: RiUserSettingsLine, path: '/admin/users' },
+    { label: 'الإعدادات', icon: RiSettings4Line, path: '/admin/settings' },
+  ] },
 ]
+// Kept for the header search and older code paths.
+const navItems = navSections.flatMap((s) => s.items)
 
 export default function AdminLayout() {
   const [isCollapsed, setIsCollapsed] = useState(false)
@@ -313,85 +320,30 @@ export default function AdminLayout() {
 
       {/* Sidebar - Appears on Right in RTL (DOM Order 1) */}
       <aside className={`sidebar-dark ${isCollapsed ? 'collapsed' : ''}`}>
-        <div className="sidebar-logo" style={{ padding: isCollapsed ? '32px 0' : '32px 24px', textAlign: 'center' }}>
-          <h2 className="logo-text" style={{ margin: 0, fontWeight: 700, fontFamily: '"Cormorant Garamond", serif', lineHeight: 1.1 }}>
-            <span style={{ color: 'var(--color-gold-light)', fontSize: isCollapsed ? '28px' : '42px' }}>GH</span>
-            {!isCollapsed && (
-              <>
-                <br/>
-                <span style={{ color: 'var(--color-gold-light)', fontSize: '12px', fontWeight: 600, letterSpacing: '3px' }}>SHOPPER</span>
-              </>
-            )}
-          </h2>
+        <div className="sidebar-logo">
+          <img src={ghLogo} alt="GH Shopper" className={isCollapsed ? 'small' : ''} />
         </div>
 
         <nav className="sidebar-nav">
-          {navItems.map((item) => {
-            const Icon = item.icon
-            
-            if (item.subItems) {
-              const isOpen = openGroups[item.label]
-              const isGroupActive = item.subItems.some(sub => location.pathname.includes(sub.path))
-              return (
-                <div key={item.label} className="nav-item-group" style={{ marginBottom: '8px' }}>
-                  <div 
-                    className={`nav-item-dark ${isGroupActive ? 'active' : ''}`} 
-                    style={{ cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} 
-                    onClick={() => toggleGroup(item.label)}
+          {navSections.map((sec, i) => (
+            <div key={sec.title || i} className="nav-section">
+              {sec.title && !isCollapsed ? <div className="nav-section-title">{sec.title}</div> : null}
+              {sec.items.map((item) => {
+                const Icon = item.icon
+                return (
+                  <NavLink
+                    key={item.path}
+                    to={item.path}
+                    className={({ isActive }) => `nav-item-dark ${isActive ? 'active' : ''}`}
                     title={isCollapsed ? item.label : ''}
                   >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                      <Icon className="nav-icon" size={20} style={{ color: isGroupActive ? 'var(--color-gold)' : 'inherit' }} />
-                      {!isCollapsed && <span className="nav-label" style={{ color: isGroupActive ? '#fff' : 'inherit' }}>{item.label}</span>}
-                    </div>
-                    {!isCollapsed && (
-                      <span className="expand-icon" style={{ opacity: 0.7 }}>
-                        {isOpen ? <RiArrowDownSLine size={16} /> : <RiArrowLeftSLine size={16} />}
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Submenu */}
-                  {isOpen && !isCollapsed && (
-                    <div className="submenu" style={{ paddingRight: '36px', display: 'flex', flexDirection: 'column', gap: '4px', marginTop: '4px' }}>
-                      {item.subItems.map((sub) => (
-                        <NavLink
-                          key={sub.path}
-                          to={sub.path}
-                          className={({ isActive }) => `submenu-item ${isActive ? 'active' : ''}`}
-                          style={({ isActive }) => ({
-                            color: isActive ? 'var(--color-gold)' : 'rgba(255,255,255,0.7)',
-                            fontSize: '13px',
-                            padding: '8px 12px',
-                            borderRadius: '8px',
-                            display: 'block',
-                            textDecoration: 'none',
-                            transition: 'all 0.2s',
-                            backgroundColor: isActive ? 'rgba(181, 145, 95, 0.15)' : 'transparent',
-                            fontWeight: isActive ? '600' : 'normal',
-                          })}
-                        >
-                          {sub.label}
-                        </NavLink>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )
-            }
-
-            return (
-              <NavLink
-                key={item.path}
-                to={item.path}
-                className={({ isActive }) => `nav-item-dark ${isActive ? 'active' : ''}`}
-                title={isCollapsed ? item.label : ''}
-              >
-                <Icon className="nav-icon" size={20} />
-                {!isCollapsed && <span className="nav-label">{item.label}</span>}
-              </NavLink>
-            )
-          })}
+                    <Icon className="nav-icon" size={18} />
+                    {!isCollapsed && <span className="nav-label">{item.label}</span>}
+                  </NavLink>
+                )
+              })}
+            </div>
+          ))}
         </nav>
 
         <div className="sidebar-user" style={{ justifyContent: isCollapsed ? 'center' : 'flex-start', padding: isCollapsed ? '24px 0' : '24px', display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>

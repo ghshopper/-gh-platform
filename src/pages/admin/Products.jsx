@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
+import { Link } from 'react-router-dom'
 import {
+  RiDownloadCloud2Line,
   RiAddLine, RiSearchLine, RiPencilLine, RiDeleteBinLine,
   RiUpload2Line, RiVideoLine, RiSaveLine, RiCloseLine,
   RiImageAddLine, RiArrowLeftLine, RiMagicLine
@@ -788,19 +790,20 @@ export default function Products() {
   // =================== LIST VIEW ===================
   return (
     <div className="page-inner" style={{ padding: '32px', maxWidth: 1400, margin: '0 auto' }}>
-      <div className="flex-mobile-col" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 32 }}>
+      <div className="flex-mobile-col" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: 12, marginBottom: 20 }}>
         <div>
-          <h1 className="page-title-main" style={{ fontSize: 28, fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>المنتجات</h1>
-          <p style={{ color: '#9CA3AF', fontSize: 14, marginTop: 4 }}>{products.length} منتج في الكتالوج</p>
+          <h1 className="page-title-main" style={{ margin: 0 }}>المنتجات</h1>
+          <p style={{ color: 'var(--text-secondary)', fontSize: 14, marginTop: 4 }}>{totalItems || products.length} منتج في المتجر</p>
         </div>
         <div className="flex-mobile-col flex-wrap" style={{ display: 'flex', gap: '12px' }}>
-          <button onClick={() => { setIsAiModalOpen(true) }}
-            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, background: 'linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%)', color: '#fff', border: 'none', borderRadius: 10, padding: '12px 24px', fontSize: 14, fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 12px rgba(109, 40, 217, 0.3)' }}>
-            <RiMagicLine size={18} /> إضافة عبر رابط (AI)
+          <Link to="/admin/import-items" className="btn btn-ghost" style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+            <RiDownloadCloud2Line size={17} /> من مواقع البراندات
+          </Link>
+          <button className="btn btn-ghost" onClick={() => { setIsAiModalOpen(true) }} style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+            <RiMagicLine size={17} /> من رابط واحد
           </button>
-          <button onClick={() => { setFormData(emptyForm); setImgPreview(''); setEditingProduct(null); setView('add') }}
-            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, background: 'var(--color-primary)', color: '#fff', border: 'none', borderRadius: 10, padding: '12px 24px', fontSize: 14, fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 12px rgba(74,13,23,0.25)' }}>
-            <RiAddLine size={18} /> إضافة يدوية
+          <button className="btn btn-primary" onClick={() => { setFormData(emptyForm); setImgPreview(''); setEditingProduct(null); setView('add') }} style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+            <RiAddLine size={17} /> منتج جديد
           </button>
         </div>
       </div>
@@ -813,16 +816,16 @@ export default function Products() {
       />
 
       {/* Filters */}
-      <div className="filters-row flex-mobile-col" style={{ background: '#fff', borderRadius: 12, padding: '16px 20px', marginBottom: 24, boxShadow: '0 2px 8px rgba(0,0,0,0.04)', display: 'flex', alignItems: 'center', gap: 16, border: '1px solid #F3F4F6' }}>
+      <div className="filters-row flex-mobile-col" style={{ background: '#fff', borderRadius: 14, padding: '10px 14px', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 10, border: '1px solid var(--border)' }}>
         <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 12 }}>
           <RiSearchLine size={20} color="#9CA3AF" />
           <input value={searchQuery} onChange={e => setSearchQuery(e.target.value)} style={{ flex: 1, border: 'none', outline: 'none', fontSize: 14, background: 'transparent' }} placeholder="بحث عن منتج..." />
         </div>
-        <select value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)} style={{ padding: '9px 14px', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 13, fontFamily: 'inherit', background: '#FAFAFA', outline: 'none' }}>
+        <select value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)} style={{ padding: '8px 12px', border: '1px solid var(--border)', borderRadius: 10, fontSize: 13, fontFamily: 'inherit', background: '#fff', outline: 'none' }}>
           <option value="all">كل التصنيفات</option>
           {categories.map(c => <option key={c.id} value={c.id}>{c.name_ar}</option>)}
         </select>
-        <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} style={{ padding: '9px 14px', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 13, fontFamily: 'inherit', background: '#FAFAFA', outline: 'none' }}>
+        <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} style={{ padding: '8px 12px', border: '1px solid var(--border)', borderRadius: 10, fontSize: 13, fontFamily: 'inherit', background: '#fff', outline: 'none' }}>
           <option value="all">كل الحالات</option>
           <option value="1">نشط</option>
           <option value="0">مسودة</option>
@@ -857,7 +860,7 @@ export default function Products() {
       )}
 
       {/* Table */}
-      <div className="table-container" style={{ background: '#fff', borderRadius: 16, boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1px solid #F3F4F6' }}>
+      <div className="table-container" style={{ background: '#fff' }}>
         {loading ? (
           <div style={{ textAlign: 'center', padding: 80, color: '#9CA3AF' }}>جاري التحميل...</div>
         ) : (

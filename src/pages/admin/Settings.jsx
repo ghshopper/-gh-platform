@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import axios from 'axios'
+import api from '../../services/api'
 import toast from 'react-hot-toast'
 import { adminApi } from '../../services/adminApi'
 import {
@@ -241,7 +241,7 @@ export default function Settings() {
 
   const fetchLanguages = async () => {
     try {
-      const res = await axios.get('/api/admin/languages')
+      const res = await api.get('/admin/languages')
       setLanguages(Array.isArray(res.data) ? res.data : (res.data.data || []))
       setIsLoading(false)
     } catch (err) {
@@ -275,7 +275,7 @@ export default function Settings() {
   const handleAddLanguage = async (e) => {
     e.preventDefault()
     try {
-      await axios.post('/api/admin/languages', newLang)
+      await api.post('/admin/languages', newLang)
       toast.success('Language added successfully')
       fetchLanguages()
       setNewLang({ code: '', name: '', is_rtl: false, is_active: true })
@@ -286,7 +286,7 @@ export default function Settings() {
 
   const toggleLanguageStatus = async (id, currentStatus) => {
     try {
-      await axios.put(`/api/admin/languages/${id}`, { is_active: !currentStatus })
+      await api.put(`/admin/languages/${id}`, { is_active: !currentStatus })
       toast.success('Status updated')
       fetchLanguages()
     } catch (err) {
@@ -296,7 +296,7 @@ export default function Settings() {
 
   const toggleLanguageDirection = async (id, currentRtl) => {
     try {
-      await axios.put(`/api/admin/languages/${id}`, { is_rtl: !currentRtl })
+      await api.put(`/admin/languages/${id}`, { is_rtl: !currentRtl })
       toast.success('Direction updated')
       fetchLanguages()
     } catch (err) {
@@ -307,7 +307,7 @@ export default function Settings() {
   const deleteLanguage = async (id) => {
     if (!window.confirm('Are you sure?')) return
     try {
-      await axios.delete(`/api/admin/languages/${id}`)
+      await api.delete(`/admin/languages/${id}`)
       toast.success('Language deleted')
       fetchLanguages()
     } catch (err) {

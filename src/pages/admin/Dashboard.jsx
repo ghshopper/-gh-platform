@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
+import api from '../../services/api'
 import { useNavigate } from 'react-router-dom'
 import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell
+  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from 'recharts'
 import {
   RiBankCardLine,
@@ -22,7 +22,11 @@ import {
   RiBarChartGroupedLine,
   RiArrowRightSLine,
   RiArrowLeftSLine,
-  RiRefreshLine
+  RiRefreshLine,
+  RiSearchLine,
+  RiDownloadCloud2Line,
+  RiGiftLine,
+  RiArrowLeftLine,
 } from 'react-icons/ri'
 import OmrSymbol from '../../components/OmrSymbol'
 import { adminApi } from '../../services/adminApi'
@@ -33,7 +37,7 @@ const CustomTooltip = ({ active, payload, label }) => {
     return (
       <div style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: 10, padding: '12px 16px', boxShadow: '0 8px 24px rgba(0,0,0,0.1)' }}>
         <p style={{ fontSize: 13, color: '#6B7280', marginBottom: 6, fontWeight: 500 }}>{label}</p>
-        <p style={{ fontSize: 16, fontWeight: 700, color: '#4A0D17', fontFamily: 'Outfit, sans-serif', display: 'flex', alignItems: 'center', gap: '4px' }}>
+        <p style={{ fontSize: 16, fontWeight: 700, color: '#111', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '4px' }}>
           <span style={{ fontSize: 11, fontWeight: 700 }}>OMR</span>
           {payload[0].value.toLocaleString()}
         </p>
@@ -103,8 +107,24 @@ export default function Dashboard() {
     }
   }
 
+  // Things that wait for you (each one links to its page).
+  const [todo, setTodo] = useState({ requests: 0, imports: 0, gifts: 0 })
+  const fetchTodo = async () => {
+    const [r, i, g] = await Promise.allSettled([
+      api.get('/admin/product-requests/stats'),
+      api.get('/admin/import-items'),
+      api.get('/admin/gift-cards'),
+    ])
+    setTodo({
+      requests: r.status === 'fulfilled' ? (r.value.data?.data?.pending || 0) : 0,
+      imports: i.status === 'fulfilled' ? (i.value.data?.counts?.pending || 0) : 0,
+      gifts: g.status === 'fulfilled' ? (g.value.data?.totals?.pending || 0) : 0,
+    })
+  }
+
   useEffect(() => {
     fetchDashboardStats()
+    fetchTodo()
   }, [])
 
   const checkScroll = () => {
@@ -216,251 +236,194 @@ export default function Dashboard() {
     }
   }
 
+  const user = (() => { try { return JSON.parse(localStorage.getItem('user') || '{}') } catch { return {} } })()
+  const first = (user.name || '').trim().split(' ')[0]
+  const hour = new Date().getHours()
+  const hello = hour < 12 ? 'صباح الخير' : 'مساء الخير'
+  const omr3 = (v) => Number(v || 0).toLocaleString('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 })
+  const kpis = statsCards.slice(0, 4)
+  const statusTotal = statusList.reduce((a, s) => a + s.count, 0) || 1
+  const todoList = [
+    { n: stats.pending_orders || 0, label: 'طلبات قيد التنفيذ', to: '/admin/app-orders', icon: RiTimerLine },
+    { n: todo.requests, label: 'طلبات قطع جديدة', to: '/admin/product-requests', icon: RiSearchLine },
+    { n: todo.imports, label: 'منتجات تنتظر سعر', to: '/admin/import-items', icon: RiDownloadCloud2Line },
+    { n: todo.gifts, label: 'بطاقات هدايا تنتظر الدفع', to: '/admin/gift-cards', icon: RiGiftLine },
+  ]
+
   return (
-    <div className="page" dir="rtl">
-      {/* Header */}
-      <div className="dashboard-header flex flex-mobile-col justify-between items-center mb-8">
+    <div className="page-inner dash" dir="rtl">
+      <style>{DASH_CSS}</style>
+      <div className="dash-head">
         <div>
-          <h1 className="text-2xl font-bold mb-2 flex items-center gap-2">
-            مرحباً غسان <span className="wave-emoji">👋</span>
-          </h1>
-          <p className="text-gray-500">إليك نظرة عامة على أداء متجرك اليوم، لنجعل اليوم رائعاً!</p>
+          <div className="dash-kicker">{new Date().toLocaleDateString('ar-OM-u-nu-latn', { weekday: 'long', day: 'numeric', month: 'long' })}</div>
+          <h1 className="page-title-main">{hello}{first ? `، ${first}` : ''}</h1>
         </div>
-        <button
-          onClick={fetchDashboardStats}
-          className="p-2.5 bg-white hover:bg-gray-50 rounded-xl text-gray-600 transition-all border border-gray-200 shadow-sm flex items-center gap-2 text-xs font-bold"
-        >
-          <RiRefreshLine size={16} className={loading ? 'animate-spin' : ''} />
-          تحديث الإحصائيات
+        <button onClick={() => { fetchDashboardStats(); fetchTodo() }} className="btn btn-ghost btn-sm">
+          <RiRefreshLine size={15} className={loading ? 'animate-spin' : ''} /> تحديث
         </button>
       </div>
 
-      {/* ====== Stat Cards with Carousel Arrows ====== */}
-      <div className="stats-carousel-wrapper" style={{ position: 'relative', marginBottom: '32px' }}>
-        {canScrollRight && (
-          <button className="carousel-arrow right-arrow" onClick={() => scroll('right')}>
-            <RiArrowRightSLine size={24} />
-          </button>
-        )}
-        
-        <div className="stats-grid-scrollable" ref={scrollRef} onScroll={checkScroll}>
-          {statsCards.map((s, i) => {
-            const Icon = s.icon
-            return (
-              <div className="stat-card-new" key={i}>
-                {/* Right Side - Text Content */}
-                <div className="stat-content-right">
-                  <div className="stat-label-new">{s.label}</div>
-                  <div className="stat-value-row">
-                    {s.currency && <span className="stat-currency-new">{s.currency}</span>}
-                    <span className="stat-number-new font-mono">{s.value}</span>
-                  </div>
-                  <div className="stat-change-row">
-                    <div className="stat-change-text-new">عن الفترة السابقة</div>
-                    <div className={`stat-change-badge-new ${s.dir}`}>
-                      <span dir="ltr">{s.dir === 'up' ? '+' : '-'}{s.change.replace(/[+-]/g, '')}</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Left Side - Icon */}
-                <div className={`stat-icon-left ${s.iconClass}`}>
-                  <Icon size={20} className="inner-icon" />
-                </div>
-              </div>
-            )
-          })}
-        </div>
-
-        {canScrollLeft && (
-          <button className="carousel-arrow left-arrow" onClick={() => scroll('left')}>
-            <RiArrowLeftSLine size={24} />
-          </button>
-        )}
+      {/* Waiting for you */}
+      <div className="dash-todo">
+        {todoList.map((t) => {
+          const Icon = t.icon
+          return (
+            <button key={t.label} className={`dash-todo-item${t.n ? ' on' : ''}`} onClick={() => navigate(t.to)}>
+              <Icon size={18} />
+              <span className="dash-todo-n">{t.n}</span>
+              <span className="dash-todo-l">{t.label}</span>
+              <RiArrowLeftLine size={15} className="dash-todo-go" />
+            </button>
+          )
+        })}
       </div>
 
-      {/* ====== Charts Row ====== */}
-      <div className="charts-grid">
-        {/* Line Chart */}
-        <div className="card">
-          <div className="card-header">
-            <span className="card-title">تطور المبيعات</span>
-            <select className="input" style={{ width: 130, height: 36, padding: '4px 12px' }}>
-              <option>آخر 14 يوم</option>
-              <option>هذا الشهر</option>
-              <option>هذا العام</option>
-            </select>
+      {/* Key numbers */}
+      <div className="dash-kpis">
+        {kpis.map((s) => (
+          <div key={s.label} className="dash-kpi">
+            <div className="dash-kpi-l">{s.label}</div>
+            <div className="dash-kpi-v">{s.value}{s.currency ? <small> ر.ع</small> : null}</div>
+            <div className={`dash-kpi-c ${s.dir}`}><span dir="ltr">{s.change}</span> عن الشهر الماضي</div>
           </div>
-          <div className="card-body" style={{ paddingTop: 16 }}>
-            <ResponsiveContainer width="100%" height={240}>
-              <LineChart data={salesChart.length > 0 ? salesChart : [{ date: 'اليوم', value: stats.total_revenue }]} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" vertical={false} />
-                <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#9CA3AF', fontFamily: 'Tajawal' }} dy={10} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#9CA3AF', fontFamily: 'Tajawal' }} dx={-10} />
-                <Tooltip content={<CustomTooltip />} cursor={{ stroke: 'rgba(74, 13, 23, 0.1)', strokeWidth: 2 }} />
-                <Line
-                  type="monotone"
-                  dataKey="value"
-                  stroke="#4A0D17"
-                  strokeWidth={3}
-                  dot={{ fill: '#fff', r: 5, strokeWidth: 2, stroke: '#4A0D17' }}
-                  activeDot={{ r: 8, fill: '#B5915F', stroke: '#fff', strokeWidth: 2 }}
-                />
-              </LineChart>
+        ))}
+      </div>
+
+      <div className="dash-grid">
+        <div className="card dash-chart">
+          <div className="card-header"><span className="card-title">المبيعات · آخر 14 يوم</span></div>
+          <div className="card-body" style={{ paddingTop: 12 }}>
+            <ResponsiveContainer width="100%" height={250}>
+              <AreaChart data={salesChart.length > 0 ? salesChart : [{ date: 'اليوم', value: Number(stats.total_revenue) || 0 }]} margin={{ top: 8, right: 8, left: -14, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="ghArea" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#5C0B16" stopOpacity={0.16} />
+                    <stop offset="100%" stopColor="#5C0B16" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid stroke="#F0EEEA" vertical={false} />
+                <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#9A958F' }} dy={8} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#9A958F' }} width={56} />
+                <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#E9E6E1' }} />
+                <Area type="monotone" dataKey="value" stroke="#5C0B16" strokeWidth={2} fill="url(#ghArea)" dot={false} activeDot={{ r: 5, fill: '#5C0B16', stroke: '#fff', strokeWidth: 2 }} />
+              </AreaChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        {/* Pie Chart */}
-        <div className="card">
-          <div className="card-header">
-            <span className="card-title">توزيع المبيعات حسب الأقسام</span>
-            <button onClick={() => navigate('/admin/reports')} className="btn btn-ghost btn-sm">تقرير</button>
-          </div>
-          <div className="card-body flex flex-col items-center">
-            <ResponsiveContainer width="100%" height={180}>
-              <PieChart>
-                <Pie
-                  data={categorySales.length > 0 ? categorySales : [{ name: 'المنتجات', value: 100, color: '#4A0D17' }]}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={65}
-                  outerRadius={85}
-                  paddingAngle={4}
-                  dataKey="value"
-                  stroke="none"
-                >
-                  {categorySales.map((entry, index) => (
-                    <Cell key={index} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip formatter={(val) => `${val}%`} contentStyle={{ borderRadius: 8, border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} />
-              </PieChart>
-            </ResponsiveContainer>
-            
-            <div className="w-full mt-4" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px 12px' }}>
-              {categorySales.map((p, i) => (
-                <div key={i} className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div style={{ width: 10, height: 10, borderRadius: '50%', background: p.color }} />
-                    <span style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 500 }}>{p.name}</span>
-                  </div>
-                  <span style={{ fontSize: 13, fontWeight: 700 }}>{p.value}%</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Order Status */}
-        <div className="card">
-          <div className="card-header">
-            <span className="card-title">حالة الطلبات</span>
-          </div>
+        <div className="card dash-status">
+          <div className="card-header"><span className="card-title">حالة طلبات المتجر</span></div>
           <div className="card-body">
-            {statusList.map((s, i) => {
-              const Icon = s.icon
-              return (
-                <div key={i} className="flex items-center justify-between" style={{ marginBottom: 18 }}>
-                  <div className="flex items-center gap-3">
-                    <div style={{ width: 36, height: 36, borderRadius: 10, background: 'var(--bg-body)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: s.color }}>
-                      <Icon size={18} />
-                    </div>
-                    <span style={{ fontSize: 13.5, color: 'var(--text-secondary)', fontWeight: 500 }}>{s.label}</span>
+            {statusList.map((s) => (
+              <div key={s.label} className="dash-bar">
+                <div className="dash-bar-top"><span>{s.label}</span><b>{s.count}</b></div>
+                <div className="dash-bar-track"><i style={{ width: `${Math.round((s.count / statusTotal) * 100)}%`, background: s.color }} /></div>
+              </div>
+            ))}
+            {categorySales.length ? (
+              <>
+                <div className="dash-sub-title">حسب القسم</div>
+                {categorySales.slice(0, 5).map((c) => (
+                  <div key={c.name} className="dash-bar">
+                    <div className="dash-bar-top"><span>{c.name}</span><b>{c.value}%</b></div>
+                    <div className="dash-bar-track"><i style={{ width: `${c.value}%`, background: '#A88443' }} /></div>
                   </div>
-                  <span style={{ fontSize: 18, fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'Outfit' }}>{s.count}</span>
-                </div>
-              )
-            })}
+                ))}
+              </>
+            ) : null}
           </div>
         </div>
       </div>
 
-      {/* ====== Bottom Row ====== */}
-      <div className="dashboard-bottom">
-        {/* Recent Orders Table */}
+      <div className="dash-grid">
         <div className="card mb-0">
           <div className="card-header">
-            <span className="card-title">آخر الطلبات المستلمة</span>
-            <button onClick={() => navigate('/admin/app-orders')} className="btn btn-ghost btn-sm">عرض كل الطلبات</button>
+            <span className="card-title">آخر طلبات المتجر</span>
+            <button onClick={() => navigate('/admin/app-orders')} className="btn btn-ghost btn-sm">كل الطلبات</button>
           </div>
-          <div className="table-wrap">
+          <div className="dash-table">
             <table>
-              <thead>
-                <tr>
-                  <th>رقم الطلب</th>
-                  <th>العميل</th>
-                  <th>المبلغ</th>
-                  <th>الحالة</th>
-                </tr>
-              </thead>
+              <thead><tr><th>الطلب</th><th>العميل</th><th>المبلغ</th><th>الحالة</th></tr></thead>
               <tbody>
                 {recentOrders.length === 0 ? (
-                  <tr>
-                    <td colSpan="4" className="text-center py-6 text-gray-400">لا توجد طلبات حديثة</td>
-                  </tr>
-                ) : (
-                  recentOrders.map((o) => {
-                    const badge = getStatusBadge(o.status)
-                    return (
-                      <tr key={o.id} onClick={() => navigate('/admin/app-orders')} className="cursor-pointer hover:bg-amber-50/20">
-                        <td style={{ fontWeight: 700, color: 'var(--color-primary)' }} className="font-mono">{o.order_number}</td>
-                        <td style={{ fontWeight: 500 }}>{o.customer ? o.customer.name : (o.shipping_address?.name || 'زائر (Guest)')}</td>
-                        <td style={{ fontWeight: 700, fontFamily: 'Outfit' }}>
-                          <div className="flex items-center gap-1">
-                            <OmrSymbol size={13} primaryColor="#4A0D17" secondaryColor="#B5915F" />
-                            <span className="font-mono">{parseFloat(o.total_amount).toFixed(3)}</span>
-                          </div>
-                        </td>
-                        <td>
-                          <span className={`badge ${badge.className}`}>{badge.label}</span>
-                        </td>
-                      </tr>
-                    )
-                  })
-                )}
+                  <tr><td colSpan="4" style={{ textAlign: 'center', color: 'var(--text-light)', padding: 28 }}>ما في طلبات للحين</td></tr>
+                ) : recentOrders.map((o) => {
+                  const badge = getStatusBadge(o.status)
+                  return (
+                    <tr key={o.id} onClick={() => navigate('/admin/app-orders')} style={{ cursor: 'pointer' }}>
+                      <td className="dash-mono">{o.order_number}</td>
+                      <td>{o.customer ? o.customer.name : (o.shipping_address?.name || o.guest_name || 'زائر')}</td>
+                      <td className="dash-mono">{omr3(o.total_amount)}</td>
+                      <td><span className={`badge ${badge.className}`}>{badge.label}</span></td>
+                    </tr>
+                  )
+                })}
               </tbody>
             </table>
           </div>
         </div>
 
-        {/* Quick Actions */}
-        <div className="card mb-0">
-          <div className="card-header">
-            <span className="card-title">إجراءات سريعة</span>
-          </div>
-          <div className="card-body grid-2">
-            <button
-              onClick={() => navigate('/admin/products')}
-              className="btn btn-primary w-full"
-              style={{ justifyContent: 'flex-start', height: 48 }}
-            >
-              <RiAddLine size={20} /> إضافة منتج جديد
-            </button>
-            <button
-              onClick={() => navigate('/admin/invoices')}
-              className="btn btn-gold w-full"
-              style={{ justifyContent: 'flex-start', height: 48 }}
-            >
-              <RiBillLine size={20} /> إنشاء فاتورة
-            </button>
-            <button
-              onClick={() => navigate('/admin/customers')}
-              className="btn btn-outline w-full"
-              style={{ justifyContent: 'flex-start', height: 48 }}
-            >
-              <RiUserAddLine size={20} /> إدارة العملاء
-            </button>
-            <button
-              onClick={() => navigate('/admin/reports')}
-              className="btn btn-ghost w-full"
-              style={{ justifyContent: 'flex-start', height: 48 }}
-            >
-              <RiBarChartGroupedLine size={20} /> تقرير المبيعات التفصيلي
-            </button>
+        <div className="card mb-0 dash-quick">
+          <div className="card-header"><span className="card-title">اختصارات</span></div>
+          <div className="card-body">
+            {[
+              { label: 'إضافة منتج', to: '/admin/products', icon: RiAddLine },
+              { label: 'منتجات من مواقع البراندات', to: '/admin/import-items', icon: RiDownloadCloud2Line },
+              { label: 'إصدار بطاقة هدية', to: '/admin/gift-cards', icon: RiGiftLine },
+              { label: 'العملاء', to: '/admin/customers', icon: RiUserAddLine },
+              { label: 'الفواتير', to: '/admin/invoices', icon: RiBillLine },
+              { label: 'التقارير', to: '/admin/reports', icon: RiBarChartGroupedLine },
+            ].map((q) => {
+              const Icon = q.icon
+              return (
+                <button key={q.label} onClick={() => navigate(q.to)} className="dash-quick-item">
+                  <Icon size={18} /><span>{q.label}</span><RiArrowLeftLine size={14} className="dash-todo-go" />
+                </button>
+              )
+            })}
           </div>
         </div>
       </div>
     </div>
   )
 }
+
+const DASH_CSS = `
+.dash-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:18px}
+.dash-kicker{font-size:13px;color:var(--text-secondary);margin-bottom:4px}
+.dash .btn{display:inline-flex;align-items:center;gap:6px}
+.dash-todo{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.dash-todo-item{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--border);border-radius:12px;padding:12px 14px;color:var(--text-secondary);text-align:start;font:inherit;cursor:pointer;transition:border-color .15s}
+.dash-todo-item:hover{border-color:#CFCAC3}
+.dash-todo-item.on{color:var(--ink);border-color:#E6D3B0;background:#FFFCF6}
+.dash-todo-item.on svg:first-child{color:var(--accent)}
+.dash-todo-n{font-size:20px;font-weight:700;min-width:22px}
+.dash-todo-l{flex:1;font-size:13px}
+.dash-todo-go{opacity:.4}
+.dash-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.dash-kpi{background:#fff;border:1px solid var(--border);border-radius:14px;padding:16px 18px}
+.dash-kpi-l{font-size:12.5px;color:var(--text-secondary)}
+.dash-kpi-v{font-size:26px;font-weight:700;margin-top:6px;letter-spacing:-.3px}
+.dash-kpi-v small{font-size:13px;font-weight:500;color:var(--text-secondary)}
+.dash-kpi-c{font-size:12px;color:var(--text-secondary);margin-top:4px}
+.dash-kpi-c span{font-weight:600}
+.dash-kpi-c.up span{color:#15803D}
+.dash-kpi-c.down span{color:#B42318}
+.dash-grid{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:14px;margin-bottom:14px}
+.dash-grid .card{margin-bottom:0}
+.dash-bar{margin-bottom:12px}
+.dash-bar-top{display:flex;justify-content:space-between;font-size:13px;color:var(--text-secondary);margin-bottom:6px}
+.dash-bar-top b{color:var(--ink)}
+.dash-bar-track{height:6px;border-radius:6px;background:#F0EEEA;overflow:hidden}
+.dash-bar-track i{display:block;height:100%;border-radius:6px;min-width:2px}
+.dash-sub-title{font-size:12px;font-weight:600;color:var(--text-light);margin:18px 0 10px}
+.dash-table{overflow-x:auto}
+.dash-table table{width:100%}
+.dash-mono{font-variant-numeric:tabular-nums;direction:ltr;text-align:right;white-space:nowrap;font-size:13px}
+.dash-quick .card-body{display:flex;flex-direction:column;gap:6px}
+.dash-quick-item{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:10px;border:1px solid var(--border);background:#fff;font:inherit;font-size:14px;color:var(--ink);cursor:pointer;text-align:start}
+.dash-quick-item span{flex:1}
+.dash-quick-item:hover{background:var(--bg-body)}
+@media (max-width:1100px){.dash-todo,.dash-kpis{grid-template-columns:repeat(2,1fr)}.dash-grid{grid-template-columns:1fr}}
+@media (max-width:560px){.dash-todo,.dash-kpis{grid-template-columns:1fr 1fr}.dash-kpi-v{font-size:21px}}
+`
