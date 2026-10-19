@@ -24,4 +24,4 @@ warning • The '!' will have no effect because the receiver can't be null. Try 
 warning • The member 'setMockInitialValues' can only be used within 'package:shared_preferences/src/shared_preferences_legacy.dart' or a test • test_shots/screens_test.dart:105:23 • invalid_use_of_visible_for_testing_member
 warning • The member 'loadSnapshot' can only be used within 'package:gh_shopper/data/store.dart' or a test • test_shots/screens_test.dart:129:15 • invalid_use_of_visible_for_testing_member
 
-23 issues found. (ran in 14.3s)
+23 issues found. (ran in 16.2s)
