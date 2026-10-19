@@ -298,11 +298,14 @@ export default function Products() {
     const t = toast.loading('أنسخ الصور على السيرفر…')
     try {
       const r = await api.post('/admin/products/fix-images', ids?.length ? { ids } : {})
-      const { fixed = 0, failed = 0 } = r.data || {}
-      toast.success(fixed || failed ? `انصلحت ${fixed} صورة` + (failed ? ` · ${failed} ما قدرت أجيبها` : '') : 'كل الصور على السيرفر', { id: t })
+      const { fixed = 0, failed = 0, empty = [] } = r.data || {}
+      toast.success(fixed || failed ? `انصلحت ${fixed} صورة` + (failed ? ` · انحذفت ${failed} صورة مكسورة` : '') : 'كل الصور على السيرفر', { id: t, duration: 6000 })
+      if (empty.length) {
+        toast(`${empty.length} منتج صار بدون صور، ضيف لها صور:\n` + empty.slice(0, 8).map(e => '• ' + e.name).join('\n') + (empty.length > 8 ? '\n…' : ''), { icon: '🖼️', duration: 15000, style: { whiteSpace: 'pre-line' } })
+      }
       fetchProducts(currentPage)
-    } catch {
-      toast.error('تعذّر', { id: t })
+    } catch (e) {
+      toast.error(e?.response?.data?.message || 'تعذّر', { id: t })
     } finally {
       setBulkBusy(false)
     }
@@ -832,7 +835,7 @@ export default function Products() {
           <p style={{ color: 'var(--text-secondary)', fontSize: 14, marginTop: 4 }}>{totalItems || products.length} منتج في المتجر</p>
         </div>
         <div className="flex-mobile-col flex-wrap" style={{ display: 'flex', gap: '12px' }}>
-          <button className="btn btn-ghost" disabled={bulkBusy} onClick={() => window.confirm('أنسخ كل صور المنتجات اللي للحين على مواقع البراندات إلى السيرفر؟ ممكن ياخذ دقيقة.') && fixImages()} style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }} title="صور ما تطلع؟ ينسخها على السيرفر">
+          <button className="btn btn-ghost" disabled={bulkBusy} onClick={() => window.confirm('أنسخ كل صور المنتجات اللي للحين على مواقع البراندات إلى السيرفر؟\nالصور اللي ما تنجاب تنحذف من المنتج عشان ما تطلع مكسورة. ممكن ياخذ دقيقة.') && fixImages()} style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }} title="صور ما تطلع؟ ينسخها على السيرفر">
             <RiImageAddLine size={17} /> إصلاح الصور
           </button>
           <Link to="/admin/import-items" className="btn btn-ghost" style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
