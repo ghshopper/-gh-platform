@@ -523,6 +523,20 @@ summary::-webkit-details-marker { display: none; }
 .req-art h1 { font-size: clamp(26px, 3vw, 38px); }
 .req-art p { color: var(--sub); font-weight: 300; }
 .req-form { padding: clamp(24px, 4vw, 48px); display: grid; gap: 14px; }
+.gift-art { gap: 18px; }
+.gift-card-visual { aspect-ratio: 1.6; max-width: 380px; width: 100%; background: linear-gradient(135deg, #5c0b16, #350304); color: #fff; padding: 22px 24px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 18px 40px rgba(53, 3, 4, .25); }
+.gift-card-visual .kicker { color: var(--gold); }
+.gift-card-visual b { font-size: 30px; font-weight: 500; }
+.gift-card-visual span:last-child { font-size: 14px; opacity: .85; }
+.gift-points { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; color: var(--sub); font-size: 14px; }
+.gift-points li { display: flex; gap: 8px; align-items: center; }
+.gift-h { font-size: 15px; font-weight: 600; margin: 6px 0 -4px; }
+.gift-other { height: 38px; width: 120px; border: 1px solid var(--line-strong); background: transparent; padding: 0 12px; font: inherit; color: var(--ink); }
+.req-form textarea { border: 1px solid var(--line-strong); background: var(--bg); padding: 12px; font: inherit; color: var(--ink); resize: vertical; }
+.gift-balance { margin-top: 40px; padding: 28px; border: 1px solid var(--line); display: grid; gap: 12px; }
+.gift-balance h3 { font-size: 18px; font-weight: 500; }
+.gift-balance-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.gift-bal-result b { font-size: 18px; }
 .file { display: flex; align-items: center; gap: 10px; border: 1px dashed var(--line-strong); padding: 16px; cursor: pointer; font-size: 14px; color: var(--sub); }
 .file input { display: none; }
 @media (max-width: 900px) { .request { grid-template-columns: 1fr; } }

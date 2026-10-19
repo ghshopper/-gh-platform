@@ -1,3 +1,4 @@
+import GiftCard from './pages/GiftCard';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { Layout } from './components/Layout';
 import { QuickAddProvider } from './components/ProductCard';
@@ -39,6 +40,7 @@ export default function App() {
                         <Route path="/login" element={<Navigate to="/account" replace />} />
                         <Route path="/wishlist" element={<Wishlist />} />
                         <Route path="/request" element={<Request />} />
+                        <Route path="/gift-card" element={<GiftCard />} />
                         <Route path="/policies" element={<Policies />} />
                         <Route path="*" element={<NotFound />} />
                       </Routes>

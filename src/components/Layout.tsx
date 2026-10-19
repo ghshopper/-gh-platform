@@ -159,6 +159,7 @@ function Header() {
               </div>
             ))}
             <NavLink to="/brands">{tr('البراندات', 'Designers')}</NavLink>
+            <NavLink to="/gift-card">{tr('بطاقة هدية', 'Gift card')}</NavLink>
             <NavLink to="/request" className="gold">{tr('اطلب قطعة', 'Request a piece')}</NavLink>
           </div>
           {mega ? (
@@ -189,6 +190,7 @@ function Header() {
               ))}
               <Link to="/brands">{tr('البراندات', 'Designers')}</Link>
               <Link to="/request" className="gold">{tr('اطلب قطعة', 'Request a piece')}</Link>
+              <Link to="/gift-card">{tr('بطاقة هدية', 'Gift card')}</Link>
               <Link to="/wishlist">{tr('المفضلة', 'Wishlist')}</Link>
               <Link to="/account">{user ? tr('حسابي', 'My account') : tr('تسجيل الدخول', 'Sign in')}</Link>
               <div className="menu-tools">
@@ -250,6 +252,7 @@ function Footer() {
         <div>
           <h4>{tr('خدمتك', 'Services')}</h4>
           <Link to="/request">{tr('اطلب قطعة غير متوفرة', 'Request a piece')}</Link>
+          <Link to="/gift-card">{tr('بطاقات الهدايا', 'Gift cards')}</Link>
           <a href="/track">{tr('تتبع طلب', 'Track an order')}</a>
           <Link to="/account">{tr('حسابي وطلباتي', 'My account & orders')}</Link>
           <a href={`https://wa.me/${WA}`} target="_blank" rel="noreferrer">{tr('تواصل معنا', 'Contact us')}</a>
