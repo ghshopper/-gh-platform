@@ -237,5 +237,5 @@ const CSS = `
 .gc-form-actions{display:flex;gap:8px;margin-top:6px}
 .gc .spin{animation:gcspin 1s linear infinite}
 @keyframes gcspin{to{transform:rotate(360deg)}}
-@media (max-width:700px){.gc-stats{grid-template-columns:1fr}.gc-two{grid-template-columns:1fr}}
+@media (max-width:700px){.gc-stats{grid-template-columns:1fr 1fr}.gc-stats b{font-size:18px}.gc-two{grid-template-columns:1fr}}
 `

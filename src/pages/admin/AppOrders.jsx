@@ -158,7 +158,7 @@ export default function AppOrders() {
         </button>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 14, marginBottom: 24 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 10, marginBottom: 18 }}>
         <Stat label="مبيعات الشهر" value={omr(stats.monthSales)} color="#4A0D17" hero />
         <Stat label="طلبات مفتوحة" value={stats.open} color="#7A1530" />
         <Stat label="قطع تنتظر الشراء" value={stats.toBuy} color="#2F7CF6" />
