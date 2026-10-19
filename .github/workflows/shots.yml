@@ -21,7 +21,7 @@ jobs:
         if: always()
         shell: bash
         run: |
-          mkdir -p /tmp/out && cp test_shots/goldens/*.png /tmp/out/ 2>/dev/null || true
+          mkdir -p /tmp/out && cp test_shots/goldens/*.png test_shots/goldens/*.pdf /tmp/out/ 2>/dev/null || true
           cp shots.log /tmp/out/ 2>/dev/null || true
           echo "${{ job.status }} ${{ github.sha }}" > /tmp/out/status.txt
           git config user.name ci && git config user.email ci@users.noreply.github.com

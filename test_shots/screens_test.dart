@@ -16,6 +16,8 @@ import 'package:gh_shopper/pages/orders_page.dart';
 import 'package:gh_shopper/pages/today_page.dart';
 import 'package:gh_shopper/pages/trips_page.dart';
 import 'package:gh_shopper/pages/requests_page.dart';
+import 'package:gh_shopper/pdf_waybill.dart';
+import 'dart:io';
 
 String iso(DateTime d) => d.toUtc().toIso8601String();
 
@@ -53,9 +55,18 @@ Map<String, dynamic> sample() {
     },
     {
       'id': 'o3', 'order_no': 126, 'customer_id': '3', 'delivery_fee': 2, 'delivery_collect': true, 'created_at': d(6),
+      'delivery_method': 'home', 'delivery_address': 'الخوض، شارع ١٨، منزل ٤٢ · https://maps.google.com/?q=23.6,58.2', 'tracking_token': 'dddddddd-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
       'driver_id': 'd1', 'driver_status': 'picked',
       'items': [item('i5', 'o3', 'LOUIS VUITTON', 'Keepall 45', 980, 'out_for_delivery', cost: 820)],
       'payments': [{'id': 'p3', 'order_id': 'o3', 'amount': 980, 'method': 'تحويل بنكي', 'paid_on': d(6)}],
+    },
+    {
+      'id': 'o5', 'order_no': 129, 'customer_id': '4', 'delivery_fee': 1, 'created_at': d(0),
+      'tracking_token': 'cccccccc-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'delivery_method': 'genacom_office',
+      'delivery_address': 'استلام من مكتب جيناكم: نزوى (فرق، خلف بنك العز)، نور الهنائي، 95556677، الداخلية، نزوى',
+      'store_order_number': 'ORD-77A', 'store_source': 'app', 'store_paid_online': true,
+      'items': [item('i7', 'o5', 'CHANEL', 'Classic Flap Medium', 4200, 'arrived'), item('i8', 'o5', 'DIOR', 'Saddle Card Holder', 380, 'arrived')],
+      'payments': [{'id': 'p5', 'order_id': 'o5', 'amount': 4581, 'method': 'بطاقة / Apple Pay (أموال)', 'paid_on': d(0)}],
     },
     {
       'id': 'o4', 'order_no': 125, 'customer_id': '4', 'delivery_fee': 0, 'created_at': d(9),
@@ -145,4 +156,14 @@ void main() {
       await expectLater(find.byType(RepaintBoundary).first, matchesGoldenFile('goldens/${e.key}.png'));
     });
   }
+
+  test('waybills', () async {
+    Store.i.loadSnapshot(sample());
+    for (final id in ['o3', 'o5']) {
+      final o = Store.i.order(id)!;
+      final bytes = await buildWaybillPdf(o, Store.i.customer(o.customerId), Store.i.settings, driverName: id == 'o3' ? 'سالم' : null);
+      Directory('test_shots/goldens').createSync(recursive: true);
+      File('test_shots/goldens/waybill-$id.pdf').writeAsBytesSync(bytes);
+    }
+  });
 }
