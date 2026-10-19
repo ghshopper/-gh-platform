@@ -13,10 +13,12 @@ const FLOW = ['requested', 'purchased', 'arrived', 'out_for_delivery', 'delivere
 
 function SignIn() {
   const { tr } = usePrefs();
-  const { login, register } = useAuth();
+  const { login, register, resetPassword } = useAuth();
   const [sp] = useSearchParams();
   const navigate = useNavigate();
-  const [mode, setMode] = useState<'in' | 'up'>('in');
+  const [mode, setMode] = useState<'in' | 'up' | 'forgot' | 'reset'>('in');
+  const [code, setCode] = useState('');
+  const [info, setInfo] = useState<string | null>(null);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -28,7 +30,15 @@ function SignIn() {
     setBusy(true);
     setErr(null);
     try {
-      if (mode === 'in') await login(email, password);
+      if (mode === 'forgot') {
+        const r = await api.post<{ message?: string }>('/auth/forgot-password', { email: email.trim() });
+        setInfo(r?.message ?? tr('أرسلنا رمز على إيميلك', 'We sent a code to your email'));
+        setMode('reset');
+        setPassword('');
+        return;
+      }
+      if (mode === 'reset') await resetPassword(email, code, password);
+      else if (mode === 'in') await login(email, password);
       else await register(name, email, phone, password);
       const next = sp.get('next');
       if (next) navigate(next);
@@ -50,17 +60,33 @@ function SignIn() {
         </ul>
       </div>
       <form className="auth-form" onSubmit={submit}>
-        <div className="seg">
-          <button type="button" className={mode === 'in' ? 'on' : ''} onClick={() => setMode('in')}>{tr('تسجيل الدخول', 'Sign in')}</button>
-          <button type="button" className={mode === 'up' ? 'on' : ''} onClick={() => setMode('up')}>{tr('حساب جديد', 'Create account')}</button>
-        </div>
+        {mode === 'forgot' || mode === 'reset' ? (
+          <div className="auth-reset-head">
+            <h3>{tr('نسيت كلمة المرور', 'Forgot password')}</h3>
+            <p className="small muted">{mode === 'forgot' ? tr('اكتب إيميلك ونرسل لك رمز من 6 أرقام.', 'Enter your email and we will send you a 6-digit code.') : info}</p>
+          </div>
+        ) : (
+          <div className="seg">
+            <button type="button" className={mode === 'in' ? 'on' : ''} onClick={() => setMode('in')}>{tr('تسجيل الدخول', 'Sign in')}</button>
+            <button type="button" className={mode === 'up' ? 'on' : ''} onClick={() => setMode('up')}>{tr('حساب جديد', 'Create account')}</button>
+          </div>
+        )}
         {mode === 'up' ? <label className="field"><span>{tr('الاسم', 'Name')}</span><input value={name} onChange={(e) => setName(e.target.value)} required /></label> : null}
         <label className="field"><span>{tr('البريد الإلكتروني', 'Email')}</span><input type="email" dir="ltr" value={email} onChange={(e) => setEmail(e.target.value)} required /></label>
         {mode === 'up' ? <label className="field"><span>{tr('رقم الهاتف', 'Phone')}</span><input type="tel" dir="ltr" value={phone} onChange={(e) => setPhone(e.target.value)} /></label> : null}
-        <label className="field"><span>{tr('كلمة المرور', 'Password')}</span><input type="password" dir="ltr" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} /></label>
+        {mode === 'reset' ? (
+          <label className="field"><span>{tr('الرمز', 'Code')}</span><input inputMode="numeric" autoComplete="one-time-code" dir="ltr" maxLength={6} value={code} onChange={(e) => setCode(e.target.value.replace(/[^0-9٠-٩]/g, '').replace(/[٠-٩]/g, (d) => String('٠١٢٣٤٥٦٧٨٩'.indexOf(d))))} required minLength={6} className="code-input" /></label>
+        ) : null}
+        {mode !== 'forgot' ? (
+          <label className="field"><span>{mode === 'reset' ? tr('كلمة المرور الجديدة', 'New password') : tr('كلمة المرور', 'Password')}</span><input type="password" dir="ltr" autoComplete={mode === 'in' ? 'current-password' : 'new-password'} value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} /></label>
+        ) : null}
         {err ? <p className="err">{err}</p> : null}
-        <button className="btn wide" disabled={busy}>{busy ? '…' : mode === 'in' ? tr('دخول', 'Sign in') : tr('إنشاء الحساب', 'Create account')}</button>
-        {mode === 'in' ? <a className="link small center" href="https://wa.me/96877246972" target="_blank" rel="noreferrer">{tr('نسيت كلمة المرور؟ راسلنا', 'Forgot your password? Message us')}</a> : null}
+        <button className="btn wide" disabled={busy}>
+          {busy ? '…' : mode === 'in' ? tr('دخول', 'Sign in') : mode === 'up' ? tr('إنشاء الحساب', 'Create account') : mode === 'forgot' ? tr('أرسل الرمز', 'Send code') : tr('غيّر كلمة المرور وادخل', 'Change password & sign in')}
+        </button>
+        {mode === 'in' ? <button type="button" className="link small center" onClick={() => { setMode('forgot'); setErr(null); }}>{tr('نسيت كلمة المرور؟', 'Forgot your password?')}</button> : null}
+        {mode === 'reset' ? <button type="button" className="link small center" onClick={() => { setMode('forgot'); setErr(null); setCode(''); }}>{tr('ما وصلك؟ أرسل رمز جديد', "Didn't get it? Send a new code")}</button> : null}
+        {mode === 'forgot' || mode === 'reset' ? <button type="button" className="link small center" onClick={() => { setMode('in'); setErr(null); }}>{tr('رجوع لتسجيل الدخول', 'Back to sign in')}</button> : null}
       </form>
     </div>
   );

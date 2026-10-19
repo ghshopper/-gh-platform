@@ -88,6 +88,8 @@ interface Auth {
   ready: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, phone: string, password: string) => Promise<void>;
+  /** Forgot password: the code from the e-mail and a new password; signs in. */
+  resetPassword: (email: string, code: string, password: string) => Promise<void>;
   logout: () => void;
   refresh: () => Promise<void>;
 }
@@ -152,6 +154,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           await api.post<LoginResponse>('/auth/register', { name: name.trim(), email: email.trim(), phone: phone.trim(), password, password_confirmation: password }),
           'تعذّر إنشاء الحساب',
         ),
+      resetPassword: async (email, code, password) =>
+        finish(await api.post<LoginResponse>('/auth/reset-password', { email: email.trim(), code: code.trim(), password, device: 'web' }), 'الرمز غير صحيح أو انتهى'),
       logout: () => {
         api.post('/auth/logout').catch(() => undefined);
         setToken(null);
