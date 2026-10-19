@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import api from '../../services/api'
 import toast from 'react-hot-toast'
-import { RiEdit2Line, RiDeleteBinLine, RiAddLine, RiVipCrownLine } from 'react-icons/ri'
+import { RiEdit2Line, RiVipCrownLine } from 'react-icons/ri'
 
 export default function LoyaltyTiers() {
   const [tiers, setTiers] = useState([])
@@ -95,18 +95,7 @@ export default function LoyaltyTiers() {
           <RiVipCrownLine color="var(--color-primary)" />
           مستويات الولاء
         </h3>
-        <button 
-          onClick={() => openModal()}
-          style={{ 
-            display: 'flex', alignItems: 'center', gap: 6, 
-            background: '#10B981', color: 'white', 
-            border: 'none', borderRadius: 8, padding: '8px 16px', 
-            fontSize: 13, fontWeight: 700, cursor: 'pointer'
-          }}
-        >
-          <RiAddLine size={16} />
-          إضافة مستوى جديد
-        </button>
+        <span style={{ fontSize: 12.5, color: '#6B7280' }}>ثلاث مستويات ثابتة: بيج (0–20 ألف نقطة) · عنابي (20–50 ألف) · أسود (50 ألف وفوق)</span>
       </div>
       
       <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'right' }}>
@@ -130,7 +119,6 @@ export default function LoyaltyTiers() {
               </td>
               <td style={{ padding: '16px', display: 'flex', gap: 8 }}>
                 <button onClick={() => openModal(tier)} style={{ background: '#F3F4F6', border: 'none', padding: 8, borderRadius: 6, cursor: 'pointer', color: '#4B5563' }}><RiEdit2Line /></button>
-                <button onClick={() => handleDelete(tier.id)} style={{ background: '#FEE2E2', border: 'none', padding: 8, borderRadius: 6, cursor: 'pointer', color: '#EF4444' }}><RiDeleteBinLine /></button>
               </td>
             </tr>
           ))}

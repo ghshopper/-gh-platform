@@ -25,15 +25,13 @@ import toast from 'react-hot-toast'
 import OmrSymbol from '../../components/OmrSymbol'
 import GHPagination from '../../components/GHPagination'
 
-// Tier looks by position (entry level first). Names come from the loyalty
-// tiers set in "مستويات الولاء", the same ones the customer app shows.
+// The three loyalty tiers: Beige (0–20k points), Burgundy (20k–50k), Black (50k+).
 const TIER_LOOKS = [
-  { bg: 'rgba(121, 85, 72, 0.1)', text: '#5D4037', border: '#8D6E63', icon: RiCopperCoinLine },
-  { bg: 'rgba(96, 125, 139, 0.1)', text: '#455A64', border: '#78909C', icon: RiMedalLine },
-  { bg: 'var(--color-gold-bg)', text: 'var(--color-gold-dark)', border: 'var(--color-gold)', icon: RiUserStarLine },
-  { bg: 'rgba(106, 27, 154, 0.1)', text: '#6A1B9A', border: '#6A1B9A', icon: RiVipDiamondLine },
+  { bg: '#F3EADB', text: '#6B4E2E', border: '#CDB794', icon: RiCopperCoinLine, swatch: 'linear-gradient(135deg,#ECDFC9,#CDB794)' },
+  { bg: 'rgba(92, 10, 22, 0.08)', text: '#5C0A16', border: '#5C0A16', icon: RiUserStarLine, swatch: 'linear-gradient(135deg,#6A0E1A,#2E0306)' },
+  { bg: '#111111', text: '#E8D3A6', border: '#111111', icon: RiVipDiamondLine, swatch: 'linear-gradient(135deg,#1C1C1C,#000)' },
 ]
-const tierLabel = (t) => (t.name_ar ? `${t.name_ar} (${t.name})` : t.name)
+const tierLabel = (t) => t.name_ar || t.name
 function tierStyle(tiers, name) {
   const i = Math.max(0, tiers.findIndex((t) => t.name === name))
   const t = tiers[i]
@@ -50,7 +48,7 @@ export default function Customers() {
   }, [])
   const firstTier = tiers[0]?.name || ''
   const [customers, setCustomers] = useState([])
-  const [summary, setSummary] = useState({ total: 0, active: 0, gold: 0, platinum: 0 })
+  const [summary, setSummary] = useState({ total: 0, active: 0, tiers: [] })
   const [loading, setLoading] = useState(true)
   const [currentPage, setCurrentPage] = useState(1)
   const [lastPage, setLastPage] = useState(1)
@@ -272,33 +270,21 @@ export default function Customers() {
           </div>
           <div className="stat-icon-left icon-primary"><RiGroupLine size={20} className="inner-icon" /></div>
         </div>
-        <div className="stat-card-new">
-          <div className="stat-content-right">
-            <div className="stat-label-new">عملاء نشطون</div>
-            <div className="stat-value-row">
-              <span className="stat-number-new font-mono">{summary.active}</span>
+        {(summary.tiers?.length ? summary.tiers : tiers.map((t) => ({ ...t, count: 0 }))).map((t, i) => {
+          const look = TIER_LOOKS[Math.min(i, TIER_LOOKS.length - 1)]
+          const Icon = look.icon
+          return (
+            <div key={t.name} className="stat-card-new" style={{ cursor: 'pointer' }} onClick={() => setSelectedTier(t.name)}>
+              <div className="stat-content-right">
+                <div className="stat-label-new">مستوى {tierLabel(t)} <span style={{ color: '#9CA3AF', fontSize: 11 }}>· {Number(t.min_points).toLocaleString('en-US')}+ نقطة</span></div>
+                <div className="stat-value-row">
+                  <span className="stat-number-new font-mono">{t.count ?? 0}</span>
+                </div>
+              </div>
+              <div className="stat-icon-left" style={{ background: look.swatch, color: i === 0 ? '#6B4E2E' : '#E8D3A6' }}><Icon size={20} className="inner-icon" /></div>
             </div>
-          </div>
-          <div className="stat-icon-left icon-green"><RiCheckboxCircleFill size={20} className="inner-icon" /></div>
-        </div>
-        <div className="stat-card-new">
-          <div className="stat-content-right">
-            <div className="stat-label-new">{tiers[tiers.length - 2] ? tierLabel(tiers[tiers.length - 2]) : 'المستوى الثاني'}</div>
-            <div className="stat-value-row">
-              <span className="stat-number-new font-mono">{summary.gold}</span>
-            </div>
-          </div>
-          <div className="stat-icon-left icon-gold"><RiUserStarLine size={20} className="inner-icon" /></div>
-        </div>
-        <div className="stat-card-new">
-          <div className="stat-content-right">
-            <div className="stat-label-new">{tiers[tiers.length - 1] ? tierLabel(tiers[tiers.length - 1]) : 'أعلى مستوى'}</div>
-            <div className="stat-value-row">
-              <span className="stat-number-new font-mono">{summary.platinum}</span>
-            </div>
-          </div>
-          <div className="stat-icon-left icon-purple"><RiVipDiamondLine size={20} className="inner-icon" /></div>
-        </div>
+          )
+        })}
       </div>
 
       {/* Filter and Search Bar */}
@@ -408,7 +394,7 @@ export default function Customers() {
                       <td>
                         <span className="badge" style={{ backgroundColor: tier.bg, color: tier.text, border: `1px solid ${tier.border}40` }}>
                           <TierIcon size={14} />
-                          {tier.label.split(' ')[0]}
+                          {tier.label}
                         </span>
                       </td>
 
