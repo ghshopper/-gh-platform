@@ -16,6 +16,8 @@ import 'package:gh_shopper/pages/orders_page.dart';
 import 'package:gh_shopper/pages/today_page.dart';
 import 'package:gh_shopper/pages/trips_page.dart';
 import 'package:gh_shopper/pages/requests_page.dart';
+import 'package:gh_shopper/pages/story_page.dart';
+import 'package:gh_shopper/story/story_canvas.dart';
 import 'package:gh_shopper/pdf_waybill.dart';
 import 'dart:io';
 
@@ -105,6 +107,8 @@ Future<void> loadFonts() async {
     }
     await l.load();
   }
+  final serif = FontLoader('Cormorant')..addFont(rootBundle.load('assets/fonts/CormorantGaramond.ttf'));
+  await serif.load();
   final icons = FontLoader('packages/cupertino_icons/CupertinoIcons')
     ..addFont(rootBundle.load('packages/cupertino_icons/assets/CupertinoIcons.ttf'));
   await icons.load();
@@ -154,6 +158,79 @@ void main() {
       ));
       await tester.pump(const Duration(milliseconds: 600));
       await expectLater(find.byType(RepaintBoundary).first, matchesGoldenFile('goldens/${e.key}.png'));
+    });
+  }
+
+  StoryData storySample({bool sale = false}) => StoryData(
+        brand: 'MAISON',
+        name: 'عطر أو دو بارفان · 100 مل',
+        price: 52.5,
+        was: sale ? 65 : null,
+        image: MemoryImage(File('test_shots/sample_product.jpg').readAsBytesSync()),
+      );
+
+  Future<void> warmImages(WidgetTester tester, List<ImageProvider> imgs) async {
+    final ctx = tester.element(find.byType(RepaintBoundary).first);
+    await tester.runAsync(() async {
+      for (final i in imgs) {
+        await precacheImage(i, ctx);
+      }
+    });
+    await tester.pump(const Duration(milliseconds: 100));
+  }
+
+  const storyAssets = [
+    AssetImage('assets/images/story_logo.png'),
+    AssetImage('assets/images/story_cheetah.png'),
+    AssetImage('assets/images/story_cheetah_light.png'),
+  ];
+
+  // The six story designs at full size (1080 × 1920).
+  for (final t in StoryTemplate.values) {
+    testWidgets('story-${t.name}', (tester) async {
+      tester.view.physicalSize = const Size(1080, 1920);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      final d = storySample(sale: t == StoryTemplate.offer);
+      await tester.pumpWidget(RepaintBoundary(
+        child: Directionality(
+          textDirection: TextDirection.rtl,
+          child: StoryCanvas(data: d, template: t),
+        ),
+      ));
+      await warmImages(tester, [d.image!, ...storyAssets]);
+      await expectLater(find.byType(RepaintBoundary).first, matchesGoldenFile('goldens/story-${t.name}.png'));
+    });
+  }
+
+  for (final screen in ['story-compose', 'today2', 'more']) {
+    testWidgets(screen, (tester) async {
+      tester.view.physicalSize = const Size(1179, 2556);
+      tester.view.devicePixelRatio = 3;
+      addTearDown(tester.view.reset);
+      Store.i.loadSnapshot(sample());
+      final d = storySample();
+      await tester.pumpWidget(RepaintBoundary(
+        child: CupertinoApp(
+          debugShowCheckedModeBanner: false,
+          theme: ghTheme,
+          locale: const Locale('ar'),
+          supportedLocales: const [Locale('ar'), Locale('en')],
+          localizationsDelegates: const [
+            GlobalCupertinoLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+          ],
+          home: screen == 'story-compose'
+              ? StoryComposePage(products: const [], dataOverride: [d, storySample(sale: true)])
+              : screen == 'more'
+                  ? const MorePage()
+                  : const TodayPage(),
+        ),
+      ));
+      await warmImages(tester, [d.image!, ...storyAssets]);
+      await tester.pump(const Duration(milliseconds: 600));
+      await expectLater(find.byType(RepaintBoundary).first, matchesGoldenFile('goldens/$screen.png'));
     });
   }
 

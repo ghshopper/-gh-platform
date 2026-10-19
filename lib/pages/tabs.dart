@@ -42,36 +42,77 @@ class _TabsState extends State<Tabs> {
           Expanded(
             child: IndexedStack(index: _index, children: _pages),
           ),
-          CupertinoTabBar(
-            currentIndex: _index,
-            activeColor: GH.burgundy,
-            inactiveColor: GH.tertiary,
-            backgroundColor: const Color(0xF7FFFFFF),
-            border: const Border(top: BorderSide(color: GH.separator, width: 0.5)),
+          _TabBar(
+            index: _index,
             onTap: (i) => setState(() => _index = i),
-            items: const [
-              BottomNavigationBarItem(
-                  icon: Icon(CupertinoIcons.sun_max),
-                  activeIcon: Icon(CupertinoIcons.sun_max_fill),
-                  label: 'اليوم'),
-              BottomNavigationBarItem(
-                  icon: Icon(CupertinoIcons.doc_text),
-                  activeIcon: Icon(CupertinoIcons.doc_text_fill),
-                  label: 'الطلبات'),
-              BottomNavigationBarItem(
-                  icon: Icon(CupertinoIcons.person_2),
-                  activeIcon: Icon(CupertinoIcons.person_2_fill),
-                  label: 'العملاء'),
-              BottomNavigationBarItem(
-                  icon: Icon(CupertinoIcons.airplane),
-                  label: 'الرحلات'),
-              BottomNavigationBarItem(
-                  icon: Icon(CupertinoIcons.ellipsis_circle),
-                  activeIcon: Icon(CupertinoIcons.ellipsis_circle_fill),
-                  label: 'المزيد'),
-            ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _TabBar extends StatelessWidget {
+  const _TabBar({required this.index, required this.onTap});
+
+  final int index;
+  final ValueChanged<int> onTap;
+
+  static const _items = [
+    (CupertinoIcons.sun_max, CupertinoIcons.sun_max_fill, 'اليوم'),
+    (CupertinoIcons.doc_text, CupertinoIcons.doc_text_fill, 'الطلبات'),
+    (CupertinoIcons.person_2, CupertinoIcons.person_2_fill, 'العملاء'),
+    (CupertinoIcons.airplane, CupertinoIcons.airplane, 'الرحلات'),
+    (CupertinoIcons.square_grid_2x2, CupertinoIcons.square_grid_2x2_fill, 'المزيد'),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+        color: Color(0xFCFFFFFF),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        boxShadow: [BoxShadow(color: Color(0x183A2414), blurRadius: 24, offset: Offset(0, -6))],
+      ),
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(8, 8, 8, 4),
+          child: Row(
+            children: [
+              for (var i = 0; i < _items.length; i++)
+                Expanded(
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () => onTap(i),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 180),
+                          curve: Curves.easeOut,
+                          width: 56,
+                          height: 32,
+                          decoration: BoxDecoration(
+                            color: i == index ? GH.burgundy.withAlpha(22) : const Color(0x00FFFFFF),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Icon(i == index ? _items[i].$2 : _items[i].$1,
+                              size: 22, color: i == index ? GH.burgundy : GH.secondary),
+                        ),
+                        const SizedBox(height: 3),
+                        Text(_items[i].$3,
+                            style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: i == index ? FontWeight.w600 : FontWeight.w500,
+                                color: i == index ? GH.burgundy : GH.secondary)),
+                      ],
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
       ),
     );
   }

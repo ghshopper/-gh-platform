@@ -64,14 +64,14 @@ class GHPage extends StatelessWidget {
                   trailing: trailing,
                   leading: leading,
                   previousPageTitle: previousPageTitle,
-                  backgroundColor: const Color(0xF2F7F3EE),
+                  backgroundColor: const Color(0xF2F4EEE6),
                   border: null,
                   transitionBetweenRoutes: false,
                 ),
                 if (onRefresh != null)
                   CupertinoSliverRefreshControl(onRefresh: onRefresh),
                 SliverPadding(
-                  padding: const EdgeInsets.only(bottom: 32),
+                  padding: const EdgeInsets.only(bottom: 40),
                   sliver: SliverList(
                       delegate: SliverChildListDelegate(children)),
                 ),
@@ -81,8 +81,9 @@ class GHPage extends StatelessWidget {
           if (bottom != null)
             Container(
               decoration: const BoxDecoration(
-                color: Color(0xF7FFFFFF),
-                border: Border(top: BorderSide(color: GH.separator, width: 0.5)),
+                color: Color(0xFAFFFFFF),
+                borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
+                boxShadow: [BoxShadow(color: Color(0x143A2414), blurRadius: 20, offset: Offset(0, -4))],
               ),
               child: SafeArea(
                 top: false,
@@ -169,13 +170,13 @@ class Section extends StatelessWidget {
       }
     }
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
+      padding: const EdgeInsets.fromLTRB(16, 22, 16, 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (header != null || trailing != null)
             Padding(
-              padding: const EdgeInsetsDirectional.fromSTEB(16, 0, 4, 6),
+              padding: const EdgeInsetsDirectional.fromSTEB(6, 0, 2, 8),
               child: Row(
                 children: [
                   Expanded(child: Text(header ?? '', style: T.header)),
@@ -184,10 +185,14 @@ class Section extends StatelessWidget {
               ),
             ),
           if (rows.isNotEmpty)
-            ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: Container(
+            DecoratedBox(
+              decoration: BoxDecoration(
                 color: GH.card,
+                borderRadius: BorderRadius.circular(18),
+                boxShadow: GH.shadow,
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(18),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: rows,
@@ -196,7 +201,7 @@ class Section extends StatelessWidget {
             ),
           if (footer != null)
             Padding(
-              padding: const EdgeInsetsDirectional.fromSTEB(16, 6, 16, 0),
+              padding: const EdgeInsetsDirectional.fromSTEB(8, 8, 8, 0),
               child: Text(footer!, style: T.small),
             ),
         ],
@@ -269,7 +274,7 @@ class _PressableState extends State<Pressable> {
       onLongPress: widget.onLongPress,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 90),
-        color: _down ? const Color(0xFFF1EAE1) : const Color(0x00FFFFFF),
+        color: _down ? const Color(0xFFF3ECE3) : const Color(0x00FFFFFF),
         child: widget.child,
       ),
     );
@@ -307,9 +312,9 @@ class Tile extends StatelessWidget {
     return Pressable(
       onTap: onTap,
       child: ConstrainedBox(
-        constraints: const BoxConstraints(minHeight: 48),
+        constraints: const BoxConstraints(minHeight: 54),
         child: Padding(
-          padding: const EdgeInsetsDirectional.fromSTEB(16, 11, 12, 11),
+          padding: const EdgeInsetsDirectional.fromSTEB(16, 12, 14, 12),
           child: Row(
             children: [
               if (leading != null) ...[leading!, const SizedBox(width: 12)],
@@ -465,7 +470,8 @@ class Avatar extends StatelessWidget {
   }
 }
 
-/// A big number card for dashboards. [hero] paints it in the brand gradient.
+/// A big number card for dashboards. [hero] paints it in the brand maroon
+/// with the gold cheetah.
 class StatCard extends StatelessWidget {
   const StatCard(
       {super.key,
@@ -489,55 +495,107 @@ class StatCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(14),
+        clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
           gradient: hero ? GH.brandGradient : null,
           color: hero ? null : GH.card,
-          borderRadius: BorderRadius.circular(18),
-          border: hero ? null : Border.all(color: GH.separator),
+          borderRadius: BorderRadius.circular(20),
           boxShadow: hero
               ? [
                   BoxShadow(
-                      color: GH.burgundyDeep.withAlpha(60),
-                      blurRadius: 18,
-                      offset: const Offset(0, 8))
+                      color: GH.burgundyDeep.withAlpha(70),
+                      blurRadius: 22,
+                      offset: const Offset(0, 10))
                 ]
-              : null,
+              : GH.shadow,
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Stack(
           children: [
-            Row(
-              children: [
-                if (icon != null)
-                  Container(
-                    width: 28,
-                    height: 28,
-                    decoration: BoxDecoration(
-                      color: hero ? CupertinoColors.white.withAlpha(30) : color.withAlpha(24),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(icon,
-                        size: 15,
-                        color: hero ? GH.goldLight : color),
+            if (hero)
+              PositionedDirectional(
+                end: -18,
+                bottom: 6,
+                child: Opacity(
+                  opacity: 0.22,
+                  child: Image.asset('assets/images/story_cheetah_light.png', width: 120),
+                ),
+              ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(14, 14, 14, 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      if (icon != null)
+                        Container(
+                          width: 30,
+                          height: 30,
+                          decoration: BoxDecoration(
+                            color: hero ? CupertinoColors.white.withAlpha(28) : color.withAlpha(22),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Icon(icon, size: 16, color: hero ? GH.goldLight : color),
+                        ),
+                      if (icon != null) const SizedBox(width: 8),
+                      Expanded(
+                          child: Text(label,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: T.sub.copyWith(
+                                  color: hero ? GH.goldLight : GH.secondary,
+                                  fontWeight: FontWeight.w500))),
+                    ],
                   ),
-                if (icon != null) const SizedBox(width: 8),
-                Expanded(
-                    child: Text(label,
-                        style: T.sub.copyWith(
-                            color: hero
-                                ? GH.goldLight
-                                : GH.secondary,
-                            fontWeight: FontWeight.w500))),
-              ],
+                  const SizedBox(height: 12),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: AlignmentDirectional.centerStart,
+                    child: Text(value, style: T.big.copyWith(fontSize: 23, color: fg)),
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 10),
-            FittedBox(
-              fit: BoxFit.scaleDown,
-              alignment: AlignmentDirectional.centerStart,
-              child: Text(value,
-                  style: T.big.copyWith(fontSize: 22, color: fg)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Round shortcut button with a label under it (home screen quick actions).
+class QuickAction extends StatelessWidget {
+  const QuickAction({super.key, required this.icon, required this.label, required this.onTap, this.color = GH.burgundy});
+
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Pressable(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 6),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 54,
+              height: 54,
+              decoration: BoxDecoration(
+                color: GH.card,
+                borderRadius: BorderRadius.circular(18),
+                boxShadow: GH.shadow,
+              ),
+              child: Icon(icon, size: 24, color: color),
             ),
+            const SizedBox(height: 7),
+            Text(label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w500, color: GH.label)),
           ],
         ),
       ),
@@ -559,12 +617,12 @@ class PrimaryButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 50,
+      height: 52,
       child: DecoratedBox(
         decoration: BoxDecoration(
           gradient: onPressed == null || busy ? null : GH.brandGradient,
           color: onPressed == null || busy ? const Color(0xFFD8CBC3) : null,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(16),
           boxShadow: onPressed == null || busy
               ? null
               : [
@@ -576,7 +634,7 @@ class PrimaryButton extends StatelessWidget {
         ),
         child: CupertinoButton(
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(16),
         onPressed: busy ? null : onPressed,
         child: busy
             ? const CupertinoActivityIndicator(color: CupertinoColors.white)
@@ -611,11 +669,16 @@ class SecondaryButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 50,
-      child: CupertinoButton(
+      height: 52,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: GH.card,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: const Color(0xFFE4D8C8)),
+        ),
+        child: CupertinoButton(
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        color: const Color(0xFFF2EAE0),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         onPressed: onPressed,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -630,6 +693,7 @@ class SecondaryButton extends StatelessWidget {
                     color: GH.burgundy)),
           ],
         ),
+      ),
       ),
     );
   }
@@ -653,9 +717,9 @@ class Chip extends StatelessWidget {
         duration: const Duration(milliseconds: 150),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
         decoration: BoxDecoration(
-          color: selected ? GH.burgundy : GH.card,
+          color: selected ? GH.ink : GH.card,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: selected ? GH.burgundy : GH.separator),
+          border: Border.all(color: selected ? GH.ink : const Color(0xFFE4D8C8)),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -663,7 +727,7 @@ class Chip extends StatelessWidget {
             if (icon != null)
               Icon(icon,
                   size: 16,
-                  color: selected ? CupertinoColors.white : GH.burgundy),
+                  color: selected ? GH.goldLight : GH.burgundy),
             if (icon != null) const SizedBox(width: 5),
             Text(label,
                 style: TextStyle(

@@ -9,6 +9,8 @@ import 'item_pages.dart';
 import 'order_detail_page.dart';
 import 'requests_page.dart';
 import 'order_form_page.dart';
+import 'more_page.dart' show SummaryPage;
+import 'story_page.dart';
 
 /// What needs doing today: buy, deliver, collect.
 class TodayPage extends StatelessWidget {
@@ -83,10 +85,49 @@ class TodayPage extends StatelessWidget {
           }),
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 0, 20, 4),
-              child: Text(
-                  '${_greeting()} · ${dateStr(now)}${store.syncing ? ' · يحدّث…' : ''}',
-                  style: T.sub),
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 2),
+              child: Row(children: [
+                Expanded(
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    Text(_greeting(), style: T.title.copyWith(fontSize: 18)),
+                    Text('${dateStr(now)}${store.syncing ? ' · يحدّث…' : ''}', style: T.sub),
+                  ]),
+                ),
+                Image.asset('assets/images/story_logo.png', height: 44),
+              ]),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 10, 12, 2),
+              child: Row(children: [
+                Expanded(
+                    child: QuickAction(
+                        icon: CupertinoIcons.add,
+                        label: 'طلب جديد',
+                        onTap: () async {
+                          final id = await presentForm<String>(context, const OrderFormPage());
+                          if (id != null && context.mounted) {
+                            pushPage(context, OrderDetailPage(orderId: id));
+                          }
+                        })),
+                Expanded(
+                    child: QuickAction(
+                        icon: CupertinoIcons.camera_on_rectangle,
+                        color: GH.pink,
+                        label: 'ستوري',
+                        onTap: () => pushPage(context, const StoryPickPage()))),
+                Expanded(
+                    child: QuickAction(
+                        icon: CupertinoIcons.sparkles,
+                        color: GH.gold,
+                        label: 'طلبات القطع',
+                        onTap: () => pushPage(context, const RequestsPage()))),
+                Expanded(
+                    child: QuickAction(
+                        icon: CupertinoIcons.chart_pie,
+                        color: GH.green,
+                        label: 'الأرباح',
+                        onTap: () => pushPage(context, const SummaryPage()))),
+              ]),
             ),
             if (!store.ready)
               const Loading()

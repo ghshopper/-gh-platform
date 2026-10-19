@@ -9,14 +9,21 @@ class GH {
   static const gold = Color(0xFFB08A45);
   static const goldLight = Color(0xFFEADCBA);
   static const sand = Color(0xFFF3EBDF);
+  static const ink = Color(0xFF1F1915);
 
-  // Warm neutrals
-  static const bg = Color(0xFFF7F3EE);
+  // Warm beige neutrals (2026 look: beige page, white cards, soft shadows)
+  static const bg = Color(0xFFF4EEE6);
   static const card = Color(0xFFFFFFFF);
-  static const separator = Color(0xFFECE4DA);
-  static const label = Color(0xFF22110F);
+  static const separator = Color(0xFFEDE5DA);
+  static const label = Color(0xFF1F1915);
   static const secondary = Color(0xFF7A6C66);
   static const tertiary = Color(0xFFB9AEA7);
+
+  /// Soft card shadow.
+  static const shadow = [
+    BoxShadow(color: Color(0x0F3A2414), blurRadius: 18, offset: Offset(0, 6)),
+    BoxShadow(color: Color(0x08000000), blurRadius: 2, offset: Offset(0, 1)),
+  ];
 
   // Lively accents
   static const green = Color(0xFF1FA35B);
