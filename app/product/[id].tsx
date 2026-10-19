@@ -8,7 +8,7 @@ import { api, imageUrl, listOf, SITE_BASE } from '@/api';
 import { useAuth } from '@/auth';
 import { useCart } from '@/cart';
 import { useAppData } from '@/appdata';
-import { inStock, isOnOrder, num, productAttributes, productImages, productPrice, productWasPrice, waNumber } from '@/format';
+import { chosenOptions, inStock, isOnOrder, mustChoose, num, productAttributes, productImages, productPrice, productWasPrice, waNumber } from '@/format';
 import { useLoad } from '@/hooks';
 import { knownProduct, rememberProduct } from '@/product-cache';
 import { Icon } from '@/icons';
@@ -18,6 +18,7 @@ import { C, F, S } from '@/theme';
 import type { Product } from '@/types';
 import { BrandText, Btn, Divider, ErrorBox, Loader, Photo, Price, T } from '@/ui';
 import { useWishlist } from '@/wishlist';
+import { EngraveInput } from '@/engrave';
 
 const W = Dimensions.get('window').width;
 // Photo height: tall on iPhone, not taller than the screen allows on iPad.
@@ -120,7 +121,7 @@ export default function ProductScreen() {
   if (p.video_url) media.push({ kind: 'video', url: imageUrl(p.video_url) });
 
   const addToBag = () => {
-    const need = selectable.find((a) => !chosen[pick(a, 'name')]);
+    const need = selectable.filter(mustChoose).find((a) => !(chosen[pick(a, 'name')] ?? '').trim());
     if (need) {
       setMissing(pick(need, 'name'));
       return;
@@ -133,7 +134,7 @@ export default function ProductScreen() {
       price,
       comparePrice: was,
       image: images[0] ?? '',
-      options: Object.entries(chosen).map(([label, value]) => ({ label, value })),
+      options: chosenOptions(chosen),
     });
     showToast(tr('تمت الإضافة للسلة', 'Added to your bag'));
   };
@@ -254,6 +255,13 @@ export default function ProductScreen() {
         {/* Options (size, colour …) */}
         {selectable.map((a) => {
           const label = pick(a, 'name');
+          if (a.type === 'engraving') {
+            return (
+              <View key={label} style={{ paddingHorizontal: 22, marginTop: 18 }}>
+                <EngraveInput attr={a} label={label} value={chosen[label] ?? ''} onChange={(v) => { setChosen({ ...chosen, [label]: v }); setMissing(null); }} />
+              </View>
+            );
+          }
           return (
             <View key={label} style={{ paddingHorizontal: 22, marginTop: 18, gap: 10 }}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>

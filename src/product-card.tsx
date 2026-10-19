@@ -3,7 +3,8 @@ import { useEffect, useRef, useState } from 'react';
 import { Alert, Animated, Modal, Pressable, ScrollView, View, type StyleProp, type ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useCart } from './cart';
-import { inStock, isOnOrder, omr, productAttributes, productImages, productPrice, productWasPrice } from './format';
+import { chosenOptions, inStock, isOnOrder, mustChoose, omr, productAttributes, productImages, productPrice, productWasPrice } from './format';
+import { EngraveInput } from './engrave';
 import { Icon } from './icons';
 import { useLang } from './lang';
 import { rememberProduct } from './product-cache';
@@ -61,7 +62,7 @@ function useAddToBag() {
       price: productPrice(p),
       comparePrice: productWasPrice(p),
       image: productImages(p)[0] ?? '',
-      options: Object.entries(chosen).map(([label, value]) => ({ label, value })),
+      options: chosenOptions(chosen),
     });
     showToast(tr('تمت الإضافة للسلة', 'Added to your bag'));
   };
@@ -104,7 +105,7 @@ export function QuickAddHost() {
   const attrs = product ? selectableOf(product) : [];
   const confirm = () => {
     if (!product) return;
-    const need = attrs.find((a) => !chosen[pick(a, 'name')]);
+    const need = attrs.filter(mustChoose).find((a) => !(chosen[pick(a, 'name')] ?? '').trim());
     if (need) {
       setMissing(pick(need, 'name'));
       return;
@@ -134,6 +135,9 @@ export function QuickAddHost() {
               <ScrollView contentContainerStyle={{ padding: S.gutter, gap: 20 }}>
                 {attrs.map((a, i) => {
                   const label = pick(a, 'name') || tr('الخيار', 'Option');
+                  if (a.type === 'engraving') {
+                    return <EngraveInput key={i} attr={a} label={label} value={chosen[label] ?? ''} onChange={(v) => setChosen({ ...chosen, [label]: v })} />;
+                  }
                   return (
                     <View key={i} style={{ gap: 10 }}>
                       <T size={13} color={C.sub}>{label}{chosen[label] ? `: ${chosen[label]}` : ''}</T>

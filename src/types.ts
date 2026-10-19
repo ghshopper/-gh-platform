@@ -13,6 +13,9 @@ export interface ProductAttribute {
   name_en?: string | null;
   type?: string | null;
   is_selectable?: boolean;
+  /** type "engraving": the customer types a text (optional unless required). */
+  required?: boolean;
+  max_length?: number;
   values?: AttributeValue[];
 }
 
