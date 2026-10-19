@@ -117,10 +117,16 @@ _Out? _cut(_Job job) {
     final seen = Uint8List(w * h);
     final queue = Int32List(w * h);
     var head = 0, tail = 0;
+    // Shine and white rims on the piece are lighter than the backdrop:
+    // keep them (unless the backdrop is pure white, where nothing is lighter).
+    final bgLum = bg[0] * 0.3 + bg[1] * 0.59 + bg[2] * 0.11;
+    bool lighter(int i) => bgLum < 248 && p[i] * 0.3 + p[i + 1] * 0.59 + p[i + 2] * 0.11 > bgLum + 3;
+
     void push(int x, int y) {
       final k = y * w + x;
       if (seen[k] != 0) return;
       if (dist(k * 4) >= t2) return;
+      if (lighter(k * 4)) return;
       seen[k] = 1;
       queue[tail++] = k;
     }
