@@ -70,11 +70,11 @@ jobs:
             xcrun simctl terminate "$UDID" "$BID"; sleep 2
             mkdir -p "shots/$2"
             mk() { # name url
-              printf -- '- openLink: %s\n- tapOn:\n    text: "Open"\n    optional: true\n- waitForAnimationToEnd:\n    timeout: 8000\n- extendedWaitUntil:\n    notVisible: "Open in"\n    timeout: 4000\n    optional: true\n- takeScreenshot: shots/%s/%s\n' "$2" "$DEV" "$1"
+              printf -- '- openLink: %s\n- tapOn:\n    text: "Open"\n    optional: true\n- waitForAnimationToEnd:\n    timeout: 8000\n- extendedWaitUntil:\n    notVisible: "Open in"\n    timeout: 4000\n    optional: true\n- takeScreenshot: %s/shots/%s/%s\n' "$2" "$PWD" "$DEV" "$1"
             }
             DEV=$2
             {
-              printf 'appId: %s\n---\n- launchApp\n- waitForAnimationToEnd:\n    timeout: 15000\n- takeScreenshot: shots/%s/1-home\n' "$BID" "$DEV"
+              printf 'appId: %s\n---\n- launchApp\n- waitForAnimationToEnd:\n    timeout: 15000\n- takeScreenshot: %s/shots/%s/1-home\n' "$BID" "$PWD" "$DEV"
               mk 2-categories "ghshopper://categories"
               mk 3-product "ghshopper://product/$PID"
               printf -- '- tapOn:\n    text: ".*للسلة.*"\n    optional: true\n- waitForAnimationToEnd:\n    timeout: 4000\n'
@@ -84,17 +84,22 @@ jobs:
               mk 7-bag "ghshopper://bag"
             } > light.yaml
             cat light.yaml
-            ~/.maestro/bin/maestro --device "$UDID" test light.yaml || true
+            cp light.yaml "shots/$DEV-light.yaml"
+            ~/.maestro/bin/maestro --device "$UDID" test light.yaml > "shots/$DEV-maestro-light.log" 2>&1 || true
+            tail -40 "shots/$DEV-maestro-light.log"
+            find ~/.maestro/tests -name "*.png" -newer light.yaml -exec cp {} "shots/$DEV/" \; 2>/dev/null || true
             xcrun simctl ui "$UDID" appearance dark; sleep 2
             {
-              printf 'appId: %s\n---\n- launchApp\n- waitForAnimationToEnd:\n    timeout: 15000\n- takeScreenshot: shots/%s/8-home-dark\n' "$BID" "$DEV"
+              printf 'appId: %s\n---\n- launchApp\n- waitForAnimationToEnd:\n    timeout: 15000\n- takeScreenshot: %s/shots/%s/8-home-dark\n' "$BID" "$PWD" "$DEV"
               mk 9-product-dark "ghshopper://product/$PID"
             } > dark.yaml
-            ~/.maestro/bin/maestro --device "$UDID" test dark.yaml || true
+            ~/.maestro/bin/maestro --device "$UDID" test dark.yaml > "shots/$DEV-maestro-dark.log" 2>&1 || true
+            tail -20 "shots/$DEV-maestro-dark.log"
             xcrun simctl shutdown "$UDID"
           }
           shoot 'iPhone 1[0-9] Pro Max' iphone
           shoot 'iPad Pro 13' ipad
+          java -version 2>&1 | head -2 > shots/java.txt || true
           ls -R shots
       - name: Publish screenshots
         if: always()
