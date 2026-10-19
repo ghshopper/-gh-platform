@@ -52,11 +52,14 @@ export default function ImportItems() {
         api.get('/admin/import-items', { params: brand ? { brand } : {} }),
         categories.length ? Promise.resolve(null) : api.get('/admin/categories'),
       ])
-      setItems(r.data.data || [])
+      setItems(Array.isArray(r.data.data) ? r.data.data : [])
       setCounts(r.data.counts || {})
-      setBrands(r.data.brands || [])
+      setBrands(Array.isArray(r.data.brands) ? r.data.brands : [])
       setKey(r.data.collect_key || '')
-      if (c) setCategories(c.data.data || c.data || [])
+      if (c) {
+        const list = Array.isArray(c.data?.data) ? c.data.data : Array.isArray(c.data) ? c.data : []
+        setCategories(list)
+      }
     } catch {
       toast.error('تعذر تحميل المنتجات')
     } finally {
