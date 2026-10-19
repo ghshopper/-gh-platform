@@ -656,17 +656,6 @@ export default function Products() {
                   </div>
                   <p style={{ fontSize: 11.5, color: '#9CA3AF', margin: '6px 0 0' }}>إذا ما اخترت: تسليم فوري = عُمان، بالطلب = أوروبا.</p>
                 </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#6B7280', marginBottom: 8 }}>شارة التوصيل (Delivery Badge)</label>
-                  <select value={formData.delivery_badge} onChange={e => setFormData(f => ({...f, delivery_badge: e.target.value}))}
-                    style={{ width: '100%', padding: '12px 16px', border: '1.5px solid #E5E7EB', borderRadius: 10, fontSize: 14, fontFamily: 'inherit', outline: 'none', background: '#fff' }}>
-                    <option value="">بدون شارة</option>
-                    <option value="2h">توصيل خلال ساعتين</option>
-                    <option value="3d">توصيل خلال 3 أيام</option>
-                    <option value="5_7d">توصيل خلال 5 - 7 أيام</option>
-                    <option value="preorder">طلب مسبق</option>
-                  </select>
-                </div>
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 20 }}>

@@ -10,7 +10,7 @@ import {
   RiGroupLine,
   RiShoppingBag3Line,
   RiBillLine,
-  RiTruckLine,
+  RiTruckLine, RiQuestionLine,
   RiBankCardLine,
   RiStarSmileLine,
   RiBarChartBoxLine,
@@ -63,6 +63,7 @@ const navSections = [
   ] },
   { title: 'المتجر', items: [
     { label: 'واجهة التطبيق', icon: RiSmartphoneLine, path: '/admin/customize-app' },
+    { label: 'الأسئلة الشائعة', icon: RiQuestionLine, path: '/admin/faqs' },
     { label: 'الشحن', icon: RiTruckLine, path: '/admin/shipping' },
     { label: 'التقارير', icon: RiBarChartBoxLine, path: '/admin/reports' },
     { label: 'المستخدمون', icon: RiUserSettingsLine, path: '/admin/users' },

@@ -4,7 +4,7 @@ const PAGE_AREA = {
   invoices: 'finance', payments: 'finance', reports: 'finance',
   products: 'products', 'import-items': 'products', categories: 'products', brands: 'products', attributes: 'products', reviews: 'products',
   customers: 'customers', loyalty: 'customers', coupons: 'customers', 'gift-cards': 'customers',
-  'customize-app': 'marketing', 'notify-users': 'marketing',
+  'customize-app': 'marketing', 'notify-users': 'marketing', faqs: 'marketing',
   shipping: 'shipping',
   users: 'settings', settings: 'settings',
 }

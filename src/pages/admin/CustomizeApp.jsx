@@ -41,7 +41,6 @@ const TABS = [
   { id: 'splash',   label: 'شاشة البداية والشعار', icon: RiSmartphoneLine },
   { id: 'homescreen', label: 'الشاشة الرئيسية', icon: RiHome4Line },
   { id: 'colors',   label: 'ألوان التطبيق', icon: RiPaletteLine },
-  { id: 'badges',   label: 'شارات المنتجات', icon: RiPriceTag3Line },
   { id: 'bottomnav', label: 'القائمة السفلية', icon: RiMenuLine },
   { id: 'brandsscreen', label: 'شاشة البراندات', icon: RiVipDiamondLine },
   { id: 'profile', label: 'إعدادات الحساب', icon: RiUserLine },

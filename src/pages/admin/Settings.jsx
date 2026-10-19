@@ -595,17 +595,6 @@ export default function Settings({ onlyTab = null }) {
                     <label className="settings-label">تكلفة الشحن</label>
                     <input type="number" step="0.001" className="settings-input" placeholder="0.000" value={newCountry.shipping_cost} onChange={(e) => setNewCountry({...newCountry, shipping_cost: e.target.value})} />
                   </div>
-                  <div className="settings-input-group" style={{ flex: '1 1 150px' }}>
-                    <label className="settings-label">مدة التوصيل</label>
-                    <select className="settings-input" value={newCountry.estimated_delivery_time} onChange={(e) => setNewCountry({...newCountry, estimated_delivery_time: e.target.value})}>
-                      <option value="">بدون شارة (تلقائي)</option>
-                      {badges && Object.entries(badges)
-                        .filter(([key]) => key !== 'discount' && key !== 'preorder')
-                        .map(([key, badge]) => (
-                        <option key={key} value={key}>{badge.text_ar || key}</option>
-                      ))}
-                    </select>
-                  </div>
                   <button type="submit" className="settings-gold-btn" style={{ flex: 'none', height: '42px', padding: '0 20px' }}>
                     <RiAddLine size={20} /> إضافة
                   </button>
@@ -621,7 +610,6 @@ export default function Settings({ onlyTab = null }) {
                       <th>الكود</th>
                       <th>العملة</th>
                       <th>تكلفة الشحن</th>
-                      <th>المدة المتوقعة</th>
                       <th>الحالة</th>
                       <th>إجراءات</th>
                     </tr>
@@ -633,7 +621,6 @@ export default function Settings({ onlyTab = null }) {
                         <td><span style={{ background: '#F3F4F6', padding: '4px 8px', borderRadius: '4px', fontSize: '12px' }}>{country.code}</span></td>
                         <td>{country.currency_code} ({country.currency_symbol})</td>
                         <td>{country.shipping_cost} {country.currency_symbol}</td>
-                        <td>{country.estimated_delivery_time || '-'}</td>
                         <td>
                           <button
                             onClick={() => toggleCountryStatus(country.id, country.is_active)}
@@ -1071,17 +1058,6 @@ export default function Settings({ onlyTab = null }) {
                   <label className="settings-label">تكلفة الشحن الافتراضية</label>
                   <input type="number" step="0.001" className="settings-input" style={{ width: '100%' }} value={editingCountry.shipping_cost || 0} onChange={e => setEditingCountry({...editingCountry, shipping_cost: e.target.value})} />
                 </div>
-                <div style={{ flex: 1 }}>
-                  <label className="settings-label">مدة التوصيل المتوقعة</label>
-                  <select className="settings-input" style={{ width: '100%' }} value={editingCountry.estimated_delivery_time || ''} onChange={e => setEditingCountry({...editingCountry, estimated_delivery_time: e.target.value})}>
-                    <option value="">بدون شارة (تلقائي)</option>
-                    {badges && Object.entries(badges)
-                      .filter(([key]) => key !== 'discount' && key !== 'preorder')
-                      .map(([key, badge]) => (
-                      <option key={key} value={key}>{badge.text_ar || key}</option>
-                    ))}
-                  </select>
-                </div>
               </div>
 
               {/* Regions Section */}
@@ -1116,18 +1092,6 @@ export default function Settings({ onlyTab = null }) {
                         newRegions[index].shipping_cost = e.target.value;
                         setEditingCountry({...editingCountry, regions: newRegions});
                       }} required />
-                      <select className="settings-input" value={region.estimated_delivery_time || ''} onChange={(e) => {
-                        const newRegions = [...editingCountry.regions];
-                        newRegions[index].estimated_delivery_time = e.target.value;
-                        setEditingCountry({...editingCountry, regions: newRegions});
-                      }}>
-                        <option value="">بدون شارة (تلقائي)</option>
-                        {badges && Object.entries(badges)
-                          .filter(([key]) => key !== 'discount' && key !== 'preorder')
-                          .map(([key, badge]) => (
-                          <option key={key} value={key}>{badge.text_ar || key}</option>
-                        ))}
-                      </select>
                     </div>
                     <button type="button" className="action-icon" style={{ color: 'var(--color-danger)', marginTop: '8px' }} onClick={() => {
                       const newRegions = editingCountry.regions.filter((_, i) => i !== index);
