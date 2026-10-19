@@ -117,15 +117,31 @@ export default function Categories() {
   )
   const [adding, setAdding] = useState(null)
   const [sorting, setSorting] = useState(false)
+  // Re-sort every product: first a list of the moves, then only the ticked ones are applied.
+  const [plan, setPlan] = useState(null)
+  const [tick, setTick] = useState({})
   const autoSort = async () => {
-    if (!confirm('أرتّب المنتجات في التصنيفات حسب أسمائها؟\nالمنتجات اللي حطيتها بنفسك في تصنيف محدد ما تتغير.')) return
     setSorting(true)
     try {
-      const r = await api.post('/admin/categories/auto-sort')
-      toast.success(`انترتّب ${r.data?.moved ?? 0} منتج`)
+      const r = await api.post('/admin/categories/auto-sort', { preview: true, all: true })
+      const moves = r.data?.moves || []
+      if (!moves.length) { toast.success('كل المنتجات في تصنيفها الصحيح'); return }
+      setPlan(moves)
+      setTick(Object.fromEntries(moves.map((m) => [m.id, true])))
+    } catch { toast.error('تعذّر الفحص') } finally { setSorting(false) }
+  }
+  const applyPlan = async () => {
+    const ids = Object.keys(tick).filter((k) => tick[k]).map(Number)
+    if (!ids.length) return setPlan(null)
+    setSorting(true)
+    try {
+      const r = await api.post('/admin/categories/auto-sort', { all: true, ids })
+      toast.success(`انتقل ${r.data?.moved ?? 0} منتج لتصنيفه الصحيح`)
+      setPlan(null)
       fetchCategories()
     } catch { toast.error('تعذّر الترتيب') } finally { setSorting(false) }
   }
+  const planGroups = plan ? Object.entries(plan.reduce((g, m) => { (g[m.to_name] = g[m.to_name] || []).push(m); return g }, {})) : []
 
   return (
     <div style={{ padding: '32px', maxWidth: 1200, margin: '0 auto' }}>
@@ -137,7 +153,7 @@ export default function Categories() {
         </div>
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
         <button onClick={autoSort} disabled={sorting} className="btn btn-ghost" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          {sorting ? 'يرتّب…' : 'رتّب المنتجات تلقائياً'}
+          {sorting ? 'يفحص…' : 'أعد تصنيف كل المنتجات'}
         </button>
         <button onClick={openAdd} style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--color-primary)', color: '#fff', border: 'none', borderRadius: 10, padding: '12px 24px', fontSize: 14, fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 12px rgba(74,13,23,0.25)' }}>
           <RiAddLine size={18} /> إضافة تصنيف
@@ -351,6 +367,41 @@ export default function Categories() {
                 </div>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+      {plan && (
+        <div onClick={() => !sorting && setPlan(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(17,12,10,.45)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ background: '#fff', borderRadius: 16, width: '100%', maxWidth: 760, maxHeight: '88vh', display: 'flex', flexDirection: 'column' }}>
+            <div style={{ padding: '18px 22px', borderBottom: '1px solid #F3F4F6' }}>
+              <h3 style={{ margin: 0 }}>إعادة التصنيف: {plan.length} منتج بينتقل</h3>
+              <p style={{ margin: '4px 0 0', fontSize: 13, color: '#6B7280' }}>راجع القائمة وشيل الصح عن أي منتج ما تبيه ينتقل. «السبب» يقول من وين عرفنا التصنيف.</p>
+            </div>
+            <div style={{ overflowY: 'auto', padding: '6px 22px' }}>
+              {planGroups.map(([to, list]) => (
+                <div key={to} style={{ marginTop: 14 }}>
+                  <div style={{ fontWeight: 800, fontSize: 14, marginBottom: 6, display: 'flex', alignItems: 'center', gap: 8 }}>
+                    → {to} <span style={{ color: '#9CA3AF', fontWeight: 400 }}>({list.length})</span>
+                    <button type="button" className="btn btn-ghost" style={{ padding: '2px 8px', fontSize: 12, marginInlineStart: 'auto' }}
+                      onClick={() => { const on = !list.every((m) => tick[m.id]); setTick((t) => ({ ...t, ...Object.fromEntries(list.map((m) => [m.id, on])) })) }}>الكل</button>
+                  </div>
+                  {list.map((m) => (
+                    <label key={m.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '7px 0', borderTop: '1px solid #F7F7F7', fontSize: 13.5, cursor: 'pointer' }}>
+                      <input type="checkbox" checked={!!tick[m.id]} onChange={(e) => setTick((t) => ({ ...t, [m.id]: e.target.checked }))} />
+                      <span style={{ flex: 1 }}>{m.name}</span>
+                      <span style={{ color: '#9CA3AF', fontSize: 12 }}>من: {m.from_name}</span>
+                      <span style={{ color: '#B08A45', fontSize: 11.5, minWidth: 70 }}>{m.why}</span>
+                    </label>
+                  ))}
+                </div>
+              ))}
+            </div>
+            <div style={{ padding: '14px 22px', borderTop: '1px solid #F3F4F6', display: 'flex', gap: 10 }}>
+              <button className="btn btn-primary" disabled={sorting} onClick={applyPlan} style={{ flex: 1 }}>
+                {sorting ? 'ينقل…' : `انقل ${Object.values(tick).filter(Boolean).length} منتج`}
+              </button>
+              <button className="btn btn-ghost" disabled={sorting} onClick={() => setPlan(null)}>إلغاء</button>
+            </div>
           </div>
         </div>
       )}
