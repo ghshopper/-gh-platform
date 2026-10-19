@@ -1,387 +1,387 @@
-[15:28:23]: ▸ [35m[[36mshare_plus[0m] [1mWrite Auxiliary File[0m share_plus.modulemap[0m
-[15:28:23]: ▸ [35m[[36mshare_plus[0m] [1mWrite Auxiliary File[0m share_plus.DependencyMetadataFileList[0m
-[15:28:23]: ▸ [35m[[36mshare_plus[0m] [1mWrite Auxiliary File[0m e6072d4f65d7061329687fe24e3d63a7-common-args.resp[0m
-[15:28:23]: ▸ [35m[[36mshare_plus[0m] [1mWrite Auxiliary File[0m share_plus.LinkFileList[0m
-[15:28:23]: ▸ [35m[[36mshare_plus[0m] [1mWrite Auxiliary File[0m resource_bundle_accessor.m[0m
-[15:28:23]: ▸ [35m[[36mshare_plus[0m] [1mWrite Auxiliary File[0m resource_bundle_accessor.h[0m
-[15:28:23]: ▸ [35m[[36mshare_plus[0m] [1mCopy[0m share_plus.modulemap -> share_plus.modulemap[0m
-[15:28:23]: ▸ [35m[[36mprinting[0m] [1mWrite Auxiliary File[0m printing.modulemap[0m
-[15:28:23]: ▸ [35m[[36mprinting[0m] [1mWrite Auxiliary File[0m printing.DependencyStaticMetadataFileList[0m
-[15:28:23]: ▸ [35m[[36mprinting[0m] [1mWrite Auxiliary File[0m printing.DependencyMetadataFileList[0m
-[15:28:23]: ▸ [35m[[36mprinting[0m] [1mWrite Auxiliary File[0m printing_const_extract_protocols.json[0m
-[15:28:23]: ▸ [35m[[36mprinting[0m] [1mWrite Auxiliary File[0m printing.SwiftFileList[0m
-[15:28:23]: ▸ [35m[[36mprinting[0m] [1mWrite Auxiliary File[0m printing.SwiftConstValuesFileList[0m
-[15:28:23]: ▸ [35m[[36mprinting[0m] [1mWrite Auxiliary File[0m printing.LinkFileList[0m
-[15:28:23]: ▸ [35m[[36mprinting[0m] [1mWrite Auxiliary File[0m printing-OutputFileMap.json[0m
-[15:28:23]: ▸ [35m[[36mprinting[0m] [1mCopy[0m printing.modulemap -> printing.modulemap[0m
-[15:28:23]: ▸ [35m[[36mmobile_scanner_mobile_scanner[0m] [1mWrite Auxiliary File[0m mobile_scanner_mobile_scanner.DependencyStaticMetadataFileList[0m
-[15:28:23]: ▸ [35m[[36mmobile_scanner_mobile_scanner[0m] [1mWrite Auxiliary File[0m mobile_scanner_mobile_scanner.DependencyMetadataFileList[0m
-[15:28:23]: ▸ [35m[[36mmobile_scanner_mobile_scanner[0m] [1mWrite Auxiliary File[0m empty-mobile_scanner_mobile_scanner.plist[0m
-[15:28:23]: ▸ [35m[[36mmobile_scanner[0m] [1mWrite Auxiliary File[0m mobile_scanner.modulemap[0m
-[15:28:23]: ▸ [35m[[36mmobile_scanner[0m] [1mWrite Auxiliary File[0m mobile_scanner.DependencyStaticMetadataFileList[0m
-[15:28:23]: ▸ [35m[[36mmobile_scanner[0m] [1mWrite Auxiliary File[0m mobile_scanner.DependencyMetadataFileList[0m
-[15:28:23]: ▸ [35m[[36mmobile_scanner[0m] [1mWrite Auxiliary File[0m mobile_scanner_const_extract_protocols.json[0m
-[15:28:23]: ▸ [35m[[36mmobile_scanner[0m] [1mWrite Auxiliary File[0m mobile_scanner.SwiftFileList[0m
-[15:28:23]: ▸ [35m[[36mmobile_scanner[0m] [1mWrite Auxiliary File[0m mobile_scanner.SwiftConstValuesFileList[0m
-[15:28:23]: ▸ [35m[[36mmobile_scanner[0m] [1mWrite Auxiliary File[0m mobile_scanner.LinkFileList[0m
-[15:28:23]: ▸ [35m[[36mmobile_scanner[0m] [1mWrite Auxiliary File[0m mobile_scanner-OutputFileMap.json[0m
-[15:28:23]: ▸ [35m[[36mmobile_scanner[0m] [1mWrite Auxiliary File[0m resource_bundle_accessor.swift[0m
-[15:28:23]: ▸ [35m[[36mmobile_scanner[0m] [1mCopy[0m mobile_scanner.modulemap -> mobile_scanner.modulemap[0m
-[15:28:23]: ▸ [35m[[36mlocal_auth_darwin_local_auth_darwin[0m] [1mWrite Auxiliary File[0m local_auth_darwin_local_auth_darwin.DependencyStaticMetadataFileList[0m
-[15:28:23]: ▸ [35m[[36mlocal_auth_darwin_local_auth_darwin[0m] [1mWrite Auxiliary File[0m local_auth_darwin_local_auth_darwin.DependencyMetadataFileList[0m
-[15:28:23]: ▸ [35m[[36mlocal_auth_darwin_local_auth_darwin[0m] [1mWrite Auxiliary File[0m empty-local_auth_darwin_local_auth_darwin.plist[0m
-[15:28:23]: ▸ [35m[[36mlocal_auth_darwin[0m] [1mWrite Auxiliary File[0m local_auth_darwin.modulemap[0m
-[15:28:23]: ▸ [35m[[36mlocal_auth_darwin[0m] [1mWrite Auxiliary File[0m local_auth_darwin.DependencyStaticMetadataFileList[0m
-[15:28:23]: ▸ [35m[[36mlocal_auth_darwin[0m] [1mWrite Auxiliary File[0m local_auth_darwin.DependencyMetadataFileList[0m
-[15:28:23]: ▸ [35m[[36mlocal_auth_darwin[0m] [1mWrite Auxiliary File[0m local_auth_darwin_const_extract_protocols.json[0m
-[15:28:23]: ▸ [35m[[36mlocal_auth_darwin[0m] [1mWrite Auxiliary File[0m local_auth_darwin.SwiftFileList[0m
-[15:28:23]: ▸ [35m[[36mlocal_auth_darwin[0m] [1mWrite Auxiliary File[0m local_auth_darwin.SwiftConstValuesFileList[0m
-[15:28:23]: ▸ [35m[[36mlocal_auth_darwin[0m] [1mWrite Auxiliary File[0m local_auth_darwin.LinkFileList[0m
-[15:28:23]: ▸ [35m[[36mlocal_auth_darwin[0m] [1mWrite Auxiliary File[0m local_auth_darwin-OutputFileMap.json[0m
-[15:28:23]: ▸ [35m[[36mlocal_auth_darwin[0m] [1mWrite Auxiliary File[0m resource_bundle_accessor.swift[0m
-[15:28:23]: ▸ [35m[[36mlocal_auth_darwin[0m] [1mCopy[0m local_auth_darwin.modulemap -> local_auth_darwin.modulemap[0m
-[15:28:23]: ▸ [35m[[36mimage_picker_ios_image_picker_ios[0m] [1mWrite Auxiliary File[0m image_picker_ios_image_picker_ios.DependencyStaticMetadataFileList[0m
-[15:28:23]: ▸ [35m[[36mimage_picker_ios_image_picker_ios[0m] [1mWrite Auxiliary File[0m image_picker_ios_image_picker_ios.DependencyMetadataFileList[0m
-[15:28:23]: ▸ [35m[[36mimage_picker_ios_image_picker_ios[0m] [1mWrite Auxiliary File[0m empty-image_picker_ios_image_picker_ios.plist[0m
-[15:28:23]: ▸ [35m[[36mimage_picker_ios[0m] [1mWrite Auxiliary File[0m image_picker_ios.DependencyStaticMetadataFileList[0m
-[15:28:23]: ▸ [35m[[36mimage_picker_ios[0m] [1mWrite Auxiliary File[0m image_picker_ios.modulemap[0m
-[15:28:23]: ▸ [35m[[36mimage_picker_ios[0m] [1mWrite Auxiliary File[0m image_picker_ios.DependencyMetadataFileList[0m
-[15:28:23]: ▸ [35m[[36mimage_picker_ios[0m] [1mWrite Auxiliary File[0m image_picker_ios.LinkFileList[0m
-[15:28:23]: ▸ [35m[[36mimage_picker_ios[0m] [1mWrite Auxiliary File[0m e6072d4f65d7061329687fe24e3d63a7-common-args.resp[0m
-[15:28:23]: ▸ [35m[[36mimage_picker_ios[0m] [1mWrite Auxiliary File[0m resource_bundle_accessor.m[0m
-[15:28:23]: ▸ [35m[[36mimage_picker_ios[0m] [1mWrite Auxiliary File[0m resource_bundle_accessor.h[0m
-[15:28:23]: ▸ [35m[[36mimage_picker_ios[0m] [1mCopy[0m image_picker_ios.modulemap -> image_picker_ios.modulemap[0m
-[15:28:23]: ▸ [35m[[36mapp_links_app_links[0m] [1mWrite Auxiliary File[0m empty-app_links_app_links.plist[0m
-[15:28:23]: ▸ [35m[[36mapp_links_app_links[0m] [1mWrite Auxiliary File[0m app_links_app_links.DependencyStaticMetadataFileList[0m
-[15:28:23]: ▸ [35m[[36mapp_links_app_links[0m] [1mWrite Auxiliary File[0m app_links_app_links.DependencyMetadataFileList[0m
-[15:28:23]: ▸ [35m[[36mapp_links[0m] [1mWrite Auxiliary File[0m app_links.modulemap[0m
-[15:28:23]: ▸ [35m[[36mapp_links[0m] [1mWrite Auxiliary File[0m app_links.DependencyStaticMetadataFileList[0m
-[15:28:23]: ▸ [35m[[36mapp_links[0m] [1mWrite Auxiliary File[0m app_links.DependencyMetadataFileList[0m
-[15:28:23]: ▸ [35m[[36mapp_links[0m] [1mWrite Auxiliary File[0m app_links.SwiftFileList[0m
-[15:28:23]: ▸ [35m[[36mapp_links[0m] [1mWrite Auxiliary File[0m app_links_const_extract_protocols.json[0m
-[15:28:23]: ▸ [35m[[36mapp_links[0m] [1mWrite Auxiliary File[0m app_links.SwiftConstValuesFileList[0m
-[15:28:23]: ▸ [35m[[36mapp_links[0m] [1mWrite Auxiliary File[0m app_links.LinkFileList[0m
-[15:28:23]: ▸ [35m[[36mapp_links[0m] [1mWrite Auxiliary File[0m app_links-OutputFileMap.json[0m
-[15:28:23]: ▸ [35m[[36mapp_links[0m] [1mWrite Auxiliary File[0m resource_bundle_accessor.swift[0m
-[15:28:23]: ▸ [35m[[36mapp_links[0m] [1mCopy[0m app_links.modulemap -> app_links.modulemap[0m
-[15:28:23]: ▸ [35m[[36mRunner[0m] [1mWrite Auxiliary File[0m Script-9740EEB61CF901F6004384FC.sh[0m
-[15:28:23]: ▸ [35m[[36mRunner[0m] [1mWrite Auxiliary File[0m Script-808CE80EC8FF671AE5126981.sh[0m
-[15:28:23]: ▸ [35m[[36mRunner[0m] [1mWrite Auxiliary File[0m Script-54E312CE2FA28BCC6F289705.sh[0m
-[15:28:23]: ▸ [35m[[36mRunner[0m] [1mWrite Auxiliary File[0m Script-3B06AD1E1E4923F5004D2608.sh[0m
-[15:28:23]: ▸ [35m[[36mRunner[0m] [1mWrite Auxiliary File[0m Runner.hmap[0m
-[15:28:23]: ▸ [35m[[36mRunner[0m] [1mWrite Auxiliary File[0m Runner.DependencyStaticMetadataFileList[0m
-[15:28:23]: ▸ [35m[[36mRunner[0m] [1mWrite Auxiliary File[0m Runner.DependencyMetadataFileList[0m
-[15:28:23]: ▸ [35m[[36mRunner[0m] [1mWrite Auxiliary File[0m Runner-project-headers.hmap[0m
-[15:28:23]: ▸ [35m[[36mRunner[0m] [1mWrite Auxiliary File[0m Runner-own-target-headers.hmap[0m
-[15:28:23]: ▸ [35m[[36mRunner[0m] [1mWrite Auxiliary File[0m Runner-generated-files.hmap[0m
-[15:28:23]: ▸ [35m[[36mRunner[0m] [1mWrite Auxiliary File[0m Runner-all-target-headers.hmap[0m
-[15:28:23]: ▸ [35m[[36mRunner[0m] [1mWrite Auxiliary File[0m Runner-all-non-framework-target-headers.hmap[0m
-[15:28:23]: ▸ [35m[[36mRunner[0m] [1mWrite Auxiliary File[0m OutputFileList-54E312CE2FA28BCC6F289705-Pods-Runner-frameworks-Release-output-files-9f5e66295458f11c6380933daacc74c7-resolved.xcfilelist[0m
-[15:28:23]: ▸ [35m[[36mRunner[0m] [1mWrite Auxiliary File[0m e6072d4f65d7061329687fe24e3d63a7-common-args.resp[0m
-[15:28:23]: ▸ [35m[[36mRunner[0m] [1mWrite Auxiliary File[0m Runner_const_extract_protocols.json[0m
-[15:28:23]: ▸ [35m[[36mRunner[0m] [1mWrite Auxiliary File[0m Runner.SwiftFileList[0m
-[15:28:23]: ▸ [35m[[36mRunner[0m] [1mWrite Auxiliary File[0m Runner.SwiftConstValuesFileList[0m
-[15:28:23]: ▸ [35m[[36mRunner[0m] [1mWrite Auxiliary File[0m Runner.LinkFileList[0m
-[15:28:23]: ▸ [35m[[36mRunner[0m] [1mWrite Auxiliary File[0m Runner-OutputFileMap.json[0m
-[15:28:23]: ▸ [35m[[36mRunner[0m] [1mWrite Auxiliary File[0m 7187679823f38a2a940e0043cdf9d637-common-args.resp[0m
-[15:28:23]: ▸ [35m[[36mRunner[0m] [1mWrite Auxiliary File[0m InputFileList-54E312CE2FA28BCC6F289705-Pods-Runner-frameworks-Release-input-files-43346d50ef68c064d8a5f4759835ce46-resolved.xcfilelist[0m
-[15:28:23]: ▸ [35m[[36mRunner[0m] [1mWrite Auxiliary File[0m Runner_vers.c[0m
-[15:28:23]: ▸ [35m[[36mRunner[0m] [1mWrite Auxiliary File[0m Entitlements.plist[0m
-[15:28:23]: ▸ [35m[[36mPods-Runner[0m] [1mWrite Auxiliary File[0m Pods_Runner.hmap[0m
-[15:28:23]: ▸ [35m[[36mPods-Runner[0m] [1mWrite Auxiliary File[0m Pods_Runner.DependencyStaticMetadataFileList[0m
-[15:28:23]: ▸ [35m[[36mPods-Runner[0m] [1mWrite Auxiliary File[0m Pods_Runner.DependencyMetadataFileList[0m
-[15:28:23]: ▸ [35m[[36mPods-Runner[0m] [1mWrite Auxiliary File[0m Pods_Runner-project-headers.hmap[0m
-[15:28:23]: ▸ [35m[[36mPods-Runner[0m] [1mWrite Auxiliary File[0m Pods_Runner-own-target-headers.hmap[0m
-[15:28:23]: ▸ [35m[[36mPods-Runner[0m] [1mWrite Auxiliary File[0m Pods_Runner-generated-files.hmap[0m
-[15:28:23]: ▸ [35m[[36mPods-Runner[0m] [1mWrite Auxiliary File[0m Pods_Runner-all-target-headers.hmap[0m
-[15:28:23]: ▸ [35m[[36mPods-Runner[0m] [1mWrite Auxiliary File[0m Pods_Runner-all-non-framework-target-headers.hmap[0m
-[15:28:23]: ▸ [35m[[36mPods-Runner[0m] [1mWrite Auxiliary File[0m e6072d4f65d7061329687fe24e3d63a7-common-args.resp[0m
-[15:28:23]: ▸ [35m[[36mPods-Runner[0m] [1mWrite Auxiliary File[0m Pods_Runner.LinkFileList[0m
-[15:28:23]: ▸ [35m[[36mPods-Runner[0m] [1mWrite Auxiliary File[0m 7187679823f38a2a940e0043cdf9d637-common-args.resp[0m
-[15:28:23]: ▸ [35m[[36mPods-Runner[0m] [1mWrite Auxiliary File[0m Pods_Runner_vers.c[0m
-[15:28:23]: ▸ [35m[[36mPods-Runner[0m] [1mCopying[0m Pods-Runner-umbrella.h[0m
-[15:28:23]: ▸ [35m[[36mPods-Runner[0m] [1mCopy[0m module.modulemap -> Pods-Runner.modulemap[0m
-[15:28:23]: ▸ [35m[[36mFlutterGeneratedPluginSwiftPackage[0m] [1mWrite Auxiliary File[0m FlutterGeneratedPluginSwiftPackage_const_extract_protocols.json[0m
-[15:28:23]: ▸ [35m[[36mFlutterGeneratedPluginSwiftPackage[0m] [1mWrite Auxiliary File[0m FlutterGeneratedPluginSwiftPackage.SwiftFileList[0m
-[15:28:23]: ▸ [35m[[36mPods-Runner[0m] [1mCopy[0m module.modulemap -> module.modulemap[0m
-[15:28:23]: ▸ [35m[[36mFlutterGeneratedPluginSwiftPackage[0m] [1mWrite Auxiliary File[0m FlutterGeneratedPluginSwiftPackage.SwiftConstValuesFileList[0m
-[15:28:23]: ▸ [35m[[36mFlutterGeneratedPluginSwiftPackage[0m] [1mWrite Auxiliary File[0m FlutterGeneratedPluginSwiftPackage.LinkFileList[0m
-[15:28:23]: ▸ [35m[[36mFlutterGeneratedPluginSwiftPackage[0m] [1mWrite Auxiliary File[0m FlutterGeneratedPluginSwiftPackage-OutputFileMap.json[0m
-[15:28:23]: ▸ [35m[[36mFlutterGeneratedPluginSwiftPackage[0m] [1mWrite Auxiliary File[0m FlutterGeneratedPluginSwiftPackage.modulemap[0m
-[15:28:23]: ▸ [35m[[36mFlutterGeneratedPluginSwiftPackage[0m] [1mWrite Auxiliary File[0m FlutterGeneratedPluginSwiftPackage.DependencyStaticMetadataFileList[0m
-[15:28:23]: ▸ [35m[[36mFlutterGeneratedPluginSwiftPackage[0m] [1mWrite Auxiliary File[0m FlutterGeneratedPluginSwiftPackage.DependencyMetadataFileList[0m
-[15:28:23]: ▸ [35m[[36mFlutterGeneratedPluginSwiftPackage[0m] [1mCopy[0m FlutterGeneratedPluginSwiftPackage.modulemap -> FlutterGeneratedPluginSwiftPackage.modulemap[0m
-[15:28:23]: ▸ [35m[[36mFlutterFramework[0m] [1mWrite Auxiliary File[0m FlutterFramework_const_extract_protocols.json[0m
-[15:28:23]: ▸ [35m[[36mFlutterFramework[0m] [1mWrite Auxiliary File[0m FlutterFramework.SwiftFileList[0m
-[15:28:23]: ▸ [35m[[36mFlutterFramework[0m] [1mWrite Auxiliary File[0m FlutterFramework.SwiftConstValuesFileList[0m
-[15:28:23]: ▸ [35m[[36mFlutterFramework[0m] [1mWrite Auxiliary File[0m FlutterFramework.LinkFileList[0m
-[15:28:23]: ▸ [35m[[36mFlutterFramework[0m] [1mWrite Auxiliary File[0m FlutterFramework-OutputFileMap.json[0m
-[15:28:23]: ▸ [35m[[36mFlutterFramework[0m] [1mWrite Auxiliary File[0m FlutterFramework.modulemap[0m
-[15:28:23]: ▸ [35m[[36mFlutterFramework[0m] [1mWrite Auxiliary File[0m FlutterFramework.DependencyStaticMetadataFileList[0m
-[15:28:23]: ▸ [35m[[36mFlutterFramework[0m] [1mWrite Auxiliary File[0m FlutterFramework.DependencyMetadataFileList[0m
-[15:28:23]: ▸ [35m[[36mFlutterFramework[0m] [1mCopy[0m FlutterFramework.modulemap -> FlutterFramework.modulemap[0m
-[15:28:23]: ▸ [35m[[36murl_launcher_ios_url_launcher_ios[0m] [1mProcessing[0m empty-url_launcher_ios_url_launcher_ios.plist[0m
-[15:28:23]: ▸ [35m[[36murl_launcher_ios_url_launcher_ios[0m] [1mCopying[0m PrivacyInfo.xcprivacy[0m
-[15:28:23]: ▸ [35m[[36mshared_preferences_foundation_shared_preferences_foundation[0m] [1mProcessing[0m empty-shared_preferences_foundation_shared_preferences_foundation.plist[0m
-[15:28:23]: ▸ [35m[[36mshared_preferences_foundation_shared_preferences_foundation[0m] [1mCopying[0m PrivacyInfo.xcprivacy[0m
-[15:28:26]: ▸ [35m[[36murl_launcher_ios_url_launcher_ios[0m] [1mRegisterExecutionPolicyException[0m url_launcher_ios_url_launcher_ios.bundle[0m
-[15:28:26]: ▸ [35m[[36murl_launcher_ios_url_launcher_ios[0m] [1mTouching[0m url_launcher_ios_url_launcher_ios.bundle[0m
-[15:28:26]: ▸ [35m[[36mshared_preferences_foundation_shared_preferences_foundation[0m] [1mRegisterExecutionPolicyException[0m shared_preferences_foundation_shared_preferences_foundation.bundle[0m
-[15:28:26]: ▸ [35m[[36mshared_preferences_foundation_shared_preferences_foundation[0m] [1mTouching[0m shared_preferences_foundation_shared_preferences_foundation.bundle[0m
-[15:28:26]: ▸ [35m[[36mshare_plus_share_plus[0m] [1mProcessing[0m empty-share_plus_share_plus.plist[0m
-[15:28:26]: ▸ [35m[[36mshare_plus_share_plus[0m] [1mCopying[0m PrivacyInfo.xcprivacy[0m
-[15:28:27]: ▸ [35m[[36mshare_plus_share_plus[0m] [1mRegisterExecutionPolicyException[0m share_plus_share_plus.bundle[0m
-[15:28:27]: ▸ [35m[[36mshare_plus_share_plus[0m] [1mTouching[0m share_plus_share_plus.bundle[0m
-[15:28:27]: ▸ [35m[[36mmobile_scanner_mobile_scanner[0m] [1mProcessing[0m empty-mobile_scanner_mobile_scanner.plist[0m
-[15:28:27]: ▸ [35m[[36mmobile_scanner_mobile_scanner[0m] [1mCopying[0m PrivacyInfo.xcprivacy[0m
-[15:28:38]: ▸ [35m[[36murl_launcher_ios[0m] [1mCopy[0m arm64-apple-ios.swiftmodule -> url_launcher_ios.swiftmodule[0m
-[15:28:38]: ▸ [35m[[36murl_launcher_ios[0m] [1mCopy[0m arm64-apple-ios.swiftdoc -> url_launcher_ios.swiftdoc[0m
-[15:28:38]: ▸ [35m[[36murl_launcher_ios[0m] [1mCopy[0m arm64-apple-ios.abi.json -> url_launcher_ios.abi.json[0m
-[15:28:38]: ▸ [35m[[36mshare_plus[0m] [1mCompiling[0m resource_bundle_accessor.m[0m
-[15:28:38]: ▸ [35m[[36mshared_preferences_foundation[0m] [1mCopy[0m arm64-apple-ios.swiftmodule -> shared_preferences_foundation.swiftmodule[0m
-[15:28:38]: ▸ [35m[[36mshared_preferences_foundation[0m] [1mCopy[0m arm64-apple-ios.swiftdoc -> shared_preferences_foundation.swiftdoc[0m
-[15:28:38]: ▸ [35m[[36mshared_preferences_foundation[0m] [1mCopy[0m arm64-apple-ios.abi.json -> shared_preferences_foundation.abi.json[0m
-[15:28:38]: ▸ [35m[[36murl_launcher_ios[0m] [1mLinking[0m url_launcher_ios.o[0m
-[15:28:38]: ▸ [35m[[36mshared_preferences_foundation[0m] [1mLinking[0m shared_preferences_foundation.o[0m
-[15:28:38]: ▸ [35m[[36murl_launcher_ios[0m] [1mExtract App Intents Metadata[0m
-[15:28:38]: ▸ [35m[[36mshared_preferences_foundation[0m] [1mExtract App Intents Metadata[0m
-[15:28:38]: ▸ [35m[[36murl_launcher_ios[0m] [1mRegisterExecutionPolicyException[0m url_launcher_ios.o[0m
-[15:28:38]: ▸ [35m[[36mshared_preferences_foundation[0m] [1mRegisterExecutionPolicyException[0m shared_preferences_foundation.o[0m
-[15:28:38]: ▸ [35m[[36mmobile_scanner_mobile_scanner[0m] [1mRegisterExecutionPolicyException[0m mobile_scanner_mobile_scanner.bundle[0m
-[15:28:38]: ▸ [35m[[36mmobile_scanner_mobile_scanner[0m] [1mTouching[0m mobile_scanner_mobile_scanner.bundle[0m
-[15:28:38]: ▸ [35m[[36mlocal_auth_darwin_local_auth_darwin[0m] [1mProcessing[0m empty-local_auth_darwin_local_auth_darwin.plist[0m
-[15:28:38]: ▸ [35m[[36mlocal_auth_darwin_local_auth_darwin[0m] [1mCopying[0m PrivacyInfo.xcprivacy[0m
-[15:28:38]: ▸ [35m[[36mflutter_secure_storage-flutter_secure_storage[0m] [1mWrite Auxiliary File[0m flutter_secure_storage.hmap[0m
-[15:28:38]: ▸ [35m[[36mflutter_secure_storage-flutter_secure_storage[0m] [1mWrite Auxiliary File[0m flutter_secure_storage.DependencyStaticMetadataFileList[0m
-[15:28:38]: ▸ [35m[[36mflutter_secure_storage-flutter_secure_storage[0m] [1mWrite Auxiliary File[0m flutter_secure_storage.DependencyMetadataFileList[0m
-[15:28:38]: ▸ [35m[[36mflutter_secure_storage-flutter_secure_storage[0m] [1mWrite Auxiliary File[0m flutter_secure_storage-project-headers.hmap[0m
-[15:28:38]: ▸ [35m[[36mflutter_secure_storage-flutter_secure_storage[0m] [1mWrite Auxiliary File[0m flutter_secure_storage-own-target-headers.hmap[0m
-[15:28:38]: ▸ [35m[[36mflutter_secure_storage-flutter_secure_storage[0m] [1mWrite Auxiliary File[0m flutter_secure_storage-generated-files.hmap[0m
-[15:28:38]: ▸ [35m[[36mflutter_secure_storage-flutter_secure_storage[0m] [1mWrite Auxiliary File[0m flutter_secure_storage-all-target-headers.hmap[0m
-[15:28:38]: ▸ [35m[[36mflutter_secure_storage-flutter_secure_storage[0m] [1mWrite Auxiliary File[0m flutter_secure_storage-all-non-framework-target-headers.hmap[0m
-[15:28:38]: ▸ [35m[[36mshare_plus[0m] [1mCompiling[0m FPPSharePlusPlugin.m[0m
-[15:28:38]: ▸ [35m[[36mshare_plus[0m] [1mLinking[0m share_plus.o[0m
-[15:28:38]: ▸ [35m[[36mflutter_secure_storage[0m] [1mWrite Auxiliary File[0m unextended-module-swiftunextension.modulemap[0m
-[15:28:38]: ▸ [35m[[36mflutter_secure_storage[0m] [1mWrite Auxiliary File[0m unextended-module-overlay.yaml[0m
-[15:28:38]: ▸ [35m[[36mflutter_secure_storage[0m] [1mWrite Auxiliary File[0m module-swiftextension.modulemap[0m
-[15:28:38]: ▸ [35m[[36mflutter_secure_storage[0m] [1mWrite Auxiliary File[0m flutter_secure_storage.hmap[0m
-[15:28:38]: ▸ [35m[[36mflutter_secure_storage[0m] [1mWrite Auxiliary File[0m flutter_secure_storage.DependencyStaticMetadataFileList[0m
-[15:28:38]: ▸ [35m[[36mflutter_secure_storage[0m] [1mWrite Auxiliary File[0m flutter_secure_storage.DependencyMetadataFileList[0m
-[15:28:38]: ▸ [35m[[36mflutter_secure_storage[0m] [1mWrite Auxiliary File[0m flutter_secure_storage-project-headers.hmap[0m
-[15:28:38]: ▸ [35m[[36mflutter_secure_storage[0m] [1mWrite Auxiliary File[0m flutter_secure_storage-own-target-headers.hmap[0m
-[15:28:38]: ▸ [35m[[36mflutter_secure_storage[0m] [1mWrite Auxiliary File[0m flutter_secure_storage-generated-files.hmap[0m
-[15:28:38]: ▸ [35m[[36mflutter_secure_storage[0m] [1mWrite Auxiliary File[0m flutter_secure_storage-all-target-headers.hmap[0m
-[15:28:38]: ▸ [35m[[36mflutter_secure_storage[0m] [1mWrite Auxiliary File[0m flutter_secure_storage-all-non-framework-target-headers.hmap[0m
-[15:28:38]: ▸ [35m[[36mflutter_secure_storage[0m] [1mWrite Auxiliary File[0m flutter_secure_storage_const_extract_protocols.json[0m
-[15:28:38]: ▸ [35m[[36mflutter_secure_storage[0m] [1mWrite Auxiliary File[0m flutter_secure_storage.SwiftFileList[0m
-[15:28:38]: ▸ [35m[[36mflutter_secure_storage[0m] [1mWrite Auxiliary File[0m flutter_secure_storage.SwiftConstValuesFileList[0m
-[15:28:38]: ▸ [35m[[36mflutter_secure_storage[0m] [1mWrite Auxiliary File[0m flutter_secure_storage.LinkFileList[0m
-[15:28:38]: ▸ [35m[[36mflutter_secure_storage[0m] [1mWrite Auxiliary File[0m flutter_secure_storage-OutputFileMap.json[0m
-[15:28:38]: ▸ [35m[[36mflutter_secure_storage[0m] [1mWrite Auxiliary File[0m e6072d4f65d7061329687fe24e3d63a7-common-args.resp[0m
-[15:28:38]: ▸ [35m[[36mflutter_secure_storage[0m] [1mWrite Auxiliary File[0m 7187679823f38a2a940e0043cdf9d637-common-args.resp[0m
-[15:28:38]: ▸ [35m[[36mflutter_secure_storage[0m] [1mWrite Auxiliary File[0m flutter_secure_storage_vers.c[0m
-[15:28:38]: ▸ [35m[[36mflutter_secure_storage[0m] [1mCopying[0m flutter_secure_storage-umbrella.h[0m
-[15:28:38]: ▸ [35m[[36mflutter_secure_storage[0m] [1mCopying[0m FlutterSecureStoragePlugin.h[0m
-[15:28:38]: ▸ [35m[[36mflutter_secure_storage[0m] [1mCopy[0m module.modulemap -> module.modulemap[0m
-[15:28:38]: ▸ [35m[[36mlocal_auth_darwin_local_auth_darwin[0m] [1mRegisterExecutionPolicyException[0m local_auth_darwin_local_auth_darwin.bundle[0m
-[15:28:38]: ▸ [35m[[36mlocal_auth_darwin_local_auth_darwin[0m] [1mTouching[0m local_auth_darwin_local_auth_darwin.bundle[0m
-[15:28:38]: ▸ [35m[[36mshare_plus[0m] [1mRegisterExecutionPolicyException[0m share_plus.o[0m
-[15:28:38]: ▸ [35m[[36mimage_picker_ios_image_picker_ios[0m] [1mProcessing[0m empty-image_picker_ios_image_picker_ios.plist[0m
-[15:28:38]: ▸ [35m[[36mimage_picker_ios_image_picker_ios[0m] [1mCopying[0m PrivacyInfo.xcprivacy[0m
-[15:28:38]: ▸ [35m[[36mlocal_auth_darwin[0m] [1mCopy[0m arm64-apple-ios.swiftmodule -> local_auth_darwin.swiftmodule[0m
-[15:28:38]: ▸ [35m[[36mlocal_auth_darwin[0m] [1mCopy[0m arm64-apple-ios.swiftdoc -> local_auth_darwin.swiftdoc[0m
-[15:28:38]: ▸ [35m[[36mlocal_auth_darwin[0m] [1mCopy[0m arm64-apple-ios.abi.json -> local_auth_darwin.abi.json[0m
-[15:28:38]: ▸ [35m[[36mlocal_auth_darwin[0m] [1mLinking[0m local_auth_darwin.o[0m
-[15:28:38]: ▸ [35m[[36mimage_picker_ios[0m] [1mCompiling[0m resource_bundle_accessor.m[0m
-[15:28:39]: ▸ [35m[[36mlocal_auth_darwin[0m] [1mExtract App Intents Metadata[0m
-[15:28:39]: ▸ [35m[[36mmobile_scanner[0m] [1mCopy[0m arm64-apple-ios.swiftmodule -> mobile_scanner.swiftmodule[0m
-[15:28:39]: ▸ [35m[[36mmobile_scanner[0m] [1mCopy[0m arm64-apple-ios.swiftdoc -> mobile_scanner.swiftdoc[0m
-[15:28:39]: ▸ [35m[[36mmobile_scanner[0m] [1mCopy[0m arm64-apple-ios.abi.json -> mobile_scanner.abi.json[0m
-[15:28:39]: ▸ [35m[[36mmobile_scanner[0m] [1mLinking[0m mobile_scanner.o[0m
-[15:28:39]: ▸ [35m[[36mmobile_scanner[0m] [1mExtract App Intents Metadata[0m
-[15:28:39]: ▸ [35m[[36mmobile_scanner[0m] [1mRegisterExecutionPolicyException[0m mobile_scanner.o[0m
-[15:28:39]: ▸ [35m[[36mlocal_auth_darwin[0m] [1mRegisterExecutionPolicyException[0m local_auth_darwin.o[0m
-[15:28:39]: ▸ [35m[[36mflutter_secure_storage-flutter_secure_storage[0m] [1mProcessing[0m ResourceBundle-flutter_secure_storage-flutter_secure_storage-Info.plist[0m
-[15:28:39]: ▸ [35m[[36mflutter_secure_storage-flutter_secure_storage[0m] [1mCopying[0m PrivacyInfo.xcprivacy[0m
-[15:28:39]: ▸ [35m[[36mimage_picker_ios_image_picker_ios[0m] [1mRegisterExecutionPolicyException[0m image_picker_ios_image_picker_ios.bundle[0m
-[15:28:40]: ▸ [35m[[36mimage_picker_ios_image_picker_ios[0m] [1mTouching[0m image_picker_ios_image_picker_ios.bundle[0m
-[15:28:40]: ▸ [35m[[36mflutter_secure_storage-flutter_secure_storage[0m] [1mRegisterExecutionPolicyException[0m flutter_secure_storage.bundle[0m
-[15:28:40]: ▸ [35m[[36mapp_links_app_links[0m] [1mProcessing[0m empty-app_links_app_links.plist[0m
-[15:28:40]: ▸ [35m[[36mapp_links_app_links[0m] [1mCopying[0m PrivacyInfo.xcprivacy[0m
-[15:28:40]: ▸ [35m[[36mflutter_secure_storage-flutter_secure_storage[0m] [1mTouching[0m flutter_secure_storage.bundle[0m
-[15:28:40]: ▸ [35m[[36mflutter_secure_storage[0m] [1mProcessing[0m flutter_secure_storage-Info.plist[0m
-[15:28:40]: ▸ [35m[[36mflutter_secure_storage[0m] [1mCopying[0m flutter_secure_storage.bundle[0m
-[15:28:40]: ▸ [35m[[36mFlutterFramework[0m] [1mCompiling[0m FlutterFramework.swift[0m
-[15:28:40]: ▸ [35m[[36mFlutterFramework[0m] [1mCopy[0m arm64-apple-ios.swiftmodule -> FlutterFramework.swiftmodule[0m
-[15:28:40]: ▸ [35m[[36mFlutterFramework[0m] [1mCopy[0m arm64-apple-ios.swiftdoc -> FlutterFramework.swiftdoc[0m
-[15:28:40]: ▸ [35m[[36mFlutterFramework[0m] [1mCopy[0m arm64-apple-ios.abi.json -> FlutterFramework.abi.json[0m
-[15:28:40]: ▸ [35m[[36mapp_links_app_links[0m] [1mRegisterExecutionPolicyException[0m app_links_app_links.bundle[0m
-[15:28:40]: ▸ [35m[[36mapp_links_app_links[0m] [1mTouching[0m app_links_app_links.bundle[0m
-[15:28:40]: ▸ [35m[[36mimage_picker_ios[0m] [1mCompiling[0m FLTImagePickerMetaDataUtil.m[0m
-[15:28:40]: ▸ [35m[[36mimage_picker_ios[0m] [1mCompiling[0m FLTImagePickerImageUtil.m[0m
-[15:28:40]: ▸ [35m[[36mimage_picker_ios[0m] [1mCompiling[0m messages.g.m[0m
-[15:28:40]: ▸ [35m[[36mimage_picker_ios[0m] [1mCompiling[0m FIPViewProvider.m[0m
-[15:28:40]: ▸ [35m[[36mimage_picker_ios[0m] [1mCompiling[0m FLTPHPickerSaveImageToPathOperation.m[0m
-[15:28:40]: ▸ [35m[[36mimage_picker_ios[0m] [1mCompiling[0m FLTImagePickerPlugin.m[0m
-[15:28:40]: ▸ [35m[[36mimage_picker_ios[0m] [1mCompiling[0m FLTImagePickerPhotoAssetUtil.m[0m
-[15:28:40]: ▸ [35m[[36mimage_picker_ios[0m] [1mCompiling[0m FIPPickerSeams.m[0m
-[15:28:40]: ▸ [35m[[36mFlutterFramework[0m] [1mLinking[0m FlutterFramework.o[0m
-[15:28:41]: ▸ [35m[[36mimage_picker_ios[0m] [1mLinking[0m image_picker_ios.o[0m
-[15:28:41]: ▸ [35m[[36mFlutterFramework[0m] [1mExtract App Intents Metadata[0m
-[15:28:44]: ▸ [35m[[36mapp_links[0m] [1mCopy[0m arm64-apple-ios.swiftmodule -> app_links.swiftmodule[0m
-[15:28:44]: ▸ [35m[[36mapp_links[0m] [1mCopy[0m arm64-apple-ios.swiftdoc -> app_links.swiftdoc[0m
-[15:28:44]: ▸ [35m[[36mapp_links[0m] [1mCopy[0m arm64-apple-ios.abi.json -> app_links.abi.json[0m
-[15:28:44]: ▸ [35m[[36mimage_picker_ios[0m] [1mRegisterExecutionPolicyException[0m image_picker_ios.o[0m
-[15:28:44]: ▸ [35m[[36mFlutterFramework[0m] [1mRegisterExecutionPolicyException[0m FlutterFramework.o[0m
-[15:28:44]: ▸ [35m[[36mapp_links[0m] [1mLinking[0m app_links.o[0m
-[15:28:44]: ▸ [35m[[36mflutter_secure_storage[0m] [1mCopy[0m arm64-apple-ios.swiftmodule -> flutter_secure_storage.swiftmodule[0m
-[15:28:44]: ▸ [35m[[36mflutter_secure_storage[0m] [1mCopy[0m arm64-apple-ios.swiftdoc -> flutter_secure_storage.swiftdoc[0m
-[15:28:44]: ▸ [35m[[36mflutter_secure_storage[0m] [1mCopy[0m arm64-apple-ios.abi.json -> flutter_secure_storage.abi.json[0m
-[15:28:44]: ▸ [35m[[36mflutter_secure_storage[0m] [1mCompiling[0m flutter_secure_storage_vers.c[0m
-[15:28:44]: ▸ [35m[[36mapp_links[0m] [1mExtract App Intents Metadata[0m
-[15:28:44]: ▸ [35m[[36mPods-Runner[0m] [1mCompiling[0m Pods_Runner_vers.c[0m
-[15:28:44]: ▸ [35m[[36mapp_links[0m] [1mRegisterExecutionPolicyException[0m app_links.o[0m
-[15:28:44]: ▸ [35m[[36mprinting[0m] [1mCopy[0m arm64-apple-ios.swiftmodule -> printing.swiftmodule[0m
-[15:28:44]: ▸ [35m[[36mprinting[0m] [1mCopy[0m arm64-apple-ios.swiftdoc -> printing.swiftdoc[0m
-[15:28:44]: ▸ [35m[[36mprinting[0m] [1mCopy[0m arm64-apple-ios.abi.json -> printing.abi.json[0m
-[15:28:44]: ▸ [35m[[36mprinting[0m] [1mLinking[0m printing.o[0m
-[15:28:44]: ▸ [35m[[36mprinting[0m] [1mExtract App Intents Metadata[0m
-[15:28:44]: ▸ [35m[[36mFlutterGeneratedPluginSwiftPackage[0m] [1mCompiling[0m FlutterGeneratedPluginSwiftPackage.swift[0m
-[15:28:44]: ▸ [35m[[36mFlutterGeneratedPluginSwiftPackage[0m] [1mCopy[0m arm64-apple-ios.swiftmodule -> FlutterGeneratedPluginSwiftPackage.swiftmodule[0m
-[15:28:44]: ▸ [35m[[36mFlutterGeneratedPluginSwiftPackage[0m] [1mCopy[0m arm64-apple-ios.swiftdoc -> FlutterGeneratedPluginSwiftPackage.swiftdoc[0m
-[15:28:44]: ▸ [35m[[36mFlutterGeneratedPluginSwiftPackage[0m] [1mCopy[0m arm64-apple-ios.abi.json -> FlutterGeneratedPluginSwiftPackage.abi.json[0m
-[15:28:44]: ▸ [35m[[36mprinting[0m] [1mRegisterExecutionPolicyException[0m printing.o[0m
-[15:28:44]: ▸ [35m[[36mFlutterGeneratedPluginSwiftPackage[0m] [1mLinking[0m FlutterGeneratedPluginSwiftPackage.o[0m
-[15:28:44]: ▸ [35m[[36mFlutterGeneratedPluginSwiftPackage[0m] [1mExtract App Intents Metadata[0m
-[15:28:44]: ▸ [35m[[36mFlutterGeneratedPluginSwiftPackage[0m] [1mRegisterExecutionPolicyException[0m FlutterGeneratedPluginSwiftPackage.o[0m
-[15:28:44]: ▸ [35m[[36mPods-Runner[0m] [1mCompiling[0m Pods-Runner-dummy.m[0m
-[15:28:45]: ▸ [35m[[36mflutter_secure_storage[0m] [1mCompiling[0m flutter_secure_storage-dummy.m[0m
-[15:28:45]: ▸ [35m[[36mflutter_secure_storage[0m] [1mCompiling[0m FlutterSecureStoragePlugin.m[0m
-[15:28:46]: ▸ [35m[[36mflutter_secure_storage[0m] [1mLinking[0m flutter_secure_storage[0m
-[15:28:46]: ▸ [35m[[36mflutter_secure_storage[0m] [1mExtract App Intents Metadata[0m
-[15:28:46]: ▸ [35m[[36mflutter_secure_storage[0m] [1mGenerating[0m flutter_secure_storage.framework.dSYM[0m
-[15:28:46]: ▸ [35m[[36mflutter_secure_storage[0m] [1mRegisterExecutionPolicyException[0m flutter_secure_storage.framework[0m
-[15:28:46]: ▸ [35m[[36mflutter_secure_storage[0m] [1mTouching[0m flutter_secure_storage.framework[0m
-[15:28:46]: ▸ [35m[[36mPods-Runner[0m] [1mProcessing[0m Pods-Runner-Info.plist[0m
-[15:28:46]: ▸ [35m[[36mPods-Runner[0m] [1mRegisterExecutionPolicyException[0m Pods_Runner.framework[0m
-[15:28:46]: ▸ [35m[[36mPods-Runner[0m] [1mTouching[0m Pods_Runner.framework[0m
-[15:28:46]: ▸ [35m[[36mRunner[0m] [1mCopy[0m url_launcher_ios_url_launcher_ios.bundle -> url_launcher_ios_url_launcher_ios.bundle[0m
-[15:28:46]: ▸ [35m[[36mRunner[0m] [1mCopy[0m shared_preferences_foundation_shared_preferences_foundation.bundle -> shared_preferences_foundation_shared_preferences_foundation.bundle[0m
-[15:28:46]: ▸ [35m[[36mRunner[0m] [1mRunning script[0m [CP] Check Pods Manifest.lock[0m
-[15:28:46]: ▸ [35m[[36mRunner[0m] [1mCopy[0m share_plus_share_plus.bundle -> share_plus_share_plus.bundle[0m
-[15:28:46]: ▸ [35m[[36mRunner[0m] [1mCopy[0m mobile_scanner_mobile_scanner.bundle -> mobile_scanner_mobile_scanner.bundle[0m
-[15:28:46]: ▸ [35m[[36mRunner[0m] [1mCopy[0m local_auth_darwin_local_auth_darwin.bundle -> local_auth_darwin_local_auth_darwin.bundle[0m
-[15:28:46]: ▸ [35m[[36mRunner[0m] [1mCopy[0m image_picker_ios_image_picker_ios.bundle -> image_picker_ios_image_picker_ios.bundle[0m
-[15:28:46]: ▸ [35m[[36mRunner[0m] [1mCopy[0m app_links_app_links.bundle -> app_links_app_links.bundle[0m
-[15:28:46]: ▸ [35m[[36mRunner[0m] [1mRunning script[0m Run Script[0m
-[15:29:40]: ▸ [35m[[36mRunner[0m] [1mGenerate Asset Symbols[0m Assets.xcassets[0m
-[15:29:41]: ▸ [35m[[36mRunner[0m] [1mCopying[0m AppFrameworkInfo.plist[0m
-[15:29:41]: ▸ [35m[[36mRunner[0m] [1mCompiling[0m Main.storyboard[0m
-[15:29:52]: ▸ [35m[[36mRunner[0m] [1mCompiling[0m LaunchScreen.storyboard[0m
-[15:29:52]: ▸ [35m[36;1mnote: [0mEmplaced /Users/runner/Library/Developer/Xcode/DerivedData/Runner-aqxfevlvhocpurgptuajapjknrsa/Build/Intermediates.noindex/ArchiveIntermediates/Runner/InstallationBuildProductsLocation/Applications/Runner.app/AppIcon60x60@2x.png (in target 'Runner' from project 'Runner')[0m
-[15:29:52]: ▸ [35m[36;1mnote: [0mEmplaced /Users/runner/Library/Developer/Xcode/DerivedData/Runner-aqxfevlvhocpurgptuajapjknrsa/Build/Intermediates.noindex/ArchiveIntermediates/Runner/InstallationBuildProductsLocation/Applications/Runner.app/Assets.car (in target 'Runner' from project 'Runner')[0m
-[15:29:52]: ▸ [35m[36;1mnote: [0mEmplaced /Users/runner/Library/Developer/Xcode/DerivedData/Runner-aqxfevlvhocpurgptuajapjknrsa/Build/Intermediates.noindex/ArchiveIntermediates/Runner/InstallationBuildProductsLocation/Applications/Runner.app/AppIcon76x76@2x~ipad.png (in target 'Runner' from project 'Runner')[0m
-[15:29:52]: ▸ [35m[[36mRunner[0m] [1mProcessing[0m Info.plist[0m
-[15:29:53]: ▸ [35m[[36mRunner[0m] [1mCopy[0m arm64-apple-ios.swiftmodule -> Runner.swiftmodule[0m
-[15:29:53]: ▸ [35m[[36mRunner[0m] [1mCopy[0m arm64-apple-ios.swiftdoc -> Runner.swiftdoc[0m
-[15:29:53]: ▸ [35m[[36mRunner[0m] [1mCopy[0m arm64-apple-ios.abi.json -> Runner.abi.json[0m
-[15:29:54]: ▸ [35m[[36mRunner[0m] [1mCompiling[0m Runner_vers.c[0m
-[15:29:56]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/Runner-aqxfevlvhocpurgptuajapjknrsa/Build/Intermediates.noindex/ArchiveIntermediates/Runner/IntermediateBuildFilesPath/GeneratedModuleMaps-iphoneos/mobile_scanner-Swift.h,line=390,col=31::'objc_ownership' only applies to Objective-C object or block pointer types; type here is 'CVPixelBufferRef _Nullable' (aka 'struct __CVBuffer *') [-Wignored-attributes][0m
-[15:29:56]: ▸ [35m  390 | - (CVPixelBufferRef _Nullable __unsafe_unretained)copyPixelBuffer SWIFT_WARN_UNUSED_RESULT;[0m
-[15:29:56]: ▸ [35m      |                               ^[0m
-[15:29:56]: ▸ [35m[[36mRunner[0m] [1mCompiling[0m GeneratedPluginRegistrant.m[0m
-[15:29:56]: ▸ [35m[[36mRunner[0m] [1mLinking[0m Runner[0m
-[15:29:57]: ▸ [35m[[36mRunner[0m] [1mGenerating[0m Runner.app.dSYM[0m
-[15:29:58]: ▸ [35m[[36mRunner[0m] [1mRunning script[0m Thin Binary[0m
-[15:29:58]: ▸ [35m[[36mRunner[0m] [1mRunning script[0m [CP] Embed Pods Frameworks[0m
-[15:29:58]: ▸ [35m[[36mRunner[0m] [1mExtract App Intents Metadata[0m
-[15:29:59]: ▸ [35m[1mSigning[0m Runner.app (in target 'Runner' from project 'Runner')[0m
-[15:29:59]: ▸ [35m[[36mRunner[0m] [1mRegisterExecutionPolicyException[0m Runner.app[0m
-[15:29:59]: ▸ [35m[[36mRunner[0m] [1mValidate[0m Runner.app[0m
-[15:29:59]: ▸ [35m[[36mRunner[0m] [1mTouching[0m Runner.app[0m
-[15:29:59]: ▸ [35m[36;1mnote: [0mRun script build phase 'Run Script' will be run during every build because the option to run the script phase "Based on dependency analysis" is unchecked. (in target 'Runner' from project 'Runner')[0m
-[15:29:59]: ▸ [35m[36;1mnote: [0mRun script build phase 'Thin Binary' will be run during every build because the option to run the script phase "Based on dependency analysis" is unchecked. (in target 'Runner' from project 'Runner')[0m
-[15:29:59]: ▸ [35m[32;1mArchive Succeeded[0m
-[15:29:59]: [33mGenerated plist file with the following values:[0m
-[15:29:59]: ▸ [35m-----------------------------------------[0m
-[15:29:59]: ▸ [35m{[0m
-[15:29:59]: ▸ [35m  "provisioningProfiles": {[0m
-[15:29:59]: ▸ [35m    "app.ghshopper.com": "match AppStore app.ghshopper.com"[0m
-[15:29:59]: ▸ [35m  },[0m
-[15:29:59]: ▸ [35m  "method": "app-store",[0m
-[15:29:59]: ▸ [35m  "signingStyle": "manual",[0m
-[15:29:59]: ▸ [35m  "teamID": "4AS6WC855S"[0m
-[15:29:59]: ▸ [35m}[0m
-[15:29:59]: ▸ [35m-----------------------------------------[0m
-[15:29:59]: [36m$ /usr/bin/xcrun /Users/runner/work/-gh-platform/-gh-platform/vendor/bundle/ruby/3.3.0/gems/fastlane-2.241.1/gym/lib/assets/wrap_xcodebuild/xcbuild-safe.sh -exportArchive -exportOptionsPlist /var/folders/n6/hn37q6pj7sj_9dmqqc2113800000gn/T/gym_config20261019-8004-2sqfy.plist -archivePath /Users/runner/Library/Developer/Xcode/Archives/2026-10-19/GHShopper\ 2026-10-19\ 15.28.12.xcarchive -exportPath /var/folders/n6/hn37q6pj7sj_9dmqqc2113800000gn/T/gym_output20261019-8004-xourtf [0m
-[15:30:08]: Compressing 6 dSYM(s)
-[15:30:08]: [36m$ cd /Users/runner/Library/Developer/Xcode/Archives/2026-10-19/GHShopper\ 2026-10-19\ 15.28.12.xcarchive/dSYMs && zip -r /Users/runner/work/-gh-platform/-gh-platform/build/ipa/GHShopper.app.dSYM.zip *.dSYM[0m
-[15:30:15]: ▸ [35m  adding: App.framework.dSYM/ (stored 0%)[0m
-[15:30:15]: ▸ [35m  adding: App.framework.dSYM/Contents/ (stored 0%)[0m
-[15:30:15]: ▸ [35m  adding: App.framework.dSYM/Contents/Resources/ (stored 0%)[0m
-[15:30:15]: ▸ [35m  adding: App.framework.dSYM/Contents/Resources/DWARF/ (stored 0%)[0m
-[15:30:15]: ▸ [35m  adding: App.framework.dSYM/Contents/Resources/DWARF/App (deflated 70%)[0m
-[15:30:15]: ▸ [35m  adding: flutter_secure_storage.framework.dSYM/ (stored 0%)[0m
-[15:30:15]: ▸ [35m  adding: flutter_secure_storage.framework.dSYM/Contents/ (stored 0%)[0m
-[15:30:15]: ▸ [35m  adding: flutter_secure_storage.framework.dSYM/Contents/Resources/ (stored 0%)[0m
-[15:30:15]: ▸ [35m  adding: flutter_secure_storage.framework.dSYM/Contents/Resources/Relocations/ (stored 0%)[0m
-[15:30:15]: ▸ [35m  adding: flutter_secure_storage.framework.dSYM/Contents/Resources/Relocations/aarch64/ (stored 0%)[0m
-[15:30:15]: ▸ [35m  adding: flutter_secure_storage.framework.dSYM/Contents/Resources/Relocations/aarch64/flutter_secure_storage.yml (deflated 84%)[0m
-[15:30:15]: ▸ [35m  adding: flutter_secure_storage.framework.dSYM/Contents/Resources/DWARF/ (stored 0%)[0m
-[15:30:15]: ▸ [35m  adding: flutter_secure_storage.framework.dSYM/Contents/Resources/DWARF/flutter_secure_storage (deflated 60%)[0m
-[15:30:15]: ▸ [35m  adding: flutter_secure_storage.framework.dSYM/Contents/Info.plist (deflated 52%)[0m
-[15:30:15]: ▸ [35m  adding: Flutter.framework.dSYM/ (stored 0%)[0m
-[15:30:15]: ▸ [35m  adding: Flutter.framework.dSYM/Contents/ (stored 0%)[0m
-[15:30:15]: ▸ [35m  adding: Flutter.framework.dSYM/Contents/Resources/ (stored 0%)[0m
-[15:30:15]: ▸ [35m  adding: Flutter.framework.dSYM/Contents/Resources/Relocations/ (stored 0%)[0m
-[15:30:15]: ▸ [35m  adding: Flutter.framework.dSYM/Contents/Resources/Relocations/aarch64/ (stored 0%)[0m
-[15:30:15]: ▸ [35m  adding: Flutter.framework.dSYM/Contents/Resources/Relocations/aarch64/Flutter.yml (deflated 89%)[0m
-[15:30:15]: ▸ [35m  adding: Flutter.framework.dSYM/Contents/Resources/DWARF/ (stored 0%)[0m
-[15:30:15]: ▸ [35m  adding: Flutter.framework.dSYM/Contents/Resources/DWARF/Flutter (deflated 75%)[0m
-[15:30:15]: ▸ [35m  adding: Flutter.framework.dSYM/Contents/Info.plist (deflated 53%)[0m
-[15:30:15]: ▸ [35m  adding: objective_c.framework 1.dSYM/ (stored 0%)[0m
-[15:30:15]: ▸ [35m  adding: objective_c.framework 1.dSYM/Contents/ (stored 0%)[0m
-[15:30:15]: ▸ [35m  adding: objective_c.framework 1.dSYM/Contents/Resources/ (stored 0%)[0m
-[15:30:15]: ▸ [35m  adding: objective_c.framework 1.dSYM/Contents/Resources/Relocations/ (stored 0%)[0m
-[15:30:15]: ▸ [35m  adding: objective_c.framework 1.dSYM/Contents/Resources/Relocations/aarch64/ (stored 0%)[0m
-[15:30:15]: ▸ [35m  adding: objective_c.framework 1.dSYM/Contents/Resources/Relocations/aarch64/objective_c.yml (deflated 86%)[0m
-[15:30:15]: ▸ [35m  adding: objective_c.framework 1.dSYM/Contents/Resources/DWARF/ (stored 0%)[0m
-[15:30:15]: ▸ [35m  adding: objective_c.framework 1.dSYM/Contents/Resources/DWARF/objective_c (deflated 74%)[0m
-[15:30:15]: ▸ [35m  adding: objective_c.framework 1.dSYM/Contents/Info.plist (deflated 52%)[0m
-[15:30:15]: ▸ [35m  adding: objective_c.framework.dSYM/ (stored 0%)[0m
-[15:30:15]: ▸ [35m  adding: objective_c.framework.dSYM/Contents/ (stored 0%)[0m
-[15:30:15]: ▸ [35m  adding: objective_c.framework.dSYM/Contents/Resources/ (stored 0%)[0m
-[15:30:15]: ▸ [35m  adding: objective_c.framework.dSYM/Contents/Resources/Relocations/ (stored 0%)[0m
-[15:30:15]: ▸ [35m  adding: objective_c.framework.dSYM/Contents/Resources/Relocations/aarch64/ (stored 0%)[0m
-[15:30:15]: ▸ [35m  adding: objective_c.framework.dSYM/Contents/Resources/Relocations/aarch64/objective_c.yml (deflated 86%)[0m
-[15:30:15]: ▸ [35m  adding: objective_c.framework.dSYM/Contents/Resources/DWARF/ (stored 0%)[0m
-[15:30:15]: ▸ [35m  adding: objective_c.framework.dSYM/Contents/Resources/DWARF/objective_c (deflated 74%)[0m
-[15:30:15]: ▸ [35m  adding: objective_c.framework.dSYM/Contents/Info.plist (deflated 52%)[0m
-[15:30:15]: ▸ [35m  adding: Runner.app.dSYM/ (stored 0%)[0m
-[15:30:15]: ▸ [35m  adding: Runner.app.dSYM/Contents/ (stored 0%)[0m
-[15:30:15]: ▸ [35m  adding: Runner.app.dSYM/Contents/Resources/ (stored 0%)[0m
-[15:30:15]: ▸ [35m  adding: Runner.app.dSYM/Contents/Resources/Relocations/ (stored 0%)[0m
-[15:30:15]: ▸ [35m  adding: Runner.app.dSYM/Contents/Resources/Relocations/aarch64/ (stored 0%)[0m
-[15:30:15]: ▸ [35m  adding: Runner.app.dSYM/Contents/Resources/Relocations/aarch64/Runner.yml (deflated 86%)[0m
-[15:30:15]: ▸ [35m  adding: Runner.app.dSYM/Contents/Resources/DWARF/ (stored 0%)[0m
-[15:30:15]: ▸ [35m  adding: Runner.app.dSYM/Contents/Resources/DWARF/Runner (deflated 60%)[0m
-[15:30:15]: ▸ [35m  adding: Runner.app.dSYM/Contents/Info.plist (deflated 52%)[0m
+[16:53:26]: ▸ [35m[[36mshare_plus[0m] [1mWrite Auxiliary File[0m share_plus.DependencyStaticMetadataFileList[0m
+[16:53:26]: ▸ [35m[[36mshare_plus[0m] [1mWrite Auxiliary File[0m share_plus.DependencyMetadataFileList[0m
+[16:53:26]: ▸ [35m[[36mshare_plus[0m] [1mWrite Auxiliary File[0m share_plus.LinkFileList[0m
+[16:53:26]: ▸ [35m[[36mshare_plus[0m] [1mWrite Auxiliary File[0m e6072d4f65d7061329687fe24e3d63a7-common-args.resp[0m
+[16:53:26]: ▸ [35m[[36mshare_plus[0m] [1mWrite Auxiliary File[0m resource_bundle_accessor.m[0m
+[16:53:26]: ▸ [35m[[36mshare_plus[0m] [1mWrite Auxiliary File[0m resource_bundle_accessor.h[0m
+[16:53:26]: ▸ [35m[[36mshare_plus[0m] [1mCopy[0m share_plus.modulemap -> share_plus.modulemap[0m
+[16:53:26]: ▸ [35m[[36mprinting[0m] [1mWrite Auxiliary File[0m printing.modulemap[0m
+[16:53:26]: ▸ [35m[[36mprinting[0m] [1mWrite Auxiliary File[0m printing.DependencyStaticMetadataFileList[0m
+[16:53:26]: ▸ [35m[[36mprinting[0m] [1mWrite Auxiliary File[0m printing.DependencyMetadataFileList[0m
+[16:53:26]: ▸ [35m[[36mprinting[0m] [1mWrite Auxiliary File[0m printing_const_extract_protocols.json[0m
+[16:53:26]: ▸ [35m[[36mprinting[0m] [1mWrite Auxiliary File[0m printing.SwiftFileList[0m
+[16:53:26]: ▸ [35m[[36mprinting[0m] [1mWrite Auxiliary File[0m printing.SwiftConstValuesFileList[0m
+[16:53:26]: ▸ [35m[[36mprinting[0m] [1mWrite Auxiliary File[0m printing.LinkFileList[0m
+[16:53:26]: ▸ [35m[[36mprinting[0m] [1mWrite Auxiliary File[0m printing-OutputFileMap.json[0m
+[16:53:26]: ▸ [35m[[36mprinting[0m] [1mCopy[0m printing.modulemap -> printing.modulemap[0m
+[16:53:26]: ▸ [35m[[36mmobile_scanner_mobile_scanner[0m] [1mWrite Auxiliary File[0m mobile_scanner_mobile_scanner.DependencyStaticMetadataFileList[0m
+[16:53:26]: ▸ [35m[[36mmobile_scanner_mobile_scanner[0m] [1mWrite Auxiliary File[0m mobile_scanner_mobile_scanner.DependencyMetadataFileList[0m
+[16:53:26]: ▸ [35m[[36mmobile_scanner_mobile_scanner[0m] [1mWrite Auxiliary File[0m empty-mobile_scanner_mobile_scanner.plist[0m
+[16:53:26]: ▸ [35m[[36mmobile_scanner[0m] [1mWrite Auxiliary File[0m mobile_scanner.modulemap[0m
+[16:53:26]: ▸ [35m[[36mmobile_scanner[0m] [1mWrite Auxiliary File[0m mobile_scanner.DependencyStaticMetadataFileList[0m
+[16:53:26]: ▸ [35m[[36mmobile_scanner[0m] [1mWrite Auxiliary File[0m mobile_scanner.DependencyMetadataFileList[0m
+[16:53:26]: ▸ [35m[[36mmobile_scanner[0m] [1mWrite Auxiliary File[0m mobile_scanner.SwiftFileList[0m
+[16:53:26]: ▸ [35m[[36mmobile_scanner[0m] [1mWrite Auxiliary File[0m mobile_scanner_const_extract_protocols.json[0m
+[16:53:26]: ▸ [35m[[36mmobile_scanner[0m] [1mWrite Auxiliary File[0m mobile_scanner.SwiftConstValuesFileList[0m
+[16:53:26]: ▸ [35m[[36mmobile_scanner[0m] [1mWrite Auxiliary File[0m mobile_scanner.LinkFileList[0m
+[16:53:26]: ▸ [35m[[36mmobile_scanner[0m] [1mWrite Auxiliary File[0m mobile_scanner-OutputFileMap.json[0m
+[16:53:26]: ▸ [35m[[36mmobile_scanner[0m] [1mWrite Auxiliary File[0m resource_bundle_accessor.swift[0m
+[16:53:26]: ▸ [35m[[36mmobile_scanner[0m] [1mCopy[0m mobile_scanner.modulemap -> mobile_scanner.modulemap[0m
+[16:53:26]: ▸ [35m[[36mlocal_auth_darwin_local_auth_darwin[0m] [1mWrite Auxiliary File[0m local_auth_darwin_local_auth_darwin.DependencyStaticMetadataFileList[0m
+[16:53:26]: ▸ [35m[[36mlocal_auth_darwin_local_auth_darwin[0m] [1mWrite Auxiliary File[0m local_auth_darwin_local_auth_darwin.DependencyMetadataFileList[0m
+[16:53:26]: ▸ [35m[[36mlocal_auth_darwin_local_auth_darwin[0m] [1mWrite Auxiliary File[0m empty-local_auth_darwin_local_auth_darwin.plist[0m
+[16:53:26]: ▸ [35m[[36mlocal_auth_darwin[0m] [1mWrite Auxiliary File[0m local_auth_darwin.modulemap[0m
+[16:53:26]: ▸ [35m[[36mlocal_auth_darwin[0m] [1mWrite Auxiliary File[0m local_auth_darwin.DependencyStaticMetadataFileList[0m
+[16:53:26]: ▸ [35m[[36mlocal_auth_darwin[0m] [1mWrite Auxiliary File[0m local_auth_darwin.DependencyMetadataFileList[0m
+[16:53:26]: ▸ [35m[[36mlocal_auth_darwin[0m] [1mWrite Auxiliary File[0m local_auth_darwin_const_extract_protocols.json[0m
+[16:53:26]: ▸ [35m[[36mlocal_auth_darwin[0m] [1mWrite Auxiliary File[0m local_auth_darwin.SwiftFileList[0m
+[16:53:26]: ▸ [35m[[36mlocal_auth_darwin[0m] [1mWrite Auxiliary File[0m local_auth_darwin.SwiftConstValuesFileList[0m
+[16:53:26]: ▸ [35m[[36mlocal_auth_darwin[0m] [1mWrite Auxiliary File[0m local_auth_darwin.LinkFileList[0m
+[16:53:26]: ▸ [35m[[36mlocal_auth_darwin[0m] [1mWrite Auxiliary File[0m local_auth_darwin-OutputFileMap.json[0m
+[16:53:26]: ▸ [35m[[36mlocal_auth_darwin[0m] [1mWrite Auxiliary File[0m resource_bundle_accessor.swift[0m
+[16:53:26]: ▸ [35m[[36mlocal_auth_darwin[0m] [1mCopy[0m local_auth_darwin.modulemap -> local_auth_darwin.modulemap[0m
+[16:53:26]: ▸ [35m[[36mimage_picker_ios_image_picker_ios[0m] [1mWrite Auxiliary File[0m image_picker_ios_image_picker_ios.DependencyStaticMetadataFileList[0m
+[16:53:26]: ▸ [35m[[36mimage_picker_ios_image_picker_ios[0m] [1mWrite Auxiliary File[0m image_picker_ios_image_picker_ios.DependencyMetadataFileList[0m
+[16:53:26]: ▸ [35m[[36mimage_picker_ios_image_picker_ios[0m] [1mWrite Auxiliary File[0m empty-image_picker_ios_image_picker_ios.plist[0m
+[16:53:26]: ▸ [35m[[36mimage_picker_ios[0m] [1mWrite Auxiliary File[0m image_picker_ios.modulemap[0m
+[16:53:26]: ▸ [35m[[36mimage_picker_ios[0m] [1mWrite Auxiliary File[0m image_picker_ios.DependencyStaticMetadataFileList[0m
+[16:53:26]: ▸ [35m[[36mimage_picker_ios[0m] [1mWrite Auxiliary File[0m image_picker_ios.DependencyMetadataFileList[0m
+[16:53:26]: ▸ [35m[[36mimage_picker_ios[0m] [1mWrite Auxiliary File[0m image_picker_ios.LinkFileList[0m
+[16:53:26]: ▸ [35m[[36mimage_picker_ios[0m] [1mWrite Auxiliary File[0m e6072d4f65d7061329687fe24e3d63a7-common-args.resp[0m
+[16:53:26]: ▸ [35m[[36mimage_picker_ios[0m] [1mWrite Auxiliary File[0m resource_bundle_accessor.m[0m
+[16:53:26]: ▸ [35m[[36mimage_picker_ios[0m] [1mWrite Auxiliary File[0m resource_bundle_accessor.h[0m
+[16:53:26]: ▸ [35m[[36mimage_picker_ios[0m] [1mCopy[0m image_picker_ios.modulemap -> image_picker_ios.modulemap[0m
+[16:53:26]: ▸ [35m[[36mapp_links_app_links[0m] [1mWrite Auxiliary File[0m empty-app_links_app_links.plist[0m
+[16:53:26]: ▸ [35m[[36mapp_links_app_links[0m] [1mWrite Auxiliary File[0m app_links_app_links.DependencyStaticMetadataFileList[0m
+[16:53:26]: ▸ [35m[[36mapp_links_app_links[0m] [1mWrite Auxiliary File[0m app_links_app_links.DependencyMetadataFileList[0m
+[16:53:26]: ▸ [35m[[36mapp_links[0m] [1mWrite Auxiliary File[0m app_links.modulemap[0m
+[16:53:26]: ▸ [35m[[36mapp_links[0m] [1mWrite Auxiliary File[0m app_links.DependencyStaticMetadataFileList[0m
+[16:53:26]: ▸ [35m[[36mapp_links[0m] [1mWrite Auxiliary File[0m app_links.DependencyMetadataFileList[0m
+[16:53:26]: ▸ [35m[[36mapp_links[0m] [1mWrite Auxiliary File[0m app_links_const_extract_protocols.json[0m
+[16:53:26]: ▸ [35m[[36mapp_links[0m] [1mWrite Auxiliary File[0m app_links.SwiftFileList[0m
+[16:53:26]: ▸ [35m[[36mapp_links[0m] [1mWrite Auxiliary File[0m app_links.SwiftConstValuesFileList[0m
+[16:53:26]: ▸ [35m[[36mapp_links[0m] [1mWrite Auxiliary File[0m app_links.LinkFileList[0m
+[16:53:26]: ▸ [35m[[36mapp_links[0m] [1mWrite Auxiliary File[0m app_links-OutputFileMap.json[0m
+[16:53:26]: ▸ [35m[[36mapp_links[0m] [1mWrite Auxiliary File[0m resource_bundle_accessor.swift[0m
+[16:53:26]: ▸ [35m[[36mapp_links[0m] [1mCopy[0m app_links.modulemap -> app_links.modulemap[0m
+[16:53:26]: ▸ [35m[[36mRunner[0m] [1mWrite Auxiliary File[0m Script-9740EEB61CF901F6004384FC.sh[0m
+[16:53:26]: ▸ [35m[[36mRunner[0m] [1mWrite Auxiliary File[0m Script-3B06AD1E1E4923F5004D2608.sh[0m
+[16:53:26]: ▸ [35m[[36mRunner[0m] [1mWrite Auxiliary File[0m Script-23A309C6AB8B22F1E6CE7F6F.sh[0m
+[16:53:26]: ▸ [35m[[36mRunner[0m] [1mWrite Auxiliary File[0m Script-1029651A4CF7D384F89E610F.sh[0m
+[16:53:26]: ▸ [35m[[36mRunner[0m] [1mWrite Auxiliary File[0m Runner.hmap[0m
+[16:53:26]: ▸ [35m[[36mRunner[0m] [1mWrite Auxiliary File[0m Runner.DependencyStaticMetadataFileList[0m
+[16:53:26]: ▸ [35m[[36mRunner[0m] [1mWrite Auxiliary File[0m Runner.DependencyMetadataFileList[0m
+[16:53:26]: ▸ [35m[[36mRunner[0m] [1mWrite Auxiliary File[0m Runner-project-headers.hmap[0m
+[16:53:26]: ▸ [35m[[36mRunner[0m] [1mWrite Auxiliary File[0m Runner-own-target-headers.hmap[0m
+[16:53:26]: ▸ [35m[[36mRunner[0m] [1mWrite Auxiliary File[0m Runner-generated-files.hmap[0m
+[16:53:26]: ▸ [35m[[36mRunner[0m] [1mWrite Auxiliary File[0m Runner-all-target-headers.hmap[0m
+[16:53:26]: ▸ [35m[[36mRunner[0m] [1mWrite Auxiliary File[0m Runner-all-non-framework-target-headers.hmap[0m
+[16:53:26]: ▸ [35m[[36mRunner[0m] [1mWrite Auxiliary File[0m OutputFileList-23A309C6AB8B22F1E6CE7F6F-Pods-Runner-frameworks-Release-output-files-9f5e66295458f11c6380933daacc74c7-resolved.xcfilelist[0m
+[16:53:26]: ▸ [35m[[36mRunner[0m] [1mWrite Auxiliary File[0m e6072d4f65d7061329687fe24e3d63a7-common-args.resp[0m
+[16:53:26]: ▸ [35m[[36mRunner[0m] [1mWrite Auxiliary File[0m Runner_const_extract_protocols.json[0m
+[16:53:26]: ▸ [35m[[36mRunner[0m] [1mWrite Auxiliary File[0m Runner.SwiftFileList[0m
+[16:53:26]: ▸ [35m[[36mRunner[0m] [1mWrite Auxiliary File[0m Runner.SwiftConstValuesFileList[0m
+[16:53:26]: ▸ [35m[[36mRunner[0m] [1mWrite Auxiliary File[0m Runner.LinkFileList[0m
+[16:53:26]: ▸ [35m[[36mRunner[0m] [1mWrite Auxiliary File[0m Runner-OutputFileMap.json[0m
+[16:53:26]: ▸ [35m[[36mRunner[0m] [1mWrite Auxiliary File[0m 7187679823f38a2a940e0043cdf9d637-common-args.resp[0m
+[16:53:26]: ▸ [35m[[36mRunner[0m] [1mWrite Auxiliary File[0m InputFileList-23A309C6AB8B22F1E6CE7F6F-Pods-Runner-frameworks-Release-input-files-43346d50ef68c064d8a5f4759835ce46-resolved.xcfilelist[0m
+[16:53:26]: ▸ [35m[[36mRunner[0m] [1mWrite Auxiliary File[0m Runner_vers.c[0m
+[16:53:26]: ▸ [35m[[36mRunner[0m] [1mWrite Auxiliary File[0m Entitlements.plist[0m
+[16:53:26]: ▸ [35m[[36mPods-Runner[0m] [1mWrite Auxiliary File[0m Pods_Runner.hmap[0m
+[16:53:26]: ▸ [35m[[36mPods-Runner[0m] [1mWrite Auxiliary File[0m Pods_Runner.DependencyStaticMetadataFileList[0m
+[16:53:26]: ▸ [35m[[36mPods-Runner[0m] [1mWrite Auxiliary File[0m Pods_Runner.DependencyMetadataFileList[0m
+[16:53:26]: ▸ [35m[[36mPods-Runner[0m] [1mWrite Auxiliary File[0m Pods_Runner-project-headers.hmap[0m
+[16:53:26]: ▸ [35m[[36mPods-Runner[0m] [1mWrite Auxiliary File[0m Pods_Runner-own-target-headers.hmap[0m
+[16:53:26]: ▸ [35m[[36mPods-Runner[0m] [1mWrite Auxiliary File[0m Pods_Runner-generated-files.hmap[0m
+[16:53:26]: ▸ [35m[[36mPods-Runner[0m] [1mWrite Auxiliary File[0m Pods_Runner-all-target-headers.hmap[0m
+[16:53:26]: ▸ [35m[[36mPods-Runner[0m] [1mWrite Auxiliary File[0m Pods_Runner-all-non-framework-target-headers.hmap[0m
+[16:53:26]: ▸ [35m[[36mPods-Runner[0m] [1mWrite Auxiliary File[0m e6072d4f65d7061329687fe24e3d63a7-common-args.resp[0m
+[16:53:26]: ▸ [35m[[36mPods-Runner[0m] [1mWrite Auxiliary File[0m Pods_Runner.LinkFileList[0m
+[16:53:26]: ▸ [35m[[36mPods-Runner[0m] [1mWrite Auxiliary File[0m 7187679823f38a2a940e0043cdf9d637-common-args.resp[0m
+[16:53:26]: ▸ [35m[[36mPods-Runner[0m] [1mWrite Auxiliary File[0m Pods_Runner_vers.c[0m
+[16:53:26]: ▸ [35m[[36mPods-Runner[0m] [1mCopying[0m Pods-Runner-umbrella.h[0m
+[16:53:26]: ▸ [35m[[36mPods-Runner[0m] [1mCopy[0m module.modulemap -> Pods-Runner.modulemap[0m
+[16:53:26]: ▸ [35m[[36mFlutterGeneratedPluginSwiftPackage[0m] [1mWrite Auxiliary File[0m FlutterGeneratedPluginSwiftPackage_const_extract_protocols.json[0m
+[16:53:26]: ▸ [35m[[36mFlutterGeneratedPluginSwiftPackage[0m] [1mWrite Auxiliary File[0m FlutterGeneratedPluginSwiftPackage.SwiftFileList[0m
+[16:53:26]: ▸ [35m[[36mFlutterGeneratedPluginSwiftPackage[0m] [1mWrite Auxiliary File[0m FlutterGeneratedPluginSwiftPackage.SwiftConstValuesFileList[0m
+[16:53:26]: ▸ [35m[[36mPods-Runner[0m] [1mCopy[0m module.modulemap -> module.modulemap[0m
+[16:53:26]: ▸ [35m[[36mFlutterGeneratedPluginSwiftPackage[0m] [1mWrite Auxiliary File[0m FlutterGeneratedPluginSwiftPackage.LinkFileList[0m
+[16:53:26]: ▸ [35m[[36mFlutterGeneratedPluginSwiftPackage[0m] [1mWrite Auxiliary File[0m FlutterGeneratedPluginSwiftPackage-OutputFileMap.json[0m
+[16:53:26]: ▸ [35m[[36mFlutterGeneratedPluginSwiftPackage[0m] [1mWrite Auxiliary File[0m FlutterGeneratedPluginSwiftPackage.modulemap[0m
+[16:53:26]: ▸ [35m[[36mFlutterGeneratedPluginSwiftPackage[0m] [1mWrite Auxiliary File[0m FlutterGeneratedPluginSwiftPackage.DependencyStaticMetadataFileList[0m
+[16:53:26]: ▸ [35m[[36mFlutterGeneratedPluginSwiftPackage[0m] [1mWrite Auxiliary File[0m FlutterGeneratedPluginSwiftPackage.DependencyMetadataFileList[0m
+[16:53:26]: ▸ [35m[[36mFlutterGeneratedPluginSwiftPackage[0m] [1mCopy[0m FlutterGeneratedPluginSwiftPackage.modulemap -> FlutterGeneratedPluginSwiftPackage.modulemap[0m
+[16:53:26]: ▸ [35m[[36mFlutterFramework[0m] [1mWrite Auxiliary File[0m FlutterFramework_const_extract_protocols.json[0m
+[16:53:26]: ▸ [35m[[36mFlutterFramework[0m] [1mWrite Auxiliary File[0m FlutterFramework.SwiftFileList[0m
+[16:53:26]: ▸ [35m[[36mFlutterFramework[0m] [1mWrite Auxiliary File[0m FlutterFramework.SwiftConstValuesFileList[0m
+[16:53:26]: ▸ [35m[[36mFlutterFramework[0m] [1mWrite Auxiliary File[0m FlutterFramework.LinkFileList[0m
+[16:53:26]: ▸ [35m[[36mFlutterFramework[0m] [1mWrite Auxiliary File[0m FlutterFramework-OutputFileMap.json[0m
+[16:53:26]: ▸ [35m[[36mFlutterFramework[0m] [1mWrite Auxiliary File[0m FlutterFramework.modulemap[0m
+[16:53:26]: ▸ [35m[[36mFlutterFramework[0m] [1mWrite Auxiliary File[0m FlutterFramework.DependencyStaticMetadataFileList[0m
+[16:53:26]: ▸ [35m[[36mFlutterFramework[0m] [1mWrite Auxiliary File[0m FlutterFramework.DependencyMetadataFileList[0m
+[16:53:26]: ▸ [35m[[36mFlutterFramework[0m] [1mCopy[0m FlutterFramework.modulemap -> FlutterFramework.modulemap[0m
+[16:53:26]: ▸ [35m[[36murl_launcher_ios_url_launcher_ios[0m] [1mProcessing[0m empty-url_launcher_ios_url_launcher_ios.plist[0m
+[16:53:26]: ▸ [35m[[36murl_launcher_ios_url_launcher_ios[0m] [1mCopying[0m PrivacyInfo.xcprivacy[0m
+[16:53:28]: ▸ [35m[[36mflutter_secure_storage-flutter_secure_storage[0m] [1mWrite Auxiliary File[0m flutter_secure_storage.hmap[0m
+[16:53:28]: ▸ [35m[[36mflutter_secure_storage-flutter_secure_storage[0m] [1mWrite Auxiliary File[0m flutter_secure_storage.DependencyStaticMetadataFileList[0m
+[16:53:28]: ▸ [35m[[36mflutter_secure_storage-flutter_secure_storage[0m] [1mWrite Auxiliary File[0m flutter_secure_storage.DependencyMetadataFileList[0m
+[16:53:28]: ▸ [35m[[36mflutter_secure_storage-flutter_secure_storage[0m] [1mWrite Auxiliary File[0m flutter_secure_storage-project-headers.hmap[0m
+[16:53:28]: ▸ [35m[[36mflutter_secure_storage-flutter_secure_storage[0m] [1mWrite Auxiliary File[0m flutter_secure_storage-own-target-headers.hmap[0m
+[16:53:28]: ▸ [35m[[36mflutter_secure_storage-flutter_secure_storage[0m] [1mWrite Auxiliary File[0m flutter_secure_storage-generated-files.hmap[0m
+[16:53:28]: ▸ [35m[[36mflutter_secure_storage-flutter_secure_storage[0m] [1mWrite Auxiliary File[0m flutter_secure_storage-all-target-headers.hmap[0m
+[16:53:28]: ▸ [35m[[36mflutter_secure_storage-flutter_secure_storage[0m] [1mWrite Auxiliary File[0m flutter_secure_storage-all-non-framework-target-headers.hmap[0m
+[16:53:28]: ▸ [35m[[36mflutter_secure_storage[0m] [1mWrite Auxiliary File[0m unextended-module-swiftunextension.modulemap[0m
+[16:53:28]: ▸ [35m[[36mflutter_secure_storage[0m] [1mWrite Auxiliary File[0m unextended-module-overlay.yaml[0m
+[16:53:28]: ▸ [35m[[36mflutter_secure_storage[0m] [1mWrite Auxiliary File[0m module-swiftextension.modulemap[0m
+[16:53:28]: ▸ [35m[[36mflutter_secure_storage[0m] [1mWrite Auxiliary File[0m flutter_secure_storage.hmap[0m
+[16:53:28]: ▸ [35m[[36mflutter_secure_storage[0m] [1mWrite Auxiliary File[0m flutter_secure_storage.DependencyStaticMetadataFileList[0m
+[16:53:28]: ▸ [35m[[36mflutter_secure_storage[0m] [1mWrite Auxiliary File[0m flutter_secure_storage.DependencyMetadataFileList[0m
+[16:53:28]: ▸ [35m[[36mflutter_secure_storage[0m] [1mWrite Auxiliary File[0m flutter_secure_storage-project-headers.hmap[0m
+[16:53:28]: ▸ [35m[[36mflutter_secure_storage[0m] [1mWrite Auxiliary File[0m flutter_secure_storage-own-target-headers.hmap[0m
+[16:53:28]: ▸ [35m[[36mflutter_secure_storage[0m] [1mWrite Auxiliary File[0m flutter_secure_storage-generated-files.hmap[0m
+[16:53:28]: ▸ [35m[[36mflutter_secure_storage[0m] [1mWrite Auxiliary File[0m flutter_secure_storage-all-target-headers.hmap[0m
+[16:53:28]: ▸ [35m[[36mflutter_secure_storage[0m] [1mWrite Auxiliary File[0m flutter_secure_storage-all-non-framework-target-headers.hmap[0m
+[16:53:28]: ▸ [35m[[36mflutter_secure_storage[0m] [1mWrite Auxiliary File[0m flutter_secure_storage_const_extract_protocols.json[0m
+[16:53:28]: ▸ [35m[[36mflutter_secure_storage[0m] [1mWrite Auxiliary File[0m flutter_secure_storage.SwiftFileList[0m
+[16:53:28]: ▸ [35m[[36mflutter_secure_storage[0m] [1mWrite Auxiliary File[0m flutter_secure_storage.SwiftConstValuesFileList[0m
+[16:53:28]: ▸ [35m[[36mflutter_secure_storage[0m] [1mWrite Auxiliary File[0m flutter_secure_storage.LinkFileList[0m
+[16:53:28]: ▸ [35m[[36mflutter_secure_storage[0m] [1mWrite Auxiliary File[0m flutter_secure_storage-OutputFileMap.json[0m
+[16:53:28]: ▸ [35m[[36mflutter_secure_storage[0m] [1mWrite Auxiliary File[0m e6072d4f65d7061329687fe24e3d63a7-common-args.resp[0m
+[16:53:28]: ▸ [35m[[36mflutter_secure_storage[0m] [1mWrite Auxiliary File[0m 7187679823f38a2a940e0043cdf9d637-common-args.resp[0m
+[16:53:28]: ▸ [35m[[36mflutter_secure_storage[0m] [1mWrite Auxiliary File[0m flutter_secure_storage_vers.c[0m
+[16:53:28]: ▸ [35m[[36mflutter_secure_storage[0m] [1mCopying[0m flutter_secure_storage-umbrella.h[0m
+[16:53:28]: ▸ [35m[[36mflutter_secure_storage[0m] [1mCopying[0m FlutterSecureStoragePlugin.h[0m
+[16:53:28]: ▸ [35m[[36mflutter_secure_storage[0m] [1mCopy[0m module.modulemap -> module.modulemap[0m
+[16:53:28]: ▸ [35m[[36mshared_preferences_foundation_shared_preferences_foundation[0m] [1mProcessing[0m empty-shared_preferences_foundation_shared_preferences_foundation.plist[0m
+[16:53:28]: ▸ [35m[[36mshared_preferences_foundation_shared_preferences_foundation[0m] [1mCopying[0m PrivacyInfo.xcprivacy[0m
+[16:53:28]: ▸ [35m[[36murl_launcher_ios_url_launcher_ios[0m] [1mRegisterExecutionPolicyException[0m url_launcher_ios_url_launcher_ios.bundle[0m
+[16:53:28]: ▸ [35m[[36murl_launcher_ios_url_launcher_ios[0m] [1mTouching[0m url_launcher_ios_url_launcher_ios.bundle[0m
+[16:53:28]: ▸ [35m[[36mshared_preferences_foundation_shared_preferences_foundation[0m] [1mRegisterExecutionPolicyException[0m shared_preferences_foundation_shared_preferences_foundation.bundle[0m
+[16:53:28]: ▸ [35m[[36mshared_preferences_foundation_shared_preferences_foundation[0m] [1mTouching[0m shared_preferences_foundation_shared_preferences_foundation.bundle[0m
+[16:53:28]: ▸ [35m[[36mshare_plus_share_plus[0m] [1mProcessing[0m empty-share_plus_share_plus.plist[0m
+[16:53:28]: ▸ [35m[[36mshare_plus_share_plus[0m] [1mCopying[0m PrivacyInfo.xcprivacy[0m
+[16:53:29]: ▸ [35m[[36mshare_plus_share_plus[0m] [1mRegisterExecutionPolicyException[0m share_plus_share_plus.bundle[0m
+[16:53:29]: ▸ [35m[[36mmobile_scanner_mobile_scanner[0m] [1mProcessing[0m empty-mobile_scanner_mobile_scanner.plist[0m
+[16:53:29]: ▸ [35m[[36mshare_plus_share_plus[0m] [1mTouching[0m share_plus_share_plus.bundle[0m
+[16:53:29]: ▸ [35m[[36mmobile_scanner_mobile_scanner[0m] [1mCopying[0m PrivacyInfo.xcprivacy[0m
+[16:53:30]: ▸ [35m[[36mlocal_auth_darwin_local_auth_darwin[0m] [1mProcessing[0m empty-local_auth_darwin_local_auth_darwin.plist[0m
+[16:53:37]: ▸ [35m[[36murl_launcher_ios[0m] [1mCopy[0m arm64-apple-ios.swiftmodule -> url_launcher_ios.swiftmodule[0m
+[16:53:37]: ▸ [35m[[36murl_launcher_ios[0m] [1mCopy[0m arm64-apple-ios.swiftdoc -> url_launcher_ios.swiftdoc[0m
+[16:53:37]: ▸ [35m[[36murl_launcher_ios[0m] [1mCopy[0m arm64-apple-ios.abi.json -> url_launcher_ios.abi.json[0m
+[16:53:37]: ▸ [35m[[36mshare_plus[0m] [1mCompiling[0m resource_bundle_accessor.m[0m
+[16:53:37]: ▸ [35m[[36mshared_preferences_foundation[0m] [1mCopy[0m arm64-apple-ios.swiftmodule -> shared_preferences_foundation.swiftmodule[0m
+[16:53:37]: ▸ [35m[[36mshared_preferences_foundation[0m] [1mCopy[0m arm64-apple-ios.swiftdoc -> shared_preferences_foundation.swiftdoc[0m
+[16:53:37]: ▸ [35m[[36mshared_preferences_foundation[0m] [1mCopy[0m arm64-apple-ios.abi.json -> shared_preferences_foundation.abi.json[0m
+[16:53:37]: ▸ [35m[[36mlocal_auth_darwin_local_auth_darwin[0m] [1mCopying[0m PrivacyInfo.xcprivacy[0m
+[16:53:37]: ▸ [35m[[36murl_launcher_ios[0m] [1mLinking[0m url_launcher_ios.o[0m
+[16:53:37]: ▸ [35m[[36mshared_preferences_foundation[0m] [1mLinking[0m shared_preferences_foundation.o[0m
+[16:53:37]: ▸ [35m[[36murl_launcher_ios[0m] [1mExtract App Intents Metadata[0m
+[16:53:37]: ▸ [35m[[36mshared_preferences_foundation[0m] [1mExtract App Intents Metadata[0m
+[16:53:37]: ▸ [35m[[36mmobile_scanner_mobile_scanner[0m] [1mRegisterExecutionPolicyException[0m mobile_scanner_mobile_scanner.bundle[0m
+[16:53:37]: ▸ [35m[[36murl_launcher_ios[0m] [1mRegisterExecutionPolicyException[0m url_launcher_ios.o[0m
+[16:53:37]: ▸ [35m[[36mshared_preferences_foundation[0m] [1mRegisterExecutionPolicyException[0m shared_preferences_foundation.o[0m
+[16:53:37]: ▸ [35m[[36mmobile_scanner_mobile_scanner[0m] [1mTouching[0m mobile_scanner_mobile_scanner.bundle[0m
+[16:53:37]: ▸ [35m[[36mshare_plus[0m] [1mCompiling[0m FPPSharePlusPlugin.m[0m
+[16:53:37]: ▸ [35m[[36mimage_picker_ios_image_picker_ios[0m] [1mProcessing[0m empty-image_picker_ios_image_picker_ios.plist[0m
+[16:53:37]: ▸ [35m[[36mshare_plus[0m] [1mLinking[0m share_plus.o[0m
+[16:53:37]: ▸ [35m[[36mimage_picker_ios_image_picker_ios[0m] [1mCopying[0m PrivacyInfo.xcprivacy[0m
+[16:53:37]: ▸ [35m[[36mlocal_auth_darwin[0m] [1mCopy[0m arm64-apple-ios.swiftmodule -> local_auth_darwin.swiftmodule[0m
+[16:53:37]: ▸ [35m[[36mlocal_auth_darwin[0m] [1mCopy[0m arm64-apple-ios.swiftdoc -> local_auth_darwin.swiftdoc[0m
+[16:53:37]: ▸ [35m[[36mlocal_auth_darwin[0m] [1mCopy[0m arm64-apple-ios.abi.json -> local_auth_darwin.abi.json[0m
+[16:53:37]: ▸ [35m[[36mimage_picker_ios[0m] [1mCompiling[0m resource_bundle_accessor.m[0m
+[16:53:38]: ▸ [35m[[36mFlutterFramework[0m] [1mCompiling[0m FlutterFramework.swift[0m
+[16:53:38]: ▸ [35m[[36mmobile_scanner[0m] [1mCopy[0m arm64-apple-ios.swiftmodule -> mobile_scanner.swiftmodule[0m
+[16:53:38]: ▸ [35m[[36mmobile_scanner[0m] [1mCopy[0m arm64-apple-ios.swiftdoc -> mobile_scanner.swiftdoc[0m
+[16:53:38]: ▸ [35m[[36mmobile_scanner[0m] [1mCopy[0m arm64-apple-ios.abi.json -> mobile_scanner.abi.json[0m
+[16:53:38]: ▸ [35m[[36mFlutterFramework[0m] [1mCopy[0m arm64-apple-ios.swiftmodule -> FlutterFramework.swiftmodule[0m
+[16:53:38]: ▸ [35m[[36mFlutterFramework[0m] [1mCopy[0m arm64-apple-ios.swiftdoc -> FlutterFramework.swiftdoc[0m
+[16:53:38]: ▸ [35m[[36mFlutterFramework[0m] [1mCopy[0m arm64-apple-ios.abi.json -> FlutterFramework.abi.json[0m
+[16:53:38]: ▸ [35m[[36mflutter_secure_storage-flutter_secure_storage[0m] [1mProcessing[0m ResourceBundle-flutter_secure_storage-flutter_secure_storage-Info.plist[0m
+[16:53:38]: ▸ [35m[[36mflutter_secure_storage-flutter_secure_storage[0m] [1mCopying[0m PrivacyInfo.xcprivacy[0m
+[16:53:38]: ▸ [35m[[36mapp_links_app_links[0m] [1mProcessing[0m empty-app_links_app_links.plist[0m
+[16:53:38]: ▸ [35m[[36mapp_links_app_links[0m] [1mCopying[0m PrivacyInfo.xcprivacy[0m
+[16:53:39]: ▸ [35m[[36mshare_plus[0m] [1mRegisterExecutionPolicyException[0m share_plus.o[0m
+[16:53:39]: ▸ [35m[[36mmobile_scanner[0m] [1mLinking[0m mobile_scanner.o[0m
+[16:53:39]: ▸ [35m[[36mFlutterFramework[0m] [1mLinking[0m FlutterFramework.o[0m
+[16:53:39]: ▸ [35m[[36mmobile_scanner[0m] [1mExtract App Intents Metadata[0m
+[16:53:39]: ▸ [35m[[36mlocal_auth_darwin_local_auth_darwin[0m] [1mRegisterExecutionPolicyException[0m local_auth_darwin_local_auth_darwin.bundle[0m
+[16:53:39]: ▸ [35m[[36mlocal_auth_darwin_local_auth_darwin[0m] [1mTouching[0m local_auth_darwin_local_auth_darwin.bundle[0m
+[16:53:39]: ▸ [35m[[36mlocal_auth_darwin[0m] [1mLinking[0m local_auth_darwin.o[0m
+[16:53:39]: ▸ [35m[[36mimage_picker_ios[0m] [1mCompiling[0m FLTImagePickerMetaDataUtil.m[0m
+[16:53:39]: ▸ [35m[[36mimage_picker_ios[0m] [1mCompiling[0m FLTImagePickerImageUtil.m[0m
+[16:53:39]: ▸ [35m[[36mimage_picker_ios[0m] [1mCompiling[0m FLTImagePickerPhotoAssetUtil.m[0m
+[16:53:39]: ▸ [35m[[36mimage_picker_ios[0m] [1mCompiling[0m FIPPickerSeams.m[0m
+[16:53:39]: ▸ [35m[[36mimage_picker_ios[0m] [1mCompiling[0m messages.g.m[0m
+[16:53:39]: ▸ [35m[[36mimage_picker_ios[0m] [1mCompiling[0m FLTPHPickerSaveImageToPathOperation.m[0m
+[16:53:39]: ▸ [35m[[36mimage_picker_ios[0m] [1mCompiling[0m FLTImagePickerPlugin.m[0m
+[16:53:39]: ▸ [35m[[36mimage_picker_ios[0m] [1mCompiling[0m FIPViewProvider.m[0m
+[16:53:39]: ▸ [35m[[36mmobile_scanner[0m] [1mRegisterExecutionPolicyException[0m mobile_scanner.o[0m
+[16:53:39]: ▸ [35m[[36mlocal_auth_darwin[0m] [1mExtract App Intents Metadata[0m
+[16:53:42]: ▸ [35m[[36mFlutterFramework[0m] [1mExtract App Intents Metadata[0m
+[16:53:42]: ▸ [35m[[36mlocal_auth_darwin[0m] [1mRegisterExecutionPolicyException[0m local_auth_darwin.o[0m
+[16:53:42]: ▸ [35m[[36mimage_picker_ios_image_picker_ios[0m] [1mRegisterExecutionPolicyException[0m image_picker_ios_image_picker_ios.bundle[0m
+[16:53:42]: ▸ [35m[[36mimage_picker_ios_image_picker_ios[0m] [1mTouching[0m image_picker_ios_image_picker_ios.bundle[0m
+[16:53:42]: ▸ [35m[[36mimage_picker_ios[0m] [1mLinking[0m image_picker_ios.o[0m
+[16:53:42]: ▸ [35m[[36mflutter_secure_storage-flutter_secure_storage[0m] [1mRegisterExecutionPolicyException[0m flutter_secure_storage.bundle[0m
+[16:53:42]: ▸ [35m[[36mflutter_secure_storage-flutter_secure_storage[0m] [1mTouching[0m flutter_secure_storage.bundle[0m
+[16:53:42]: ▸ [35m[[36mflutter_secure_storage[0m] [1mProcessing[0m flutter_secure_storage-Info.plist[0m
+[16:53:42]: ▸ [35m[[36mflutter_secure_storage[0m] [1mCopying[0m flutter_secure_storage.bundle[0m
+[16:53:42]: ▸ [35m[[36mimage_picker_ios[0m] [1mRegisterExecutionPolicyException[0m image_picker_ios.o[0m
+[16:53:42]: ▸ [35m[[36mapp_links_app_links[0m] [1mRegisterExecutionPolicyException[0m app_links_app_links.bundle[0m
+[16:53:43]: ▸ [35m[[36mapp_links_app_links[0m] [1mTouching[0m app_links_app_links.bundle[0m
+[16:53:43]: ▸ [35m[[36mapp_links[0m] [1mCopy[0m arm64-apple-ios.swiftmodule -> app_links.swiftmodule[0m
+[16:53:43]: ▸ [35m[[36mapp_links[0m] [1mCopy[0m arm64-apple-ios.swiftdoc -> app_links.swiftdoc[0m
+[16:53:43]: ▸ [35m[[36mapp_links[0m] [1mCopy[0m arm64-apple-ios.abi.json -> app_links.abi.json[0m
+[16:53:43]: ▸ [35m[[36mFlutterFramework[0m] [1mRegisterExecutionPolicyException[0m FlutterFramework.o[0m
+[16:53:43]: ▸ [35m[[36mapp_links[0m] [1mLinking[0m app_links.o[0m
+[16:53:43]: ▸ [35m[[36mapp_links[0m] [1mExtract App Intents Metadata[0m
+[16:53:43]: ▸ [35m[[36mapp_links[0m] [1mRegisterExecutionPolicyException[0m app_links.o[0m
+[16:53:43]: ▸ [35m[[36mprinting[0m] [1mCopy[0m arm64-apple-ios.swiftmodule -> printing.swiftmodule[0m
+[16:53:43]: ▸ [35m[[36mprinting[0m] [1mCopy[0m arm64-apple-ios.swiftdoc -> printing.swiftdoc[0m
+[16:53:43]: ▸ [35m[[36mprinting[0m] [1mCopy[0m arm64-apple-ios.abi.json -> printing.abi.json[0m
+[16:53:43]: ▸ [35m[[36mprinting[0m] [1mLinking[0m printing.o[0m
+[16:53:43]: ▸ [35m[[36mFlutterGeneratedPluginSwiftPackage[0m] [1mCompiling[0m FlutterGeneratedPluginSwiftPackage.swift[0m
+[16:53:43]: ▸ [35m[[36mprinting[0m] [1mExtract App Intents Metadata[0m
+[16:53:43]: ▸ [35m[[36mprinting[0m] [1mRegisterExecutionPolicyException[0m printing.o[0m
+[16:53:43]: ▸ [35m[[36mFlutterGeneratedPluginSwiftPackage[0m] [1mCopy[0m arm64-apple-ios.swiftmodule -> FlutterGeneratedPluginSwiftPackage.swiftmodule[0m
+[16:53:43]: ▸ [35m[[36mFlutterGeneratedPluginSwiftPackage[0m] [1mCopy[0m arm64-apple-ios.swiftdoc -> FlutterGeneratedPluginSwiftPackage.swiftdoc[0m
+[16:53:43]: ▸ [35m[[36mFlutterGeneratedPluginSwiftPackage[0m] [1mCopy[0m arm64-apple-ios.abi.json -> FlutterGeneratedPluginSwiftPackage.abi.json[0m
+[16:53:43]: ▸ [35m[[36mFlutterGeneratedPluginSwiftPackage[0m] [1mLinking[0m FlutterGeneratedPluginSwiftPackage.o[0m
+[16:53:43]: ▸ [35m[[36mFlutterGeneratedPluginSwiftPackage[0m] [1mExtract App Intents Metadata[0m
+[16:53:43]: ▸ [35m[[36mFlutterGeneratedPluginSwiftPackage[0m] [1mRegisterExecutionPolicyException[0m FlutterGeneratedPluginSwiftPackage.o[0m
+[16:53:43]: ▸ [35m[[36mflutter_secure_storage[0m] [1mCopy[0m arm64-apple-ios.swiftmodule -> flutter_secure_storage.swiftmodule[0m
+[16:53:43]: ▸ [35m[[36mflutter_secure_storage[0m] [1mCopy[0m arm64-apple-ios.swiftdoc -> flutter_secure_storage.swiftdoc[0m
+[16:53:43]: ▸ [35m[[36mflutter_secure_storage[0m] [1mCopy[0m arm64-apple-ios.abi.json -> flutter_secure_storage.abi.json[0m
+[16:53:43]: ▸ [35m[[36mflutter_secure_storage[0m] [1mCompiling[0m flutter_secure_storage_vers.c[0m
+[16:53:43]: ▸ [35m[[36mPods-Runner[0m] [1mCompiling[0m Pods_Runner_vers.c[0m
+[16:53:45]: ▸ [35m[[36mPods-Runner[0m] [1mCompiling[0m Pods-Runner-dummy.m[0m
+[16:53:46]: ▸ [35m[[36mflutter_secure_storage[0m] [1mCompiling[0m flutter_secure_storage-dummy.m[0m
+[16:53:46]: ▸ [35m[[36mflutter_secure_storage[0m] [1mCompiling[0m FlutterSecureStoragePlugin.m[0m
+[16:53:46]: ▸ [35m[[36mflutter_secure_storage[0m] [1mLinking[0m flutter_secure_storage[0m
+[16:53:46]: ▸ [35m[[36mflutter_secure_storage[0m] [1mGenerating[0m flutter_secure_storage.framework.dSYM[0m
+[16:53:47]: ▸ [35m[[36mflutter_secure_storage[0m] [1mExtract App Intents Metadata[0m
+[16:53:47]: ▸ [35m[[36mflutter_secure_storage[0m] [1mRegisterExecutionPolicyException[0m flutter_secure_storage.framework[0m
+[16:53:47]: ▸ [35m[[36mflutter_secure_storage[0m] [1mTouching[0m flutter_secure_storage.framework[0m
+[16:53:47]: ▸ [35m[[36mPods-Runner[0m] [1mProcessing[0m Pods-Runner-Info.plist[0m
+[16:53:47]: ▸ [35m[[36mPods-Runner[0m] [1mRegisterExecutionPolicyException[0m Pods_Runner.framework[0m
+[16:53:47]: ▸ [35m[[36mPods-Runner[0m] [1mTouching[0m Pods_Runner.framework[0m
+[16:53:47]: ▸ [35m[[36mRunner[0m] [1mCopy[0m url_launcher_ios_url_launcher_ios.bundle -> url_launcher_ios_url_launcher_ios.bundle[0m
+[16:53:47]: ▸ [35m[[36mRunner[0m] [1mCopy[0m shared_preferences_foundation_shared_preferences_foundation.bundle -> shared_preferences_foundation_shared_preferences_foundation.bundle[0m
+[16:53:47]: ▸ [35m[[36mRunner[0m] [1mRunning script[0m [CP] Check Pods Manifest.lock[0m
+[16:53:47]: ▸ [35m[[36mRunner[0m] [1mCopy[0m share_plus_share_plus.bundle -> share_plus_share_plus.bundle[0m
+[16:53:47]: ▸ [35m[[36mRunner[0m] [1mCopy[0m mobile_scanner_mobile_scanner.bundle -> mobile_scanner_mobile_scanner.bundle[0m
+[16:53:47]: ▸ [35m[[36mRunner[0m] [1mCopy[0m local_auth_darwin_local_auth_darwin.bundle -> local_auth_darwin_local_auth_darwin.bundle[0m
+[16:53:47]: ▸ [35m[[36mRunner[0m] [1mCopy[0m image_picker_ios_image_picker_ios.bundle -> image_picker_ios_image_picker_ios.bundle[0m
+[16:53:47]: ▸ [35m[[36mRunner[0m] [1mCopy[0m app_links_app_links.bundle -> app_links_app_links.bundle[0m
+[16:53:47]: ▸ [35m[[36mRunner[0m] [1mRunning script[0m Run Script[0m
+[16:54:38]: ▸ [35m[[36mRunner[0m] [1mCopying[0m AppFrameworkInfo.plist[0m
+[16:54:38]: ▸ [35m[[36mRunner[0m] [1mGenerate Asset Symbols[0m Assets.xcassets[0m
+[16:54:43]: ▸ [35m[[36mRunner[0m] [1mCompiling[0m Main.storyboard[0m
+[16:54:43]: ▸ [35m[[36mRunner[0m] [1mCompiling[0m LaunchScreen.storyboard[0m
+[16:54:50]: ▸ [35m[[36mRunner[0m] [1mCopy[0m arm64-apple-ios.swiftmodule -> Runner.swiftmodule[0m
+[16:54:50]: ▸ [35m[[36mRunner[0m] [1mCopy[0m arm64-apple-ios.swiftdoc -> Runner.swiftdoc[0m
+[16:54:50]: ▸ [35m[[36mRunner[0m] [1mCopy[0m arm64-apple-ios.abi.json -> Runner.abi.json[0m
+[16:54:50]: ▸ [35m[[36mRunner[0m] [1mCompiling[0m Runner_vers.c[0m
+[16:54:50]: ▸ [35m[36;1mnote: [0mEmplaced /Users/runner/Library/Developer/Xcode/DerivedData/Runner-aqxfevlvhocpurgptuajapjknrsa/Build/Intermediates.noindex/ArchiveIntermediates/Runner/InstallationBuildProductsLocation/Applications/Runner.app/AppIcon76x76@2x~ipad.png (in target 'Runner' from project 'Runner')[0m
+[16:54:50]: ▸ [35m[36;1mnote: [0mEmplaced /Users/runner/Library/Developer/Xcode/DerivedData/Runner-aqxfevlvhocpurgptuajapjknrsa/Build/Intermediates.noindex/ArchiveIntermediates/Runner/InstallationBuildProductsLocation/Applications/Runner.app/Assets.car (in target 'Runner' from project 'Runner')[0m
+[16:54:50]: ▸ [35m[36;1mnote: [0mEmplaced /Users/runner/Library/Developer/Xcode/DerivedData/Runner-aqxfevlvhocpurgptuajapjknrsa/Build/Intermediates.noindex/ArchiveIntermediates/Runner/InstallationBuildProductsLocation/Applications/Runner.app/AppIcon60x60@2x.png (in target 'Runner' from project 'Runner')[0m
+[16:54:50]: ▸ [35m[[36mRunner[0m] [1mProcessing[0m Info.plist[0m
+[16:54:53]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/Runner-aqxfevlvhocpurgptuajapjknrsa/Build/Intermediates.noindex/ArchiveIntermediates/Runner/IntermediateBuildFilesPath/GeneratedModuleMaps-iphoneos/mobile_scanner-Swift.h,line=390,col=31::'objc_ownership' only applies to Objective-C object or block pointer types; type here is 'CVPixelBufferRef _Nullable' (aka 'struct __CVBuffer *') [-Wignored-attributes][0m
+[16:54:53]: ▸ [35m  390 | - (CVPixelBufferRef _Nullable __unsafe_unretained)copyPixelBuffer SWIFT_WARN_UNUSED_RESULT;[0m
+[16:54:53]: ▸ [35m      |                               ^[0m
+[16:54:53]: ▸ [35m[[36mRunner[0m] [1mCompiling[0m GeneratedPluginRegistrant.m[0m
+[16:54:53]: ▸ [35m[[36mRunner[0m] [1mLinking[0m Runner[0m
+[16:54:54]: ▸ [35m[[36mRunner[0m] [1mRunning script[0m Thin Binary[0m
+[16:54:56]: ▸ [35m[[36mRunner[0m] [1mGenerating[0m Runner.app.dSYM[0m
+[16:54:56]: ▸ [35m[[36mRunner[0m] [1mRunning script[0m [CP] Embed Pods Frameworks[0m
+[16:54:56]: ▸ [35m[[36mRunner[0m] [1mExtract App Intents Metadata[0m
+[16:54:56]: ▸ [35m[1mSigning[0m Runner.app (in target 'Runner' from project 'Runner')[0m
+[16:54:56]: ▸ [35m[[36mRunner[0m] [1mRegisterExecutionPolicyException[0m Runner.app[0m
+[16:54:56]: ▸ [35m[[36mRunner[0m] [1mValidate[0m Runner.app[0m
+[16:54:56]: ▸ [35m[[36mRunner[0m] [1mTouching[0m Runner.app[0m
+[16:54:57]: ▸ [35m[36;1mnote: [0mRun script build phase 'Thin Binary' will be run during every build because the option to run the script phase "Based on dependency analysis" is unchecked. (in target 'Runner' from project 'Runner')[0m
+[16:54:57]: ▸ [35m[36;1mnote: [0mRun script build phase 'Run Script' will be run during every build because the option to run the script phase "Based on dependency analysis" is unchecked. (in target 'Runner' from project 'Runner')[0m
+[16:54:57]: ▸ [35m[32;1mArchive Succeeded[0m
+[16:54:57]: [33mGenerated plist file with the following values:[0m
+[16:54:57]: ▸ [35m-----------------------------------------[0m
+[16:54:57]: ▸ [35m{[0m
+[16:54:57]: ▸ [35m  "provisioningProfiles": {[0m
+[16:54:57]: ▸ [35m    "app.ghshopper.com": "match AppStore app.ghshopper.com"[0m
+[16:54:57]: ▸ [35m  },[0m
+[16:54:57]: ▸ [35m  "method": "app-store",[0m
+[16:54:57]: ▸ [35m  "signingStyle": "manual",[0m
+[16:54:57]: ▸ [35m  "teamID": "4AS6WC855S"[0m
+[16:54:57]: ▸ [35m}[0m
+[16:54:57]: ▸ [35m-----------------------------------------[0m
+[16:54:57]: [36m$ /usr/bin/xcrun /Users/runner/work/-gh-platform/-gh-platform/vendor/bundle/ruby/3.3.0/gems/fastlane-2.241.1/gym/lib/assets/wrap_xcodebuild/xcbuild-safe.sh -exportArchive -exportOptionsPlist /var/folders/n6/hn37q6pj7sj_9dmqqc2113800000gn/T/gym_config20261019-8078-j9w4qv.plist -archivePath /Users/runner/Library/Developer/Xcode/Archives/2026-10-19/GHShopper\ 2026-10-19\ 16.53.17.xcarchive -exportPath /var/folders/n6/hn37q6pj7sj_9dmqqc2113800000gn/T/gym_output20261019-8078-uaxrk7 [0m
+[16:55:06]: Compressing 6 dSYM(s)
+[16:55:06]: [36m$ cd /Users/runner/Library/Developer/Xcode/Archives/2026-10-19/GHShopper\ 2026-10-19\ 16.53.17.xcarchive/dSYMs && zip -r /Users/runner/work/-gh-platform/-gh-platform/build/ipa/GHShopper.app.dSYM.zip *.dSYM[0m
+[16:55:12]: ▸ [35m  adding: App.framework.dSYM/ (stored 0%)[0m
+[16:55:12]: ▸ [35m  adding: App.framework.dSYM/Contents/ (stored 0%)[0m
+[16:55:12]: ▸ [35m  adding: App.framework.dSYM/Contents/Resources/ (stored 0%)[0m
+[16:55:12]: ▸ [35m  adding: App.framework.dSYM/Contents/Resources/DWARF/ (stored 0%)[0m
+[16:55:12]: ▸ [35m  adding: App.framework.dSYM/Contents/Resources/DWARF/App (deflated 70%)[0m
+[16:55:12]: ▸ [35m  adding: flutter_secure_storage.framework.dSYM/ (stored 0%)[0m
+[16:55:12]: ▸ [35m  adding: flutter_secure_storage.framework.dSYM/Contents/ (stored 0%)[0m
+[16:55:12]: ▸ [35m  adding: flutter_secure_storage.framework.dSYM/Contents/Resources/ (stored 0%)[0m
+[16:55:12]: ▸ [35m  adding: flutter_secure_storage.framework.dSYM/Contents/Resources/Relocations/ (stored 0%)[0m
+[16:55:12]: ▸ [35m  adding: flutter_secure_storage.framework.dSYM/Contents/Resources/Relocations/aarch64/ (stored 0%)[0m
+[16:55:12]: ▸ [35m  adding: flutter_secure_storage.framework.dSYM/Contents/Resources/Relocations/aarch64/flutter_secure_storage.yml (deflated 84%)[0m
+[16:55:12]: ▸ [35m  adding: flutter_secure_storage.framework.dSYM/Contents/Resources/DWARF/ (stored 0%)[0m
+[16:55:12]: ▸ [35m  adding: flutter_secure_storage.framework.dSYM/Contents/Resources/DWARF/flutter_secure_storage (deflated 60%)[0m
+[16:55:12]: ▸ [35m  adding: flutter_secure_storage.framework.dSYM/Contents/Info.plist (deflated 52%)[0m
+[16:55:12]: ▸ [35m  adding: Flutter.framework.dSYM/ (stored 0%)[0m
+[16:55:12]: ▸ [35m  adding: Flutter.framework.dSYM/Contents/ (stored 0%)[0m
+[16:55:12]: ▸ [35m  adding: Flutter.framework.dSYM/Contents/Resources/ (stored 0%)[0m
+[16:55:12]: ▸ [35m  adding: Flutter.framework.dSYM/Contents/Resources/Relocations/ (stored 0%)[0m
+[16:55:12]: ▸ [35m  adding: Flutter.framework.dSYM/Contents/Resources/Relocations/aarch64/ (stored 0%)[0m
+[16:55:12]: ▸ [35m  adding: Flutter.framework.dSYM/Contents/Resources/Relocations/aarch64/Flutter.yml (deflated 89%)[0m
+[16:55:12]: ▸ [35m  adding: Flutter.framework.dSYM/Contents/Resources/DWARF/ (stored 0%)[0m
+[16:55:12]: ▸ [35m  adding: Flutter.framework.dSYM/Contents/Resources/DWARF/Flutter (deflated 75%)[0m
+[16:55:12]: ▸ [35m  adding: Flutter.framework.dSYM/Contents/Info.plist (deflated 53%)[0m
+[16:55:12]: ▸ [35m  adding: objective_c.framework 1.dSYM/ (stored 0%)[0m
+[16:55:12]: ▸ [35m  adding: objective_c.framework 1.dSYM/Contents/ (stored 0%)[0m
+[16:55:12]: ▸ [35m  adding: objective_c.framework 1.dSYM/Contents/Resources/ (stored 0%)[0m
+[16:55:12]: ▸ [35m  adding: objective_c.framework 1.dSYM/Contents/Resources/Relocations/ (stored 0%)[0m
+[16:55:12]: ▸ [35m  adding: objective_c.framework 1.dSYM/Contents/Resources/Relocations/aarch64/ (stored 0%)[0m
+[16:55:12]: ▸ [35m  adding: objective_c.framework 1.dSYM/Contents/Resources/Relocations/aarch64/objective_c.yml (deflated 86%)[0m
+[16:55:12]: ▸ [35m  adding: objective_c.framework 1.dSYM/Contents/Resources/DWARF/ (stored 0%)[0m
+[16:55:12]: ▸ [35m  adding: objective_c.framework 1.dSYM/Contents/Resources/DWARF/objective_c (deflated 74%)[0m
+[16:55:12]: ▸ [35m  adding: objective_c.framework 1.dSYM/Contents/Info.plist (deflated 52%)[0m
+[16:55:12]: ▸ [35m  adding: objective_c.framework.dSYM/ (stored 0%)[0m
+[16:55:12]: ▸ [35m  adding: objective_c.framework.dSYM/Contents/ (stored 0%)[0m
+[16:55:12]: ▸ [35m  adding: objective_c.framework.dSYM/Contents/Resources/ (stored 0%)[0m
+[16:55:12]: ▸ [35m  adding: objective_c.framework.dSYM/Contents/Resources/Relocations/ (stored 0%)[0m
+[16:55:12]: ▸ [35m  adding: objective_c.framework.dSYM/Contents/Resources/Relocations/aarch64/ (stored 0%)[0m
+[16:55:12]: ▸ [35m  adding: objective_c.framework.dSYM/Contents/Resources/Relocations/aarch64/objective_c.yml (deflated 86%)[0m
+[16:55:12]: ▸ [35m  adding: objective_c.framework.dSYM/Contents/Resources/DWARF/ (stored 0%)[0m
+[16:55:12]: ▸ [35m  adding: objective_c.framework.dSYM/Contents/Resources/DWARF/objective_c (deflated 74%)[0m
+[16:55:12]: ▸ [35m  adding: objective_c.framework.dSYM/Contents/Info.plist (deflated 52%)[0m
+[16:55:12]: ▸ [35m  adding: Runner.app.dSYM/ (stored 0%)[0m
+[16:55:12]: ▸ [35m  adding: Runner.app.dSYM/Contents/ (stored 0%)[0m
+[16:55:12]: ▸ [35m  adding: Runner.app.dSYM/Contents/Resources/ (stored 0%)[0m
+[16:55:12]: ▸ [35m  adding: Runner.app.dSYM/Contents/Resources/Relocations/ (stored 0%)[0m
+[16:55:12]: ▸ [35m  adding: Runner.app.dSYM/Contents/Resources/Relocations/aarch64/ (stored 0%)[0m
+[16:55:12]: ▸ [35m  adding: Runner.app.dSYM/Contents/Resources/Relocations/aarch64/Runner.yml (deflated 86%)[0m
+[16:55:12]: ▸ [35m  adding: Runner.app.dSYM/Contents/Resources/DWARF/ (stored 0%)[0m
+[16:55:12]: ▸ [35m  adding: Runner.app.dSYM/Contents/Resources/DWARF/Runner (deflated 60%)[0m
+[16:55:12]: ▸ [35m  adding: Runner.app.dSYM/Contents/Info.plist (deflated 52%)[0m
 
-[15:30:15]: [32mSuccessfully exported and compressed dSYM file[0m
-[15:30:15]: [32mSuccessfully exported and signed the ipa file:[0m
-[15:30:15]: /Users/runner/work/-gh-platform/-gh-platform/build/ipa/GHShopper.ipa
-[15:30:15]: [32m----------------------------------[0m
-[15:30:15]: [32m--- Step: upload_to_testflight ---[0m
-[15:30:15]: [32m----------------------------------[0m
-[15:30:15]: Creating authorization token for App Store Connect API
-[15:30:15]: [32mReady to upload new build to TestFlight (App: 6824045606)...[0m
-[15:30:16]: Going to upload updated app to App Store Connect
-[15:30:16]: [32mThis might take a few minutes. Please don't interrupt the script.[0m
-[15:31:38]: [32m--------------------------------------------------------------------[0m
-[15:31:38]: [32mSuccessfully uploaded package to App Store Connect. It might take a few minutes until it's visible online.[0m
-[15:31:38]: [32m--------------------------------------------------------------------[0m
-[15:31:38]: [32mSuccessfully uploaded the new binary to App Store Connect[0m
-[15:31:39]: [33m`skip_waiting_for_build_processing` used and no `changelog` supplied - skipping waiting for build processing[0m
+[16:55:12]: [32mSuccessfully exported and compressed dSYM file[0m
+[16:55:12]: [32mSuccessfully exported and signed the ipa file:[0m
+[16:55:12]: /Users/runner/work/-gh-platform/-gh-platform/build/ipa/GHShopper.ipa
+[16:55:12]: [32m----------------------------------[0m
+[16:55:12]: [32m--- Step: upload_to_testflight ---[0m
+[16:55:12]: [32m----------------------------------[0m
+[16:55:12]: Creating authorization token for App Store Connect API
+[16:55:12]: [32mReady to upload new build to TestFlight (App: 6824045606)...[0m
+[16:55:12]: Going to upload updated app to App Store Connect
+[16:55:12]: [32mThis might take a few minutes. Please don't interrupt the script.[0m
+[16:56:33]: [32m--------------------------------------------------------------------[0m
+[16:56:33]: [32mSuccessfully uploaded package to App Store Connect. It might take a few minutes until it's visible online.[0m
+[16:56:33]: [32m--------------------------------------------------------------------[0m
+[16:56:33]: [32mSuccessfully uploaded the new binary to App Store Connect[0m
+[16:56:33]: [33m`skip_waiting_for_build_processing` used and no `changelog` supplied - skipping waiting for build processing[0m
 
 +---------------------------------------------------+
 |                 [32mfastlane summary[0m                  |
@@ -391,10 +391,10 @@
 | 1    | default_platform             | 0           |
 | 2    | setup_ci                     | 0           |
 | 3    | app_store_connect_api_key    | 0           |
-| 4    | match                        | 2           |
+| 4    | match                        | 4           |
 | 5    | update_code_signing_settings | 0           |
-| 6    | build_app                    | 140         |
-| 7    | upload_to_testflight         | 83          |
+| 6    | build_app                    | 130         |
+| 7    | upload_to_testflight         | 80          |
 +------+------------------------------+-------------+
 
-[15:31:39]: [32mfastlane.tools finished successfully 🎉[0m
+[16:56:33]: [32mfastlane.tools finished successfully 🎉[0m
