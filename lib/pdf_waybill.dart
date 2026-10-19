@@ -48,6 +48,26 @@ Future<Uint8List> buildWaybillPdf(
     if (address.isEmpty) address = null;
   }
 
+  // The address without what is printed elsewhere (name, phone, map link).
+  if (address != null) {
+    final drop = {
+      customer?.name?.trim(),
+      customer?.phone?.trim(),
+    }.whereType<String>().where((x) => x.isNotEmpty).toSet();
+    final parts = address
+        .replaceAll(RegExp(r'https?://\S+'), '')
+        .split(RegExp(r'[،,·]'))
+        .map((x) => x.trim())
+        .where((x) => x.isNotEmpty && !drop.contains(x))
+        .toList();
+    address = parts.isEmpty ? null : parts.join('، ');
+  }
+  String phoneText(String p) {
+    final d = p.replaceAll(RegExp(r'\D'), '');
+    final local = d.length == 11 && d.startsWith('968') ? d.substring(3) : d;
+    return local.length == 8 ? '+968 ${local.substring(0, 4)} ${local.substring(4)}' : p;
+  }
+
   // Big band at the top: how this parcel travels (what the packer sorts by).
   final (String routeAr, String routeEn) = switch (method) {
     DeliveryMethod.genacomOffice || DeliveryMethod.noolOffice => (
@@ -126,7 +146,7 @@ Future<Uint8List> buildWaybillPdf(
                   pw.SizedBox(height: 3),
                   pw.Text(customer?.name ?? '—', style: st(15, font: bold), maxLines: 2),
                   if (customer?.phone != null)
-                    pw.Text(customer!.phone!,
+                    pw.Text(phoneText(customer!.phone!),
                         textDirection: pw.TextDirection.ltr,
                         style: st(14, font: medium)),
                   pw.SizedBox(height: 3),
