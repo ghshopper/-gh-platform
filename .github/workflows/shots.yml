@@ -51,6 +51,35 @@ jobs:
           pick=[p for p in rows if p.get('images')] or rows
           print(pick[0]['id'] if pick else '')" || true)
           echo "product: $PID"
+          # a piece with other colours / options, to see the new product page parts
+          VID=$(python3 - <<'PY' || true
+          import json, urllib.request
+          B = 'https://ghshopper.com/api/customer/products'
+          def get(u):
+              with urllib.request.urlopen(u, timeout=20) as r: return json.load(r)
+          d = get(B + '?per_page=60&sort_by=created_at&sort_order=desc')
+          rows = d.get('data', d) if isinstance(d, dict) else d
+          rows = rows.get('data', rows) if isinstance(rows, dict) else rows
+          best = ''
+          for p in rows[:60]:
+              try:
+                  x = get(f"{B}/{p['id']}"); x = x.get('data', x)
+              except Exception: continue
+              if len(x.get('variants') or []) > 1: print(p['id']); break
+              if not best and (x.get('attributes') or x.get('product_attributes')): best = p['id']
+          else: print(best)
+          PY
+          )
+          [ -n "$VID" ] || VID=$PID
+          echo "variant product: $VID"
+          # is the new server live? (404 = old server)
+          {
+            for u in 'customer/products?per_page=1&gender=women' 'customer/products?per_page=1&gender=men' 'customer/settings/app' 'customer/brand-follows'; do
+              echo "GET $u → $(curl -s -o /dev/null -w '%{http_code}' "https://ghshopper.com/api/$u")"
+            done
+            echo "POST auth/forgot-password → $(curl -s -o /dev/null -w '%{http_code}' -X POST -H 'Accept: application/json' -H 'Content-Type: application/json' -d '{"email":"nobody@example.com"}' https://ghshopper.com/api/auth/forgot-password)"
+            echo "GET gift-cards/balance → $(curl -s -o /dev/null -w '%{http_code}' -H 'Accept: application/json' 'https://ghshopper.com/api/gift-cards/balance?code=TEST')"
+          } > server.txt; cat server.txt
           xcrun simctl list devicetypes
           mkdir -p shots
           shoot() { # device-type-pattern folder
@@ -78,7 +107,11 @@ jobs:
               mk 2-categories "ghshopper://categories"
               mk 3-product "ghshopper://product/$PID"
               printf -- '- tapOn:\n    text: ".*للسلة.*"\n    optional: true\n- waitForAnimationToEnd:\n    timeout: 4000\n'
+              mk 3b-variants "ghshopper://product/$VID"
+              printf -- '- scroll\n- takeScreenshot: 3c-variants-more\n'
               mk 4-search "ghshopper://search"
+              mk 4b-products "ghshopper://products"
+              mk 4c-forgot "ghshopper://forgot-password"
               mk 5-brands "ghshopper://brands"
               mk 6-account "ghshopper://account"
               mk 7-bag "ghshopper://bag"
@@ -109,6 +142,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           mkdir -p /tmp/out && cp -r shots/. /tmp/out/ 2>/dev/null || true
+          cp server.txt /tmp/out/ 2>/dev/null || true
           tail -n 300 build.log > /tmp/out/build.log 2>/dev/null || true
           echo "${{ job.status }} ${{ github.sha }}" > /tmp/out/status.txt
           git config user.name ci && git config user.email ci@users.noreply.github.com
