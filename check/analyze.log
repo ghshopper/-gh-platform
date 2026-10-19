@@ -25,4 +25,4 @@ warning • The member 'setMockInitialValues' can only be used within 'package:s
 warning • The member 'loadSnapshot' can only be used within 'package:gh_shopper/data/store.dart' or a test • test_shots/screens_test.dart:140:15 • invalid_use_of_visible_for_testing_member
 warning • The member 'loadSnapshot' can only be used within 'package:gh_shopper/data/store.dart' or a test • test_shots/screens_test.dart:161:13 • invalid_use_of_visible_for_testing_member
 
-24 issues found. (ran in 13.8s)
+24 issues found. (ran in 15.8s)
