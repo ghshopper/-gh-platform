@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { RiSendPlaneFill, RiUserSearchLine, RiNotificationBadgeLine, RiSmartphoneLine } from 'react-icons/ri'
+import { RiSendPlaneFill, RiUserSearchLine, RiNotificationBadgeLine, RiSmartphoneLine, RiImageAddLine, RiLinkM, RiCloseLine } from 'react-icons/ri'
 import { toast } from 'react-hot-toast'
 import api from '../../services/api'
 import { useTranslation } from 'react-i18next'
@@ -14,8 +14,20 @@ const NotifyUsers = () => {
     body_ar: '',
     body_en: '',
     audience: 'all',
-    user_id: ''
+    user_id: '',
+    link_type: 'none',
+    link_value: ''
   })
+  const [imageFile, setImageFile] = useState(null)
+  const [imagePreview, setImagePreview] = useState('')
+  const [devices, setDevices] = useState(null)
+  const [userSearch, setUserSearch] = useState('')
+  const [pickedUser, setPickedUser] = useState(null)
+  const [brands, setBrands] = useState([])
+  const [categories, setCategories] = useState([])
+  const [productSearch, setProductSearch] = useState('')
+  const [products, setProducts] = useState([])
+  const [pickedProduct, setPickedProduct] = useState(null)
   const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(false)
   const [broadcasts, setBroadcasts] = useState([])
@@ -31,6 +43,7 @@ const NotifyUsers = () => {
     try {
       const res = await api.get('/admin/notifications/sent')
       setBroadcasts(res.data?.data || [])
+      setDevices(res.data?.devices || null)
     } catch (err) {
       console.error('Failed to load broadcasts', err)
     } finally {
@@ -38,20 +51,41 @@ const NotifyUsers = () => {
     }
   }
 
+  // Customers (not staff), searched by name, phone or e-mail.
   useEffect(() => {
-    if (formData.audience === 'specific' && users.length === 0) {
-      loadUsers()
-    }
-  }, [formData.audience])
+    if (formData.audience !== 'specific') return
+    const t = setTimeout(async () => {
+      try {
+        const r = await api.get('/admin/customers', { params: { search: userSearch, per_page: 20 } })
+        setUsers(r.data?.data || [])
+      } catch { setUsers([]) }
+    }, 300)
+    return () => clearTimeout(t)
+  }, [formData.audience, userSearch])
 
-  const loadUsers = async () => {
-    try {
-      const response = await api.get('/admin/users')
-      setUsers(response.data?.data || [])
-    } catch (err) {
-      console.error('Failed to load users', err)
-    }
+  // What the tap opens: lists for the pickers.
+  useEffect(() => {
+    if (formData.link_type === 'brand' && !brands.length) api.get('/admin/brands').then((r) => setBrands(Array.isArray(r.data) ? r.data : (r.data?.data || []))).catch(() => {})
+    if (formData.link_type === 'category' && !categories.length) api.get('/admin/categories').then((r) => setCategories(Array.isArray(r.data) ? r.data : (r.data?.data || []))).catch(() => {})
+  }, [formData.link_type])
+  useEffect(() => {
+    if (formData.link_type !== 'product' || productSearch.trim().length < 2) { setProducts([]); return }
+    const t = setTimeout(async () => {
+      try {
+        const r = await api.get('/admin/products', { params: { search: productSearch, per_page: 10 } })
+        setProducts(r.data?.data || [])
+      } catch { setProducts([]) }
+    }, 300)
+    return () => clearTimeout(t)
+  }, [formData.link_type, productSearch])
+
+  const pickImage = (file) => {
+    if (!file) return
+    if (file.size > 5 * 1024 * 1024) { toast.error('الصورة أكبر من 5 ميغا'); return }
+    setImageFile(file)
+    setImagePreview(URL.createObjectURL(file))
   }
+  const clearImage = () => { setImageFile(null); setImagePreview('') }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -63,7 +97,10 @@ const NotifyUsers = () => {
 
     setLoading(true)
     try {
-      await api.post('/admin/notifications/broadcast', formData)
+      const fd = new FormData()
+      Object.entries(formData).forEach(([k, v]) => { if (v !== '' && v !== null && v !== undefined) fd.append(k, v) })
+      if (imageFile) fd.append('image', imageFile)
+      await api.post('/admin/notifications/broadcast', fd, { headers: { 'Content-Type': 'multipart/form-data' } })
       toast.success(isAr ? 'تم إرسال الإشعارات بنجاح' : 'Notifications sent successfully')
       setFormData({
         title_ar: '',
@@ -71,8 +108,13 @@ const NotifyUsers = () => {
         body_ar: '',
         body_en: '',
         audience: 'all',
-        user_id: ''
+        user_id: '',
+        link_type: 'none',
+        link_value: ''
       })
+      clearImage()
+      setPickedProduct(null)
+      setPickedUser(null)
       loadBroadcasts()
     } catch (err) {
       toast.error(err.response?.data?.message || (isAr ? 'حدث خطأ أثناء الإرسال' : 'Error sending notification'))
@@ -124,6 +166,7 @@ const NotifyUsers = () => {
           <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '15px' }}>
             {isAr ? 'تواصل مع عملائك مباشرة عبر إشعارات الموبايل بطريقة احترافية' : 'Engage with your customers directly via mobile push notifications'}
           </p>
+          {devices ? <p style={{ margin: '6px 0 0', fontSize: 13, color: 'var(--text-secondary)' }}>الأجهزة المسجلة: <b>{devices.total}</b> ({devices.customers} عميل مسجّل · {devices.guests} زائر). كل إشعار يوصل للعميل بلغة تطبيقه.</p> : null}
         </div>
       </div>
 
@@ -154,17 +197,21 @@ const NotifyUsers = () => {
               {formData.audience === 'specific' && (
                 <div style={{ marginTop: '16px', position: 'relative' }}>
                   <RiUserSearchLine style={{ position: 'absolute', right: isAr ? '16px' : 'auto', left: isAr ? 'auto' : '16px', top: '16px', color: 'var(--color-gold)' }} size={22} />
-                  <select 
-                    style={{ width: '100%', padding: '14px 48px', borderRadius: '12px', border: '1px solid var(--border)', background: '#FFF', fontSize: '15px', color: 'var(--text-primary)', outline: 'none', transition: 'border 0.2s' }}
-                    value={formData.user_id}
-                    onChange={e => setFormData({...formData, user_id: e.target.value})}
-                    required
-                  >
-                    <option value="">{isAr ? '-- ابحث واختر العميل --' : '-- Search and Select Customer --'}</option>
-                    {users.map(u => (
-                      <option key={u.id} value={u.id}>{u.name} ({u.email || u.phone})</option>
-                    ))}
-                  </select>
+                  <input
+                    style={{ width: '100%', padding: '14px 48px', borderRadius: '12px', border: '1px solid var(--border)', background: '#FFF', fontSize: '15px', outline: 'none', boxSizing: 'border-box' }}
+                    placeholder="ابحث بالاسم أو الرقم أو الإيميل"
+                    value={pickedUser ? `${pickedUser.name} (${pickedUser.phone || pickedUser.email || ''})` : userSearch}
+                    onChange={e => { setPickedUser(null); setFormData({ ...formData, user_id: '' }); setUserSearch(e.target.value) }}
+                  />
+                  {!pickedUser && users.length > 0 && (
+                    <div style={{ marginTop: 6, background: '#FFF', border: '1px solid var(--border)', borderRadius: 12, maxHeight: 240, overflowY: 'auto' }}>
+                      {users.map(u => (
+                        <div key={u.id} onClick={() => { setPickedUser(u); setFormData({ ...formData, user_id: u.id }) }} style={{ padding: '10px 14px', cursor: 'pointer', borderBottom: '1px solid #F3F4F6', fontSize: 14 }}>
+                          <b>{u.name}</b> <span style={{ color: '#9CA3AF' }} dir="ltr">{u.phone || u.email}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -185,7 +232,7 @@ const NotifyUsers = () => {
               </div>
               
               <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: 'var(--text-primary)' }}>{isAr ? 'عنوان الإشعار (إنجليزي) *' : 'Notification Title (English) *'}</label>
+                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: 'var(--text-primary)' }}>{isAr ? 'عنوان الإشعار (إنجليزي، اختياري)' : 'Notification Title (English)'}</label>
                 <input 
                   type="text" 
                   style={{ width: '100%', padding: '14px 16px', borderRadius: '12px', border: '1px solid var(--border)', background: 'var(--bg-body)', fontSize: '15px', transition: 'all 0.3s', outline: 'none' }}
@@ -194,7 +241,7 @@ const NotifyUsers = () => {
                   onChange={e => setFormData({...formData, title_en: e.target.value})}
                   onFocus={e => e.target.style.border = '1px solid var(--color-gold)'}
                   onBlur={e => e.target.style.border = '1px solid var(--border)'}
-                  required
+                  
                 />
               </div>
             </div>
@@ -215,7 +262,7 @@ const NotifyUsers = () => {
               </div>
               
               <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: 'var(--text-primary)' }}>{isAr ? 'تفاصيل الإشعار (إنجليزي) *' : 'Notification Body (English) *'}</label>
+                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: 'var(--text-primary)' }}>{isAr ? 'تفاصيل الإشعار (إنجليزي، اختياري)' : 'Notification Body (English)'}</label>
                 <textarea 
                   rows="4"
                   style={{ width: '100%', padding: '14px 16px', borderRadius: '12px', border: '1px solid var(--border)', background: 'var(--bg-body)', fontSize: '15px', resize: 'vertical', transition: 'all 0.3s', outline: 'none' }}
@@ -224,8 +271,69 @@ const NotifyUsers = () => {
                   onChange={e => setFormData({...formData, body_en: e.target.value})}
                   onFocus={e => e.target.style.border = '1px solid var(--color-gold)'}
                   onBlur={e => e.target.style.border = '1px solid var(--border)'}
-                  required
+                  
                 ></textarea>
+              </div>
+            </div>
+
+            <div style={{ background: 'var(--bg-body)', padding: '20px', borderRadius: '16px', border: '1px solid var(--border)', display: 'grid', gap: 16 }}>
+              <div>
+                <label style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, fontWeight: 600 }}><RiImageAddLine color="var(--color-gold)" /> صورة الإشعار (اختياري)</label>
+                {imagePreview ? (
+                  <div style={{ position: 'relative', display: 'inline-block' }}>
+                    <img src={imagePreview} alt="" style={{ width: 240, aspectRatio: '2 / 1', objectFit: 'cover', borderRadius: 12, display: 'block' }} />
+                    <button type="button" onClick={clearImage} style={{ position: 'absolute', top: 6, left: 6, background: 'rgba(0,0,0,.6)', color: '#fff', border: 'none', borderRadius: 20, width: 28, height: 28, cursor: 'pointer' }}><RiCloseLine /></button>
+                  </div>
+                ) : (
+                  <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 16px', border: '1px dashed var(--border)', borderRadius: 12, cursor: 'pointer', background: '#FFF', fontSize: 14 }}>
+                    <RiImageAddLine /> اختر صورة (عرضية 2:1 أفضل)
+                    <input type="file" accept="image/*" hidden onChange={e => pickImage(e.target.files?.[0])} />
+                  </label>
+                )}
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 6 }}>تظهر تحت النص في أندرويد وفي صفحة الإشعارات داخل التطبيق.</div>
+              </div>
+              <div>
+                <label style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, fontWeight: 600 }}><RiLinkM color="var(--color-gold)" /> لما يضغط العميل على الإشعار يفتح</label>
+                <select value={formData.link_type} onChange={e => { setFormData({ ...formData, link_type: e.target.value, link_value: '' }); setPickedProduct(null); setProductSearch('') }}
+                  style={{ width: '100%', padding: '12px 14px', borderRadius: 12, border: '1px solid var(--border)', background: '#FFF', fontSize: 14 }}>
+                  <option value="none">صفحة الإشعارات</option>
+                  <option value="product">منتج</option>
+                  <option value="brand">براند</option>
+                  <option value="category">تصنيف</option>
+                  <option value="url">رابط</option>
+                </select>
+                {formData.link_type === 'brand' && (
+                  <select value={formData.link_value} onChange={e => setFormData({ ...formData, link_value: e.target.value })} required style={{ width: '100%', marginTop: 8, padding: '12px 14px', borderRadius: 12, border: '1px solid var(--border)', background: '#FFF', fontSize: 14 }}>
+                    <option value="">— اختر البراند —</option>
+                    {brands.map(b => <option key={b.id} value={b.id}>{b.name_en || b.name_ar}</option>)}
+                  </select>
+                )}
+                {formData.link_type === 'category' && (
+                  <select value={formData.link_value} onChange={e => setFormData({ ...formData, link_value: e.target.value })} required style={{ width: '100%', marginTop: 8, padding: '12px 14px', borderRadius: 12, border: '1px solid var(--border)', background: '#FFF', fontSize: 14 }}>
+                    <option value="">— اختر التصنيف —</option>
+                    {categories.map(c => <option key={c.id} value={c.id}>{c.name_ar || c.name_en}</option>)}
+                  </select>
+                )}
+                {formData.link_type === 'product' && (
+                  <div style={{ marginTop: 8 }}>
+                    <input placeholder="ابحث باسم المنتج أو الكود" value={pickedProduct ? (pickedProduct.name_ar || pickedProduct.name_en || pickedProduct.name) : productSearch}
+                      onChange={e => { setPickedProduct(null); setFormData({ ...formData, link_value: '' }); setProductSearch(e.target.value) }}
+                      style={{ width: '100%', padding: '12px 14px', borderRadius: 12, border: '1px solid var(--border)', background: '#FFF', fontSize: 14, boxSizing: 'border-box' }} />
+                    {!pickedProduct && products.length > 0 && (
+                      <div style={{ marginTop: 6, background: '#FFF', border: '1px solid var(--border)', borderRadius: 12, maxHeight: 220, overflowY: 'auto' }}>
+                        {products.map(p => (
+                          <div key={p.id} onClick={() => { setPickedProduct(p); setFormData({ ...formData, link_value: String(p.id) }) }} style={{ padding: '10px 14px', cursor: 'pointer', borderBottom: '1px solid #F3F4F6', fontSize: 14 }}>
+                            {p.name_ar || p.name_en || p.name} <span style={{ color: '#9CA3AF' }}>#{p.id}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+                {formData.link_type === 'url' && (
+                  <input dir="ltr" type="url" required placeholder="https://" value={formData.link_value} onChange={e => setFormData({ ...formData, link_value: e.target.value })}
+                    style={{ width: '100%', marginTop: 8, padding: '12px 14px', borderRadius: 12, border: '1px solid var(--border)', background: '#FFF', fontSize: 14, boxSizing: 'border-box' }} />
+                )}
               </div>
             </div>
 
@@ -288,6 +396,7 @@ const NotifyUsers = () => {
                     : (formData.title_en || 'Notification title will appear here')}
                 </h4>
                 
+                {imagePreview ? <img src={imagePreview} alt="" style={{ float: 'left', width: 44, height: 44, objectFit: 'cover', borderRadius: 8, marginInlineStart: 8 }} /> : null}
                 <p style={{ margin: 0, fontSize: '13px', color: 'var(--text-secondary)', lineHeight: '1.4' }}>
                   {isAr 
                     ? (formData.body_ar || 'محتوى الرسالة التي ستصل للعميل ستظهر في هذا المكان بشكل أنيق...') 
