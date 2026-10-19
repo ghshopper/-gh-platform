@@ -236,6 +236,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   }, [items]);
 
+  // Signed in: the bag is kept on the server too, for "your pieces are waiting".
+  useEffect(() => {
+    if (!hasToken()) return;
+    const t = setTimeout(() => {
+      api.put('/customer/cart', { items, source: 'web' }).catch(() => undefined);
+    }, 2500);
+    return () => clearTimeout(t);
+  }, [items]);
+
   const recheckCoupon = useCallback(async (phone?: string) => {
     const cur = couponRef.current;
     if (!cur) return null;
