@@ -97,7 +97,7 @@ export function CategoryArt({ c, index = 0, width, height, style, compact }: {
         <Image source={{ uri: imageUrl(c.image) }} style={{ position: 'absolute', inset: 0, width, height }} contentFit="cover" transition={200} />
         <LinearGradient colors={['rgba(0,0,0,0)', 'rgba(0,0,0,0.55)']} style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: height * 0.55 }} />
         <View style={{ position: 'absolute', bottom: compact ? 10 : 16, start: compact ? 12 : 18, end: 12 }}>
-          <T size={compact ? 16 : 21} w="medium" color={BRAND.white} lines={1}>{name}</T>
+          <T size={compact ? 15 : 21} w="medium" color={BRAND.white} lines={2}>{name}</T>
         </View>
       </View>
     );
@@ -110,7 +110,7 @@ export function CategoryArt({ c, index = 0, width, height, style, compact }: {
       </View>
       <View style={{ position: 'absolute', top: 8, left: 8, right: 8, bottom: 8, borderWidth: 0.6, borderColor: s.art, opacity: 0.45 }} />
       <CategoryIcon kind={kind} size={icon} color={s.art} stroke={1.1} />
-      <T size={compact ? 15 : 19} w="medium" color={s.title} center lines={1} style={{ marginTop: compact ? 8 : 12 }}>{name}</T>
+      <T size={compact ? 14 : 19} w="medium" color={s.title} center lines={2} style={{ marginTop: compact ? 8 : 12 }}>{name}</T>
       {en && (isAr || en !== name.toUpperCase()) ? (
         <T latin size={compact ? 9 : 10.5} spacing={compact ? 2 : 3} color={s.sub} center lines={1} style={{ marginTop: 2 }}>{en}</T>
       ) : null}
