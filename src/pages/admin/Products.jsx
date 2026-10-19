@@ -285,10 +285,30 @@ export default function Products() {
   const handleDelete = async (id) => {
     if (!confirm('حذف هذا المنتج؟')) return
     try {
-      await api.delete(`/admin/products/${id}`)
-      toast.success('تم الحذف')
-      fetchData()
+      const r = await api.delete(`/admin/products/${id}`)
+      toast.success(r.data?.result === 'hidden' ? 'انحذف من المتجر (يبقى في الطلبات القديمة)' : 'تم الحذف')
+      setProducts(list => list.filter(p => p.id !== id))
+      setTotalItems(n => Math.max(0, n - 1))
     } catch { toast.error('خطأ في الحذف') }
+  }
+
+  // Delete every selected product.
+  const bulkDelete = async () => {
+    if (!selected.length) return
+    if (!confirm(`تحذف ${selected.length} منتج؟ ما تقدر ترجعها.\nالمنتجات اللي في طلبات قديمة تختفي من المتجر وتبقى في الطلبات.`)) return
+    setBulkBusy(true)
+    try {
+      const r = await api.post('/admin/products/bulk-delete', { ids: selected })
+      const { deleted = 0, hidden = 0 } = r.data || {}
+      toast.success(`انحذف ${deleted + hidden} منتج` + (hidden ? ` (${hidden} منها في طلبات قديمة، اختفت من المتجر)` : ''))
+      setProducts(list => list.filter(p => !selected.includes(p.id)))
+      setTotalItems(n => Math.max(0, n - selected.length))
+      setSelected([])
+    } catch {
+      toast.error('تعذّر الحذف')
+    } finally {
+      setBulkBusy(false)
+    }
   }
 
   // --- AI Import Management ---
@@ -855,7 +875,8 @@ export default function Products() {
             <option value="europe">أوروبا</option>
             <option value="none">تلقائي</option>
           </select>
-          <button onClick={() => setSelected([])} style={{ marginInlineStart: 'auto', background: 'transparent', color: '#fff', border: '1px solid rgba(255,255,255,0.3)', borderRadius: 8, padding: '7px 12px', cursor: 'pointer', fontFamily: 'inherit' }}>إلغاء التحديد</button>
+          <button disabled={bulkBusy} onClick={bulkDelete} style={{ marginInlineStart: 'auto', background: '#B42318', color: '#fff', border: 'none', borderRadius: 8, padding: '8px 14px', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', display: 'inline-flex', alignItems: 'center', gap: 6 }}><RiDeleteBinLine size={15} /> حذف المحدد ({selected.length})</button>
+          <button onClick={() => setSelected([])} style={{ background: 'transparent', color: '#fff', border: '1px solid rgba(255,255,255,0.3)', borderRadius: 8, padding: '7px 12px', cursor: 'pointer', fontFamily: 'inherit' }}>إلغاء التحديد</button>
         </div>
       )}
 
