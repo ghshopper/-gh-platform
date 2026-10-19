@@ -8,7 +8,7 @@ import { api, imageUrl, listOf, SITE_BASE } from '@/api';
 import { useAuth } from '@/auth';
 import { useCart } from '@/cart';
 import { useAppData } from '@/appdata';
-import { chosenOptions, inStock, isOnOrder, mustChoose, num, optionsExtra, productAttributes, productImages, productPrice, productWasPrice, waNumber } from '@/format';
+import { chosenOptions, inStock, isOnOrder, mustChoose, withSingles, num, optionsExtra, productAttributes, productImages, productPrice, productWasPrice, waNumber } from '@/format';
 import { useLoad } from '@/hooks';
 import { knownProduct, rememberProduct } from '@/product-cache';
 import { Icon } from '@/icons';
@@ -137,7 +137,7 @@ export default function ProductScreen() {
       comparePrice: was,
       image: images[0] ?? '',
       origin: originOf(p),
-      options: chosenOptions(chosen),
+      options: chosenOptions(withSingles(p, chosen, pick)),
     });
     showToast(tr('تمت الإضافة للسلة', 'Added to your bag'));
   };

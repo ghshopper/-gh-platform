@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Alert, Animated, Modal, Pressable, ScrollView, View, type StyleProp, type ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useCart } from './cart';
-import { chosenOptions, inStock, isOnOrder, mustChoose, num, omr, optionsExtra, productAttributes, productImages, productPrice, productWasPrice } from './format';
+import { chosenOptions, inStock, isOnOrder, mustChoose, withSingles, num, omr, optionsExtra, productAttributes, productImages, productPrice, productWasPrice } from './format';
 import { EngraveInput } from './engrave';
 import { originOf } from './eta';
 import { Icon } from './icons';
@@ -46,14 +46,15 @@ export function showToast(text: string, bagLink = true) {
 }
 
 function selectableOf(p: Product) {
-  return productAttributes(p).filter((a) => a.is_selectable !== false);
+  return productAttributes(p).filter((a) => a.is_selectable !== false && (a.type === 'engraving' || (a.values ?? []).length > 1));
 }
 
 /** Put a piece in the bag straight from a list; asks for size/colour first if it has them. */
 function useAddToBag() {
   const cart = useCart();
   const { pick, tr } = useLang();
-  return (p: Product, chosen: Record<string, string>) => {
+  return (p: Product, picked: Record<string, string>) => {
+    const chosen = withSingles(p, picked, pick);
     const brand = brandOf(p);
     cart.add({
       productId: p.id,
