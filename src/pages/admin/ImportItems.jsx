@@ -107,7 +107,7 @@ export default function ImportItems() {
     if (bmRef.current && key) bmRef.current.setAttribute('href', bookmarkletHref(apiBase(), key))
   }, [key, showHelp])
 
-  const catOf = (id) => rows[id]?.category_id || defaultCat
+  const catOf = (id) => rows[id]?.category_id || items.find((x) => x.id === id)?.category_id || defaultCat
   const setRow = (id, patch) => setRows((r) => ({ ...r, [id]: { ...r[id], ...patch } }))
   const drop = (ids) => {
     setItems((list) => list.filter((x) => !ids.includes(x.id)))
@@ -221,7 +221,8 @@ export default function ImportItems() {
                 <li>اسحب الزر الذهبي إلى شريط المفضلة في متصفحك (مرة وحدة بس).</li>
                 <li>افتح صفحة البراند اللي فيها المنتجات (قسم كامل أو منتج واحد).</li>
                 <li>انزل لآخر الصفحة عشان تتحمل كل المنتجات والصور.</li>
-                <li>اضغط الزر من المفضلة، وبتطلع المنتجات هنا بسعرها الأصلي.</li>
+                <li>اضغط الزر من المفضلة. يفتح كل منتج ويجيب الوصف وكل الصور والألوان أو الدرجات (مثل الروج) والمقاسات.</li>
+                <li>ترجع هنا وتلقاها بالبراند والتصنيف والاسم العربي، وتكتب السعر بالريال بس.</li>
               </ol>
               <p className="imp-note">الزر خاص فيك، لا ترسله لأحد.</p>
             </div>
@@ -234,7 +235,7 @@ export default function ImportItems() {
 
       <div className="card imp-bar">
         <label>
-          <span>التصنيف للكل</span>
+          <span>تصنيف اللي ما تعرّفت عليها</span>
           <select value={defaultCat} onChange={(e) => setDefaultCat(e.target.value)}>
             <option value="">اختر…</option>
             {categories.map((c) => <option key={c.id} value={c.id}>{c.name_ar || c.name_en}</option>)}
@@ -306,8 +307,22 @@ export default function ImportItems() {
                   />
                   <div className="imp-meta">
                     {(it.attributes || []).map((a) => (
-                      <span key={a.name_en}>{a.name_ar}: {(a.values || []).map((v) => v.value_ar || v.value_en).join('، ')}</span>
+                      <span key={a.name_en} className="imp-attr">
+                        {a.name_ar}{(a.values || []).length > 1 ? ` (${a.values.length})` : ''}:
+                        {a.type === 'color' && (a.values || []).some((v) => v.image || v.color_code) ? (
+                          <span className="imp-dots">
+                            {(a.values || []).slice(0, 14).map((v) => (
+                              <i key={v.id} title={v.value_ar || v.value_en} style={v.color_code ? { background: v.color_code } : undefined}>
+                                {v.image ? <img src={v.image} alt="" referrerPolicy="no-referrer" loading="lazy" /> : null}
+                              </i>
+                            ))}
+                            {(a.values || []).length > 14 ? <b>+{a.values.length - 14}</b> : null}
+                          </span>
+                        ) : null}
+                        <span className="imp-vals">{(a.values || []).slice(0, 8).map((v) => v.value_ar || v.value_en).join('، ')}{(a.values || []).length > 8 ? '…' : ''}</span>
+                      </span>
                     ))}
+                    {it.description_ar || it.description_en ? <span title={it.description_ar || it.description_en}>✓ الوصف</span> : null}
                     {it.source_url && (
                       <a href={it.source_url} target="_blank" rel="noreferrer"><RiExternalLinkLine /> صفحة البراند</a>
                     )}
@@ -339,8 +354,12 @@ export default function ImportItems() {
                     <span>ر.ع</span>
                   </div>
                   {hint ? <small>≈ {money(hint)} ر.ع بدون ربح</small> : <small>&nbsp;</small>}
-                  <select value={rows[it.id]?.category_id ?? ''} onChange={(e) => setRow(it.id, { category_id: e.target.value })}>
-                    <option value="">{defaultCat ? 'نفس التصنيف للكل' : 'التصنيف…'}</option>
+                  <select
+                    className={!rows[it.id]?.category_id && it.category_id ? 'imp-auto' : ''}
+                    value={rows[it.id]?.category_id || it.category_id || ''}
+                    onChange={(e) => setRow(it.id, { category_id: e.target.value })}
+                  >
+                    <option value="">{defaultCat ? 'التصنيف العام' : 'التصنيف…'}</option>
                     {categories.map((c) => <option key={c.id} value={c.id}>{c.name_ar || c.name_en}</option>)}
                   </select>
                 </div>
@@ -388,6 +407,12 @@ const CSS = `
 .imp-name{font-weight:700;font-size:14.5px;margin:2px 0 6px;direction:ltr;text-align:right}
 .imp-ar{width:100%;max-width:380px}
 .imp-meta{display:flex;gap:12px;flex-wrap:wrap;margin-top:6px;font-size:12px;color:var(--text-secondary)}
+.imp-attr{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap}
+.imp-dots{display:inline-flex;gap:3px;align-items:center}
+.imp-dots i{width:16px;height:16px;border-radius:50%;background:var(--bg-body);border:1px solid var(--border);overflow:hidden;display:inline-block}
+.imp-dots i img{width:100%;height:100%;object-fit:cover}
+.imp-dots b{font-weight:600;font-size:11px}
+.imp select.imp-auto{border-color:#c9a25c;background:rgba(201,162,92,.08)}
 .imp-meta a{color:var(--color-primary);display:inline-flex;align-items:center;gap:3px;text-decoration:none}
 .imp-exist{margin-top:8px;font-size:12.5px;color:#8a6a2e;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .imp-exist a{color:var(--color-primary);font-weight:700}
