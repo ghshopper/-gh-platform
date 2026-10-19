@@ -258,6 +258,21 @@ class ProductCard extends StatelessWidget {
                     ],
                   ]),
                 ),
+                if (onPrice != null)
+                  PositionedDirectional(
+                    bottom: 6,
+                    end: 6,
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: onPrice,
+                      child: Container(
+                        width: 32,
+                        height: 32,
+                        decoration: BoxDecoration(color: GH.card, shape: BoxShape.circle, boxShadow: GH.shadow),
+                        child: const Icon(CupertinoIcons.tag_fill, size: 15, color: GH.burgundy),
+                      ),
+                    ),
+                  ),
                 if (selected != null)
                   PositionedDirectional(
                     top: 8,
@@ -303,19 +318,6 @@ class ProductCard extends StatelessWidget {
                           maxLines: 1,
                           style: const TextStyle(
                               fontSize: 11.5, color: GH.tertiary, decoration: TextDecoration.lineThrough)),
-                    ),
-                  ],
-                  if (onPrice != null) ...[
-                    const Spacer(),
-                    GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: onPrice,
-                      child: Container(
-                        width: 28,
-                        height: 28,
-                        decoration: BoxDecoration(color: GH.burgundy.withAlpha(20), shape: BoxShape.circle),
-                        child: const Icon(CupertinoIcons.tag_fill, size: 14, color: GH.burgundy),
-                      ),
                     ),
                   ],
                 ]),
@@ -823,7 +825,7 @@ class _CategoryPickerPageState extends State<CategoryPickerPage> {
             rows.add(_tile(sub, depth: 2));
           }
         }
-        children.add(Section(header: root.name, children: rows));
+        children.add(Section(children: rows));
       }
     }
     return GHPage(

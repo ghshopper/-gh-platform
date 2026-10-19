@@ -181,31 +181,13 @@ class TodayPage extends StatelessWidget {
             if (!store.ready)
               const Loading()
             else ...[
-              Section(header: 'اليوم', children: const []),
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
-                child: Row(children: [
-                  Expanded(
-                      child: StatCard(
-                          icon: CupertinoIcons.doc_text_fill,
-                          color: GH.blue,
-                          label: 'طلبات اليوم',
-                          value: '${todayOrders.length}',
-                          onTap: () => pushPage(context, const SearchPage(todayOnly: true)))),
-                  const SizedBox(width: 8),
-                  Expanded(
-                      child: StatCard(
-                          icon: CupertinoIcons.bag_fill,
-                          color: GH.burgundy,
-                          label: 'مبيعات اليوم',
-                          value: omr(todaySales))),
-                  const SizedBox(width: 8),
-                  Expanded(
-                      child: StatCard(
-                          icon: CupertinoIcons.money_dollar_circle_fill,
-                          color: GH.green,
-                          label: 'محصّل اليوم',
-                          value: omr(collectedToday))),
+                padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
+                child: _TodayStrip(cells: [
+                  (CupertinoIcons.doc_text_fill, GH.blue, 'طلبات اليوم', '${todayOrders.length}',
+                      () => pushPage(context, const SearchPage(todayOnly: true))),
+                  (CupertinoIcons.bag_fill, GH.burgundy, 'مبيعات اليوم', plainOmr(todaySales), null),
+                  (CupertinoIcons.money_dollar_circle_fill, GH.green, 'محصّل اليوم', plainOmr(collectedToday), null),
                 ]),
               ),
               Padding(
@@ -359,6 +341,48 @@ class TodayPage extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+}
+
+/// Today's three numbers in one card.
+class _TodayStrip extends StatelessWidget {
+  const _TodayStrip({required this.cells});
+
+  final List<(IconData, Color, String, String, VoidCallback?)> cells;
+
+  @override
+  Widget build(BuildContext context) {
+    final children = <Widget>[];
+    for (var i = 0; i < cells.length; i++) {
+      final c = cells[i];
+      if (i > 0) children.add(Container(width: 0.5, height: 44, color: GH.separator));
+      children.add(Expanded(
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: c.$5,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Row(children: [
+                Icon(c.$1, size: 15, color: c.$2),
+                const SizedBox(width: 4),
+                Flexible(child: Text(c.$3, maxLines: 1, overflow: TextOverflow.ellipsis, style: T.small)),
+              ]),
+              const SizedBox(height: 6),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: AlignmentDirectional.centerStart,
+                child: Text(c.$4, style: T.money.copyWith(fontSize: 19, fontWeight: FontWeight.w700)),
+              ),
+            ]),
+          ),
+        ),
+      ));
+    }
+    return Container(
+      decoration: BoxDecoration(color: GH.card, borderRadius: BorderRadius.circular(18), boxShadow: GH.shadow),
+      child: Row(children: children),
     );
   }
 }

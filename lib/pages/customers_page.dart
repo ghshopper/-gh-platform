@@ -93,6 +93,7 @@ class TierCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(4),
           child: SizedBox(
             height: 6,
+            width: double.infinity,
             child: Stack(children: [
               Positioned.fill(child: ColoredBox(color: fg.withAlpha(40))),
               FractionallySizedBox(

@@ -360,7 +360,7 @@ void main() {
       });
       Store.i.loadSnapshot(sample());
       final Widget home = switch (screen) {
-        'search' || 'search-dark' => SearchPage(initialQuery: 'شانيل', initialProducts: [products[0], products[1]]),
+        'search' || 'search-dark' => SearchPage(initialQuery: 'سارة', initialProducts: [products[0], products[1]]),
         'categories' => CategoryPickerPage(selected: 3, initialRows: cats),
         'quick-price' => QuickPricePage(product: products[1]),
         'today-dark' => const TodayPage(),
