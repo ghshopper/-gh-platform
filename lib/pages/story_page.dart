@@ -440,6 +440,50 @@ class _StoryComposePageState extends State<StoryComposePage> {
                 }).toList(),
               ),
             ),
+            // Photo size and position for this story.
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 6, 12, 0),
+              child: Row(children: [
+                const Icon(CupertinoIcons.zoom_in, size: 20, color: GH.secondary),
+                const SizedBox(width: 6),
+                const SizedBox(width: 44, child: Text('الحجم', style: TextStyle(fontSize: 14, color: GH.label))),
+                Expanded(
+                  child: CupertinoSlider(
+                    value: _data[_page].zoom,
+                    min: 0.6,
+                    max: 1.8,
+                    activeColor: GH.burgundy,
+                    onChanged: (v) => setState(() => _data[_page].zoom = v),
+                  ),
+                ),
+              ]),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 0, 12, 0),
+              child: Row(children: [
+                const Icon(CupertinoIcons.arrow_up_arrow_down, size: 18, color: GH.secondary),
+                const SizedBox(width: 8),
+                const SizedBox(width: 42, child: Text('المكان', style: TextStyle(fontSize: 14, color: GH.label))),
+                Expanded(
+                  child: CupertinoSlider(
+                    value: _data[_page].shiftY,
+                    min: -300,
+                    max: 300,
+                    activeColor: GH.burgundy,
+                    onChanged: (v) => setState(() => _data[_page].shiftY = v.abs() < 12 ? 0 : v),
+                  ),
+                ),
+                CupertinoButton(
+                  padding: const EdgeInsets.symmetric(horizontal: 6),
+                  minSize: 30,
+                  onPressed: () => setState(() {
+                    _data[_page].zoom = 1;
+                    _data[_page].shiftY = 0;
+                  }),
+                  child: const Icon(CupertinoIcons.arrow_counterclockwise, size: 20, color: GH.burgundy),
+                ),
+              ]),
+            ),
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 4, 16, 0),
               child: Row(children: [

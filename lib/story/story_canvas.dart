@@ -21,6 +21,10 @@ class StoryData {
   double? was;
   ImageProvider? image;
 
+  /// Photo size (1 = fits its place) and how far it is moved up (−) or down (+).
+  double zoom = 1;
+  double shiftY = 0;
+
   int? get offPercent {
     final w = was;
     if (w == null || w <= price || w <= 0) return null;
@@ -128,7 +132,12 @@ class StoryCanvas extends StatelessWidget {
       filterQuality: FilterQuality.high,
       errorBuilder: (_, __, ___) => const SizedBox(),
     );
-    return blend ? _Multiply(child: w) : w;
+    final photo = blend ? _Multiply(child: w) : w;
+    if (data.zoom == 1 && data.shiftY == 0) return photo;
+    return Transform.translate(
+      offset: Offset(0, data.shiftY),
+      child: Transform.scale(scale: data.zoom, child: photo),
+    );
   }
 
   Widget _pos(double top, double left, double w, double h, Widget child) =>
