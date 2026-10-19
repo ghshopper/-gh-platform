@@ -211,7 +211,7 @@ void main() {
     addTearDown(tester.view.reset);
     final bytes = File('test_shots/sample_grey.jpg').readAsBytesSync();
     final img = await tester.runAsync(() => cutoutBytes(bytes));
-    final d = StoryData(brand: 'DIOR', name: 'Dior Glycine Dioramour wallet', price: 283, image: img);
+    final d = StoryData(brand: 'DIOR', name: 'Dior Glycine Dioramour wallet', price: 283, image: img)..showName = false;
     await tester.pumpWidget(RepaintBoundary(
       child: Directionality(textDirection: TextDirection.rtl, child: StoryCanvas(data: d, template: StoryTemplate.classic)),
     ));

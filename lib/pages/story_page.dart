@@ -251,6 +251,8 @@ class _StoryComposePageState extends State<StoryComposePage> {
     for (var i = 0; i < _data.length; i++) _cut(i),
   ];
   int _cutting = 0;
+  int _cutFailed = 0;
+  bool _names = true;
 
   Future<void> _cut(int i) async {
     final url = widget.dataOverride == null && i < widget.products.length ? widget.products[i].image : null;
@@ -259,6 +261,7 @@ class _StoryComposePageState extends State<StoryComposePage> {
     try {
       final img = await cutoutImage(url);
       if (img != null && mounted) setState(() => _data[i].image = img);
+      if (img == null && mounted) setState(() => _cutFailed++);
     } finally {
       if (mounted) setState(() => _cutting--);
     }
@@ -396,6 +399,7 @@ class _StoryComposePageState extends State<StoryComposePage> {
               child: Text(
                   [
                     if (_cutting > 0) 'يشيل خلفية الصور…',
+                    if (_cutting == 0 && _cutFailed > 0) 'ما قدرت أجيب الصورة الأصلية لشيل الخلفية ($_cutFailed)',
                     if (many) '${_page + 1} من ${_data.length} · اسحب للمنتج الثاني',
                   ].join(' · '),
                   style: T.small),
@@ -482,6 +486,21 @@ class _StoryComposePageState extends State<StoryComposePage> {
                   }),
                   child: const Icon(CupertinoIcons.arrow_counterclockwise, size: 20, color: GH.burgundy),
                 ),
+              ]),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 4, 16, 0),
+              child: Row(children: [
+                const Expanded(child: Text('اسم المنتج', style: TextStyle(fontSize: 15, color: GH.label))),
+                CupertinoSwitch(
+                    value: _names,
+                    activeTrackColor: GH.burgundy,
+                    onChanged: (v) => setState(() {
+                          _names = v;
+                          for (final d in _data) {
+                            d.showName = v;
+                          }
+                        })),
               ]),
             ),
             Padding(

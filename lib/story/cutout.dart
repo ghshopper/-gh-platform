@@ -14,7 +14,13 @@ import 'package:http/http.dart' as http;
 /// untouched when its background isn't plain (a model, a street…).
 Future<ImageProvider?> cutoutImage(String url) async {
   try {
-    final res = await http.get(Uri.parse(url)).timeout(const Duration(seconds: 30));
+    final uri = Uri.parse(url);
+    final res = await http.get(uri, headers: {
+      // like Safari, and no AVIF (the app can't read it)
+      'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1',
+      'Accept': 'image/webp,image/png,image/jpeg,image/*;q=0.8',
+      'Referer': '${uri.scheme}://${uri.host}/',
+    }).timeout(const Duration(seconds: 30));
     if (res.statusCode != 200 || res.bodyBytes.isEmpty) return null;
     return await cutoutBytes(res.bodyBytes);
   } catch (_) {
@@ -100,8 +106,8 @@ _Out? _cut(_Job job) {
   final plain = !transparentAlready && spread < 36;
 
   if (plain) {
-    const t1 = 16.0; // this close to the background: fully see-through
-    const t2 = 46.0; // up to here: partly see-through (soft edges)
+    const t1 = 22.0; // this close to the background: fully see-through
+    const t2 = 52.0; // up to here: partly see-through (soft edges)
     double dist(int i) {
       final dr = p[i] - bg[0], dg = p[i + 1] - bg[1], db = p[i + 2] - bg[2];
       return (dr.abs() + dg.abs() + db.abs()) / 1.4;
@@ -147,7 +153,7 @@ _Out? _cut(_Job job) {
   if (plain || transparentAlready) {
     for (var y = 0; y < h; y++) {
       for (var x = 0; x < w; x++) {
-        if (p[(y * w + x) * 4 + 3] > 24) {
+        if (p[(y * w + x) * 4 + 3] > 90) {
           if (x < minX) minX = x;
           if (x > maxX) maxX = x;
           if (y < minY) minY = y;

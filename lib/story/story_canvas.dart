@@ -25,6 +25,9 @@ class StoryData {
   double zoom = 1;
   double shiftY = 0;
 
+  /// Show the product name under the brand.
+  bool showName = true;
+
   int? get offPercent {
     final w = was;
     if (w == null || w <= price || w <= 0) return null;
@@ -83,6 +86,18 @@ TextStyle _ar(double size,
     );
 
 String storyPrice(double v) => v.toStringAsFixed(3);
+
+/// Prices: clean, even digits.
+TextStyle _num(double size, {Color color = _C.ink, FontWeight weight = FontWeight.w600}) => TextStyle(
+      fontFamily: _arabic,
+      fontSize: size,
+      color: color,
+      fontWeight: weight,
+      height: 1.1,
+      letterSpacing: size * .01,
+      fontFeatures: const [FontFeature.tabularFigures()],
+      decoration: TextDecoration.none,
+    );
 
 /// A product photo blended into the background (white photo backgrounds
 /// disappear into the beige, like `mix-blend-mode: multiply`).
@@ -157,7 +172,9 @@ class StoryCanvas extends StatelessWidget {
               maxLines: 1,
               style: _latin(size, color: color, spacing: size * spacing)));
 
-  Widget _name(double size, {Color color = _C.sub, double maxWidth = 900}) => SizedBox(
+  Widget _name(double size, {Color color = _C.sub, double maxWidth = 900}) => !data.showName || data.name.trim().isEmpty
+      ? const SizedBox.shrink()
+      : SizedBox(
         width: maxWidth,
         child: Text(data.name,
             textAlign: TextAlign.center,
@@ -170,10 +187,10 @@ class StoryCanvas extends StatelessWidget {
   Widget _price(double size, {Color color = _C.maroon, bool currencyBelow = false}) {
     final n = Text(storyPrice(data.price),
         textDirection: TextDirection.ltr,
-        style: _latin(size, color: color, weight: 600));
+        style: _num(size * .78, color: color));
     final c = Text('ر.ع',
         textDirection: TextDirection.rtl,
-        style: _ar(size * .42, color: color, weight: FontWeight.w500));
+        style: _ar(size * .36, color: color, weight: FontWeight.w500));
     if (currencyBelow) {
       return Column(mainAxisSize: MainAxisSize.min, children: [n, const SizedBox(height: 6), c]);
     }
@@ -407,9 +424,12 @@ class StoryCanvas extends StatelessWidget {
               Expanded(
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
                   Text('N° 01 — New in', textDirection: TextDirection.ltr, style: _latin(34, color: _C.gold)),
-                  const SizedBox(height: 4),
-                  Text(parts.first, maxLines: 2, overflow: TextOverflow.ellipsis, style: _ar(42, weight: FontWeight.w600)),
-                  if (parts.length > 1) Text(parts.sublist(1).join(' · '), style: _ar(30, color: _C.sub)),
+                  if (data.showName && data.name.trim().isNotEmpty) ...[
+                    const SizedBox(height: 4),
+                    Text(parts.first, maxLines: 2, overflow: TextOverflow.ellipsis, style: _ar(42, weight: FontWeight.w600)),
+                    if (parts.length > 1) Text(parts.sublist(1).join(' · '), style: _ar(30, color: _C.sub)),
+                  ] else
+                    Text(data.brand.toUpperCase(), textDirection: TextDirection.ltr, style: _latin(44, spacing: 8)),
                 ]),
               ),
               const SizedBox(width: 24),
@@ -468,7 +488,7 @@ class StoryCanvas extends StatelessWidget {
                   if (data.was != null && off != null) ...[
                     Text(storyPrice(data.was!),
                         textDirection: TextDirection.ltr,
-                        style: _latin(56, color: _C.sub).copyWith(
+                        style: _num(46, color: _C.sub, weight: FontWeight.w400).copyWith(
                             decoration: TextDecoration.lineThrough,
                             decorationColor: _C.sub,
                             decorationThickness: 1.5)),
