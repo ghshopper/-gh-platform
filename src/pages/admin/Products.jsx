@@ -80,6 +80,12 @@ export default function Products() {
       // Remove it from URL cleanly
       window.history.replaceState({}, document.title, window.location.pathname)
     }
+    // Opened from "Products to add" (a piece that is already in the store).
+    const editId = urlParams.get('edit')
+    if (editId) {
+      window.history.replaceState({}, document.title, window.location.pathname)
+      api.get(`/admin/products/${editId}`).then((r) => { if (r.data?.data) openEdit(r.data.data) }).catch(() => {})
+    }
   }, [])
   const fetchProducts = async (page = 1) => {
     try {

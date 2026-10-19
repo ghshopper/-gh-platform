@@ -42,6 +42,7 @@ const navItems = [
     label: 'كتالوج المنتجات', icon: RiShoppingBag3Line, 
     subItems: [
         { label: 'المنتجات', path: '/admin/products' },
+        { label: 'منتجات للإضافة', path: '/admin/import-items' },
         { label: 'التصنيفات', path: '/admin/categories' },
         { label: 'العلامات التجارية', path: '/admin/brands' },
         { label: 'الخصائص (Attributes)', path: '/admin/attributes' },

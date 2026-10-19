@@ -24,6 +24,7 @@ import AppOrders from './pages/admin/AppOrders'
 import Coupons from './pages/admin/Coupons'
 import CustomizeApp from './pages/admin/CustomizeApp'
 import Profile from './pages/admin/Profile'
+import ImportItems from './pages/admin/ImportItems'
 import './index.css'
 
 import LandingPage from './pages/website/LandingPage'
@@ -59,6 +60,7 @@ export default function App() {
           <Route path="app-orders" element={<AppOrders />} />
           <Route path="coupons" element={<Coupons />} />
           <Route path="products" element={<Products />} />
+          <Route path="import-items" element={<ImportItems />} />
           <Route path="reviews" element={<Reviews />} />
           <Route path="customers" element={<Customers />} />
           <Route path="categories" element={<Categories />} />
