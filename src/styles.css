@@ -97,6 +97,8 @@ p { margin: 0; }
 .swatch span { display: block; width: 100%; height: 100%; border-radius: 50%; }
 .swatch.on { border-color: var(--ink); box-shadow: 0 0 0 1px var(--ink); }
 .swatch.img { padding: 2px; overflow: hidden; }
+.engrave { height: 44px; border: 1px solid var(--line-strong); background: transparent; padding: 0 14px; font: inherit; font-size: 15px; letter-spacing: 2px; color: var(--ink); max-width: 320px; }
+.engrave:focus { outline: none; border-color: var(--ink); }
 .swatch.img img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; }
 /* Other colours of the same piece (each its own product) */
 .vswatch { width: 56px; height: 68px; border: 1px solid var(--line-strong); display: inline-flex; align-items: center; justify-content: center; overflow: hidden; background: var(--surface); color: var(--ink); text-decoration: none; transition: border-color .15s; }

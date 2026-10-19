@@ -67,7 +67,12 @@ export function productImages(p: Product): string[] {
 }
 
 export function productAttributes(p: Product): ProductAttribute[] {
-  return parseJsonList<ProductAttribute>(p.attributes).filter((a) => (a.values ?? []).length > 0);
+  return parseJsonList<ProductAttribute>(p.attributes).filter((a) => a.type === 'engraving' || (a.values ?? []).length > 0);
+}
+
+/** A choice the customer must make before adding to the bag (engraving is optional). */
+export function mustChoose(a: ProductAttribute): boolean {
+  return a.is_selectable !== false && (a.type !== 'engraving' || !!a.required);
 }
 
 export function inStock(p: Product): boolean {

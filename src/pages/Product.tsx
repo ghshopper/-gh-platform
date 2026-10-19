@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { api, imageUrl, listOf } from '../lib/api';
-import { inStock, isOnOrder, num, productAttributes, productImages } from '../lib/format';
+import { inStock, isOnOrder, mustChoose, num, productAttributes, productImages } from '../lib/format';
 import { useLoad, useTitle } from '../lib/hooks';
 import { usePrefs } from '../lib/prefs';
 import { useAuth, useToast, useWishlist } from '../lib/store';
@@ -60,7 +60,7 @@ export default function ProductPage() {
   const avg = num(p.reviews_avg_rating);
 
   const addToBag = () => {
-    const need = selectable.find((a) => !chosen[pick(a, 'name')]);
+    const need = selectable.filter(mustChoose).find((a) => !(chosen[pick(a, 'name')] ?? '').trim());
     if (need) return setMissing(pick(need, 'name'));
     add(p, chosen);
   };

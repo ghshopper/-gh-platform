@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, type ReactNode } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { imageUrl } from '../lib/api';
-import { inStock, isOnOrder, omr, productAttributes, productImages, productPrice, productWasPrice } from '../lib/format';
+import { inStock, isOnOrder, mustChoose, omr, productAttributes, productImages, productPrice, productWasPrice } from '../lib/format';
 import { usePrefs } from '../lib/prefs';
 import { useCart, useToast, useWishlist } from '../lib/store';
 import type { Product } from '../lib/types';
@@ -23,7 +23,7 @@ export function useAddToBag() {
       price: productPrice(p),
       comparePrice: productWasPrice(p),
       image: productImages(p)[0] ?? '',
-      options: Object.entries(chosen).map(([label, value]) => ({ label, value })),
+      options: Object.entries(chosen).filter(([, value]) => value.trim() !== '').map(([label, value]) => ({ label, value: value.trim() })),
     });
     show(tr('تمت الإضافة إلى السلة', 'Added to your bag'), { label: tr('عرض السلة', 'View bag'), to: '#bag' });
   };
@@ -50,6 +50,21 @@ export function OptionPicker({ product, chosen, setChosen }: { product: Product;
     <>
       {attrs.map((a, i) => {
         const label = pick(a, 'name') || tr('الخيار', 'Option');
+        if (a.type === 'engraving') {
+          const max = a.max_length || 12;
+          return (
+            <div key={i} className="opt">
+              <div className="opt-label">{label}<span className="muted"> · {a.required ? tr('مطلوب', 'required') : tr('اختياري', 'optional')}</span></div>
+              <input
+                className="engrave"
+                value={chosen[label] ?? ''}
+                maxLength={max}
+                placeholder={tr(`اكتب النص (حتى ${max} حرف)`, `Your text (up to ${max} characters)`)}
+                onChange={(e) => setChosen({ ...chosen, [label]: e.target.value })}
+              />
+            </div>
+          );
+        }
         return (
           <div key={i} className="opt">
             <div className="opt-label">{label}{chosen[label] ? <span>: {chosen[label]}</span> : null}</div>
@@ -84,7 +99,7 @@ function QuickAddModal({ product, onClose }: { product: Product; onClose: () => 
   const [missing, setMissing] = useState<string | null>(null);
   const attrs = productAttributes(product).filter((a) => a.is_selectable !== false);
   const confirm = () => {
-    const need = attrs.find((a) => !chosen[pick(a, 'name')]);
+    const need = attrs.filter(mustChoose).find((a) => !(chosen[pick(a, 'name')] ?? '').trim());
     if (need) return setMissing(pick(need, 'name'));
     add(product, chosen);
     onClose();
