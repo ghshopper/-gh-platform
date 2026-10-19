@@ -1,2 +1,0 @@
-app/(tabs)/account.tsx(110,7): error TS1005: ':' expected.
-app/(tabs)/account.tsx(124,8): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
