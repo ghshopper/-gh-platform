@@ -60,7 +60,7 @@ function TierCard({ tier, index, width, current, reached, points, worth }: {
   const name = (isAr ? tier.name_ar : tier.name_en) || tier.name || pick(tier, 'name');
   // same colours as the member card when the tier name is known
   const named = tierLook(`${tier.name_en ?? ''} ${tier.name_ar ?? ''} ${tier.name ?? ''}`);
-  const look = /bronze|silver|gold|platinum|privilege|vip|برونز|فض|ذهب|بلاتين/i.test(`${tier.name_en ?? ''} ${tier.name_ar ?? ''} ${tier.name ?? ''}`)
+  const look = /beige|burgundy|bordeaux|black|بيج|عناب|أسود|اسود/i.test(`${tier.name_en ?? ''} ${tier.name_ar ?? ''} ${tier.name ?? ''}`)
     ? { bg: named.bg[1], ink: named.ink, soft: named.soft, line: named.line }
     : lookOf(index);
   const mult = num(tier.reward_multiplier, 1);
