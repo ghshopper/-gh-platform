@@ -926,8 +926,8 @@ export default function Products() {
                     )}
                   </td>
                   <td style={{ padding: '14px 20px' }}>
-                    <span style={{ fontWeight: 700, color: p.stock_quantity > 0 ? '#10B981' : '#EF4444', fontFamily: 'sans-serif', fontSize: 14 }}>
-                      {p.stock_quantity > 0 ? p.stock_quantity : 'نفذ'}
+                    <span style={{ fontWeight: 600, color: p.stock_quantity > 0 ? '#15803D' : p.availability === 'on_order' ? 'var(--text-light)' : '#B42318', fontSize: 14 }}>
+                      {p.stock_quantity > 0 ? p.stock_quantity : p.availability === 'on_order' ? '—' : 'نفذ'}
                     </span>
                   </td>
                   <td style={{ padding: '14px 20px' }}>

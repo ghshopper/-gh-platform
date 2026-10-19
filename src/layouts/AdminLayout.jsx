@@ -348,7 +348,7 @@ export default function AdminLayout() {
 
         <div className="sidebar-user" style={{ justifyContent: isCollapsed ? 'center' : 'flex-start', padding: isCollapsed ? '24px 0' : '24px', display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
           <div className="avatar">
-            <img src={`https://ui-avatars.com/api/?name=${encodeURIComponent(adminName)}&background=B5915F&color=fff&bold=true`} alt="User" />
+            <span className="avatar-initial">{(adminName || 'A').trim().charAt(0).toUpperCase()}</span>
           </div>
           {!isCollapsed && (
             <div className="user-info" style={{ flex: 1, marginRight: '12px', minWidth: '120px' }}>
