@@ -38,6 +38,7 @@ import {
   RiWhatsappLine,
   RiPercentLine,
   RiHistoryLine,
+  RiGlobalLine,
 } from 'react-icons/ri'
 
 // Sidebar, grouped the way the work flows: sell → products → customers → store.
@@ -70,6 +71,7 @@ const navSections = [
     { label: 'واجهة التطبيق', icon: RiSmartphoneLine, path: '/admin/customize-app' },
     { label: 'الأسئلة الشائعة', icon: RiQuestionLine, path: '/admin/faqs' },
     { label: 'الشحن', icon: RiTruckLine, path: '/admin/shipping' },
+    { label: 'شحن الخليج', icon: RiGlobalLine, path: '/admin/gcc-shipping' },
     { label: 'التقارير', icon: RiBarChartBoxLine, path: '/admin/reports' },
     { label: 'واتساب', icon: RiWhatsappLine, path: '/admin/whatsapp' },
     { label: 'المستخدمون', icon: RiUserSettingsLine, path: '/admin/users' },

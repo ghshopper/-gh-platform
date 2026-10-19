@@ -5,7 +5,7 @@ const PAGE_AREA = {
   products: 'products', 'import-items': 'products', categories: 'products', brands: 'products', attributes: 'products', reviews: 'products',
   customers: 'customers', loyalty: 'customers', coupons: 'customers', 'gift-cards': 'customers',
   'customize-app': 'marketing', 'notify-users': 'marketing', faqs: 'marketing', offers: 'marketing',
-  shipping: 'shipping',
+  shipping: 'shipping', 'gcc-shipping': 'shipping',
   users: 'settings', settings: 'settings', whatsapp: 'settings', activity: 'settings',
 }
 

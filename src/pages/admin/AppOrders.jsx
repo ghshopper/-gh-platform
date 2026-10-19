@@ -26,8 +26,8 @@ const DRIVER_STATUS = {
   picked:   { label: 'في الطريق', color: '#C26A00' },
   delivered:{ label: 'سلّمها المندوب', color: '#16804A' },
 }
-const METHOD = { home: 'مندوبنا · للبيت', office: 'إلى المكتب', nool: 'نول · للبيت', nool_office: 'نول · من الفرع', genacom: 'جيناكم · للبيت', genacom_office: 'جيناكم · من الفرع' }
-const COURIERS = ['nool', 'nool_office', 'genacom', 'genacom_office']
+const METHOD = { home: 'مندوبنا · للبيت', office: 'إلى المكتب', nool: 'نول · للبيت', nool_office: 'نول · من الفرع', genacom: 'جيناكم · للبيت', genacom_office: 'جيناكم · من الفرع', gcc_genacom: 'جيناكم · شحن خليجي', gcc_dhl: 'DHL · شحن خليجي' }
+const COURIERS = ['nool', 'nool_office', 'genacom', 'genacom_office', 'gcc_genacom', 'gcc_dhl']
 const EVENT_LABEL = {
   created: 'تم إنشاء الطلب', purchased: 'تم الشراء', arrived: 'وصل مسقط', out_for_delivery: 'خرج للتوصيل',
   label: 'طُبعت البوليصة', note: 'ملاحظة', paid: 'دفعة', shipped: 'شُحن', assigned: 'سُلّم للمندوب', unassigned: 'سُحب من المندوب',
@@ -262,6 +262,17 @@ function OrderDetail({ o, c, driver, busy, onStatus, onPrint, onReload, headers 
   const [note, setNote] = useState('')
   const [saving, setSaving] = useState(false)
   const [payUrl, setPayUrl] = useState('')
+  const [trk, setTrk] = useState(o.carrier_tracking || '')
+  useEffect(() => { setTrk(o.carrier_tracking || '') }, [o.id, o.carrier_tracking])
+  const isGcc = String(o.delivery_method || '').startsWith('gcc_')
+  // Gulf shipments: carrier and shipment number (the customer sees a tracking button)
+  const saveShipping = async (patch) => {
+    try {
+      const r = await fetch(`${API}/ps/orders/${o.id}`, { method: 'PUT', headers, body: JSON.stringify(patch) })
+      if (!r.ok) throw new Error()
+      toast.success('انحفظ'); onReload()
+    } catch { toast.error('ما انحفظ') }
+  }
   const addNote = async () => {
     if (!note.trim()) return
     setSaving(true)
@@ -376,6 +387,17 @@ function OrderDetail({ o, c, driver, busy, onStatus, onPrint, onReload, headers 
 
       <Card title="التوصيل" icon={<RiTruckLine />}>
         {o.delivery_method && <Row k="الطريقة" v={METHOD[o.delivery_method]} />}
+        {isGcc && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, padding: '8px 0' }}>
+            <div className="gh-seg">
+              {[['gcc_genacom', 'جيناكم'], ['gcc_dhl', 'DHL']].map(([k, l]) => <button key={k} className={o.delivery_method === k ? 'on' : ''} onClick={() => o.delivery_method !== k && saveShipping({ delivery_method: k })}>{l}</button>)}
+            </div>
+            <div style={{ display: 'flex', gap: 6 }}>
+              <input className="input" dir="ltr" style={{ flex: 1, height: 38, padding: '0 10px' }} value={trk} onChange={(e) => setTrk(e.target.value)} placeholder="رقم الشحنة (Waybill)" />
+              <button className="btn btn-primary btn-sm" disabled={trk === (o.carrier_tracking || '')} onClick={() => saveShipping({ carrier_tracking: trk.trim() || null })}>حفظ</button>
+            </div>
+          </div>
+        )}
         {o.carrier_tracking && (/^https?:\/\//.test(o.carrier_tracking)
           ? <Row k="تتبّع الشحنة" v={<a href={o.carrier_tracking} target="_blank" rel="noreferrer" style={{ color: '#A8833F' }}>فتح الرابط</a>} />
           : <Row k="رقم الشحنة" v={o.carrier_tracking} />)}
