@@ -15,6 +15,7 @@ import 'package:gh_shopper/pages/order_detail_page.dart';
 import 'package:gh_shopper/pages/orders_page.dart';
 import 'package:gh_shopper/pages/today_page.dart';
 import 'package:gh_shopper/pages/trips_page.dart';
+import 'package:gh_shopper/pages/requests_page.dart';
 
 String iso(DateTime d) => d.toUtc().toIso8601String();
 
@@ -75,6 +76,10 @@ Map<String, dynamic> sample() {
       {'id': 'e2', 'title': 'تغليف', 'amount': 35, 'currency': 'OMR', 'rate': 1, 'spent_on': d(3)},
     ],
     'invoices': [],
+    'requests': [
+      {'id': '7', 'customer_name': 'مريم البوسعيدي', 'customer_phone': '95551234', 'name': 'شنطة شانيل كلاسيك', 'brand': 'CHANEL', 'description': 'لون أسود، مقاس ميديم', 'url': 'https://www.chanel.com', 'status': 'pending', 'created_at': d(0)},
+      {'id': '6', 'customer_name': 'سارة البلوشي', 'customer_phone': '91234567', 'name': 'Hermès Oran', 'status': 'ordered', 'order_id': 'o2', 'created_at': d(5)},
+    ],
     'drivers': [{'id': 'd1', 'name': 'سالم', 'phone': '96890000000', 'active': true}],
     'settings': {'company_name': 'GH Shopper', 'phone': '+968 7724 6972'},
   };
@@ -111,6 +116,9 @@ void main() {
     'customer': () => const CustomerDetailPage(customerId: '1'),
     'trips': () => const TripsPage(),
     'summary': () => const SummaryPage(),
+    'requests': () => const RequestsPage(),
+    'request': () => const RequestDetailPage(id: '7'),
+    'convert': () => ConvertRequestPage(request: Store.i.requests.first),
   };
 
   for (final e in screens.entries) {

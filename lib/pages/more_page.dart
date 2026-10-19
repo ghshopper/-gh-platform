@@ -12,6 +12,7 @@ import '../ui/kit.dart';
 import 'drivers_pages.dart';
 import 'import_page.dart';
 import 'purchases_pages.dart';
+import 'requests_page.dart';
 import 'trips_page.dart' show ExpenseFormPage;
 
 class MorePage extends StatefulWidget {
@@ -77,6 +78,14 @@ class _MorePageState extends State<MorePage> {
             leading: const IconBox(CupertinoIcons.chart_pie_fill, color: GH.burgundy),
             title: 'الملخص والأرباح',
             onTap: () => pushPage(context, const SummaryPage()),
+          ),
+          Tile(
+            leading: const IconBox(CupertinoIcons.sparkles, color: GH.burgundy),
+            title: 'طلبات القطع',
+            value: Store.i.requests.where((r) => r.isOpen).isEmpty
+                ? null
+                : '${Store.i.requests.where((r) => r.isOpen).length}',
+            onTap: () => pushPage(context, const RequestsPage()),
           ),
           Tile(
             leading: const IconBox(CupertinoIcons.bag_fill, color: GH.gold),

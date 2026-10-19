@@ -7,6 +7,7 @@ import '../ui/colors.dart';
 import '../ui/kit.dart';
 import 'item_pages.dart';
 import 'order_detail_page.dart';
+import 'requests_page.dart';
 import 'order_form_page.dart';
 
 /// What needs doing today: buy, deliver, collect.
@@ -46,6 +47,7 @@ class TodayPage extends StatelessWidget {
             .where((e) => e.value.status == ItemStatus.outForDelivery)
             .toList();
         final unpaid = store.orders.where((o) => o.hasBalance).toList();
+        final newRequests = store.requests.where((r) => r.status == 'pending').toList();
         // Online orders (app / website) not bought yet: new work to look at.
         final newOnline = store.orders
             .where((o) =>
@@ -129,11 +131,17 @@ class TodayPage extends StatelessWidget {
                   ]),
                 ]),
               ),
-              if (newOnline.isEmpty && toBuy.isEmpty && toDeliver.isEmpty && outForDelivery.isEmpty && unpaid.isEmpty && store.withDrivers.isEmpty)
+              if (newRequests.isEmpty && newOnline.isEmpty && toBuy.isEmpty && toDeliver.isEmpty && outForDelivery.isEmpty && unpaid.isEmpty && store.withDrivers.isEmpty)
                 const EmptyState(
                   icon: CupertinoIcons.checkmark_seal,
                   title: 'كل شي تمام',
                   message: 'ما في شي يحتاج منك شغل اليوم.',
+                ),
+              if (newRequests.isNotEmpty)
+                Section(
+                  header: 'طلبات قطع جديدة · ${newRequests.length}',
+                  trailing: HeaderButton('الكل', onPressed: () => pushPage(context, const RequestsPage())),
+                  children: newRequests.take(5).map((r) => RequestTile(r)).toList(),
                 ),
               if (newOnline.isNotEmpty)
                 Section(

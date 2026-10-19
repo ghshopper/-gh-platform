@@ -24,6 +24,7 @@ class Store extends ChangeNotifier {
   List<TripExpense> expenses = [];
   List<PurchaseInvoice> invoices = [];
   List<Driver> drivers = [];
+  List<PieceRequest> requests = [];
   BusinessSettings settings = BusinessSettings();
 
   Map<String, Customer> _customerById = {};
@@ -85,6 +86,7 @@ class Store extends ChangeNotifier {
     expenses = rows('expenses').map(TripExpense.fromMap).toList();
     invoices = rows('invoices').map(PurchaseInvoice.fromMap).toList();
     drivers = rows('drivers').map(Driver.fromMap).toList();
+    requests = rows('requests').map(PieceRequest.fromMap).toList();
     final s = raw['settings'];
     settings = s is Map
         ? BusinessSettings.fromMap(Map<String, dynamic>.from(s))
@@ -109,6 +111,7 @@ class Store extends ChangeNotifier {
     expenses = [];
     invoices = [];
     drivers = [];
+    requests = [];
     settings = BusinessSettings();
     _customerById = {};
     _tripById = {};
@@ -219,6 +222,21 @@ class Store extends ChangeNotifier {
     final res = await _api.post('/ps/orders/$id/pay-link${reset ? '?reset=1' : ''}');
     return (res as Map)['url'] as String;
   }
+
+  // ───────────── piece requests ─────────────
+
+  /// Turns a customer's piece request into an order. Returns the new
+  /// order's id and its payment link.
+  Future<({String orderId, String payUrl})> convertRequest(String id, Map<String, dynamic> data) {
+    return _write(() async {
+      final res = Map<String, dynamic>.from(
+          await _api.post('/ps/requests/$id/convert', data) as Map);
+      return (orderId: res['order_id'].toString(), payUrl: res['pay_url'].toString());
+    });
+  }
+
+  Future<void> setRequestStatus(String id, String status) =>
+      _write(() => _api.put('/ps/requests/$id', {'status': status}));
 
   // ───────────── orders ─────────────
 

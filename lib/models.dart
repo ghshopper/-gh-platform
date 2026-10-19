@@ -972,3 +972,72 @@ const Map<String, double> defaultRates = {
   'SAR': 0.1026,
   'OMR': 1.0,
 };
+
+
+// ───────────────────────── Piece requests ─────────────────────────
+
+/// A customer's "find me this piece" request from the app or website.
+class PieceRequest {
+  PieceRequest({
+    required this.id,
+    required this.customerName,
+    this.customerPhone,
+    required this.name,
+    this.brand,
+    this.category,
+    this.description,
+    this.url,
+    this.imageUrl,
+    required this.status,
+    this.orderId,
+    this.createdAt,
+  });
+
+  final String id;
+  final String customerName;
+  final String? customerPhone;
+  final String name;
+  final String? brand;
+  final String? category;
+  final String? description;
+  final String? url;
+  final String? imageUrl;
+  final String status; // pending, reviewing, found, not_found, ordered, cancelled
+  final String? orderId;
+  final DateTime? createdAt;
+
+  bool get isOpen => const ['pending', 'reviewing', 'found'].contains(status);
+
+  String get statusLabel => switch (status) {
+        'pending' => 'جديد',
+        'reviewing' => 'قيد البحث',
+        'found' => 'لقيناها',
+        'not_found' => 'غير متوفرة',
+        'ordered' => 'تحوّل لطلب',
+        'cancelled' => 'ملغي',
+        _ => status,
+      };
+
+  Color get statusColor => switch (status) {
+        'pending' => GH.blue,
+        'reviewing' => GH.amber,
+        'found' => GH.green,
+        'ordered' => GH.burgundy,
+        _ => GH.secondary,
+      };
+
+  factory PieceRequest.fromMap(Map<String, dynamic> m) => PieceRequest(
+        id: m['id'].toString(),
+        customerName: (m['customer_name'] ?? '').toString(),
+        customerPhone: _s(m['customer_phone']),
+        name: (m['name'] ?? '').toString(),
+        brand: _s(m['brand']),
+        category: _s(m['category']),
+        description: _s(m['description']),
+        url: _s(m['url']),
+        imageUrl: _s(m['image_url']),
+        status: (m['status'] ?? 'pending').toString(),
+        orderId: _s(m['order_id']),
+        createdAt: _dt(m['created_at']),
+      );
+}
