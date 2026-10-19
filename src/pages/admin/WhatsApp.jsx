@@ -46,8 +46,8 @@ export default function WhatsApp() {
   const save = (e) => {
     e.preventDefault()
     run('save', async () => {
-      await api.post('/admin/whatsapp', form)
-      toast.success('انحفظ')
+      const r = await api.post('/admin/whatsapp', form)
+      toast.success(r.data?.phone ? `انحفظ · الرقم ${r.data.phone}` : 'انحفظ')
       await load()
     })
   }
@@ -121,7 +121,7 @@ export default function WhatsApp() {
               <input dir="ltr" style={input} value={form.token} onChange={(e) => setForm({ ...form, token: e.target.value })} autoComplete="off" />
             </label>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-              <label style={{ display: 'block', marginBottom: 12 }}><span style={lbl}>Phone number ID</span><input dir="ltr" style={input} value={form.phone_id} onChange={(e) => setForm({ ...form, phone_id: e.target.value })} /></label>
+              <label style={{ display: 'block', marginBottom: 12 }}><span style={lbl}>Phone number ID (اختياري: يتعبّى لحاله)</span><input dir="ltr" style={input} value={form.phone_id} onChange={(e) => setForm({ ...form, phone_id: e.target.value })} placeholder="اتركه فاضي" /></label>
               <label style={{ display: 'block', marginBottom: 12 }}><span style={lbl}>WhatsApp account ID</span><input dir="ltr" style={input} value={form.waba_id} onChange={(e) => setForm({ ...form, waba_id: e.target.value })} placeholder="391419307394314" /></label>
             </div>
           </>
