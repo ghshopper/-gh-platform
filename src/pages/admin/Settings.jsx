@@ -157,7 +157,7 @@ export default function Settings() {
   const fetchBadges = async () => {
     try {
       const res = await fetch(`${API}/admin/app-customize/splash`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('admin_token')}` }
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}`, Accept: 'application/json' }
       })
       const json = await res.json()
       setBadges(json.data?.badge_settings || {})

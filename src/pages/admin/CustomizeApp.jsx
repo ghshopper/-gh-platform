@@ -3282,7 +3282,7 @@ export default function CustomizeApp() {
                 try {
                   const res = await fetch(`${API}/admin/home-customize/sections/cart_screen`, {
                     method: 'PUT',
-                    headers: { 'Authorization': `Bearer ${localStorage.getItem('admin_token')}`, 'Content-Type': 'application/json' },
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}`, 'Content-Type': 'application/json' },
                     body: JSON.stringify({ card_settings: cartSettings, is_active: true })
                   })
                   if (res.ok) toast.success('تم حفظ إعدادات السلة بنجاح')
