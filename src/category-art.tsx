@@ -1,4 +1,7 @@
+import { Image } from 'expo-image';
+import { LinearGradient } from 'expo-linear-gradient';
 import { View, type StyleProp, type ViewStyle } from 'react-native';
+import { imageUrl } from './api';
 import Svg, { Circle, Path, Rect } from 'react-native-svg';
 import { useLang } from './lang';
 import type { Category } from './types';
@@ -87,6 +90,18 @@ export function CategoryArt({ c, index = 0, width, height, style, compact }: {
   const en = (c.name_en || '').toUpperCase();
   const name = pick(c, 'name');
   const icon = Math.min(width, height) * (compact ? 0.32 : 0.3);
+  // A photo set for the category in the dashboard: photo tile with the name on it.
+  if (c.image) {
+    return (
+      <View style={[{ width, height, overflow: 'hidden', backgroundColor: BRAND.sand }, style]}>
+        <Image source={{ uri: imageUrl(c.image) }} style={{ position: 'absolute', inset: 0, width, height }} contentFit="cover" transition={200} />
+        <LinearGradient colors={['rgba(0,0,0,0)', 'rgba(0,0,0,0.55)']} style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: height * 0.55 }} />
+        <View style={{ position: 'absolute', bottom: compact ? 10 : 16, start: compact ? 12 : 18, end: 12 }}>
+          <T size={compact ? 16 : 21} w="medium" color={BRAND.white} lines={1}>{name}</T>
+        </View>
+      </View>
+    );
+  }
   return (
     <View style={[{ width, height, backgroundColor: s.bg, overflow: 'hidden', alignItems: 'center', justifyContent: 'center', padding: 14 }, style]}>
       {/* Faint oversized drawing in the corner */}

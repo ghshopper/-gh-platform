@@ -161,6 +161,7 @@ export default function Account() {
       <View style={{ paddingHorizontal: S.gutter }}>
         <Row icon="whatsapp" title={tr('تحدث معنا', 'Chat with us')} subtitle={tr('واتساب · نرد عليك بسرعة', 'WhatsApp · we reply fast')} onPress={() => Linking.openURL(`https://wa.me/${waNumber(COMPANY_WA)}`)} />
         <Row icon="instagram" title={tr('تابعنا', 'Follow us')} value="@shopper.gh" onPress={() => Linking.openURL(INSTAGRAM)} />
+        <Row icon="info" title={tr('الأسئلة الشائعة', 'FAQ')} onPress={() => router.push('/faq')} />
         <Row icon="info" title={tr('الشروط والسياسات', 'Terms & policies')} onPress={() => router.push('/policies')} />
         {loggedIn ? (
           <Row icon="logout" title={tr('تسجيل الخروج', 'Sign out')} danger chevron={false}
