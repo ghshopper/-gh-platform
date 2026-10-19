@@ -6,7 +6,7 @@ const PAGE_AREA = {
   customers: 'customers', loyalty: 'customers', coupons: 'customers', 'gift-cards': 'customers',
   'customize-app': 'marketing', 'notify-users': 'marketing', faqs: 'marketing',
   shipping: 'shipping',
-  users: 'settings', settings: 'settings',
+  users: 'settings', settings: 'settings', whatsapp: 'settings',
 }
 
 export const STAFF_ROLES = ['super_admin', 'admin', 'manager', 'sales_manager', 'product_editor', 'shipping_manager', 'accountant', 'support']

@@ -25,6 +25,7 @@ import AppOrders from './pages/admin/AppOrders'
 import Coupons from './pages/admin/Coupons'
 import GiftCards from './pages/admin/GiftCards'
 import Faqs from './pages/admin/Faqs'
+import WhatsApp from './pages/admin/WhatsApp'
 import CustomizeApp from './pages/admin/CustomizeApp'
 import Profile from './pages/admin/Profile'
 import ImportItems from './pages/admin/ImportItems'
@@ -83,6 +84,7 @@ export default function App() {
           <Route path="product-requests" element={<ProductRequests />} />
           <Route path="customize-app" element={<CustomizeApp />} />
           <Route path="faqs" element={<Faqs />} />
+          <Route path="whatsapp" element={<WhatsApp />} />
           <Route path="profile" element={<Profile />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
