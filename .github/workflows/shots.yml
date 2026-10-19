@@ -70,7 +70,7 @@ jobs:
             xcrun simctl terminate "$UDID" "$BID"; sleep 2
             mkdir -p "shots/$2"
             mk() { # name url
-              printf -- '- openLink: %s\n- tapOn:\n    text: "Open"\n    optional: true\n- waitForAnimationToEnd:\n    timeout: 8000\n- extendedWaitUntil:\n    notVisible: "Open in"\n    timeout: 4000\n    optional: true\n- takeScreenshot: %s/shots/%s/%s\n' "$2" "$PWD" "$DEV" "$1"
+              printf -- '- openLink: %s\n- tapOn:\n    text: "Open"\n    optional: true\n- waitForAnimationToEnd:\n    timeout: 8000\n- takeScreenshot: %s/shots/%s/%s\n' "$2" "$PWD" "$DEV" "$1"
             }
             DEV=$2
             {
