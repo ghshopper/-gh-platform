@@ -71,7 +71,9 @@ const navSections = [
 const navItems = navSections.flatMap((s) => s.items)
 
 export default function AdminLayout() {
-  const [isCollapsed, setIsCollapsed] = useState(false)
+  // On a phone the menu starts closed and closes after choosing a page.
+  const isPhone = () => typeof window !== 'undefined' && window.innerWidth < 769
+  const [isCollapsed, setIsCollapsed] = useState(isPhone)
   const [openGroups, setOpenGroups] = useState({})
   const [notifications, setNotifications] = useState([])
   const [unreadCount, setUnreadCount] = useState(0)
@@ -82,6 +84,7 @@ export default function AdminLayout() {
   const prevCountRef = useRef(null)
   
   const location = useLocation()
+  useEffect(() => { if (isPhone()) setIsCollapsed(true) }, [location.pathname])
   const navigate = useNavigate()
 
   const user = JSON.parse(localStorage.getItem('user') || '{}');
