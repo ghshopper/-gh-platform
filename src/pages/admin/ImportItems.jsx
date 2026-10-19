@@ -14,6 +14,7 @@ import {
 } from 'react-icons/ri'
 import api, { getImageUrl } from '../../services/api'
 import { bookmarkletHref } from './importCollector'
+import { catTree } from '../../lib/catTree'
 
 // Rough rates only for the hint under the price box; the admin sets the real price.
 const HINT_RATES = { EUR: 0.42, AED: 0.105, USD: 0.385, GBP: 0.49, SAR: 0.103, QAR: 0.106, CHF: 0.44, KWD: 1.25, BHD: 1.02, OMR: 1 }
@@ -301,7 +302,7 @@ export default function ImportItems() {
           <span>تصنيف اللي ما تعرّفت عليها</span>
           <select value={defaultCat} onChange={(e) => setDefaultCat(e.target.value)}>
             <option value="">اختر…</option>
-            {categories.map((c) => <option key={c.id} value={c.id}>{c.name_ar || c.name_en}</option>)}
+            {catTree(categories)}
           </select>
         </label>
         <label>
@@ -377,7 +378,7 @@ export default function ImportItems() {
           <span>اختر تصنيفها:</span>
           <select value="" onChange={(e) => e.target.value && setCatFor(pricedNoCat, e.target.value)}>
             <option value="">اختر…</option>
-            {categories.map((c) => <option key={c.id} value={c.id}>{c.name_ar || c.name_en}</option>)}
+            {catTree(categories)}
           </select>
           <button className="btn btn-ghost" onClick={() => setView('nocat')}>اعرضها</button>
         </div>
@@ -489,7 +490,7 @@ export default function ImportItems() {
                     onChange={(e) => setRow(it.id, { category_id: e.target.value })}
                   >
                     <option value="">{defaultCat ? 'التصنيف العام' : 'التصنيف…'}</option>
-                    {categories.map((c) => <option key={c.id} value={c.id}>{c.name_ar || c.name_en}</option>)}
+                    {catTree(categories)}
                   </select>
                   <div className="imp-two">
                     <select value={genderOf(it)} onChange={(e) => setRow(it.id, { gender: e.target.value })} className={!rows[it.id]?.gender && it.gender ? 'imp-auto' : ''}>

@@ -10,6 +10,7 @@ import api, { getImageUrl } from '../../services/api'
 import toast from 'react-hot-toast'
 import AiImportModal from './AiImportModal'
 import GHPagination from '../../components/GHPagination'
+import { catTree } from '../../lib/catTree'
 
 export default function Products() {
   const [view, setView] = useState('list')
@@ -309,7 +310,12 @@ export default function Products() {
       await toast.promise(promise, {
         loading: 'جاري الحفظ...',
         success: editingProduct ? 'تم تعديل المنتج بنجاح!' : 'تم إضافة المنتج بنجاح!',
-        error: 'خطأ في الحفظ'
+        error: (err) => {
+          const d = err?.response?.data
+          const first = d?.errors ? Object.values(d.errors).flat()[0] : null
+          if (err?.response?.status === 413) return 'الصور كبيرة على السيرفر، صغّرها وجرب'
+          return first || d?.message || (err?.response ? `خطأ في الحفظ (${err.response.status})` : 'ما في اتصال بالسيرفر')
+        }
       })
       setView('list')
       setFormData(emptyForm)
@@ -611,7 +617,7 @@ export default function Products() {
                   <select required value={formData.category_id} onChange={e => setFormData(f => ({...f, category_id: e.target.value}))}
                     style={{ width: '100%', padding: '12px 16px', border: '1.5px solid #E5E7EB', borderRadius: 10, fontSize: 14, fontFamily: 'inherit', outline: 'none', background: '#fff' }}>
                     <option value="">اختر التصنيف...</option>
-                    {categories.map(c => <option key={c.id} value={c.id}>{c.name_ar}</option>)}
+                    {catTree(categories)}
                   </select>
                 </div>
                 <div>
@@ -934,7 +940,7 @@ export default function Products() {
         </select>
         <select value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)} style={{ padding: '8px 12px', border: '1px solid var(--border)', borderRadius: 10, fontSize: 13, fontFamily: 'inherit', background: '#fff', outline: 'none' }}>
           <option value="all">كل التصنيفات</option>
-          {categories.map(c => <option key={c.id} value={c.id}>{c.name_ar}</option>)}
+          {catTree(categories)}
         </select>
         <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} style={{ padding: '8px 12px', border: '1px solid var(--border)', borderRadius: 10, fontSize: 13, fontFamily: 'inherit', background: '#fff', outline: 'none' }}>
           <option value="all">كل الحالات</option>
