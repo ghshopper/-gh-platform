@@ -42,6 +42,7 @@ import {
   RiPulseLine,
   RiPlaneLine,
   RiMegaphoneLine,
+  RiFlashlightLine,
 } from 'react-icons/ri'
 
 // Sidebar, grouped the way the work flows: sell → products → customers → store.
@@ -69,6 +70,7 @@ const navSections = [
     { label: 'كوبونات الخصم', icon: RiCoupon3Line, path: '/admin/coupons' },
     { label: 'بطاقات الهدايا', icon: RiGiftLine, path: '/admin/gift-cards' },
     { label: 'العروض التلقائية', icon: RiPercentLine, path: '/admin/offers' },
+    { label: 'النقاط المضاعفة', icon: RiFlashlightLine, path: '/admin/points-boosts' },
     { label: 'إرسال إشعارات', icon: RiNotification3Fill, path: '/admin/notify-users' },
     { label: 'روابط الحملات', icon: RiMegaphoneLine, path: '/admin/campaigns' },
   ] },

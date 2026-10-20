@@ -12,6 +12,7 @@ import AiImportModal from './AiImportModal'
 import GHPagination from '../../components/GHPagination'
 import { catTree } from '../../lib/catTree'
 import { EmptyRow } from '../../components/Empty'
+import TranslateMissing from '../../components/TranslateMissing'
 
 // A table cell you can click to edit in place (Enter saves, Esc cancels).
 function EditNum({ value, onSave, placeholder, step = '0.001', children }) {
@@ -929,6 +930,7 @@ export default function Products() {
   // =================== LIST VIEW ===================
   return (
     <div className="page-inner" style={{ padding: '32px', maxWidth: 1400, margin: '0 auto' }}>
+      <TranslateMissing onDone={() => fetchProducts?.()} />
       <div className="flex-mobile-col" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: 12, marginBottom: 20 }}>
         <div>
           <h1 className="page-title-main" style={{ margin: 0 }}>المنتجات</h1>

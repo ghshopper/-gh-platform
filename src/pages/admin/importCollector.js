@@ -92,7 +92,9 @@ function collector(API, KEY) {
       if (m) return m[1].replace(',', '.') + ' ' + m[2].toLowerCase()
       return t.replace(/^size[_\s-]*/i, '').replace(/_/g, ' ').trim()
     }
-    function addSize(label, vp) { label = cleanSize(label); if (label && !sizes.some(function (k) { return k.en === label })) sizes.push({ en: label, price: vp }) }
+    function addSize(label, vp) {
+      String(label || '').split(',').forEach(function (part) { part = cleanSize(part); if (part && !sizes.some(function (k) { return k.en === part })) sizes.push({ en: part, price: vp }) })
+    }
     variants.forEach(function (v) {
       var vp = num(offerOf(v).price || offerOf(v).lowPrice || '') || null
       if (vp) prices.push(vp)
@@ -123,9 +125,13 @@ function collector(API, KEY) {
   }
 
   // Swatches drawn on the page (shade / colour buttons).
-  function swatches(root) {
+  function swatches(root, own) {
     var out = [], seen = {}
     ;[].forEach.call(root.querySelectorAll('[class*="swatch" i], [class*="shade" i], [class*="color" i], [class*="colour" i], [data-color], [data-shade]'), function (el) {
+      // inside a card linking to another product ("you may also like"): not a colour of this one
+      var link = el.closest && el.closest('a[href]')
+      if (link && own) { var lh = abs(link.getAttribute('href')); if (lh && key(lh) !== key(own) && !/[?&](colou?r|variant|v)=/i.test(lh)) return }
+      if (el.closest && el.closest('[class*="recommend" i], [class*="related" i], [class*="similar" i], [class*="also" i], footer')) return
       var name = el.getAttribute('aria-label') || el.getAttribute('title') || el.getAttribute('data-shade') || el.getAttribute('data-color') || el.getAttribute('data-name') || ''
       var im = el.tagName === 'IMG' ? el : el.querySelector('img')
       if (!name && im) name = im.getAttribute('alt') || ''
@@ -190,11 +196,11 @@ function collector(API, KEY) {
       if (!nm) nm = (card.innerText || '').split('\n').map(function (s) { return s.trim() }).filter(function (s) { return s.length > 3 && !price(s) && !/^(new|nouveau|sold out|online exclusive|exclusive|new in)$/i.test(s) })[0] || ''
       var ims = []
       ;[].forEach.call(card.querySelectorAll('img'), function (im) { var u = bestImg(im); if (u && ims.indexOf(u) < 0) ims.push(u) })
-      add({ name_en: nm.replace(/\s+/g, ' ').slice(0, 250), price: p.price, currency: p.currency, source_url: h, images: ims.slice(0, 6), colors: swatches(card), sizes: [] })
+      add({ name_en: nm.replace(/\s+/g, ' ').slice(0, 250), price: p.price, currency: p.currency, source_url: h, images: ims.slice(0, 6), colors: swatches(card, h), sizes: [] })
     })
   } else {
     var one = items[0]
-    var sw = swatches(document)
+    var sw = swatches(document, location.href)
     if (sw.length > (one.colors || []).length) one.colors = sw
     if (one.images.length < 2) [].forEach.call(document.querySelectorAll('main img, [class*="gallery" i] img, [class*="product" i] img'), function (im) { var u = bestImg(im); if (u && one.images.indexOf(u) < 0 && im.naturalWidth > 300) one.images.push(u) })
     one.images = one.images.slice(0, 8)

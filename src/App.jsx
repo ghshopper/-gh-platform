@@ -30,6 +30,7 @@ import Profile from './pages/admin/Profile'
 import ImportItems from './pages/admin/ImportItems'
 import AbandonedCarts from './pages/admin/AbandonedCarts'
 import Offers from './pages/admin/Offers'
+import PointsBoosts from './pages/admin/PointsBoosts'
 import Activity from './pages/admin/Activity'
 import GccShipping from './pages/admin/GccShipping'
 import Monitor from './pages/admin/Monitor'
@@ -92,6 +93,7 @@ export default function App() {
           <Route path="whatsapp" element={<WhatsApp />} />
           <Route path="profile" element={<Profile />} />
           <Route path="offers" element={<Offers />} />
+          <Route path="points-boosts" element={<PointsBoosts />} />
           <Route path="activity" element={<Activity />} />
           <Route path="gcc-shipping" element={<GccShipping />} />
           <Route path="monitor" element={<Monitor />} />
