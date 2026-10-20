@@ -41,6 +41,8 @@ export default function Products() {
   const [searchQuery, setSearchQuery] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('all')
   const [statusFilter, setStatusFilter] = useState('all')
+  // stock running low / sold out, or no photo (from the home page's to-do list)
+  const [stockFilter, setStockFilter] = useState(() => new URLSearchParams(window.location.search).get('stock') || new URLSearchParams(window.location.search).get('photo') || '')
   const [brandFilter, setBrandFilter] = useState('')
   const [priceFilter, setPriceFilter] = useState('')
   const [priceGroups, setPriceGroups] = useState([])
@@ -90,7 +92,7 @@ export default function Products() {
     if (firstLoad.current) { firstLoad.current = false; return }
     const t = setTimeout(() => { setSelected([]); fetchProducts(1) }, 350)
     return () => clearTimeout(t)
-  }, [searchQuery, brandFilter, categoryFilter, statusFilter, priceFilter])
+  }, [searchQuery, brandFilter, categoryFilter, statusFilter, priceFilter, stockFilter])
 
   // Select every product that matches the filters (all pages).
   const selectAllResults = async () => {
@@ -192,6 +194,8 @@ export default function Products() {
     if (brandFilter) q.set('brand_id', brandFilter)
     if (categoryFilter !== 'all') q.set('category_id', categoryFilter)
     if (statusFilter !== 'all') q.set('status', statusFilter === '1' ? 'active' : 'draft')
+    if (stockFilter === 'low' || stockFilter === 'out') q.set('stock', stockFilter)
+    if (stockFilter === 'missing') q.set('photo', 'missing')
     if (priceFilter !== '') q.set('price', priceFilter)
     return q
   }
@@ -971,6 +975,12 @@ export default function Products() {
           <option value="all">كل الحالات</option>
           <option value="1">نشط</option>
           <option value="0">مسودة</option>
+        </select>
+        <select value={stockFilter} onChange={e => setStockFilter(e.target.value)} style={{ padding: '8px 12px', border: '1px solid ' + (stockFilter ? 'var(--ink)' : 'var(--border)'), borderRadius: 10, fontSize: 13, fontFamily: 'inherit', background: '#fff', outline: 'none' }}>
+          <option value="">كل المخزون</option>
+          <option value="low">مخزون قليل</option>
+          <option value="out">نفد من عُمان</option>
+          <option value="missing">بدون صورة</option>
         </select>
       </div>
 

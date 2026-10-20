@@ -104,12 +104,14 @@ export default function Dashboard() {
   // Things that wait for you (each one links to its page).
   const [todo, setTodo] = useState({ requests: 0, imports: 0, gifts: 0, toBuy: 0, unpaid: 0, ready: 0, onWay: 0, carts: 0, today: 0, todaySales: 0 })
   const fetchTodo = async () => {
-    const [r, i, g, b, c] = await Promise.allSettled([
+    const [r, i, g, b, c, so, np] = await Promise.allSettled([
       api.get('/admin/product-requests/stats'),
       api.get('/admin/import-items'),
       api.get('/admin/gift-cards'),
       api.get('/ps/bootstrap'),
       api.get('/admin/abandoned-carts'),
+      api.get('/admin/products', { params: { stock: 'out', per_page: 1 } }),
+      api.get('/admin/products', { params: { photo: 'missing', per_page: 1 } }),
     ])
     // the day's work from the orders themselves
     const orders = b.status === 'fulfilled' ? (b.value.data?.orders || []) : []
@@ -127,6 +129,9 @@ export default function Dashboard() {
       ready: orders.filter((o) => live(o).some((x) => x.status === 'arrived')).length,
       onWay: orders.filter((o) => live(o).some((x) => x.status === 'out_for_delivery')).length,
       carts: Array.isArray(cartsList) ? cartsList.length : 0,
+      soldOut: so.status === 'fulfilled' ? (so.value.data?.total || 0) : 0,
+      noPhoto: np.status === 'fulfilled' ? (np.value.data?.total || 0) : 0,
+      gulf: orders.filter((o) => String(o.delivery_method || '').startsWith('gcc_') && live(o).some((x) => x.status !== 'delivered')).length,
       today: todays.length,
       todaySales: todays.reduce((a, o) => a + live(o).reduce((s2, x) => s2 + Number(x.price || 0), 0), 0),
     })
@@ -263,6 +268,9 @@ export default function Dashboard() {
     { n: todo.imports, label: 'منتجات تنتظر سعر', to: '/admin/import-items', icon: RiDownloadCloud2Line },
     { n: todo.carts, label: 'سلات متروكة', to: '/admin/abandoned-carts', icon: RiShoppingBag3Line },
     { n: todo.gifts, label: 'بطاقات هدايا تنتظر الدفع', to: '/admin/gift-cards', icon: RiGiftLine },
+    { n: todo.gulf, label: 'شحنات خليجية مفتوحة', to: '/admin/app-orders?filter=gulf', icon: RiTruckLine },
+    { n: todo.soldOut, label: 'منتجات نفدت من عُمان', to: '/admin/products?stock=out', icon: RiShoppingBag3Line },
+    { n: todo.noPhoto, label: 'منتجات بدون صورة', to: '/admin/products?photo=missing', icon: RiShoppingBag3Line },
   ]
 
   return (

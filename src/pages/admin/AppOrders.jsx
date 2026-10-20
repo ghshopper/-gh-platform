@@ -124,7 +124,8 @@ export default function AppOrders() {
       const st = overall(o)
       if (filter === 'open' && (st === 'delivered' || st === 'cancelled')) return false
       if (filter === 'website' && o.source !== 'store') return false
-      if (!['open', 'all', 'unpaid', 'website'].includes(filter) && st !== filter) return false
+      if (filter === 'gulf' && (!String(o.delivery_method || '').startsWith('gcc_') || st === 'delivered' || st === 'cancelled')) return false
+      if (!['open', 'all', 'unpaid', 'website', 'gulf'].includes(filter) && st !== filter) return false
       if (filter === 'unpaid' && totals(o).remaining <= 0.0005) return false
       if (!q) return true
       const c = customers[o.customer_id]
@@ -155,8 +156,9 @@ export default function AppOrders() {
     } catch { toast.error('ما قدرنا نجهز البوليصة') }
   }
 
+  const hasGulf = orders.some((o) => String(o.delivery_method || '').startsWith('gcc_'))
   const tabs = [
-    ['open', 'المفتوحة'], ['website', 'من الموقع'], ['requested', 'بانتظار الشراء'], ['purchased', 'تم الشراء'],
+    ['open', 'المفتوحة'], ['website', 'من الموقع'], ...(hasGulf ? [['gulf', 'شحن خليجي']] : []), ['requested', 'بانتظار الشراء'], ['purchased', 'تم الشراء'],
     ['arrived', 'وصلت'], ['out_for_delivery', 'خرجت للتوصيل'], ['unpaid', 'عليها مبالغ'], ['delivered', 'المسلّمة'], ['all', 'الكل'],
   ]
 
