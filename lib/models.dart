@@ -188,16 +188,18 @@ class EtaRule {
 /// home = our driver to the door (Muscat). Couriers (Nool, Genacom) either
 /// deliver to the door or the customer picks up at their branch.
 /// [office] is legacy (old orders only, not offered any more).
-enum DeliveryMethod { home, office, nool, noolOffice, genacom, genacomOffice }
+/// gccGenacom / gccDhl = shipping to another Gulf country (door delivery).
+enum DeliveryMethod { home, office, nool, noolOffice, genacom, genacomOffice, gccGenacom, gccDhl }
 
 /// Who carries the parcel.
-enum Carrier { own, nool, genacom }
+enum Carrier { own, nool, genacom, dhl }
 
 extension CarrierX on Carrier {
   String get label => switch (this) {
         Carrier.own => 'مندوبنا',
         Carrier.nool => 'نول',
         Carrier.genacom => 'جيناكم',
+        Carrier.dhl => 'DHL',
       };
 }
 
@@ -215,6 +217,7 @@ DeliveryMethod deliveryMethodOf(Carrier c, {required bool branch}) =>
       Carrier.nool => branch ? DeliveryMethod.noolOffice : DeliveryMethod.nool,
       Carrier.genacom =>
         branch ? DeliveryMethod.genacomOffice : DeliveryMethod.genacom,
+      Carrier.dhl => DeliveryMethod.gccDhl,
     };
 
 extension DeliveryMethodX on DeliveryMethod {
@@ -222,16 +225,24 @@ extension DeliveryMethodX on DeliveryMethod {
   String get key => switch (this) {
         DeliveryMethod.noolOffice => 'nool_office',
         DeliveryMethod.genacomOffice => 'genacom_office',
+        DeliveryMethod.gccGenacom => 'gcc_genacom',
+        DeliveryMethod.gccDhl => 'gcc_dhl',
         _ => name,
       };
 
   Carrier get carrier => switch (this) {
         DeliveryMethod.nool || DeliveryMethod.noolOffice => Carrier.nool,
         DeliveryMethod.genacom ||
-        DeliveryMethod.genacomOffice =>
+        DeliveryMethod.genacomOffice ||
+        DeliveryMethod.gccGenacom =>
           Carrier.genacom,
+        DeliveryMethod.gccDhl => Carrier.dhl,
         _ => Carrier.own,
       };
+
+  /// Shipped to another Gulf country.
+  bool get isGulf =>
+      this == DeliveryMethod.gccGenacom || this == DeliveryMethod.gccDhl;
 
   /// Customer collects from the courier's branch.
   bool get toBranch =>
@@ -248,6 +259,8 @@ extension DeliveryMethodX on DeliveryMethod {
         DeliveryMethod.noolOffice => 'نول · من الفرع',
         DeliveryMethod.genacom => 'جيناكم · للبيت',
         DeliveryMethod.genacomOffice => 'جيناكم · من الفرع',
+        DeliveryMethod.gccGenacom => 'جيناكم · شحن خليجي',
+        DeliveryMethod.gccDhl => 'DHL · شحن خليجي',
       };
 
   /// A shipping company (own shipment number / tracking link, no driver).

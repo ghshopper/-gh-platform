@@ -15,6 +15,17 @@ class DeliveryPicker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final carrier = value.carrier;
+    // A Gulf order stays a Gulf shipment: only the company changes.
+    if (value.isGulf) {
+      return Segments<DeliveryMethod>(
+        value: value,
+        options: const {
+          DeliveryMethod.gccGenacom: 'جيناكم · خليجي',
+          DeliveryMethod.gccDhl: 'DHL · خليجي',
+        },
+        onChanged: onChanged,
+      );
+    }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -22,7 +33,7 @@ class DeliveryPicker extends StatelessWidget {
           value: carrier,
           options: {
             for (final c in Carrier.values)
-              if (c != Carrier.nool || carrier == Carrier.nool) c: c.label
+              if ((c != Carrier.nool || carrier == Carrier.nool) && c != Carrier.dhl) c: c.label
           },
           onChanged: (c) =>
               onChanged(deliveryMethodOf(c, branch: value.toBranch)),

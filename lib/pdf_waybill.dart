@@ -74,6 +74,10 @@ Future<Uint8List> buildWaybillPdf(
         'استلام من مكتب ${method!.carrierName}${office != null ? ' · $office' : ''}',
         'OFFICE PICKUP'
       ),
+    DeliveryMethod.gccGenacom || DeliveryMethod.gccDhl => (
+        'شحن خليجي · ${method!.carrierName} · لباب البيت',
+        'GCC · COURIER · DOOR'
+      ),
     DeliveryMethod.genacom || DeliveryMethod.nool => (
         '${method!.carrierName} · لباب البيت',
         'COURIER · DOOR'
