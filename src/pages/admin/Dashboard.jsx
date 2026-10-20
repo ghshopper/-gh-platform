@@ -5,6 +5,7 @@ import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from 'recharts'
 import {
+  RiTimeLine,
   RiBankCardLine,
   RiShoppingBag3Line,
   RiGroupLine,
@@ -131,6 +132,11 @@ export default function Dashboard() {
       carts: Array.isArray(cartsList) ? cartsList.length : 0,
       soldOut: so.status === 'fulfilled' ? (so.value.data?.total || 0) : 0,
       noPhoto: np.status === 'fulfilled' ? (np.value.data?.total || 0) : 0,
+      late: orders.filter((o) => {
+        const lv = live(o)
+        return lv.some((x) => (x.status === 'requested' && Date.now() - new Date(o.created_at) > 14 * 86400000)
+          || (x.status === 'arrived' && Date.now() - new Date(x.arrived_at || o.created_at) > 3 * 86400000))
+      }).length,
       gulf: orders.filter((o) => String(o.delivery_method || '').startsWith('gcc_') && live(o).length && live(o).some((x) => x.status !== 'delivered')).length,
       today: todays.length,
       todaySales: todays.reduce((a, o) => a + live(o).reduce((s2, x) => s2 + Number(x.price || 0), 0), 0),
@@ -260,6 +266,7 @@ export default function Dashboard() {
   const statusTotal = statusList.reduce((a, s) => a + s.count, 0) || 1
   // "what needs doing today": each opens its list
   const todoList = [
+    { n: todo.late, label: '⚠️ طلبات متأخرة', to: '/admin/app-orders?filter=late', icon: RiTimeLine },
     { n: todo.toBuy, label: 'طلبات تنتظر الشراء', to: '/admin/app-orders?filter=requested', icon: RiShoppingBag3Line },
     { n: todo.unpaid, label: 'طلبات عليها مبالغ', to: '/admin/app-orders?filter=unpaid', icon: RiBankCardLine },
     { n: todo.ready, label: 'وصلت وجاهزة للتوصيل', to: '/admin/app-orders?filter=arrived', icon: RiTruckLine },

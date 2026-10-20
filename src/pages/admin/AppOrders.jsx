@@ -29,6 +29,7 @@ const DRIVER_STATUS = {
 const METHOD = { home: 'مندوبنا · للبيت', office: 'إلى المكتب', nool: 'نول · للبيت', nool_office: 'نول · من الفرع', genacom: 'جيناكم · للبيت', genacom_office: 'جيناكم · من الفرع', gcc_genacom: 'جيناكم · شحن خليجي', gcc_dhl: 'DHL · شحن خليجي' }
 const COURIERS = ['nool', 'nool_office', 'genacom', 'genacom_office', 'gcc_genacom', 'gcc_dhl']
 const EVENT_LABEL = {
+  returned: 'مرتجع',
   created: 'تم إنشاء الطلب', purchased: 'تم الشراء', arrived: 'وصل مسقط', out_for_delivery: 'خرج للتوصيل',
   label: 'طُبعت البوليصة', note: 'ملاحظة', paid: 'دفعة', shipped: 'شُحن', assigned: 'سُلّم للمندوب', unassigned: 'سُحب من المندوب',
   picked: 'المندوب استلم', delivered: 'تم التسليم', cancelled: 'إلغاء', requested: 'رجع للانتظار',
@@ -46,6 +47,14 @@ const dateStr = (s) => (s ? new Date(s).toLocaleDateString('en-GB') : '—')
 const dateTime = (s) => (s ? new Date(s).toLocaleString('en-GB', { day: 'numeric', month: 'numeric', hour: 'numeric', minute: '2-digit' }) : '')
 
 /** Least-advanced active item status = what the order still needs. */
+// Late: still to buy after 14 days, or in Oman 3+ days and not delivered (same as the admin app and the 9:00 summary)
+const DAY = 86400000
+const isLate = (o) => {
+  const live = (o.items || []).filter((x) => x.status !== 'cancelled')
+  return live.some((x) => (x.status === 'requested' && Date.now() - new Date(o.created_at) > 14 * DAY)
+    || (x.status === 'arrived' && Date.now() - new Date(x.arrived_at || o.created_at) > 3 * DAY))
+}
+
 function overall(o) {
   const active = o.items.filter((i) => i.status !== 'cancelled')
   if (!active.length) return 'cancelled'
@@ -124,8 +133,9 @@ export default function AppOrders() {
       const st = overall(o)
       if (filter === 'open' && (st === 'delivered' || st === 'cancelled')) return false
       if (filter === 'website' && o.source !== 'store') return false
+      if (filter === 'late' && !isLate(o)) return false
       if (filter === 'gulf' && (!String(o.delivery_method || '').startsWith('gcc_') || st === 'delivered' || st === 'cancelled')) return false
-      if (!['open', 'all', 'unpaid', 'website', 'gulf'].includes(filter) && st !== filter) return false
+      if (!['open', 'all', 'unpaid', 'website', 'gulf', 'late'].includes(filter) && st !== filter) return false
       if (filter === 'unpaid' && totals(o).remaining <= 0.0005) return false
       if (!q) return true
       const c = customers[o.customer_id]
@@ -158,7 +168,7 @@ export default function AppOrders() {
 
   const hasGulf = orders.some((o) => String(o.delivery_method || '').startsWith('gcc_'))
   const tabs = [
-    ['open', 'المفتوحة'], ['website', 'من الموقع'], ...(hasGulf ? [['gulf', 'شحن خليجي']] : []), ['requested', 'بانتظار الشراء'], ['purchased', 'تم الشراء'],
+    ['open', 'المفتوحة'], ...(orders.some(isLate) ? [['late', '⚠️ متأخرة']] : []), ['website', 'من الموقع'], ...(hasGulf ? [['gulf', 'شحن خليجي']] : []), ['requested', 'بانتظار الشراء'], ['purchased', 'تم الشراء'],
     ['arrived', 'وصلت'], ['out_for_delivery', 'خرجت للتوصيل'], ['unpaid', 'عليها مبالغ'], ['delivered', 'المسلّمة'], ['all', 'الكل'],
   ]
 
@@ -264,6 +274,26 @@ function OrderDetail({ o, c, driver, busy, onStatus, onPrint, onReload, headers 
   const [note, setNote] = useState('')
   const [saving, setSaving] = useState(false)
   const [payUrl, setPayUrl] = useState('')
+  // return pieces: which ones, money back, why
+  const [ret, setRet] = useState(null)
+  const paidSum = o.payments.reduce((a, p) => a + Number(p.amount || 0), 0)
+  const openReturn = () => setRet({ ids: [], refund: '', reason: '', method: '' })
+  const toggleRet = (i) => setRet((r) => {
+    const ids = r.ids.includes(i.id) ? r.ids.filter((x) => x !== i.id) : [...r.ids, i.id]
+    const sum = o.items.filter((x) => ids.includes(x.id)).reduce((a, x) => a + Number(x.price || 0), 0)
+    return { ...r, ids, refund: String(Math.min(sum, Math.max(0, paidSum)).toFixed(3)) }
+  })
+  const sendReturn = async () => {
+    if (!ret.ids.length) return toast.error('اختر القطع المرتجعة')
+    setSaving(true)
+    try {
+      const r = await fetch(`${API}/ps/orders/${o.id}/return`, { method: 'POST', headers, body: JSON.stringify({ item_ids: ret.ids, refund: Number(ret.refund || 0), reason: ret.reason.trim() || null, method: ret.method || null }) })
+      const j = await r.json()
+      if (!r.ok) throw new Error(j.message || 'تعذّر')
+      toast.success(`تم تسجيل المرتجع${j.points_back ? ` · رجّعنا ${j.points_back} نقطة` : ''}`)
+      setRet(null); onReload()
+    } catch (e) { toast.error(e.message) } finally { setSaving(false) }
+  }
   const [trk, setTrk] = useState(o.carrier_tracking || '')
   useEffect(() => { setTrk(o.carrier_tracking || '') }, [o.id, o.carrier_tracking])
   const isGcc = String(o.delivery_method || '').startsWith('gcc_')
@@ -293,6 +323,19 @@ function OrderDetail({ o, c, driver, busy, onStatus, onPrint, onReload, headers 
       setTimeout(() => URL.revokeObjectURL(url), 4000)
     } catch (e) { toast.error(e.message) }
   }
+  // the remaining amount + a pay link, ready in WhatsApp (one click)
+  const payByWhatsApp = async () => {
+    const w = window.open('', '_blank') // opened now so the browser doesn't block it
+    try {
+      const r = await fetch(`${API}/ps/orders/${o.id}/pay-link`, { method: 'POST', headers, body: JSON.stringify({}) })
+      const j = await r.json()
+      if (!r.ok || !j.url) throw new Error(j.message || 'تعذّر الرابط')
+      const rem = totals(o).remaining
+      const msg = `هلا ${(c?.name || '').split(' ')[0]} 🤍\nالمتبقي على طلبك رقم ${refOf(o)}: ${omr(rem)}\nتقدر تدفع بالبطاقة أو Apple Pay من هنا:\n${j.url}`
+      const to = phone ? (phone.length === 8 ? '968' + phone : phone) : ''
+      if (w) w.location.href = `https://wa.me/${to}?text=${encodeURIComponent(msg)}`
+    } catch (e) { if (w) w.close(); toast.error(e.message) }
+  }
   const payLink = async () => {
     try {
       const r = await fetch(`${API}/ps/orders/${o.id}/pay-link`, { method: 'POST', headers, body: JSON.stringify({}) })
@@ -321,9 +364,38 @@ function OrderDetail({ o, c, driver, busy, onStatus, onPrint, onReload, headers 
           <button onClick={onPrint} style={btn('#CEAE6E', '#350304')}><RiPrinterLine /> البوليصة</button>
           {o.store_order_id && <button onClick={invoice} style={btn('rgba(255,255,255,.14)', '#fff')}><RiFileList3Line /> الفاتورة</button>}
           {t.remaining > 0.0005 && <button onClick={payLink} style={btn('rgba(255,255,255,.14)', '#fff')}><RiBankCardLine /> رابط دفع</button>}
+          {t.remaining > 0.0005 && phone && <button onClick={payByWhatsApp} style={btn('#25D366', '#fff')}><RiWhatsappLine /> اطلب الدفع واتساب</button>}
           {wa && <a href={wa} target="_blank" rel="noreferrer" style={btn('#25D366', '#fff')}><RiWhatsappLine /> واتساب</a>}
           {link && <button onClick={() => { navigator.clipboard.writeText(link); toast.success('نسخت رابط التتبّع') }} style={btn('rgba(255,255,255,.14)', '#fff')}><RiLinksLine /> رابط التتبّع</button>}
+          {active.length > 0 && <button onClick={openReturn} style={btn('rgba(255,255,255,.14)', '#fff')}>↩ إرجاع قطع</button>}
         </div>
+        {ret && (
+          <div style={{ marginTop: 14, background: '#fff', color: '#111', borderRadius: 12, padding: 14, display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <b>إرجاع قطع</b>
+            {active.map((i) => (
+              <label key={i.id} style={{ display: 'flex', gap: 8, alignItems: 'center', fontSize: 13.5, cursor: 'pointer' }}>
+                <input type="checkbox" checked={ret.ids.includes(i.id)} onChange={() => toggleRet(i)} />
+                <span style={{ flex: 1 }}>{i.brand ? i.brand + ' · ' : ''}{i.name}</span><span>{omr(i.price)}</span>
+              </label>
+            ))}
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <label style={{ flex: 1, minWidth: 140, fontSize: 12.5 }}>المبلغ المسترجع للعميل
+                <input className="input" type="number" min="0" step="0.001" value={ret.refund} onChange={(e) => setRet({ ...ret, refund: e.target.value })} style={{ height: 38, width: '100%', padding: '0 10px' }} />
+              </label>
+              <label style={{ flex: 1, minWidth: 140, fontSize: 12.5 }}>طريقة الاسترجاع
+                <select className="input" value={ret.method} onChange={(e) => setRet({ ...ret, method: e.target.value })} style={{ height: 38, width: '100%' }}>
+                  <option value="">—</option><option value="أموال">أموال (البطاقة)</option><option value="تحويل بنكي">تحويل بنكي</option><option value="نقداً">نقداً</option><option value="رصيد">رصيد للطلب القادم</option>
+                </select>
+              </label>
+            </div>
+            <input className="input" value={ret.reason} onChange={(e) => setRet({ ...ret, reason: e.target.value })} placeholder="السبب (مثلاً: المقاس ما ناسب)" style={{ height: 38, padding: '0 10px' }} />
+            <div style={{ fontSize: 12, color: '#64748b' }}>المدفوع: {omr(paidSum)} · القطع المرتجعة تطلع من الإجمالي، والنقاط اللي كسبها عليها ترجع.</div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button className="btn btn-ghost btn-sm" onClick={() => setRet(null)}>إلغاء</button>
+              <button className="btn btn-primary btn-sm" disabled={saving || !ret.ids.length} onClick={sendReturn}>تسجيل المرتجع</button>
+            </div>
+          </div>
+        )}
       </div>
 
       {wa && (
@@ -383,7 +455,7 @@ function OrderDetail({ o, c, driver, busy, onStatus, onPrint, onReload, headers 
         {o.tax > 0 && <Row k="الضريبة" v={omr(o.tax)} />}
         {o.discount > 0 && <Row k={o.discount_label || 'خصم'} v={'− ' + omr(o.discount)} color="#16804A" />}
         <Row k="الإجمالي" v={omr(t.total)} strong />
-        {o.payments.map((p) => <Row key={p.id} k={`${p.note || 'دفعة'} · ${p.paid_on}${p.method ? ' · ' + p.method : ''}`} v={'− ' + omr(p.amount)} color="#16804A" />)}
+        {o.payments.map((p) => <Row key={p.id} k={`${p.note || 'دفعة'} · ${p.paid_on}${p.method ? ' · ' + p.method : ''}`} v={Number(p.amount) < 0 ? '+ ' + omr(-p.amount) : '− ' + omr(p.amount)} color={Number(p.amount) < 0 ? '#B45309' : '#16804A'} />)}
         <Row k="المتبقي" v={omr(Math.max(0, t.remaining))} strong color={t.remaining > 0.0005 ? '#E5383B' : '#16804A'} />
       </Card>
 
