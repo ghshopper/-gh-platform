@@ -5,7 +5,8 @@ import { useAppData } from '@/appdata';
 import { useCart } from '@/cart';
 import { CouponBox } from '@/coupon-box';
 import { omr } from '@/format';
-import { etaDates, etaForMany, type Origin } from '@/eta';
+import { etaDates, etaForMany, withGulf, type Origin } from '@/eta';
+import { gulfEta } from '@/region';
 import { Icon } from '@/icons';
 import { useLang } from '@/lang';
 import { C, S } from '@/theme';
@@ -86,7 +87,8 @@ export default function Bag() {
             {tax > 0 ? <SummaryRow label={tr(`الضريبة (${app.taxPercent}٪)`, `Tax (${app.taxPercent}%)`)} value={omr(tax)} /> : null}
             {cart.coupon ? <SummaryRow label={tr(`كود الخصم (${cart.coupon.code})`, `Discount (${cart.coupon.code})`)} value={`-${omr(cart.coupon.discount)}`} color={C.green} /> : null}
             {(() => {
-              const e = etaForMany(cart.items.map((i) => (i.origin ?? 'europe') as Origin), app.delivery.eta);
+              const base = etaForMany(cart.items.map((i) => (i.origin ?? 'europe') as Origin), app.delivery.eta);
+              const e = base ? withGulf(base, gulfEta()) : null;
               return e ? (
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                   <Icon name="truck" size={16} color={C.sub} />

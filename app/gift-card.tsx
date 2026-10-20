@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, TextInput, View } from 'react-native';
 import { api } from '@/api';
 import { useAuth } from '@/auth';
-import { omr } from '@/format';
+import { omrReal } from '@/format';
 import { Icon } from '@/icons';
 import { useLang } from '@/lang';
 import { C, S } from '@/theme';
@@ -90,7 +90,7 @@ export default function GiftCard() {
               <Icon name="gift" size={20} color={GOLD} stroke={1.2} />
             </View>
             <View style={{ gap: 4 }}>
-              <T latin size={34} color="#F6E9D8">{omr(value || 0)}</T>
+              <T latin size={34} color="#F6E9D8">{omrReal(value || 0)}</T>
               <T size={13} color="rgba(246,233,216,0.75)" lines={1}>{toName.trim() ? tr(`إلى ${toName.trim()}`, `To ${toName.trim()}`) : tr('أهدِ اللي تحبهم حرية الاختيار', 'Give them the freedom to choose')}</T>
             </View>
           </LinearGradient>
@@ -109,7 +109,7 @@ export default function GiftCard() {
               return (
                 <Pressable key={a} onPress={() => setAmount(String(a))} accessibilityRole="button" accessibilityState={{ selected: on }}
                   style={{ height: 42, paddingHorizontal: 16, justifyContent: 'center', borderWidth: 1, borderColor: on ? C.ink : C.line, backgroundColor: on ? C.ink : C.white }}>
-                  <T latin size={13.5} color={on ? C.white : C.ink}>{omr(a)}</T>
+                  <T latin size={13.5} color={on ? C.white : C.ink}>{omrReal(a)}</T>
                 </Pressable>
               );
             })}
@@ -129,7 +129,7 @@ export default function GiftCard() {
           <Field label={tr('إيميلك (اختياري، يوصلك الإيصال)', 'Your email (optional, for the receipt)')} value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" ltr />
 
           {err ? <T size={13} color={C.red}>{err}</T> : null}
-          <Btn label={tr(`ادفع ${omr(value || 0)}`, `Pay ${omr(value || 0)}`)} onPress={buy} loading={busy} />
+          <Btn label={tr(`ادفع ${omrReal(value || 0)}`, `Pay ${omrReal(value || 0)}`)} onPress={buy} loading={busy} />
           <T size={12} color={C.muted} center>{tr('الدفع بالبطاقة أو Apple Pay. البطاقة صالحة سنة، وتُستخدم على أكثر من طلب.', 'Pay by card or Apple Pay. Valid for a year, use it over several orders.')}</T>
 
           {/* balance */}
@@ -142,8 +142,8 @@ export default function GiftCard() {
             </View>
             {bal ? (
               <T size={13.5}>
-                {tr('الرصيد', 'Balance')}: <T latin size={13.5} w="medium">{omr(bal.balance)}</T>
-                <T size={13} color={C.muted}>{tr(` من ${omr(bal.amount)}`, ` of ${omr(bal.amount)}`)}{bal.expires_at ? tr(` · صالحة إلى ${bal.expires_at}`, ` · valid until ${bal.expires_at}`) : ''}</T>
+                {tr('الرصيد', 'Balance')}: <T latin size={13.5} w="medium">{omrReal(bal.balance)}</T>
+                <T size={13} color={C.muted}>{tr(` من ${omrReal(bal.amount)}`, ` of ${omrReal(bal.amount)}`)}{bal.expires_at ? tr(` · صالحة إلى ${bal.expires_at}`, ` · valid until ${bal.expires_at}`) : ''}</T>
                 {!bal.usable ? <T size={13} color={C.red}>{tr(' · ما تقدر تستخدمها', ' · not usable')}</T> : null}
               </T>
             ) : null}

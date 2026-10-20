@@ -8,7 +8,9 @@ import { useAppData } from '@/appdata';
 import { useAuth } from '@/auth';
 import { useCart } from '@/cart';
 import { CouponBox } from '@/coupon-box';
-import { num, omr } from '@/format';
+import { num, omr, omrReal } from '@/format';
+import { FLAG, gccConfig, gccCountry, gulfEta, OMAN, setCountryCode, showingOtherCurrency } from '@/region';
+import { etaDates, etaForMany, withGulf, type Origin } from '@/eta';
 import { rememberGuestOrder } from '@/guest';
 import { Icon } from '@/icons';
 import { useLang } from '@/lang';
@@ -47,7 +49,10 @@ function Choice({ title, sub, on, onPress, right }: { title: string; sub?: strin
 
 export default function Checkout() {
   const insets = useSafeAreaInsets();
-  const { tr, isAr, pick } = useLang();
+  const { tr, isAr, pick, country } = useLang();
+  // Gulf shipping: another country = Genacom/DHL to the door, fixed price, paid in OMR
+  const gcc = gccConfig();
+  const abroad = gccCountry(country);
   const { user, loggedIn } = useAuth();
   const cart = useCart();
   const app = useAppData();
@@ -96,7 +101,7 @@ export default function Checkout() {
 
   useEffect(() => {
     api.get<unknown>('/customer/payment-gateways').then((r) => {
-      const list = listOf<PaymentGateway>(r).filter((g) => !g.allowed_countries?.length || g.allowed_countries.includes('OM'));
+      const list = listOf<PaymentGateway>(r);
       // One Amwal gateway shows as two choices: card, and Apple Pay / Google Pay.
       const expanded: PaymentGateway[] = [];
       for (const g of list) {
@@ -131,7 +136,33 @@ export default function Checkout() {
     }, []),
   );
 
-  const fee = carrier !== 'own' && branch ? app.delivery.branch_fee : app.delivery.home_fee;
+  // gateways for where it ships (no cash on delivery outside Oman)
+  const shown = gateways.filter((g) => {
+    const real = AMWAL_CODES.includes(g.code) ? 'amwalpay' : g.code;
+    if (abroad && (real === 'cod' || real === 'cash')) return false;
+    const allowed = gateways.find((x) => x.code === real)?.allowed_countries ?? [];
+    return real === 'amwalpay' || !allowed.length || allowed.includes(abroad ? abroad.code : 'OM');
+  });
+  useEffect(() => {
+    if (payment && !shown.some((g) => g.code === payment)) setPayment(shown[0]?.code ?? '');
+  }, [country, gateways.length]); // eslint-disable-line react-hooks/exhaustive-deps
+  const pickCountry = (code: string) => {
+    if (code === country) return;
+    setCountryCode(code);
+    setGov(code === 'OM' ? GOVERNORATES[0].ar : '');
+    setCity('');
+    setBranchId(null);
+    setMode('door');
+    setAddressId(code === 'OM' && saved.length ? (saved.find((a) => a.is_default) ?? saved[0]).id : 'new');
+  };
+  const minDigits = abroad ? abroad.digits : 8;
+  // the number as the courier needs it: +966… abroad, the usual 8 digits in Oman
+  const fullPhone = (p: string) => {
+    if (!abroad) return p.trim();
+    const d = p.replace(/[٠-٩]/g, (x) => String('٠١٢٣٤٥٦٧٨٩'.indexOf(x))).replace(/\D/g, '').replace(/^00/, '');
+    return d.startsWith(abroad.dial) ? `+${d}` : `+${abroad.dial}${d.replace(/^0/, '')}`;
+  };
+  const fee = abroad ? abroad.fee : carrier !== 'own' && branch ? app.delivery.branch_fee : app.delivery.home_fee;
   const service = app.serviceFee;
   const tax = (cart.subtotal * app.taxPercent) / 100;
   const realCode = AMWAL_CODES.includes(payment) ? 'amwalpay' : payment;
@@ -143,8 +174,8 @@ export default function Checkout() {
   const loyaltyValue = useLoyalty ? Math.min(loyalty.balance * loyalty.rate, before) : 0;
   const total = Math.max(0, before - loyaltyValue);
 
-  const chosenAddress = addressId === 'new' ? null : saved.find((a) => a.id === addressId) ?? null;
-  const branchOnly = carrier !== 'own' && branch;
+  const chosenAddress = abroad || addressId === 'new' ? null : saved.find((a) => a.id === addressId) ?? null;
+  const branchOnly = !abroad && carrier !== 'own' && branch;
   const allBranches = app.delivery.branches?.length ? app.delivery.branches : GENACOM_BRANCHES;
   const branches = allBranches.filter((b) => (zone === 'local' ? b.local : !b.local));
   const pickedBranch = branchOnly ? allBranches.find((b) => b.id === branchId) ?? null : null;
@@ -193,7 +224,9 @@ export default function Checkout() {
     const e: Record<string, string> = {};
     const req = tr('مطلوب', 'Required');
     if (!name.trim()) e.name = req;
-    if (phone.replace(/\D/g, '').length < 8) e.phone = tr('رقم غير صحيح', 'Invalid number');
+    if (phone.replace(/\D/g, '').length < minDigits) e.phone = tr('رقم غير صحيح', 'Invalid number');
+    if (abroad && !gov.trim()) e.district = tr('مطلوب', 'Required');
+    if (abroad && !street.trim()) e.street = tr('مطلوب', 'Required');
     if (gift && !giftName.trim()) e.giftName = req;
     if (!chosenAddress && !branchOnly) {
       if (!city.trim()) e.city = req;
@@ -205,6 +238,25 @@ export default function Checkout() {
   };
 
   const addressPayload = () => {
+    if (abroad) {
+      const label = `شحن خليجي — ${gcc.carrier_name || 'جيناكم'} لباب البيت (${abroad.name_ar})`;
+      return {
+        delivery_method: `gcc_${gcc.carrier || 'genacom'}`,
+        delivery_label: label,
+        country: abroad.name_ar,
+        country_code: abroad.code,
+        display_currency: abroad.currency,
+        recipient_name: gift ? giftName.trim() : name.trim(),
+        phone: fullPhone(gift && giftPhone.trim() ? giftPhone : phone),
+        area: gov.trim(),
+        city: city.trim(),
+        street: street.trim(),
+        building: building.trim(),
+        postal_code: landmark.trim(),
+        notes: label,
+        text: [abroad.name_ar, city.trim(), gov.trim(), street.trim(), building.trim()].filter(Boolean).join('، '),
+      };
+    }
     const methodKey = deliveryKey(carrier, branch);
     const methodText =
       carrier === 'own' ? 'مندوب GH لباب البيت' : pickedBranch ? `جيناكم — استلام من مكتب ${pickedBranch.name}` : 'جيناكم — لباب البيت';
@@ -274,7 +326,7 @@ export default function Checkout() {
       }
       const res = await api.post<{ data?: { id: number; order_number: string; guest_token?: string } }>('/customer/orders', {
         customer_name: name.trim(),
-        customer_phone: phone.trim(),
+        customer_phone: fullPhone(phone),
         customer_email: email.trim() || null,
         is_gift: gift,
         gift_recipient_name: gift ? giftName.trim() : null,
@@ -338,7 +390,7 @@ export default function Checkout() {
 
           <Section title={tr('CONTACT · بياناتك', 'CONTACT')}>
             <Field label={tr('الاسم الكامل', 'Full name')} value={name} onChangeText={setName} error={errors.name} textContentType="name" />
-            <Field label={tr('رقم الهاتف', 'Phone')} value={phone} onChangeText={setPhone} error={errors.phone} keyboardType="phone-pad" ltr textContentType="telephoneNumber" />
+            <Field label={abroad ? tr(`رقم الهاتف (+${abroad.dial})`, `Phone (+${abroad.dial})`) : tr('رقم الهاتف', 'Phone')} value={phone} onChangeText={setPhone} error={errors.phone} keyboardType="phone-pad" ltr textContentType="telephoneNumber" />
             <Field label={tr('البريد الإلكتروني (اختياري)', 'Email (optional)')} value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" ltr />
           </Section>
 
@@ -361,6 +413,37 @@ export default function Checkout() {
           </Section>
 
           <Section title={tr('DELIVERY · التوصيل', 'DELIVERY')}>
+            {gcc.enabled && gcc.countries.length ? (
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
+                {[{ code: 'OM', name_ar: OMAN.name_ar, name_en: OMAN.name_en }, ...gcc.countries].map((c) => {
+                  const on = country === c.code;
+                  return (
+                    <Pressable key={c.code} onPress={() => pickCountry(c.code)} accessibilityRole="radio" accessibilityState={{ checked: on }}
+                      style={{ paddingHorizontal: 14, height: 40, flexDirection: 'row', alignItems: 'center', gap: 6, borderWidth: 1, borderColor: on ? C.ink : C.lineStrong, backgroundColor: on ? C.ink : C.white }}>
+                      <T size={14}>{FLAG[c.code] ?? ''}</T>
+                      <T size={13} color={on ? C.white : C.ink}>{isAr ? c.name_ar : c.name_en}</T>
+                    </Pressable>
+                  );
+                })}
+              </ScrollView>
+            ) : null}
+            {abroad ? (
+              <View style={{ gap: 14 }}>
+                <Choice on onPress={() => undefined}
+                  title={tr(`شحن لباب البيت مع ${gcc.carrier_name || 'جيناكم'}`, `Door delivery by ${gcc.carrier === 'dhl' ? 'DHL' : 'Genacom'}`)}
+                  sub={tr(`${gcc.eta?.min ?? 3}–${gcc.eta?.max ?? 5} أيام عمل بعد تجهيز طلبك`, `${gcc.eta?.min ?? 3}–${gcc.eta?.max ?? 5} working days after your order is ready`)}
+                  right={omr(abroad.fee)} />
+                <Field label={tr('المدينة', 'City')} value={city} onChangeText={setCity} error={errors.city} />
+                <Field label={tr('المنطقة / الحي', 'District')} value={gov} onChangeText={setGov} error={errors.district} />
+                <Field label={tr('الشارع', 'Street')} value={street} onChangeText={setStreet} error={errors.street} />
+                <Field label={tr('رقم المبنى / الشقة', 'Building / apartment')} value={building} onChangeText={setBuilding} />
+                <Field label={tr('الرمز البريدي أو العنوان الوطني (اختياري)', 'Postal code / national address (optional)')} value={landmark} onChangeText={setLandmark} ltr />
+                {(isAr ? gcc.note_ar : gcc.note_en) ? (
+                  <View style={{ padding: 12, backgroundColor: C.surface }}><T size={12.5} color={C.sub}>{isAr ? gcc.note_ar : gcc.note_en}</T></View>
+                ) : null}
+              </View>
+            ) : (
+              <>
             <Segments
               value={zone}
               onChange={(z) => { setZone(z); setBranchId(null); }}
@@ -447,11 +530,13 @@ export default function Checkout() {
                 <T size={12.5} color={C.green}>{tr('تم تحديد الموقع على الخريطة', 'Location pinned')}</T>
               </View>
             ) : null}
+              </>
+            )}
           </Section>
 
           <Section title={tr('PAYMENT · الدفع', 'PAYMENT')}>
-            {gateways.length === 0 ? <T size={13} color={C.muted}>{tr('جاري تحميل طرق الدفع…', 'Loading payment methods…')}</T> : null}
-            {gateways.map((g) => (
+            {shown.length === 0 ? <T size={13} color={C.muted}>{tr('جاري تحميل طرق الدفع…', 'Loading payment methods…')}</T> : null}
+            {shown.map((g) => (
               <Choice key={g.code} on={payment === g.code} onPress={() => setPayment(g.code)}
                 title={g.code === 'amwalpay' ? tr('البطاقة البنكية', 'Debit / credit card') : g.name}
                 sub={g.code === 'amwalpay' ? tr('Visa · Mastercard · عبر أموال', 'Visa · Mastercard · via Amwal') : g.subtitle ?? undefined}
@@ -469,7 +554,7 @@ export default function Checkout() {
           <View style={{ paddingHorizontal: S.gutter, paddingTop: 26, gap: 6 }}>
             <Divider style={{ marginBottom: 10 }} />
             <SummaryRow label={tr(`القطع (${cart.count})`, `Items (${cart.count})`)} value={omr(cart.subtotal)} />
-            <SummaryRow label={carrier === 'own' ? tr('التوصيل · مندوبنا', 'Delivery · our driver') : branch ? tr(`جيناكم · مكتب ${pickedBranch?.name ?? ''}`, `Genacom · ${pickedBranch?.name ?? 'office'}`) : tr('جيناكم · لباب البيت', 'Genacom · door')} value={omr(fee)} />
+            <SummaryRow label={abroad ? tr(`الشحن إلى ${abroad.name_ar}`, `Shipping to ${abroad.name_en}`) : carrier === 'own' ? tr('التوصيل · مندوبنا', 'Delivery · our driver') : branch ? tr(`جيناكم · مكتب ${pickedBranch?.name ?? ''}`, `Genacom · ${pickedBranch?.name ?? 'office'}`) : tr('جيناكم · لباب البيت', 'Genacom · door')} value={omr(fee)} />
             {service > 0 ? <SummaryRow label={tr('رسوم الخدمة وتجهيز الهدايا', 'Service & gift wrapping')} value={omr(service)} /> : null}
             {tax > 0 ? <SummaryRow label={tr('الضريبة', 'Tax')} value={omr(tax)} /> : null}
             {extra > 0 ? <SummaryRow label={tr('رسوم الدفع', 'Payment fee')} value={omr(extra)} /> : null}
@@ -477,7 +562,17 @@ export default function Checkout() {
             {loyaltyValue > 0 ? <SummaryRow label={tr('خصم الولاء', 'Loyalty discount')} value={`-${omr(loyaltyValue)}`} color={C.green} /> : null}
             <View style={{ height: 6 }} />
             <SummaryRow label={tr('الإجمالي', 'Total')} value={omr(total)} strong />
-            <Btn label={tr(`تأكيد ودفع ${omr(total)}`, `Confirm & pay ${omr(total)}`)} loading={busy} onPress={placeOrder} style={{ marginTop: 16, marginBottom: insets.bottom }} />
+            {(() => {
+              const base = etaForMany(cart.items.map((i) => (i.origin ?? 'europe') as Origin), app.delivery.eta);
+              const e = base ? withGulf(base, gulfEta()) : null;
+              return e ? <T size={12.5} color={C.sub}>{tr('يوصلك تقريباً ', 'Arrives around ')}{etaDates(e, isAr)}</T> : null;
+            })()}
+            {showingOtherCurrency() ? (
+              <T size={12} color={C.muted} style={{ marginTop: 4 }}>
+                {tr(`المبلغ يُخصم بالريال العماني: ${omrReal(total)}. الأسعار بعملتك تقريبية، وبنكك يحوّلها.`, `You will be charged ${omrReal(total)} in Omani rials. Prices in your currency are approximate.`)}
+              </T>
+            ) : null}
+            <Btn label={tr(`تأكيد ودفع ${omrReal(total)}`, `Confirm & pay ${omrReal(total)}`)} loading={busy} onPress={placeOrder} style={{ marginTop: 16, marginBottom: insets.bottom }} />
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 8 }}>
               <Icon name="lock" size={14} color={C.muted} />
               <T size={11.5} color={C.muted}>{tr('دفع آمن عبر أموال', 'Secure payment by Amwal')}</T>

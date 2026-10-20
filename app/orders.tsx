@@ -2,7 +2,7 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import { FlatList, Pressable, RefreshControl, View } from 'react-native';
 import { useAuth } from '@/auth';
-import { dateText, omr } from '@/format';
+import { dateText, omrReal } from '@/format';
 import { useLoad } from '@/hooks';
 import { Icon } from '@/icons';
 import { useLang } from '@/lang';
@@ -41,8 +41,8 @@ function OrderRow({ o }: { o: MyOrder }) {
         <View style={{ flex: 1 }}>
           {first?.brand ? <BrandText size={11}>{first.brand}</BrandText> : null}
           <T size={12.5} color={C.sub} lines={1}>{first?.name}{o.items.length > 1 ? tr(` و${o.items.length - 1} غيرها`, ` +${o.items.length - 1} more`) : ''}</T>
-          <T latin size={13}>{omr(o.total)}</T>
-          {o.remaining > 0 ? <T size={12} color={C.red}>{tr(`المتبقي ${omr(o.remaining)}`, `Balance ${omr(o.remaining)}`)}</T> : null}
+          <T latin size={13}>{omrReal(o.total)}</T>
+          {o.remaining > 0 ? <T size={12} color={C.red}>{tr(`المتبقي ${omrReal(o.remaining)}`, `Balance ${omrReal(o.remaining)}`)}</T> : null}
         </View>
         <Icon name="forward" size={16} color={C.faint} flip={isAr} />
       </View>

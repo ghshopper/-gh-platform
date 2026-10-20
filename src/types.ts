@@ -187,6 +187,8 @@ export interface DeliveryOptions {
   branches?: import('./genacom').GenacomBranch[];
   /** Delivery time per origin (Oman / Dubai / Europe), set in the admin app. */
   eta?: import('./eta').EtaTable;
+  /** Gulf shipping (prices shown in their currency, paid in OMR). */
+  gcc?: import('./region').GccConfig;
 }
 
 /** One order as the customer sees it (from /ps/my-orders). */

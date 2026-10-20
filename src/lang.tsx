@@ -3,6 +3,7 @@ import { reloadAppAsync } from 'expo';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { I18nManager } from 'react-native';
 import type { Lang } from './types';
+import { countryCode, onRegionChange } from './region';
 
 interface LangCtx {
   lang: Lang;
@@ -18,6 +19,8 @@ interface LangCtx {
    * JS-level `direction` style, and this is that style.
    */
   dir: { direction?: 'rtl' | 'ltr' };
+  /** 'OM' or the Gulf country we ship to (prices shown in its currency). */
+  country: string;
 }
 
 const Ctx = createContext<LangCtx | null>(null);
@@ -50,6 +53,9 @@ async function matchDirection(l: Lang): Promise<boolean> {
 
 export function LangProvider({ children }: { children: ReactNode }) {
   const [lang, setLangState] = useState<Lang | null>(null);
+  // the ship-to country / currency (src/region): screens re-render when it changes
+  const [region, setRegion] = useState(countryCode);
+  useEffect(() => onRegionChange(() => setRegion(countryCode())), []);
 
   useEffect(() => {
     let alive = true;
@@ -92,8 +98,9 @@ export function LangProvider({ children }: { children: ReactNode }) {
         return '';
       },
       dir: I18nManager.isRTL === isAr ? {} : { direction: isAr ? 'rtl' : 'ltr' },
+      country: region,
     };
-  }, [lang, setLang]);
+  }, [lang, setLang, region]);
 
   // Nothing renders until the language (and its direction) is settled; the
   // splash screen stays up meanwhile.

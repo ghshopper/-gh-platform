@@ -10,6 +10,7 @@ import { useLang } from '@/lang';
 import { pushEnabled, setPushEnabled } from '@/push';
 import { C, S } from '@/theme';
 import { Btn, Row, T } from '@/ui';
+import { FLAG, gccConfig, OMAN, setCountryCode } from '@/region';
 import { useWishlist } from '@/wishlist';
 import { LinearGradient } from 'expo-linear-gradient';
 import { tierLook } from '@/tier-look';
@@ -38,7 +39,7 @@ function Section({ title }: { title: string }) {
 
 export default function Account() {
   const insets = useSafeAreaInsets();
-  const { tr, isAr, setLang } = useLang();
+  const { tr, isAr, setLang, country } = useLang();
   const { mode, setMode } = useAppearance();
   const { user, loggedIn, logout } = useAuth();
   const wish = useWishlist();
@@ -150,12 +151,23 @@ export default function Account() {
 
       <Section title={tr('الإعدادات', 'Settings')} />
       <View style={{ paddingHorizontal: S.gutter }}>
-        <Row icon="globe" title={tr('اللغة والدولة', 'Language & country')} value={`${isAr ? 'العربية' : 'English'} · ${tr('عُمان', 'Oman')}`}
+        <Row icon="globe" title={tr('اللغة', 'Language')} value={isAr ? 'العربية' : 'English'}
           onPress={() => Alert.alert(tr('اللغة', 'Language'), tr('بيعاد فتح التطبيق باللغة اللي تختارها', 'The app reopens in the language you choose'), [
             { text: 'العربية', onPress: () => setLang('ar') },
             { text: 'English', onPress: () => setLang('en') },
             { text: tr('إلغاء', 'Cancel'), style: 'cancel' },
           ])} />
+        {gccConfig().enabled && gccConfig().countries.length ? (() => {
+          const list = [{ code: 'OM', name_ar: OMAN.name_ar, name_en: OMAN.name_en, currency: 'OMR' }, ...gccConfig().countries];
+          const cur = list.find((c) => c.code === country) ?? list[0];
+          return (
+            <Row icon="pin" title={tr('بلد التوصيل والعملة', 'Ship to & currency')} value={`${FLAG[cur.code] ?? ''} ${isAr ? cur.name_ar : cur.name_en} · ${cur.currency}`}
+              onPress={() => Alert.alert(tr('بلد التوصيل', 'Ship to'), tr('الأسعار تظهر بعملة بلدك، والدفع بالريال العماني', 'Prices show in your currency; you pay in Omani rials'), [
+                ...list.map((c) => ({ text: `${FLAG[c.code] ?? ''} ${isAr ? c.name_ar : c.name_en} · ${c.currency}`, onPress: () => setCountryCode(c.code) })),
+                { text: tr('إلغاء', 'Cancel'), style: 'cancel' as const },
+              ])} />
+          );
+        })() : null}
         <Row icon="moon" title={tr('المظهر', 'Appearance')} value={tr(themeLabel.ar, themeLabel.en)}
           onPress={() => Alert.alert(tr('المظهر', 'Appearance'), undefined, [
             ...themes.map((t) => ({ text: tr(t.ar, t.en), onPress: () => setMode(t.key) })),

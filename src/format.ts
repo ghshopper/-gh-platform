@@ -1,4 +1,5 @@
 import type { Product, ProductAttribute } from './types';
+import { displayMoney, omrExact } from './region';
 
 export function num(v: unknown, fallback = 0): number {
   if (typeof v === 'number') return Number.isFinite(v) ? v : fallback;
@@ -9,9 +10,14 @@ export function num(v: unknown, fallback = 0): number {
   return fallback;
 }
 
-/** OMR with three decimals, Latin digits: "OMR 825.000". */
+/** A price for display: OMR in Oman, the customer's currency in the Gulf. */
 export function omr(v: unknown): string {
-  return `OMR ${num(v).toFixed(3)}`;
+  return displayMoney(num(v));
+}
+
+/** Always OMR (what is charged, past orders, gift cards). */
+export function omrReal(v: unknown): string {
+  return omrExact(num(v));
 }
 
 /**

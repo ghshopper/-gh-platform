@@ -5,6 +5,7 @@ import { num } from './format';
 import type { Brand, Category, DeliveryOptions, HomeConfig, Policy } from './types';
 import { GENACOM_BRANCHES, type GenacomBranch } from './genacom';
 import { DEFAULT_ETA, type EtaTable } from './eta';
+import { setGccConfig, type GccConfig } from './region';
 
 /** Things every screen may need, fetched once and cached for offline starts. */
 interface AppData {
@@ -68,7 +69,9 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
             const e = (delivery.value as unknown as { eta?: unknown }).eta;
             return e && typeof e === 'object' ? { ...DEFAULT_ETA, ...(e as Partial<EtaTable>) } : DEFAULT_ETA;
           })(),
+          gcc: (delivery.value as unknown as { gcc?: GccConfig }).gcc ?? { enabled: false, countries: [] },
         };
+        setGccConfig(next.delivery.gcc);
       }
       if (fp.status === 'fulfilled') {
         next.policies = fp.value?.policies ?? [];
@@ -82,7 +85,11 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     AsyncStorage.getItem(CACHE)
       .then((raw) => {
-        if (raw) setData((prev) => ({ ...prev, ...(JSON.parse(raw) as Partial<Snapshot>) }));
+        if (raw) {
+          const cached = JSON.parse(raw) as Partial<Snapshot>;
+          setGccConfig(cached.delivery?.gcc);
+          setData((prev) => ({ ...prev, ...cached }));
+        }
       })
       .catch(() => undefined)
       .finally(() => {

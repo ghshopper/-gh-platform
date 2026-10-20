@@ -19,7 +19,8 @@ import type { Product } from '@/types';
 import { BrandText, Btn, Divider, ErrorBox, Loader, Photo, Price, T } from '@/ui';
 import { useWishlist } from '@/wishlist';
 import { EngraveInput } from '@/engrave';
-import { etaDates, etaDuration, ORIGIN_LABEL, originOf, productEta } from '@/eta';
+import { etaDates, etaDuration, ORIGIN_LABEL, originOf, productEta, withGulf } from '@/eta';
+import { gccCountry, gulfEta } from '@/region';
 
 const W = Dimensions.get('window').width;
 // Photo height: tall on iPhone, not taller than the screen allows on iPad.
@@ -226,13 +227,14 @@ export default function ProductScreen() {
 
         {/* When it arrives: from Dubai, Europe or stock in Oman */}
         {available ? (() => {
-          const e = productEta(p, app.delivery.eta);
+          const e = withGulf(productEta(p, app.delivery.eta), gulfEta());
+          const abroad = gccCountry();
           return (
             <View style={{ marginHorizontal: 22, marginTop: 14, padding: 12, backgroundColor: C.surface, flexDirection: 'row', gap: 10, alignItems: 'flex-start' }}>
               <Icon name="truck" size={20} />
               <View style={{ flex: 1, gap: 2 }}>
                 <T size={14} w="semibold">{tr('يوصلك خلال ', 'Arrives in ')}{etaDuration(e, isAr)}</T>
-                <T size={12.5} color={C.sub}>{tr(ORIGIN_LABEL[e.origin].ar, ORIGIN_LABEL[e.origin].en)} · {tr('تقريباً ', 'around ')}{etaDates(e, isAr)}</T>
+                <T size={12.5} color={C.sub}>{tr(ORIGIN_LABEL[e.origin].ar, ORIGIN_LABEL[e.origin].en)}{abroad ? ` · ${tr('شحن إلى ' + abroad.name_ar, 'shipping to ' + abroad.name_en)}` : ''} · {tr('تقريباً ', 'around ')}{etaDates(e, isAr)}</T>
               </View>
             </View>
           );

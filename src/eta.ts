@@ -74,3 +74,17 @@ export const ORIGIN_LABEL: Record<Origin, { ar: string; en: string }> = {
   dubai: { ar: 'تُشحن من دبي', en: 'Ships from Dubai' },
   europe: { ar: 'تُشحن من أوروبا', en: 'Ships from Europe' },
 };
+
+/**
+ * Shipping to another Gulf country: the order's own time, then the Gulf
+ * shipping days (working days). Pieces already in Oman leave in a day.
+ */
+export function withGulf(e: EtaInfo, gulf?: { min: number; max: number } | null, now = new Date()): EtaInfo {
+  if (!gulf) return e;
+  const startFrom = e.origin === 'oman' ? now : e.from;
+  const startTo = e.origin === 'oman' ? addDays(now, 1, 'work') : e.to;
+  const from = addDays(startFrom, gulf.min, 'work');
+  const to = addDays(startTo, gulf.max, 'work');
+  const days = (d: Date) => Math.max(1, Math.round((d.getTime() - now.getTime()) / 86400000));
+  return { origin: e.origin, rule: { min: days(from), max: days(to), unit: 'days' }, from, to };
+}

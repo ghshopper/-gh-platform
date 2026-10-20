@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { Dimensions, Linking, Modal, Pressable, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SITE_BASE } from '@/api';
-import { dateText, omr, waNumber } from '@/format';
+import { dateText, omrReal, waNumber } from '@/format';
 import { Icon } from '@/icons';
 import { useLang } from '@/lang';
 import { CARRIER, cachedOrder, cachedOrders, fetchMyOrders, STATUS } from '@/orders';
@@ -143,22 +143,22 @@ export default function OrderDetail() {
                 <T size={13} color={C.sub}>{i.name}</T>
                 {i.details ? <T size={12} color={C.muted}>{i.details}</T> : null}
               </View>
-              <T latin size={13}>{omr(i.price)}</T>
+              <T latin size={13}>{omrReal(i.price)}</T>
             </Pressable>
           ))}
           <View style={{ gap: 6, paddingTop: 14 }}>
-            {o.delivery_fee > 0 ? <SummaryRow label={tr('التوصيل', 'Delivery')} value={omr(o.delivery_fee)} /> : null}
-            {(o.tax ?? 0) > 0 ? <SummaryRow label={tr('الضريبة', 'Tax')} value={omr(o.tax)} /> : null}
-            {(o.discount ?? 0) > 0 ? <SummaryRow label={o.discount_label || tr('خصم', 'Discount')} value={`-${omr(o.discount)}`} color={C.green} /> : null}
-            <SummaryRow label={tr('الإجمالي', 'Total')} value={omr(o.total)} strong />
-            {o.paid > 0 ? <SummaryRow label={tr('المدفوع', 'Paid')} value={omr(o.paid)} /> : null}
+            {o.delivery_fee > 0 ? <SummaryRow label={tr('التوصيل', 'Delivery')} value={omrReal(o.delivery_fee)} /> : null}
+            {(o.tax ?? 0) > 0 ? <SummaryRow label={tr('الضريبة', 'Tax')} value={omrReal(o.tax)} /> : null}
+            {(o.discount ?? 0) > 0 ? <SummaryRow label={o.discount_label || tr('خصم', 'Discount')} value={`-${omrReal(o.discount)}`} color={C.green} /> : null}
+            <SummaryRow label={tr('الإجمالي', 'Total')} value={omrReal(o.total)} strong />
+            {o.paid > 0 ? <SummaryRow label={tr('المدفوع', 'Paid')} value={omrReal(o.paid)} /> : null}
             {o.remaining > 0
-              ? <SummaryRow label={tr('المتبقي', 'Balance')} value={omr(o.remaining)} color={C.red} strong />
+              ? <SummaryRow label={tr('المتبقي', 'Balance')} value={omrReal(o.remaining)} color={C.red} strong />
               : <SummaryRow label={tr('مدفوع بالكامل', 'Paid in full')} value="✓" color={C.green} />}
           </View>
           {o.pay_url && o.remaining > 0 ? (
             <View style={{ gap: 6, paddingTop: 14 }}>
-              <Btn icon="card" label={tr(`ادفع الآن · ${omr(o.remaining)}`, `Pay now · ${omr(o.remaining)}`)} onPress={() => pay(o.pay_url as string)} />
+              <Btn icon="card" label={tr(`ادفع الآن · ${omrReal(o.remaining)}`, `Pay now · ${omrReal(o.remaining)}`)} onPress={() => pay(o.pay_url as string)} />
               <T size={11.5} color={C.muted} center>{tr('بطاقة أو Apple Pay · دفع آمن عبر أموال', 'Card or Apple Pay · secure payment via Amwal')}</T>
             </View>
           ) : null}
@@ -230,19 +230,19 @@ export default function OrderDetail() {
                   {i.brand ? <BrandText size={11}>{i.brand}</BrandText> : null}
                   <T size={13}>{i.name}</T>
                 </View>
-                <T latin size={13}>{omr(i.price)}</T>
+                <T latin size={13}>{omrReal(i.price)}</T>
               </View>
             ))}
             <Divider />
-            <SummaryRow label={tr('مجموع القطع', 'Subtotal')} value={omr(o.items_total)} />
-            {o.delivery_fee > 0 ? <SummaryRow label={tr('التوصيل', 'Delivery')} value={omr(o.delivery_fee)} /> : null}
-            {(o.tax ?? 0) > 0 ? <SummaryRow label={tr('الضريبة', 'Tax')} value={omr(o.tax)} /> : null}
-            {(o.discount ?? 0) > 0 ? <SummaryRow label={o.discount_label || tr('خصم', 'Discount')} value={`-${omr(o.discount)}`} color={C.green} /> : null}
-            <SummaryRow label={tr('الإجمالي', 'Total')} value={omr(o.total)} strong />
-            {o.payments.map((p, k) => <SummaryRow key={k} label={`${tr('دفعة', 'Payment')} ${p.paid_on ?? ''}`} value={omr(p.amount)} />)}
+            <SummaryRow label={tr('مجموع القطع', 'Subtotal')} value={omrReal(o.items_total)} />
+            {o.delivery_fee > 0 ? <SummaryRow label={tr('التوصيل', 'Delivery')} value={omrReal(o.delivery_fee)} /> : null}
+            {(o.tax ?? 0) > 0 ? <SummaryRow label={tr('الضريبة', 'Tax')} value={omrReal(o.tax)} /> : null}
+            {(o.discount ?? 0) > 0 ? <SummaryRow label={o.discount_label || tr('خصم', 'Discount')} value={`-${omrReal(o.discount)}`} color={C.green} /> : null}
+            <SummaryRow label={tr('الإجمالي', 'Total')} value={omrReal(o.total)} strong />
+            {o.payments.map((p, k) => <SummaryRow key={k} label={`${tr('دفعة', 'Payment')} ${p.paid_on ?? ''}`} value={omrReal(p.amount)} />)}
             <View style={{ backgroundColor: C.maroon, padding: 12, flexDirection: 'row', justifyContent: 'space-between' }}>
               <T size={14} w="medium" color={C.white}>{tr('المتبقي', 'Balance due')}</T>
-              <T latin size={14} color={C.white}>{omr(o.remaining)}</T>
+              <T latin size={14} color={C.white}>{omrReal(o.remaining)}</T>
             </View>
             {company?.bank_details && o.remaining > 0 ? <T size={12} color={C.muted}>{company.bank_details}</T> : null}
             {company?.invoice_note ? <T size={12} color={C.muted}>{company.invoice_note}</T> : null}
