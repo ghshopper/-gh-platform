@@ -38,4 +38,6 @@ export const CARRIER: Record<string, { ar: string; en: string; branch: boolean }
   nool_office: { ar: 'نول', en: 'Nool', branch: true },
   genacom: { ar: 'جيناكم', en: 'Genacom', branch: false },
   genacom_office: { ar: 'جيناكم', en: 'Genacom', branch: true },
+  gcc_genacom: { ar: 'جيناكم', en: 'Genacom', branch: false },
+  gcc_dhl: { ar: 'DHL', en: 'DHL', branch: false },
 };

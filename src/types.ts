@@ -201,6 +201,8 @@ export interface MyOrder {
   delivered_at?: string | null;
   delivery_method?: string | null;
   carrier_tracking?: string | null;
+  /** Gulf shipments: the carrier's tracking page for the shipment number. */
+  tracking_url?: string | null;
   tracking_token?: string | null;
   store_order_number?: string | null;
   driver?: { name: string; phone?: string | null } | null;

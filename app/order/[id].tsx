@@ -50,7 +50,8 @@ export default function OrderDetail() {
   const st = STATUS[o.status];
   const carrier = o.delivery_method ? CARRIER[o.delivery_method] : undefined;
   const carrierName = carrier ? tr(carrier.ar, carrier.en) : '';
-  const trackingIsLink = /^https?:\/\//i.test(o.carrier_tracking ?? '');
+  const trackingUrl = /^https?:\/\//i.test(o.carrier_tracking ?? '') ? (o.carrier_tracking as string) : o.tracking_url || '';
+  const trackingIsLink = !!trackingUrl;
   const receipts = o.items.filter((i) => i.receipt_url).map((i) => ({ url: i.receipt_url as string, caption: [i.brand, i.name].filter(Boolean).join(' · ') }));
   const companyWa = waNumber(company?.phone ?? '96877246972');
 
@@ -122,7 +123,10 @@ export default function OrderDetail() {
             </View>
             {o.carrier_tracking ? (
               trackingIsLink ? (
-                <Btn kind="outline" height={44} icon="box" label={tr(`تتبّع الشحنة مع ${carrierName}`, `Track with ${carrierName}`)} onPress={() => WebBrowser.openBrowserAsync(o.carrier_tracking as string)} />
+                <View style={{ gap: 6 }}>
+                  {!/^https?:/i.test(o.carrier_tracking) ? <T latin size={14}>{tr('رقم الشحنة: ', 'Shipment no.: ')}{o.carrier_tracking}</T> : null}
+                  <Btn kind="outline" height={44} icon="box" label={tr(`تتبّع الشحنة مع ${carrierName}`, `Track with ${carrierName}`)} onPress={() => WebBrowser.openBrowserAsync(trackingUrl)} />
+                </View>
               ) : (
                 <T latin size={14}>{tr('رقم الشحنة: ', 'Shipment no.: ')}{o.carrier_tracking}</T>
               )
