@@ -1,9 +1,11 @@
 import GiftCard from './pages/GiftCard';
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { useEffect } from 'react';
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
+import { setTrackedCart, trackPage } from './lib/track';
 import { Layout } from './components/Layout';
 import { QuickAddProvider } from './components/ProductCard';
 import { PrefsProvider } from './lib/prefs';
-import { AuthProvider, CartProvider, DataProvider, ToastProvider, WishlistProvider } from './lib/store';
+import { AuthProvider, CartProvider, DataProvider, ToastProvider, useCart, WishlistProvider } from './lib/store';
 import Account from './pages/Account';
 import Brands from './pages/Brands';
 import Categories from './pages/Categories';
@@ -13,6 +15,15 @@ import { Faq, NotFound, Policies, Request, Wishlist } from './pages/Misc';
 import OrderDone from './pages/OrderDone';
 import ProductPage from './pages/Product';
 import Shop from './pages/Shop';
+
+/** Page views for the dashboard's live visitors and statistics. */
+function Tracker() {
+  const loc = useLocation();
+  const cart = useCart();
+  useEffect(() => { setTrackedCart(cart.count); }, [cart.count]);
+  useEffect(() => { trackPage(loc.pathname); }, [loc.pathname]);
+  return null;
+}
 
 export default function App() {
   return (
@@ -24,6 +35,7 @@ export default function App() {
               <ToastProvider>
                 <BrowserRouter>
                   <QuickAddProvider>
+                    <Tracker />
                     <Layout>
                       <Routes>
                         <Route path="/" element={<Home />} />
