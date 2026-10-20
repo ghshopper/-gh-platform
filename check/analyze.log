@@ -9,17 +9,19 @@ Analyzing -gh-platform...
    info • 'minSize' is deprecated and shouldn't be used. Use minimumSize instead. This feature was deprecated after v3.28.0-3.0.pre. Try replacing the use of the deprecated member with the replacement • lib/pages/gulf_shipping_page.dart:111:11 • deprecated_member_use
    info • 'minSize' is deprecated and shouldn't be used. Use minimumSize instead. This feature was deprecated after v3.28.0-3.0.pre. Try replacing the use of the deprecated member with the replacement • lib/pages/gulf_shipping_page.dart:123:11 • deprecated_member_use
    info • 'anonKey' is deprecated and shouldn't be used. Use publishableKey instead. anonKey will be removed in a future major version. Try replacing the use of the deprecated member with the replacement • lib/pages/import_page.dart:16:7 • deprecated_member_use
-   info • The 'children' argument should be last in widget constructor invocations. Try moving the argument to the end of the argument list • lib/pages/item_pages.dart:276:11 • sort_child_properties_last
-   info • The 'children' argument should be last in widget constructor invocations. Try moving the argument to the end of the argument list • lib/pages/item_pages.dart:298:11 • sort_child_properties_last
-   info • 'minSize' is deprecated and shouldn't be used. Use minimumSize instead. This feature was deprecated after v3.28.0-3.0.pre. Try replacing the use of the deprecated member with the replacement • lib/pages/order_detail_page.dart:769:27 • deprecated_member_use
-   info • 'minSize' is deprecated and shouldn't be used. Use minimumSize instead. This feature was deprecated after v3.28.0-3.0.pre. Try replacing the use of the deprecated member with the replacement • lib/pages/order_detail_page.dart:821:9 • deprecated_member_use
+   info • The 'children' argument should be last in widget constructor invocations. Try moving the argument to the end of the argument list • lib/pages/item_pages.dart:290:11 • sort_child_properties_last
+   info • The 'children' argument should be last in widget constructor invocations. Try moving the argument to the end of the argument list • lib/pages/item_pages.dart:312:11 • sort_child_properties_last
+   info • The 'children' argument should be last in widget constructor invocations. Try moving the argument to the end of the argument list • lib/pages/item_pages.dart:447:11 • sort_child_properties_last
+   info • The 'children' argument should be last in widget constructor invocations. Try moving the argument to the end of the argument list • lib/pages/item_pages.dart:457:13 • sort_child_properties_last
+   info • 'minSize' is deprecated and shouldn't be used. Use minimumSize instead. This feature was deprecated after v3.28.0-3.0.pre. Try replacing the use of the deprecated member with the replacement • lib/pages/order_detail_page.dart:787:27 • deprecated_member_use
+   info • 'minSize' is deprecated and shouldn't be used. Use minimumSize instead. This feature was deprecated after v3.28.0-3.0.pre. Try replacing the use of the deprecated member with the replacement • lib/pages/order_detail_page.dart:839:9 • deprecated_member_use
    info • The parameter name 'old' doesn't match the name 'oldWidget' in the overridden method. Try changing the name to 'oldWidget' • lib/pages/products_page.dart:99:49 • avoid_renaming_method_parameters
 warning • The '!' will have no effect because the receiver can't be null. Try removing the '!' operator • lib/pages/purchases_pages.dart:82:37 • unnecessary_non_null_assertion
 warning • The '!' will have no effect because the receiver can't be null. Try removing the '!' operator • lib/pages/purchases_pages.dart:159:60 • unnecessary_non_null_assertion
 warning • The '!' will have no effect because the receiver can't be null. Try removing the '!' operator • lib/pages/purchases_pages.dart:162:49 • unnecessary_non_null_assertion
 warning • The '!' will have no effect because the receiver can't be null. Try removing the '!' operator • lib/pages/purchases_pages.dart:239:59 • unnecessary_non_null_assertion
    info • 'minSize' is deprecated and shouldn't be used. Use minimumSize instead. This feature was deprecated after v3.28.0-3.0.pre. Try replacing the use of the deprecated member with the replacement • lib/pages/story_page.dart:397:19 • deprecated_member_use
-   info • The 'children' argument should be last in widget constructor invocations. Try moving the argument to the end of the argument list • lib/pages/trips_page.dart:234:9 • sort_child_properties_last
+   info • The 'children' argument should be last in widget constructor invocations. Try moving the argument to the end of the argument list • lib/pages/trips_page.dart:270:9 • sort_child_properties_last
 warning • The receiver can't be 'null' because of short-circuiting, so the null-aware operator '?.' can't be used. Try replacing the operator '?.' with '.' • lib/pdf_waybill.dart:54:21 • invalid_null_aware_operator
    info • The import of 'dart:typed_data' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/foundation.dart'. Try removing the import directive • lib/story/cutout.dart:3:8 • unnecessary_import
    info • Parameter 'light' could be a super parameter. Trying converting 'light' to a super parameter • lib/ui/colors.dart:10:9 • use_super_parameters
@@ -39,4 +41,4 @@ warning • The member 'loadSnapshot' can only be used within 'package:gh_shoppe
 warning • The member 'loadSnapshot' can only be used within 'package:gh_shopper/data/store.dart' or a test • test_shots/screens_test.dart:361:15 • invalid_use_of_visible_for_testing_member
 warning • The member 'loadSnapshot' can only be used within 'package:gh_shopper/data/store.dart' or a test • test_shots/screens_test.dart:391:13 • invalid_use_of_visible_for_testing_member
 
-38 issues found. (ran in 15.5s)
+40 issues found. (ran in 16.6s)
