@@ -174,8 +174,8 @@ class _GulfShippingPageState extends State<GulfShippingPage> {
             ],
           ),
           Section(
-            header: 'شركة الشحن',
-            footer: 'تقدر تغيّرها لأي طلب من صفحة الطلب.',
+            header: 'الشركة الافتراضية للطلبات الجديدة',
+            footer: 'العميل يشوف «شحن سريع لباب البيت» بدون اسم الشركة. تختار جيناكم أو DHL لكل طلب من صفحة الطلب.',
             children: [
               Segments<String>(
                 value: (s['carrier'] as String?) ?? 'genacom',
