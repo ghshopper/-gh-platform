@@ -239,7 +239,7 @@ export default function Checkout() {
 
   const addressPayload = () => {
     if (abroad) {
-      const label = `شحن خليجي — ${gcc.carrier_name || 'جيناكم'} لباب البيت (${abroad.name_ar})`;
+      const label = `شحن خليجي لباب البيت (${abroad.name_ar})`;
       return {
         delivery_method: `gcc_${gcc.carrier || 'genacom'}`,
         delivery_label: label,
@@ -430,7 +430,7 @@ export default function Checkout() {
             {abroad ? (
               <View style={{ gap: 14 }}>
                 <Choice on onPress={() => undefined}
-                  title={tr(`شحن لباب البيت مع ${gcc.carrier_name || 'جيناكم'}`, `Door delivery by ${gcc.carrier === 'dhl' ? 'DHL' : 'Genacom'}`)}
+                  title={tr('شحن سريع لباب البيت', 'Express door delivery')}
                   sub={tr(`${gcc.eta?.min ?? 3}–${gcc.eta?.max ?? 5} أيام عمل بعد تجهيز طلبك`, `${gcc.eta?.min ?? 3}–${gcc.eta?.max ?? 5} working days after your order is ready`)}
                   right={omr(abroad.fee)} />
                 <Field label={tr('المدينة', 'City')} value={city} onChangeText={setCity} error={errors.city} />
