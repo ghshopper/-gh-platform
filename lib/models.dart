@@ -500,6 +500,11 @@ class OrderItem {
     this.taxFreeReceived = false,
     this.listPrice,
     this.listCurrency,
+    this.planPlace,
+    this.planStore,
+    this.estCost,
+    this.estCurrency,
+    this.estRate,
     this.commissionPct,
     this.photoPath,
     this.receiptPath,
@@ -526,6 +531,12 @@ class OrderItem {
   /// Price as quoted to the customer in a foreign currency (private).
   final double? listPrice;
   final String? listCurrency;
+  /// The buying plan, before the trip: where and roughly how much (private).
+  final PurchasePlace? planPlace;
+  final String? planStore;
+  final double? estCost;
+  final String? estCurrency;
+  final double? estRate;
   final double? commissionPct;
   final String? photoPath;
   final String? receiptPath;
@@ -548,6 +559,20 @@ class OrderItem {
 
   bool get hasTaxFree => taxFreeAmount > 0;
 
+  bool get hasPlan => planStore != null || planPlace != null || estCost != null;
+
+  /// What it should cost before it's bought: the planned estimate, else the
+  /// boutique price from the quote. Null when neither is known.
+  ({double amount, String currency, bool fromList})? get estimate {
+    if (estCost != null && estCost! > 0 && estCurrency != null) {
+      return (amount: estCost!, currency: estCurrency!, fromList: false);
+    }
+    if (listPrice != null && listPrice! > 0 && listCurrency != null) {
+      return (amount: listPrice!, currency: listCurrency!, fromList: true);
+    }
+    return null;
+  }
+
   factory OrderItem.fromMap(Map<String, dynamic> m) => OrderItem(
         id: m['id'].toString(),
         orderId: m['order_id'].toString(),
@@ -565,6 +590,11 @@ class OrderItem {
         taxFreeReceived: m['tax_free_received'] == true,
         listPrice: _dn(m['list_price']),
         listCurrency: _s(m['list_currency']),
+        planPlace: purchasePlaceFrom(m['plan_place'] as String?),
+        planStore: _s(m['plan_store']),
+        estCost: _dn(m['est_cost']),
+        estCurrency: _s(m['est_currency']),
+        estRate: _dn(m['est_rate']),
         commissionPct: _dn(m['commission_pct']),
         photoPath: _s(m['photo_path']),
         receiptPath: _s(m['receipt_path']),

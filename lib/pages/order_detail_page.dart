@@ -72,6 +72,8 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
     final next = item.status.next;
     final actions = <SheetAction<String>>[
       if (next != null) SheetAction(next.actionLabel, 'next'),
+      if (item.status == ItemStatus.requested)
+        SheetAction(item.hasPlan ? 'تعديل الخطة (وين وبكم تقريباً)' : 'وين بشتريها وبكم تقريباً', 'plan'),
       SheetAction(
           item.costAmount == null ? 'تسجيل الشراء (السعر والمكان)' : 'تعديل بيانات الشراء',
           'purchase'),
@@ -99,6 +101,9 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
         break;
       case 'purchase':
         await presentForm(context, PurchasePage(item: item));
+        break;
+      case 'plan':
+        await presentForm(context, PlanPage(item: item));
         break;
       case 'taxfree':
         await _run(() => Store.i.setTaxFreeReceived(item.id, !item.taxFreeReceived));
@@ -718,6 +723,19 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                         'السعر ${money(i.listPrice!, i.listCurrency!)}'
                         '${(i.commissionPct ?? 0) > 0 ? ' + عمولة ${i.commissionPct!.toStringAsFixed(i.commissionPct! % 1 == 0 ? 0 : 1)}٪' : ''}',
                         style: T.small.copyWith(color: GH.blue),
+                      ),
+                    ),
+                  if (i.costAmount == null && i.hasPlan)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 2),
+                      child: Text(
+                        [
+                          'الخطة',
+                          if (i.planStore != null) i.planStore!,
+                          if (i.planPlace != null) i.planPlace!.label,
+                          if (i.estCost != null && i.estCurrency != null) 'تقريباً ${money(i.estCost!, i.estCurrency!)}',
+                        ].join(' · '),
+                        style: T.small.copyWith(color: GH.burgundy),
                       ),
                     ),
                   if (i.costAmount != null)

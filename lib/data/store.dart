@@ -354,6 +354,29 @@ class Store extends ChangeNotifier {
         }));
   }
 
+  /// Where a piece will be bought and roughly for how much (before the trip).
+  Future<void> savePlan(
+    OrderItem item, {
+    String? store,
+    PurchasePlace? place,
+    double? cost,
+    String? currency,
+    double? rate,
+  }) {
+    return _write(() => _api.post('/ps/items/plan', {
+          'items': [
+            {
+              'id': item.id,
+              'store': store ?? '',
+              'place': place?.key,
+              'cost': cost,
+              'currency': cost == null ? null : currency,
+              'rate': cost == null ? null : rate,
+            }
+          ]
+        }));
+  }
+
   Future<void> setTaxFreeReceived(String itemId, bool received) => _write(
       () => _api.put('/ps/items/$itemId/tax-free', {'received': received}));
 

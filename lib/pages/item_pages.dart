@@ -167,14 +167,17 @@ class _PurchasePageState extends State<PurchasePage> {
   void initState() {
     super.initState();
     final i = widget.item;
+    // the plan made before the trip fills the form: confirm and save
     _place = i.purchasePlace ??
+        i.planPlace ??
         (i.listCurrency == 'AED'
             ? PurchasePlace.dubai
             : i.listCurrency == 'EUR'
                 ? PurchasePlace.boutiqueEu
                 : _lastPlace);
-    _currency = i.costCurrency ?? _place.currency;
+    _currency = i.costCurrency ?? i.estCurrency ?? _place.currency;
     final guess = i.costAmount ??
+        (i.estCurrency == _currency ? i.estCost : null) ??
         (i.listCurrency == _currency ? i.listPrice : null);
     _price = TextEditingController(
         text: guess == null ? '' : guess.toStringAsFixed(2));
@@ -251,6 +254,17 @@ class _PurchasePageState extends State<PurchasePage> {
           padding: const EdgeInsets.fromLTRB(32, 0, 32, 0),
           child: Text(widget.item.title, style: T.sub),
         ),
+        if (widget.item.costAmount == null && widget.item.estimate != null)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(32, 6, 32, 0),
+            child: Text(
+              'خطتك: ${[
+                if (widget.item.planStore != null) widget.item.planStore!,
+                '${widget.item.estimate!.fromList ? 'سعر البوتيك' : 'تقريباً'} ${money(widget.item.estimate!.amount, widget.item.estimate!.currency)}',
+              ].join(' · ')} — أكّد السعر الفعلي',
+              style: T.small.copyWith(color: GH.blue),
+            ),
+          ),
         Section(
           footer: _scanNote ?? 'صوّر الإيصال ونعبي السعر والعملة عنك، وتنحفظ الصورة مع القطعة.',
           children: [
@@ -274,7 +288,7 @@ class _PurchasePageState extends State<PurchasePage> {
         ),
         Section(
           children: [
-            if (_place == PurchasePlace.other)
+            if (_place == PurchasePlace.other || _currency != _place.currency)
               PickerRow(label: 'العملة', value: _currency, onTap: _pickCurrency),
             AmountRow(
               label: 'سعر الشراء',
@@ -312,6 +326,152 @@ class _PurchasePageState extends State<PurchasePage> {
           ],
           footer: 'هذي البيانات لك بس، وما تطلع في الفاتورة. المبلغ ينخصم من رصيد العميل.',
         ),
+      ],
+    );
+  }
+}
+
+// ───────────────────────── Buying plan ─────────────────────────
+
+/// Before the trip: where the piece will be bought and roughly for how much,
+/// so the total to pay (and the tax-free back) is known in advance. The real
+/// price is confirmed at purchase. Private: never on the invoice.
+class PlanPage extends StatefulWidget {
+  const PlanPage({super.key, required this.item});
+
+  final OrderItem item;
+
+  @override
+  State<PlanPage> createState() => _PlanPageState();
+}
+
+class _PlanPageState extends State<PlanPage> {
+  late final OrderItem i = widget.item;
+  late final _store = TextEditingController(text: i.planStore);
+  late PurchasePlace? _place = i.planPlace ??
+      (i.listCurrency == 'AED'
+          ? PurchasePlace.dubai
+          : i.listCurrency == 'EUR'
+              ? PurchasePlace.boutiqueEu
+              : null);
+  late String _currency = i.estCurrency ?? i.listCurrency ?? _place?.currency ?? 'EUR';
+  late final _cost = TextEditingController(
+      text: (i.estCost ?? (i.listCurrency == _currency ? i.listPrice : null))?.toStringAsFixed(2) ?? '');
+  bool _saving = false;
+
+  @override
+  void dispose() {
+    _store.dispose();
+    _cost.dispose();
+    super.dispose();
+  }
+
+  List<String> get _knownStores {
+    final out = <String>{};
+    for (final o in Store.i.orders) {
+      for (final it in o.items) {
+        if (it.planStore != null) out.add(it.planStore!);
+      }
+    }
+    return out.toList()..sort();
+  }
+
+  Future<void> _pickStore() async {
+    final s = await actionSheet<String>(context,
+        title: 'محلات في خطتك', actions: _knownStores.map((e) => SheetAction(e, e)).toList());
+    if (s != null) setState(() => _store.text = s);
+  }
+
+  Future<void> _pickCurrency() async {
+    final c = await actionSheet<String>(context,
+        title: 'العملة', actions: defaultRates.keys.map((c) => SheetAction(c, c)).toList());
+    if (c != null) setState(() => _currency = c);
+  }
+
+  Future<void> _save({bool clear = false}) async {
+    final cost = parseAmount(_cost.text);
+    setState(() => _saving = true);
+    try {
+      await Store.i.savePlan(i,
+          store: clear ? '' : _store.text.trim(),
+          place: clear ? null : _place,
+          cost: clear || cost == null || cost <= 0 ? null : cost,
+          currency: _currency,
+          rate: Rates.i.rate(_currency));
+      if (mounted) Navigator.pop(context, true);
+    } catch (e) {
+      if (mounted) {
+        setState(() => _saving = false);
+        toast(context, errorText(e), error: true);
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cost = parseAmount(_cost.text) ?? 0;
+    final rate = Rates.i.rate(_currency);
+    final pct = _place?.taxFreePct ?? 0;
+    final omrCost = cost * rate;
+    final tf = omrCost * pct / 100;
+    final stores = _knownStores;
+    return GHPage(
+      title: 'وين وبكم',
+      leading: NavButton('إلغاء', onPressed: () => Navigator.pop(context)),
+      trailing: _saving
+          ? const CupertinoActivityIndicator()
+          : NavButton('حفظ', bold: true, onPressed: _save),
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(32, 0, 32, 0),
+          child: Text(i.title, style: T.sub),
+        ),
+        Section(
+          header: 'وين بتشتريها؟',
+          children: [
+            FieldRow(label: 'المحل', controller: _store, placeholder: 'مثلاً: Dior Champs-Élysées', onChanged: (_) => setState(() {})),
+            if (stores.isNotEmpty)
+              Tile(title: 'اختر من محلات خطتك', onTap: _pickStore),
+            Segments<PurchasePlace>(
+              value: _place ?? PurchasePlace.other,
+              options: {for (final p in PurchasePlace.values) p: p.label},
+              onChanged: (p) => setState(() {
+                _place = p;
+                if (p != PurchasePlace.other) _currency = p.currency;
+              }),
+            ),
+          ],
+        ),
+        Section(
+          header: 'بكم تقريباً؟',
+          children: [
+            PickerRow(label: 'العملة', value: _currency, onTap: _pickCurrency),
+            AmountRow(label: 'السعر', controller: _cost, suffix: _currency, onChanged: (_) => setState(() {})),
+          ],
+          footer: i.listPrice != null && i.listCurrency != null
+              ? 'سعر البوتيك في الطلب: ${money(i.listPrice!, i.listCurrency!)}'
+              : null,
+        ),
+        if (cost > 0)
+          Section(
+            children: [
+              KV('تقريباً بالريال', omr(omrCost)),
+              KV(pct > 0 ? 'تاكس فري متوقع (${pct.toStringAsFixed(0)}٪)' : 'تاكس فري', pct > 0 ? '− ${omr(tf)}' : 'ما في',
+                  color: pct > 0 ? GH.green : GH.secondary),
+              KV('الصافي', omr(omrCost - tf), strong: true),
+              KV('سعر البيع للعميل', omr(i.price), color: GH.secondary),
+              KV('ربح تقريبي', omr(i.price - (omrCost - tf)), color: GH.burgundy),
+            ],
+            footer: 'تقريبي بسعر صرف اليوم. السعر الفعلي تأكده وقت الشراء.',
+          ),
+        if (i.hasPlan)
+          Section(children: [
+            Tile(
+              title: 'مسح الخطة',
+              chevron: false,
+              onTap: _saving ? null : () => _save(clear: true),
+            ),
+          ]),
       ],
     );
   }

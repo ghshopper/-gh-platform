@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models.dart';
+import 'api.dart';
 
 /// Live exchange rates (OMR per one unit of a currency), refreshed at most
 /// every 6 hours and cached on the phone. Falls back to [defaultRates].
@@ -55,6 +56,11 @@ class Rates {
     updatedAt = DateTime.now();
     await prefs.setString(
         _key, jsonEncode({'rates': out, 'at': updatedAt!.toIso8601String()}));
+    // the dashboard's estimates use the same live rates
+    final s = Api.i.session;
+    if (s != null && s.role != 'driver') {
+      Api.i.put('/ps/fx-rates', {'rates': out}).catchError((_) => null);
+    }
   }
 
   /// Rounded for display in input fields.

@@ -210,15 +210,18 @@ class _TripDetailPageState extends State<TripDetailPage> {
   }
 
   List<Widget> _shopping(BuildContext context, _TripStats s) {
-    final byBrand = <String, List<MapEntry<Order, OrderItem>>>{};
+    // one stop per shop from the plan; pieces without a shop stay by brand
+    final groups = <String, List<MapEntry<Order, OrderItem>>>{};
     for (final o in s.orders) {
       for (final i in o.activeItems) {
         if (i.status != ItemStatus.requested) continue;
-        final key = (i.brand ?? 'بدون براند').trim();
-        byBrand.putIfAbsent(key, () => []).add(MapEntry(o, i));
+        final key = i.planStore?.trim().isNotEmpty == true
+            ? i.planStore!.trim()
+            : '${(i.brand ?? 'بدون براند').trim()} · بدون محل';
+        groups.putIfAbsent(key, () => []).add(MapEntry(o, i));
       }
     }
-    if (byBrand.isEmpty) {
+    if (groups.isEmpty) {
       return const [
         EmptyState(
             icon: CupertinoIcons.checkmark_seal,
@@ -226,28 +229,81 @@ class _TripDetailPageState extends State<TripDetailPage> {
             message: 'كل القطع في هذي الرحلة انشرت 👌'),
       ];
     }
-    final brands = byBrand.keys.toList()..sort();
-    return brands.map((b) {
-      final entries = byBrand[b]!;
-      return Section(
-        header: '$b · ${entries.length}',
-        children: entries.map((e) {
-          final o = e.key;
-          final i = e.value;
-          return Tile(
-            leading: i.photoPath == null ? null : Thumb(i.photoPath!, size: 40),
-            title: i.name,
-            subtitle: [
-              Store.i.customerName(o),
-              if (i.details != null) i.details!,
-            ].join(' · '),
-            value: omr(i.price),
-            onTap: () => presentForm(context, PurchasePage(item: i)),
-          );
-        }).toList(),
-        footer: 'اضغط على القطعة لما تشتريها وسجّل السعر والمكان.',
-      );
-    }).toList();
+    double estOmr(OrderItem i) {
+      final e = i.estimate;
+      if (e == null) return 0;
+      final r = (!e.fromList ? i.estRate : null) ?? Rates.i.rate(e.currency);
+      return e.amount * r;
+    }
+
+    double tfOmr(OrderItem i) => estOmr(i) * (i.planPlace?.taxFreePct ?? 0) / 100;
+    final all = groups.values.expand((g) => g).map((e) => e.value).toList();
+    final priced = all.where((i) => i.estimate != null).toList();
+    final byCur = <String, double>{};
+    for (final i in priced) {
+      byCur[i.estimate!.currency] = (byCur[i.estimate!.currency] ?? 0) + i.estimate!.amount;
+    }
+    final total = priced.fold<double>(0, (a, i) => a + estOmr(i));
+    final tf = priced.fold<double>(0, (a, i) => a + tfOmr(i));
+    final sales = priced.fold<double>(0, (a, i) => a + i.price);
+    final missing = all.length - priced.length;
+
+    final keys = groups.keys.toList()
+      ..sort((a, b) {
+        final na = a.endsWith('بدون محل'), nb = b.endsWith('بدون محل');
+        if (na != nb) return na ? 1 : -1;
+        return a.compareTo(b);
+      });
+
+    Future<void> tap(OrderItem i) async {
+      final a = await actionSheet<String>(context, title: i.title, actions: [
+        const SheetAction('اشتريتها (أكّد السعر)', 'buy'),
+        SheetAction(i.hasPlan ? 'تعديل وين وبكم' : 'وين وبكم تقريباً', 'plan'),
+      ]);
+      if (!context.mounted || a == null) return;
+      await presentForm(context, a == 'buy' ? PurchasePage(item: i) : PlanPage(item: i));
+    }
+
+    return [
+      Section(
+        header: 'تقريباً بتدفع',
+        children: [
+          KV('المجموع', omr(total), strong: true),
+          if (byCur.length > 1 || (byCur.isNotEmpty && byCur.keys.first != 'OMR'))
+            KV('بالعملات', byCur.entries.map((e) => money(e.value, e.key)).join(' + '), color: GH.secondary),
+          KV('تاكس فري متوقع', '− ${omr(tf)}', color: GH.green),
+          KV('الصافي', omr(total - tf), strong: true),
+          KV('بيعها للعملاء', omr(sales), color: GH.secondary),
+          KV('ربح تقريبي', omr(sales - (total - tf)), color: GH.burgundy),
+        ],
+        footer: missing > 0
+            ? '$missing قطعة بدون سعر تقريبي (ما داخلة في المجموع). اضغط عليها وحط وين وبكم.'
+            : 'تقريبي بسعر صرف اليوم. السعر الفعلي يتأكد وقت الشراء.',
+      ),
+      ...keys.map((k) {
+        final entries = groups[k]!;
+        final sub = entries.fold<double>(0, (a, e) => a + estOmr(e.value));
+        return Section(
+          header: '$k · ${entries.length}${sub > 0 ? ' · ≈ ${omr(sub)}' : ''}',
+          children: entries.map((e) {
+            final o = e.key;
+            final i = e.value;
+            final est = i.estimate;
+            return Tile(
+              leading: i.photoPath == null ? null : Thumb(i.photoPath!, size: 40),
+              title: i.planStore == null ? i.name : i.title,
+              subtitle: [
+                Store.i.customerName(o),
+                if (i.details != null) i.details!,
+                'للعميل ${omr(i.price)}',
+              ].join(' · '),
+              value: est == null ? 'بدون سعر' : money(est.amount, est.currency),
+              onTap: () => tap(i),
+            );
+          }).toList(),
+        );
+      }),
+    ];
   }
 
   List<Widget> _orders(BuildContext context, _TripStats s) {
