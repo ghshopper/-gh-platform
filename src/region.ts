@@ -47,10 +47,20 @@ export function onRegionChange(f: () => void): () => void {
   };
 }
 
+// First launch: guess the country from the phone's time zone (used only once
+// Gulf shipping is on; the customer can change it in the account tab).
+const TZ: Record<string, string> = { 'Asia/Riyadh': 'SA', 'Asia/Dubai': 'AE', 'Asia/Kuwait': 'KW', 'Asia/Qatar': 'QA', 'Asia/Bahrain': 'BH' };
 AsyncStorage.getItem(KEY)
   .then((v) => {
-    if (v && v !== country) {
-      country = v;
+    let guess = 'OM';
+    try {
+      guess = TZ[Intl.DateTimeFormat().resolvedOptions().timeZone] ?? 'OM';
+    } catch {
+      // keep Oman
+    }
+    const next = v || guess;
+    if (next !== country) {
+      country = next;
       changed();
     }
   })
