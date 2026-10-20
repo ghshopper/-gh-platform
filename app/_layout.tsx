@@ -7,7 +7,7 @@ import {
 } from '@expo-google-fonts/ibm-plex-sans-arabic';
 import { Jost_400Regular, Jost_500Medium } from '@expo-google-fonts/jost';
 import { useFonts } from 'expo-font';
-import { router, Stack } from 'expo-router';
+import { router, Stack, usePathname } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import * as WebBrowser from 'expo-web-browser';
 import { StatusBar } from 'expo-status-bar';
@@ -18,7 +18,8 @@ import { AppDataProvider } from '@/appdata';
 import { GenderProvider } from '@/gender';
 import { AppearanceProvider, useAppearance } from '@/appearance';
 import { AuthProvider, useAuth } from '@/auth';
-import { CartProvider } from '@/cart';
+import { CartProvider, useCart } from '@/cart';
+import { setTrackedCart, trackScreen } from '@/track';
 import { LangProvider, useLang } from '@/lang';
 import { QuickAddHost, showToast } from '@/product-card';
 import { listenForPushes, registerPushToken } from '@/push';
@@ -54,6 +55,12 @@ function Shell() {
       (title, body) => showToast([title, body].filter(Boolean).join(' · '), false),
     );
   }, [ready]);
+
+  // Screen views for the dashboard's live visitors and statistics.
+  const pathname = usePathname();
+  const cart = useCart();
+  useEffect(() => { setTrackedCart(cart.count); }, [cart.count]);
+  useEffect(() => { if (ready) trackScreen(pathname); }, [pathname, ready]);
 
   // After the splash, every phone (signed in or not) is asked once for notifications.
   useEffect(() => {

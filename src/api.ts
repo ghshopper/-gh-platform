@@ -28,6 +28,11 @@ export async function setToken(value: string | null): Promise<void> {
   }
 }
 
+/** The signed-in token, if any (for small background calls). */
+export function currentToken(): string | null {
+  return token;
+}
+
 export function hasToken(): boolean {
   return !!token;
 }
