@@ -1,0 +1,151 @@
+import { useEffect, useState } from 'react'
+import toast from 'react-hot-toast'
+import { RiMessage2Line, RiLoader4Line, RiCheckLine, RiCloseLine, RiWallet3Line } from 'react-icons/ri'
+import api from '../../services/api'
+
+// SMS (and WhatsApp) through Infobip: the keys, which messages go by SMS, and a test.
+const MODES = [
+  ['fallback', 'إذا ما وصل واتساب', 'يرسل SMS بس لما الواتساب ما يشتغل أو ما يوصل (الأوفر)'],
+  ['always', 'دايماً', 'SMS مع كل رسالة، حتى لو وصل الواتساب'],
+  ['off', 'موقف', 'ما يرسل SMS'],
+]
+
+export default function Messaging() {
+  const [d, setD] = useState(null)
+  const [f, setF] = useState(null)
+  const [saving, setSaving] = useState(false)
+  const [bal, setBal] = useState(null)
+  const [phone, setPhone] = useState('')
+  const [testing, setTesting] = useState(false)
+
+  const load = () => api.get('/admin/messaging').then((r) => { setD(r.data); setF(r.data.settings) }).catch(() => toast.error('تعذر التحميل'))
+  useEffect(() => { load() }, [])
+  useEffect(() => {
+    if (!d?.connected) return
+    api.get('/admin/messaging/balance').then((r) => setBal(r.data)).catch((e) => setBal({ ok: false, error: e.response?.data?.error }))
+  }, [d?.connected])
+
+  const set = (p) => setF((x) => ({ ...x, ...p }))
+  const save = async (e) => {
+    e?.preventDefault()
+    setSaving(true)
+    try {
+      const r = await api.post('/admin/messaging', f)
+      toast.success(r.data.connected ? 'انحفظ وانربط' : 'انحفظ')
+      await load()
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'ما انحفظ')
+    } finally { setSaving(false) }
+  }
+  const test = async () => {
+    if (!phone.trim()) return toast.error('اكتب رقم')
+    setTesting(true)
+    try {
+      await api.post('/admin/messaging/test', { phone })
+      toast.success('انرسلت، شوف جوالك')
+      load()
+    } catch (e) {
+      toast.error(e.response?.data?.error || 'ما انرسلت')
+    } finally { setTesting(false) }
+  }
+
+  if (!d || !f) return <div className="page"><div className="gh-skel" style={{ height: 400 }} /></div>
+  const ev = f.sms_events || []
+
+  return (
+    <div className="page ms" dir="rtl">
+      <div className="ms-head">
+        <div>
+          <h1 className="page-title-main" style={{ margin: 0 }}>الرسائل النصية (Infobip)</h1>
+          <p className="page-subtitle" style={{ margin: '4px 0 0' }}>رسائل SMS باسم المتجر للعملاء: تأكيد الطلب وتحديثاته وبطاقات الهدايا.</p>
+        </div>
+        <span className={`ms-pill ${d.connected ? 'on' : ''}`}>{d.connected ? <><RiCheckLine /> مربوط</> : <><RiCloseLine /> غير مربوط</>}</span>
+      </div>
+
+      <form className="ms-grid" onSubmit={save}>
+        <div className="card ms-box">
+          <h3>الربط</h3>
+          <p className="ms-hint">من حسابك في Infobip: الصفحة الرئيسية فيها <b>API Base URL</b>، والمفتاح من <b>Developer Tools ← API Keys</b> (سوّ مفتاح جديد).</p>
+          <label>API Base URL<input className="input" dir="ltr" value={f.base_url} onChange={(e) => set({ base_url: e.target.value })} placeholder="xxxxx.api.infobip.com" /></label>
+          <label>API Key<input className="input" dir="ltr" value={f.api_key} onChange={(e) => set({ api_key: e.target.value })} placeholder="الصق المفتاح هنا" autoComplete="off" /></label>
+          <label>اسم المرسل (SMS)<input className="input" dir="ltr" value={f.sms_sender} maxLength={11} onChange={(e) => set({ sms_sender: e.target.value })} placeholder="GHShopper" /><small>نفس الاسم اللي سجلته عندهم (لين يتسجل ممكن الرسائل ما توصل في عُمان).</small></label>
+          {bal && (bal.ok
+            ? <div className="ms-bal"><RiWallet3Line /> الرصيد: <b dir="ltr">{Number(bal.balance).toFixed(2)} {bal.currency}</b></div>
+            : <div className="ms-bal err">ما قدرنا نقرأ الرصيد: {bal.error || 'تأكد من الرابط والمفتاح'}</div>)}
+        </div>
+
+        <div className="card ms-box">
+          <h3>متى يرسل SMS؟</h3>
+          <div className="ms-modes">
+            {MODES.map(([k, t, h]) => (
+              <label key={k} className={`ms-mode ${f.sms_mode === k ? 'on' : ''}`}>
+                <input type="radio" name="mode" checked={f.sms_mode === k} onChange={() => set({ sms_mode: k })} />
+                <div><b>{t}</b><small>{h}</small></div>
+              </label>
+            ))}
+          </div>
+          <h3 style={{ marginTop: 6 }}>أي رسائل؟</h3>
+          {Object.entries(d.events).map(([k, t]) => (
+            <label key={k} className="ms-check"><input type="checkbox" checked={ev.includes(k)} onChange={(e) => set({ sms_events: e.target.checked ? [...ev, k] : ev.filter((x) => x !== k) })} /> {t}</label>
+          ))}
+          <p className="ms-hint">كل رسالة فيها رابط تتبّع الطلب. الرسالة العربية تتحسب كل ٧٠ حرف رسالة.</p>
+        </div>
+
+        <div className="card ms-box">
+          <h3>واتساب عن طريق Infobip (اختياري)</h3>
+          <p className="ms-hint">إذا ربطت رقم الواتساب حق المتجر في Infobip، اكتبه هنا وشغّل الخيار. رسائل الطلبات تروح واتساب أول، وإذا ما وصلت تروح SMS.</p>
+          <label>رقم الواتساب في Infobip<input className="input" dir="ltr" value={f.wa_sender} onChange={(e) => set({ wa_sender: e.target.value })} placeholder="9689xxxxxxx" /></label>
+          <label className="ms-check"><input type="checkbox" checked={!!f.use_whatsapp} onChange={(e) => set({ use_whatsapp: e.target.checked })} /> أرسل الواتساب عن طريق Infobip</label>
+          {d.other_whatsapp && <p className="ms-hint">الواتساب الحين مربوط من صفحة «واتساب». لو شغّلت هذا الخيار يصير عن طريق Infobip، وتقدر ترجع بإطفائه.</p>}
+          {f.use_whatsapp && <p className="ms-hint">بعد الحفظ روح صفحة «واتساب» واضغط «أرسل القوالب للموافقة».</p>}
+        </div>
+
+        <div className="card ms-box">
+          <h3>تجربة</h3>
+          <div className="ms-row">
+            <input className="input" dir="ltr" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="9xxxxxxx" />
+            <button type="button" className="btn btn-ghost" disabled={testing || !d.connected} onClick={test}>{testing ? <RiLoader4Line className="spin" /> : <RiMessage2Line />} أرسل رسالة تجربة</button>
+          </div>
+          {!d.connected && <p className="ms-hint">احفظ الرابط والمفتاح أول.</p>}
+          {d.log?.length > 0 && (
+            <div className="ms-log">
+              {d.log.map((l) => (
+                <div key={l.id} className={l.ok ? '' : 'bad'}>
+                  <span dir="ltr">{l.phone}</span><span>{(l.template || '').replace('sms:', '')}</span><span>{l.ok ? 'وصل' : (l.error || 'ما وصل').slice(0, 80)}</span><span>{new Date(l.created_at).toLocaleString('ar-OM', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="ms-save"><button className="btn btn-primary" disabled={saving}>{saving ? <RiLoader4Line className="spin" /> : null} حفظ</button></div>
+      </form>
+      <style>{`
+.ms-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+.ms-pill{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:99px;background:#F3F1EE;color:#6E6A66;font-size:13px;font-weight:600}
+.ms-pill.on{background:#ECFDF5;color:#047857}
+.ms-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.ms-box{padding:18px 20px;display:flex;flex-direction:column;gap:12px;margin:0}
+.ms-box h3{margin:0;font-size:15px;font-weight:700}
+.ms-box label{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:600}
+.ms-box .input{height:42px;padding:0 12px}
+.ms-box small{font-weight:400;color:var(--text-light);font-size:11.5px}
+.ms-hint{font-size:12.5px;color:var(--text-secondary);margin:0;font-weight:400}
+.ms-check{flex-direction:row!important;align-items:center;gap:8px!important;cursor:pointer;font-weight:500!important}
+.ms-modes{display:flex;flex-direction:column;gap:8px}
+.ms-mode{flex-direction:row!important;align-items:flex-start;gap:10px!important;border:1px solid var(--border);border-radius:10px;padding:10px 12px;cursor:pointer}
+.ms-mode.on{border-color:#5C0B16;background:#FCF8F8}
+.ms-mode div{display:flex;flex-direction:column;gap:2px}
+.ms-bal{display:flex;align-items:center;gap:6px;font-size:13px;background:var(--bg-body);border-radius:10px;padding:8px 12px}
+.ms-bal.err{color:#B42318}
+.ms-row{display:flex;gap:8px}.ms-row .input{flex:1}
+.ms-log{display:flex;flex-direction:column;border-top:1px solid var(--border);margin-top:4px}
+.ms-log>div{display:grid;grid-template-columns:110px 100px 1fr 110px;gap:8px;font-size:12px;padding:6px 0;border-bottom:1px solid var(--border)}
+.ms-log>div.bad{color:#B42318}
+.ms-save{grid-column:1/-1;display:flex;justify-content:flex-end}
+.ms-save .btn{min-width:160px}
+@media(max-width:1000px){.ms-grid{grid-template-columns:1fr}.ms-log>div{grid-template-columns:1fr 1fr}}
+`}</style>
+    </div>
+  )
+}
