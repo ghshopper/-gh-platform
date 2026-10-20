@@ -196,7 +196,10 @@ function collector(API, KEY) {
       if (!nm) nm = (card.innerText || '').split('\n').map(function (s) { return s.trim() }).filter(function (s) { return s.length > 3 && !price(s) && !/^(new|nouveau|sold out|online exclusive|exclusive|new in)$/i.test(s) })[0] || ''
       var ims = []
       ;[].forEach.call(card.querySelectorAll('img'), function (im) { var u = bestImg(im); if (u && ims.indexOf(u) < 0) ims.push(u) })
-      add({ name_en: nm.replace(/\s+/g, ' ').slice(0, 250), price: p.price, currency: p.currency, source_url: h, images: ims.slice(0, 6), colors: swatches(card, h), sizes: [] })
+      var bEl = card.querySelector('[itemprop="brand"],[class*="brand" i],[data-brand]')
+      var bName = bEl ? (bEl.getAttribute('data-brand') || txt(bEl)) : ''
+      if (bName && (bName.length > 40 || price(bName) || bName === nm)) bName = ''
+      add({ brand: bName || null, name_en: nm.replace(/\s+/g, ' ').slice(0, 250), price: p.price, currency: p.currency, source_url: h, images: ims.slice(0, 6), colors: swatches(card, h), sizes: [] })
     })
   } else {
     var one = items[0]

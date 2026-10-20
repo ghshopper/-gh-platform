@@ -196,6 +196,15 @@ export default function ImportItems() {
     }
   }
 
+  const changeBrand = async (it) => {
+    const b = window.prompt('البراند الصحيح (بالإنجليزي، مثلاً Dior أو Carolina Herrera):', it.brand || '')
+    if (b == null || b.trim() === (it.brand || '')) return
+    try {
+      await api.put(`/admin/import-items/${it.id}`, { brand: b.trim() || null })
+      setItems((list) => list.map((x) => (x.id === it.id ? { ...x, brand: b.trim() || null } : x)))
+      toast.success('تغيّر البراند')
+    } catch { toast.error('ما انحفظ') }
+  }
   const saveName = async (it, name_ar) => {
     if ((it.name_ar || '') === name_ar) return
     try {
@@ -430,7 +439,7 @@ export default function ImportItems() {
                   {(it.images || []).length > 1 && <span>{it.images.length}</span>}
                 </div>
                 <div className="imp-info">
-                  <div className="imp-brand">{it.brand || '—'}</div>
+                  <button type="button" className={`imp-brand imp-brand-btn${it.brand ? '' : ' none'}`} title="غيّر البراند" onClick={() => changeBrand(it)}>{it.brand || 'بدون براند · اختر'} ✎</button>
                   <div className="imp-name">{it.name_en}</div>
                   <input
                     className="imp-ar"
@@ -644,6 +653,7 @@ const CSS = `
 .imp-img{position:relative;width:92px;height:110px;border-radius:12px;background:var(--bg-body);display:flex;align-items:center;justify-content:center;overflow:hidden;color:var(--text-secondary)}
 .imp-img img{width:100%;height:100%;object-fit:cover}
 .imp-img span{position:absolute;bottom:4px;left:4px;background:rgba(0,0,0,.6);color:#fff;font-size:11px;border-radius:999px;padding:1px 7px}
+.imp-brand-btn{border:0;background:none;padding:0;cursor:pointer;font-family:inherit;text-align:start}.imp-brand-btn.none{color:#B45309!important}
 .imp-brand{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-secondary);font-weight:700}
 .imp-name{font-weight:700;font-size:14.5px;margin:2px 0 6px;direction:ltr;text-align:right}
 .imp-ar{width:100%;max-width:380px}
