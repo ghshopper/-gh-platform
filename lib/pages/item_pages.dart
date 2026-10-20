@@ -1,6 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+import '../data/api.dart';
 
 import '../data/rates.dart';
 import '../data/store.dart';
@@ -118,6 +121,47 @@ class _PurchasePageState extends State<PurchasePage> {
   late final TextEditingController _price;
   late final TextEditingController _rate;
   bool _saving = false;
+  bool _scanning = false;
+  String? _scanNote;
+
+  /// Photo of the boutique receipt: saved on the piece, and its total and
+  /// currency filled in here (checked by you before saving).
+  Future<void> _scanReceipt() async {
+    final source = await actionSheet<ImageSource>(context, title: 'صورة الإيصال', actions: const [
+      SheetAction('الكاميرا', ImageSource.camera),
+      SheetAction('من الصور', ImageSource.gallery),
+    ]);
+    if (source == null) return;
+    final file = await ImagePicker().pickImage(source: source, maxWidth: 1800, imageQuality: 85);
+    if (file == null) return;
+    final bytes = await file.readAsBytes();
+    setState(() {
+      _scanning = true;
+      _scanNote = null;
+    });
+    try {
+      Store.i.uploadItemPhoto(widget.item, 'receipt', bytes).ignore();
+      final res = await Api.i.upload('/ps/receipt-scan', 'file', bytes);
+      if (!mounted) return;
+      final total = (res['total'] as num?)?.toDouble();
+      final cur = (res['currency'] as String?)?.toUpperCase();
+      setState(() {
+        _scanning = false;
+        if (total != null) _price.text = total.toStringAsFixed(2);
+        if (cur != null && defaultRates.containsKey(cur) && cur != _currency) {
+          final match = PurchasePlace.values.where((p) => p != PurchasePlace.other && p.currency == cur);
+          _place = match.isNotEmpty && match.first == _place ? _place : PurchasePlace.other;
+          _currency = cur;
+          _rate.text = Rates.i.rateText(cur);
+        }
+        _scanNote = 'من الإيصال${res['store'] != null ? ' (${res['store']})' : ''}: ${total?.toStringAsFixed(2) ?? '—'} ${cur ?? ''} · راجعه قبل الحفظ';
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _scanning = false);
+      toast(context, errorText(e), error: true);
+    }
+  }
 
   @override
   void initState() {
@@ -206,6 +250,17 @@ class _PurchasePageState extends State<PurchasePage> {
         Padding(
           padding: const EdgeInsets.fromLTRB(32, 0, 32, 0),
           child: Text(widget.item.title, style: T.sub),
+        ),
+        Section(
+          footer: _scanNote ?? 'صوّر الإيصال ونعبي السعر والعملة عنك، وتنحفظ الصورة مع القطعة.',
+          children: [
+            Tile(
+              leading: const IconBox(CupertinoIcons.doc_text_viewfinder, color: GH.burgundy),
+              title: _scanning ? 'نقرأ الإيصال…' : 'اقرأ السعر من الإيصال',
+              trailing: _scanning ? const CupertinoActivityIndicator() : null,
+              onTap: _scanning ? null : _scanReceipt,
+            ),
+          ],
         ),
         Section(
           header: 'وين اشتريتها؟',
