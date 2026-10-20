@@ -1,387 +1,387 @@
-[06:54:16]: ▸ [35m[[36mGoogleUtilities_GoogleUtilities-UserDefaults[0m] [1mRegisterExecutionPolicyException[0m GoogleUtilities_GoogleUtilities-UserDefaults.bundle[0m
-[06:54:16]: ▸ [35m[[36mGoogleUtilities_GoogleUtilities-UserDefaults[0m] [1mTouching[0m GoogleUtilities_GoogleUtilities-UserDefaults.bundle[0m
-[06:54:16]: ▸ [35m[[36mGoogleUtilities_GoogleUtilities-Reachability[0m] [1mRegisterExecutionPolicyException[0m GoogleUtilities_GoogleUtilities-Reachability.bundle[0m
-[06:54:16]: ▸ [35m[[36mGoogleUtilities_GoogleUtilities-Reachability[0m] [1mTouching[0m GoogleUtilities_GoogleUtilities-Reachability.bundle[0m
-[06:54:16]: ▸ [35m[[36mGoogleUtilities_GoogleUtilities-Network[0m] [1mRegisterExecutionPolicyException[0m GoogleUtilities_GoogleUtilities-Network.bundle[0m
-[06:54:16]: ▸ [35m[[36mGoogleUtilities_GoogleUtilities-Network[0m] [1mTouching[0m GoogleUtilities_GoogleUtilities-Network.bundle[0m
-[06:54:16]: ▸ [35m[[36mGoogleUtilities_GoogleUtilities-NSData[0m] [1mRegisterExecutionPolicyException[0m GoogleUtilities_GoogleUtilities-NSData.bundle[0m
-[06:54:16]: ▸ [35m[[36mGoogleUtilities_GoogleUtilities-NSData[0m] [1mTouching[0m GoogleUtilities_GoogleUtilities-NSData.bundle[0m
-[06:54:16]: ▸ [35m[[36mGoogleUtilities-NSData[0m] [1mLinking[0m GoogleUtilities-NSData.o[0m
-[06:54:16]: ▸ [35m[[36mGoogleUtilities_GoogleUtilities-Logger[0m] [1mRegisterExecutionPolicyException[0m GoogleUtilities_GoogleUtilities-Logger.bundle[0m
-[06:54:16]: ▸ [35m[[36mGoogleUtilities_GoogleUtilities-Logger[0m] [1mTouching[0m GoogleUtilities_GoogleUtilities-Logger.bundle[0m
-[06:54:16]: ▸ [35m[[36mGoogleUtilities_GoogleUtilities-Environment[0m] [1mRegisterExecutionPolicyException[0m GoogleUtilities_GoogleUtilities-Environment.bundle[0m
-[06:54:16]: ▸ [35m[[36mGoogleUtilities_GoogleUtilities-Environment[0m] [1mTouching[0m GoogleUtilities_GoogleUtilities-Environment.bundle[0m
-[06:54:16]: ▸ [35m[[36mGoogleUtilities_GoogleUtilities-AppDelegateSwizzler[0m] [1mRegisterExecutionPolicyException[0m GoogleUtilities_GoogleUtilities-AppDelegateSwizzler.bundle[0m
-[06:54:16]: ▸ [35m[[36mGoogleUtilities_GoogleUtilities-AppDelegateSwizzler[0m] [1mTouching[0m GoogleUtilities_GoogleUtilities-AppDelegateSwizzler.bundle[0m
-[06:54:16]: ▸ [35m[[36mGoogleUtilities-NSData[0m] [1mRegisterExecutionPolicyException[0m GoogleUtilities-NSData.o[0m
-[06:54:16]: ▸ [35m[[36mGoogleDataTransport_GoogleDataTransport[0m] [1mProcessing[0m empty-GoogleDataTransport_GoogleDataTransport.plist[0m
-[06:54:16]: ▸ [35m[[36mGoogleDataTransport_GoogleDataTransport[0m] [1mCopying[0m PrivacyInfo.xcprivacy[0m
-[06:54:16]: ▸ [35m[[36mflutter_secure_storage[0m] [1mCopy[0m arm64-apple-ios.swiftmodule -> flutter_secure_storage.swiftmodule[0m
-[06:54:16]: ▸ [35m[[36mflutter_secure_storage[0m] [1mCopy[0m arm64-apple-ios.swiftdoc -> flutter_secure_storage.swiftdoc[0m
-[06:54:16]: ▸ [35m[[36mflutter_secure_storage[0m] [1mCopy[0m arm64-apple-ios.abi.json -> flutter_secure_storage.abi.json[0m
-[06:54:16]: ▸ [35m[[36mGoogleUtilities-Environment[0m] [1mCompiling[0m GULAppEnvironmentUtil.m[0m
-[06:54:16]: ▸ [35m[[36mGoogleUtilities-AppDelegateSwizzler[0m] [1mCompiling[0m GULSceneDelegateSwizzler.m[0m
-[06:54:16]: ▸ [35m[[36mGoogleUtilities-AppDelegateSwizzler[0m] [1mCompiling[0m GULAppDelegateSwizzler.m[0m
-[06:54:16]: ▸ [35m[[36mGoogleUtilities-Environment[0m] [1mLinking[0m GoogleUtilities-Environment.o[0m
-[06:54:17]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m external_privacy_context.nanopb.c[0m
-[06:54:17]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m external_prequest_context.nanopb.c[0m
-[06:54:17]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m compliance.nanopb.c[0m
-[06:54:17]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m client_metrics.nanopb.c[0m
-[06:54:17]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m cct.nanopb.c[0m
-[06:54:18]: ▸ [35m[[36mflutter_secure_storage[0m] [1mCompiling[0m flutter_secure_storage_vers.c[0m
-[06:54:19]: ▸ [35m[[36mPods-Runner[0m] [1mCompiling[0m Pods_Runner_vers.c[0m
-[06:54:19]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m resource_bundle_accessor.m[0m
-[06:54:19]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m GDTCORUploadBatch.m[0m
-[06:54:19]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m GDTCORStorageMetadata.m[0m
-[06:54:19]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m GDTCORStorageEventSelector.m[0m
-[06:54:19]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m GDTCORProductData.m[0m
-[06:54:19]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m GDTCORMetricsMetadata.m[0m
-[06:54:19]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m GDTCORMetrics.m[0m
-[06:54:19]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m GDTCORLogSourceMetrics.m[0m
-[06:54:19]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m GDTCOREvent+GDTMetricsSupport.m[0m
-[06:54:19]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m GDTCOREvent+GDTCCTSupport.m[0m
-[06:54:19]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m GDTCOREndpoints.m[0m
-[06:54:19]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m GDTCORConsoleLogger.m[0m
-[06:54:19]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m GDTCORClock.m[0m
-[06:54:19]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m GDTCORAssert.m[0m
-[06:54:19]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m GDTCCTURLSessionDataResponse.m[0m
-[06:54:19]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m GDTCCTCompressionHelper.m[0m
-[06:54:20]: ▸ [35m[[36mGoogleUtilities-Environment[0m] [1mRegisterExecutionPolicyException[0m GoogleUtilities-Environment.o[0m
-[06:54:20]: ▸ [35m[[36mGoogleUtilities-Logger[0m] [1mLinking[0m GoogleUtilities-Logger.o[0m
-[06:54:20]: ▸ [35m[[36mGoogleUtilities-Logger[0m] [1mRegisterExecutionPolicyException[0m GoogleUtilities-Logger.o[0m
-[06:54:20]: ▸ [35m[[36mGoogleDataTransport_GoogleDataTransport[0m] [1mRegisterExecutionPolicyException[0m GoogleDataTransport_GoogleDataTransport.bundle[0m
-[06:54:20]: ▸ [35m[[36mGoogleDataTransport_GoogleDataTransport[0m] [1mTouching[0m GoogleDataTransport_GoogleDataTransport.bundle[0m
-[06:54:20]: ▸ [35m[[36mGoogleUtilities-UserDefaults[0m] [1mLinking[0m GoogleUtilities-UserDefaults.o[0m
-[06:54:20]: ▸ [35m[[36mGoogleUtilities-Reachability[0m] [1mLinking[0m GoogleUtilities-Reachability.o[0m
-[06:54:21]: ▸ [35m[[36mGoogleUtilities-UserDefaults[0m] [1mRegisterExecutionPolicyException[0m GoogleUtilities-UserDefaults.o[0m
-[06:54:21]: ▸ [35m[[36mGoogleUtilities-Reachability[0m] [1mRegisterExecutionPolicyException[0m GoogleUtilities-Reachability.o[0m
-[06:54:21]: ▸ [35m[[36mGoogleUtilities-Network[0m] [1mLinking[0m GoogleUtilities-Network.o[0m
-[06:54:21]: ▸ [35m[[36mFirebase_FirebaseMessaging[0m] [1mProcessing[0m empty-Firebase_FirebaseMessaging.plist[0m
-[06:54:21]: ▸ [35m[[36mFirebase_FirebaseMessaging[0m] [1mCopying[0m PrivacyInfo.xcprivacy[0m
-[06:54:21]: ▸ [35m[[36mFirebase_FirebaseInstallations[0m] [1mProcessing[0m empty-Firebase_FirebaseInstallations.plist[0m
-[06:54:21]: ▸ [35m[[36mFlutterFramework[0m] [1mCompiling[0m FlutterFramework.swift[0m
-[06:54:21]: ▸ [35m[[36mFirebase_FirebaseInstallations[0m] [1mCopying[0m PrivacyInfo.xcprivacy[0m
-[06:54:21]: ▸ [35m[[36mFlutterFramework[0m] [1mCopy[0m arm64-apple-ios.swiftmodule -> FlutterFramework.swiftmodule[0m
-[06:54:21]: ▸ [35m[[36mFlutterFramework[0m] [1mCopy[0m arm64-apple-ios.swiftdoc -> FlutterFramework.swiftdoc[0m
-[06:54:21]: ▸ [35m[[36mFlutterFramework[0m] [1mCopy[0m arm64-apple-ios.abi.json -> FlutterFramework.abi.json[0m
-[06:54:21]: ▸ [35m[[36mFirebase_FirebaseCoreInternal[0m] [1mProcessing[0m empty-Firebase_FirebaseCoreInternal.plist[0m
-[06:54:21]: ▸ [35m[[36mFirebase_FirebaseCoreInternal[0m] [1mCopying[0m PrivacyInfo.xcprivacy[0m
-[06:54:21]: ▸ [35m[[36mFirebase_FirebaseCore[0m] [1mProcessing[0m empty-Firebase_FirebaseCore.plist[0m
-[06:54:21]: ▸ [35m[[36mFirebase_FirebaseCore[0m] [1mCopying[0m PrivacyInfo.xcprivacy[0m
-[06:54:21]: ▸ [35m[[36mFlutterFramework[0m] [1mLinking[0m FlutterFramework.o[0m
-[06:54:21]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m GDTCORUploadCoordinator.m[0m
-[06:54:21]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m GDTCORTransport.m[0m
-[06:54:21]: ▸ [35m[[36mPods-Runner[0m] [1mCompiling[0m Pods-Runner-dummy.m[0m
-[06:54:21]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m GDTCORTransformer.m[0m
-[06:54:21]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m GDTCORRegistrar.m[0m
-[06:54:21]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m GDTCORReachability.m[0m
-[06:54:26]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m GDTCORPlatform.m[0m
-[06:54:26]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m GDTCORMetricsController.m[0m
-[06:54:26]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m GDTCORMetrics+GDTCCTSupport.m[0m
-[06:54:26]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m GDTCORLifecycle.m[0m
-[06:54:26]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m GDTCORFlatFileStorage+Promises.m[0m
-[06:54:26]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m GDTCORFlatFileStorage.m[0m
-[06:54:26]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m GDTCOREvent.m[0m
-[06:54:26]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m GDTCORDirectorySizeTracker.m[0m
-[06:54:26]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m GDTCCTUploader.m[0m
-[06:54:26]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m GDTCCTUploadOperation.m[0m
-[06:54:26]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m GDTCCTNanopbHelpers.m[0m
-[06:54:26]: ▸ [35m[[36mFlutterFramework[0m] [1mExtract App Intents Metadata[0m
-[06:54:26]: ▸ [35m[[36mFirebase[0m] [1mCompiling[0m dummy.m[0m
-[06:54:26]: ▸ [35m[[36mFirebase[0m] [1mLinking[0m Firebase.o[0m
-[06:54:28]: ▸ [35m[[36mflutter_secure_storage[0m] [1mCompiling[0m flutter_secure_storage-dummy.m[0m
-[06:54:28]: ▸ [35m[[36mflutter_secure_storage[0m] [1mCompiling[0m FlutterSecureStoragePlugin.m[0m
-[06:54:28]: ▸ [35m[[36mflutter_secure_storage[0m] [1mLinking[0m flutter_secure_storage[0m
-[06:54:28]: ▸ [35m[[36mFBLPromises[0m] [1mCompiling[0m resource_bundle_accessor.m[0m
-[06:54:28]: ▸ [35m[[36mflutter_secure_storage[0m] [1mGenerating[0m flutter_secure_storage.framework.dSYM[0m
-[06:54:28]: ▸ [35m[[36mprinting[0m] [1mCopy[0m arm64-apple-ios.swiftmodule -> printing.swiftmodule[0m
-[06:54:28]: ▸ [35m[[36mprinting[0m] [1mCopy[0m arm64-apple-ios.swiftdoc -> printing.swiftdoc[0m
-[06:54:28]: ▸ [35m[[36mprinting[0m] [1mCopy[0m arm64-apple-ios.abi.json -> printing.abi.json[0m
-[06:54:28]: ▸ [35m[[36mFBLPromises[0m] [1mCompiling[0m FBLPromiseError.m[0m
-[06:54:28]: ▸ [35m[[36mFBLPromises[0m] [1mCompiling[0m FBLPromise.m[0m
-[06:54:28]: ▸ [35m[[36mFBLPromises[0m] [1mCompiling[0m FBLPromise+Wrap.m[0m
-[06:54:28]: ▸ [35m[[36mFBLPromises[0m] [1mCompiling[0m FBLPromise+Validate.m[0m
-[06:54:28]: ▸ [35m[[36mFBLPromises[0m] [1mCompiling[0m FBLPromise+Timeout.m[0m
-[06:54:28]: ▸ [35m[[36mFBLPromises[0m] [1mCompiling[0m FBLPromise+Then.m[0m
-[06:54:28]: ▸ [35m[[36mFBLPromises[0m] [1mCompiling[0m FBLPromise+Testing.m[0m
-[06:54:28]: ▸ [35m[[36mFBLPromises[0m] [1mCompiling[0m FBLPromise+Retry.m[0m
-[06:54:28]: ▸ [35m[[36mFBLPromises[0m] [1mCompiling[0m FBLPromise+Reduce.m[0m
-[06:54:28]: ▸ [35m[[36mFBLPromises[0m] [1mCompiling[0m FBLPromise+Recover.m[0m
-[06:54:28]: ▸ [35m[[36mFBLPromises[0m] [1mCompiling[0m FBLPromise+Race.m[0m
-[06:54:28]: ▸ [35m[[36mFBLPromises[0m] [1mCompiling[0m FBLPromise+Do.m[0m
-[06:54:28]: ▸ [35m[[36mFBLPromises[0m] [1mCompiling[0m FBLPromise+Delay.m[0m
-[06:54:28]: ▸ [35m[[36mFBLPromises[0m] [1mCompiling[0m FBLPromise+Catch.m[0m
-[06:54:28]: ▸ [35m[[36mFBLPromises[0m] [1mCompiling[0m FBLPromise+Await.m[0m
-[06:54:28]: ▸ [35m[[36mFBLPromises[0m] [1mCompiling[0m FBLPromise+Async.m[0m
-[06:54:28]: ▸ [35m[[36mFBLPromises[0m] [1mCompiling[0m FBLPromise+Any.m[0m
-[06:54:28]: ▸ [35m[[36mFBLPromises[0m] [1mCompiling[0m FBLPromise+Always.m[0m
-[06:54:28]: ▸ [35m[[36mflutter_secure_storage[0m] [1mExtract App Intents Metadata[0m
-[06:54:28]: ▸ [35m[[36mFBLPromises[0m] [1mCompiling[0m FBLPromise+All.m[0m
-[06:54:28]: ▸ [35m[[36mFBLPromises[0m] [1mLinking[0m FBLPromises.o[0m
-[06:54:28]: ▸ [35m[[36mflutter_secure_storage[0m] [1mRegisterExecutionPolicyException[0m flutter_secure_storage.framework[0m
-[06:54:28]: ▸ [35m[[36mflutter_secure_storage[0m] [1mTouching[0m flutter_secure_storage.framework[0m
-[06:54:28]: ▸ [35m[[36mGoogleUtilities-Network[0m] [1mRegisterExecutionPolicyException[0m GoogleUtilities-Network.o[0m
-[06:54:28]: ▸ [35m[[36mGoogleUtilities-AppDelegateSwizzler[0m] [1mLinking[0m GoogleUtilities-AppDelegateSwizzler.o[0m
-[06:54:28]: ▸ [35m[[36mFlutterFramework[0m] [1mRegisterExecutionPolicyException[0m FlutterFramework.o[0m
-[06:54:28]: ▸ [35m[[36mprinting[0m] [1mLinking[0m printing.o[0m
-[06:54:28]: ▸ [35m[[36mprinting[0m] [1mExtract App Intents Metadata[0m
-[06:54:28]: ▸ [35m[[36mGoogleUtilities-AppDelegateSwizzler[0m] [1mRegisterExecutionPolicyException[0m GoogleUtilities-AppDelegateSwizzler.o[0m
-[06:54:28]: ▸ [35m[[36mFirebase_FirebaseMessaging[0m] [1mRegisterExecutionPolicyException[0m Firebase_FirebaseMessaging.bundle[0m
-[06:54:28]: ▸ [35m[[36mprinting[0m] [1mRegisterExecutionPolicyException[0m printing.o[0m
-[06:54:28]: ▸ [35m[[36mFirebase_FirebaseMessaging[0m] [1mTouching[0m Firebase_FirebaseMessaging.bundle[0m
-[06:54:28]: ▸ [35m[[36mFirebase_FirebaseInstallations[0m] [1mRegisterExecutionPolicyException[0m Firebase_FirebaseInstallations.bundle[0m
-[06:54:28]: ▸ [35m[[36mFirebase_FirebaseInstallations[0m] [1mTouching[0m Firebase_FirebaseInstallations.bundle[0m
-[06:54:28]: ▸ [35m[[36mFirebase_FirebaseCoreInternal[0m] [1mRegisterExecutionPolicyException[0m Firebase_FirebaseCoreInternal.bundle[0m
-[06:54:28]: ▸ [35m[[36mFirebase_FirebaseCoreInternal[0m] [1mTouching[0m Firebase_FirebaseCoreInternal.bundle[0m
-[06:54:28]: ▸ [35m[[36mFirebase_FirebaseCore[0m] [1mRegisterExecutionPolicyException[0m Firebase_FirebaseCore.bundle[0m
-[06:54:28]: ▸ [35m[[36mFirebase_FirebaseCore[0m] [1mTouching[0m Firebase_FirebaseCore.bundle[0m
-[06:54:28]: ▸ [35m[[36mFirebase[0m] [1mRegisterExecutionPolicyException[0m Firebase.o[0m
-[06:54:28]: ▸ [35m[[36mPods-Runner[0m] [1mProcessing[0m Pods-Runner-Info.plist[0m
-[06:54:28]: ▸ [35m[[36mFBLPromises[0m] [1mRegisterExecutionPolicyException[0m FBLPromises.o[0m
-[06:54:28]: ▸ [35m[[36mPods-Runner[0m] [1mRegisterExecutionPolicyException[0m Pods_Runner.framework[0m
-[06:54:28]: ▸ [35m[[36mGoogleDataTransport[0m] [1mLinking[0m GoogleDataTransport.o[0m
-[06:54:28]: ▸ [35m[[36mPods-Runner[0m] [1mTouching[0m Pods_Runner.framework[0m
-[06:54:28]: ▸ [35m[[36mGoogleDataTransport[0m] [1mRegisterExecutionPolicyException[0m GoogleDataTransport.o[0m
-[06:54:28]: ▸ [35m[[36mFirebaseCoreInternal[0m] [1mCopy[0m arm64-apple-ios.swiftmodule -> FirebaseCoreInternal.swiftmodule[0m
-[06:54:28]: ▸ [35m[[36mFirebaseCoreInternal[0m] [1mCopy[0m arm64-apple-ios.swiftdoc -> FirebaseCoreInternal.swiftdoc[0m
-[06:54:28]: ▸ [35m[[36mFirebaseCoreInternal[0m] [1mCopy[0m arm64-apple-ios.abi.json -> FirebaseCoreInternal.abi.json[0m
-[06:54:28]: ▸ [35m[[36mFirebaseCoreInternal[0m] [1mLinking[0m FirebaseCoreInternal.o[0m
-[06:54:28]: ▸ [35m[[36mfirebase_core_objc[0m] [1mCompiling[0m dummy.m[0m
-[06:54:29]: ▸ [35m[[36mFirebaseCoreInternal[0m] [1mExtract App Intents Metadata[0m
-[06:54:30]: ▸ [35m[[36mapp_links[0m] [1mCopy[0m arm64-apple-ios.swiftmodule -> app_links.swiftmodule[0m
-[06:54:30]: ▸ [35m[[36mapp_links[0m] [1mCopy[0m arm64-apple-ios.swiftdoc -> app_links.swiftdoc[0m
-[06:54:30]: ▸ [35m[[36mapp_links[0m] [1mCopy[0m arm64-apple-ios.abi.json -> app_links.abi.json[0m
-[06:54:30]: ▸ [35m[[36mapp_links[0m] [1mLinking[0m app_links.o[0m
-[06:54:30]: ▸ [35m[[36mapp_links[0m] [1mExtract App Intents Metadata[0m
-[06:54:32]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m me.nanopb.c[0m
-[06:54:32]: ▸ [35m[[36mfirebase_core_objc[0m] [1mCompiling[0m FLTFirebasePluginRegistry.m[0m
-[06:54:32]: ▸ [35m[[36mfirebase_core_objc[0m] [1mCompiling[0m FLTFirebasePlugin.m[0m
-[06:54:32]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m resource_bundle_accessor.m[0m
-[06:54:32]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m NSError+FIRMessaging.m[0m
-[06:54:32]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m NSDictionary+FIRMessaging.m[0m
-[06:54:32]: ▸ [35m[[36mfirebase_core[0m] [1mCopy[0m arm64-apple-ios.swiftmodule -> firebase_core.swiftmodule[0m
-[06:54:32]: ▸ [35m[[36mfirebase_core[0m] [1mCopy[0m arm64-apple-ios.swiftdoc -> firebase_core.swiftdoc[0m
-[06:54:32]: ▸ [35m[[36mfirebase_core[0m] [1mCopy[0m arm64-apple-ios.abi.json -> firebase_core.abi.json[0m
-[06:54:32]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m FIRMessagingTokenStore.m[0m
-[06:54:32]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m FIRMessagingTokenInfo.m[0m
-[06:54:32]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m FIRMessagingTokenManager.m[0m
-[06:54:32]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m FIRMessagingTokenOperation.m[0m
-[06:54:32]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m FIRMessagingTokenDeleteOperation.m[0m
-[06:54:32]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m FIRMessagingSyncMessageManager.m[0m
-[06:54:33]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m FIRMessagingRmqManager.m[0m
-[06:54:33]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m FIRMessagingPubSub.m[0m
-[06:54:33]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m FIRMessagingPersistentSyncMessage.m[0m
-[06:54:33]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m FIRMessagingPendingTopicsList.m[0m
-[06:54:33]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m FIRMessagingKeychain.m[0m
-[06:54:33]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m FIRMessagingConstants.m[0m
-[06:54:33]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m FIRMessagingCheckinStore.m[0m
-[06:54:33]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m FIRMessagingExtensionHelper.m[0m
-[06:54:33]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m FIRMessagingCheckinService.m[0m
-[06:54:33]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m FIRMessagingUtilities.m[0m
-[06:54:33]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m FIRMessagingTopicOperation.m[0m
-[06:54:33]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m FIRMessagingTokenFetchOperation.m[0m
-[06:54:33]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m FIRMessagingLogger.m[0m
-[06:54:33]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m FIRMessagingFIDUnregisterOperation.m[0m
-[06:54:33]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m FIRMessagingFIDRegisterOperation.m[0m
-[06:54:33]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m FIRMessagingRemoteNotificationsProxy.m[0m
-[06:54:33]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m FIRMessagingContextManagerService.m[0m
-[06:54:33]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m FIRMessagingCheckinPreferences.m[0m
-[06:54:33]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m FIRMessagingBackupExcludedPlist.m[0m
-[06:54:33]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m FIRMessagingAuthService.m[0m
-[06:54:33]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m FIRMessagingAuthKeychain.m[0m
-[06:54:33]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m FIRMessagingAnalytics.m[0m
-[06:54:33]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m FIRMessagingAPNSInfo.m[0m
-[06:54:34]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m FIRMessaging+ExtensionHelper.m[0m
-[06:54:34]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m FIRMessaging.m[0m
-[06:54:34]: ▸ [35m[[36mapp_links[0m] [1mRegisterExecutionPolicyException[0m app_links.o[0m
-[06:54:34]: ▸ [35m[[36mFlutterGeneratedPluginSwiftPackage[0m] [1mCompiling[0m FlutterGeneratedPluginSwiftPackage.swift[0m
-[06:54:34]: ▸ [35m[[36mFlutterGeneratedPluginSwiftPackage[0m] [1mCopy[0m arm64-apple-ios.swiftmodule -> FlutterGeneratedPluginSwiftPackage.swiftmodule[0m
-[06:54:34]: ▸ [35m[[36mFlutterGeneratedPluginSwiftPackage[0m] [1mCopy[0m arm64-apple-ios.swiftdoc -> FlutterGeneratedPluginSwiftPackage.swiftdoc[0m
-[06:54:34]: ▸ [35m[[36mFlutterGeneratedPluginSwiftPackage[0m] [1mCopy[0m arm64-apple-ios.abi.json -> FlutterGeneratedPluginSwiftPackage.abi.json[0m
-[06:54:34]: ▸ [35m[[36mFirebaseInstallations[0m] [1mCompiling[0m resource_bundle_accessor.m[0m
-[06:54:34]: ▸ [35m[[36mFirebaseInstallations[0m] [1mCompiling[0m FIRInstallationsStoredItem.m[0m
-[06:54:34]: ▸ [35m[[36mFirebaseInstallations[0m] [1mCompiling[0m FIRInstallationsStoredAuthToken.m[0m
-[06:54:34]: ▸ [35m[[36mFirebaseInstallations[0m] [1mCompiling[0m FIRInstallationsLogger.m[0m
-[06:54:34]: ▸ [35m[[36mFirebaseInstallations[0m] [1mCompiling[0m FIRInstallationsStore.m[0m
-[06:54:34]: ▸ [35m[[36mFirebaseInstallations[0m] [1mCompiling[0m FIRInstallationsSingleOperationPromiseCache.m[0m
-[06:54:34]: ▸ [35m[[36mFirebaseInstallations[0m] [1mCompiling[0m FIRInstallationsItem.m[0m
-[06:54:35]: ▸ [35m[[36mFirebaseInstallations[0m] [1mCompiling[0m FIRInstallationsItem+RegisterInstallationAPI.m[0m
-[06:54:35]: ▸ [35m[[36mFirebaseInstallations[0m] [1mCompiling[0m FIRInstallationsIIDTokenStore.m[0m
-[06:54:35]: ▸ [35m[[36mFirebaseInstallations[0m] [1mCompiling[0m FIRInstallationsIIDStore.m[0m
-[06:54:35]: ▸ [35m[[36mFirebaseInstallations[0m] [1mCompiling[0m FIRInstallationsIDController.m[0m
-[06:54:35]: ▸ [35m[[36mFirebaseInstallations[0m] [1mCompiling[0m FIRInstallationsHTTPError.m[0m
-[06:54:35]: ▸ [35m[[36mfirebase_messaging[0m] [1mCompiling[0m resource_bundle_accessor.m[0m
-[06:54:35]: ▸ [35m[[36mFirebaseInstallations[0m] [1mCompiling[0m FIRInstallationsErrorUtil.m[0m
-[06:54:35]: ▸ [35m[[36mFirebaseInstallations[0m] [1mCompiling[0m FIRInstallationsBackoffController.m[0m
-[06:54:35]: ▸ [35m[[36mFirebaseInstallations[0m] [1mCompiling[0m FIRInstallationsAuthTokenResult.m[0m
-[06:54:35]: ▸ [35m[[36mFirebaseInstallations[0m] [1mCompiling[0m FIRInstallationsAPIService.m[0m
-[06:54:35]: ▸ [35m[[36mFirebaseInstallations[0m] [1mCompiling[0m FIRInstallations.m[0m
-[06:54:35]: ▸ [35m[[36mFirebaseInstallations[0m] [1mCompiling[0m FIRCurrentDateProvider.m[0m
-[06:54:36]: ▸ [35m[[36mFirebaseCoreInternal[0m] [1mRegisterExecutionPolicyException[0m FirebaseCoreInternal.o[0m
-[06:54:36]: ▸ [35m[[36mfirebase_messaging[0m] [1mCompiling[0m FLTFirebaseMessagingPlugin.m[0m
-[06:54:37]: ▸ [35m[[36mFirebaseCore[0m] [1mCompiling[0m resource_bundle_accessor.m[0m
-[06:54:37]: ▸ [35m[[36mFirebaseCore[0m] [1mCompiling[0m FIRVersion.m[0m
-[06:54:37]: ▸ [35m[[36mFirebaseCore[0m] [1mCompiling[0m FIRTimestamp.m[0m
-[06:54:37]: ▸ [35m[[36mFirebaseCore[0m] [1mCompiling[0m FIROptions.m[0m
-[06:54:37]: ▸ [35m[[36mFirebaseCore[0m] [1mCompiling[0m FIRConfiguration.m[0m
-[06:54:37]: ▸ [35m[[36mFirebaseCore[0m] [1mCompiling[0m FIRComponentType.m[0m
-[06:54:37]: ▸ [35m[[36mFirebaseCore[0m] [1mCompiling[0m FIRComponentContainer.m[0m
-[06:54:37]: ▸ [35m[[36mFirebaseCore[0m] [1mCompiling[0m FIRComponent.m[0m
-[06:54:37]: ▸ [35m[[36mFirebaseCore[0m] [1mCompiling[0m FIRAnalyticsConfiguration.m[0m
-[06:54:37]: ▸ [35m[[36mFirebaseCore[0m] [1mCompiling[0m FIRFirebaseUserAgent.m[0m
-[06:54:37]: ▸ [35m[[36mFirebaseCore[0m] [1mCompiling[0m FIRBundleUtil.m[0m
-[06:54:37]: ▸ [35m[[36mFirebaseCore[0m] [1mCompiling[0m FIRHeartbeatLogger.m[0m
-[06:54:37]: ▸ [35m[[36mFirebaseCore[0m] [1mCompiling[0m FIRLogger.m[0m
-[06:54:38]: ▸ [35m[[36mFirebaseCore[0m] [1mCompiling[0m FIRSceneFinder.m[0m
-[06:54:38]: ▸ [35m[[36mFirebaseCore[0m] [1mCompiling[0m FIRApp.m[0m
-[06:54:38]: ▸ [35m[[36mFirebaseCore[0m] [1mLinking[0m FirebaseCore.o[0m
-[06:54:38]: ▸ [35m[[36mFirebaseCore[0m] [1mRegisterExecutionPolicyException[0m FirebaseCore.o[0m
-[06:54:38]: ▸ [35m[[36mFirebaseInstallations[0m] [1mLinking[0m FirebaseInstallations.o[0m
-[06:54:38]: ▸ [35m[[36mFirebaseInstallations[0m] [1mRegisterExecutionPolicyException[0m FirebaseInstallations.o[0m
-[06:54:38]: ▸ [35m[[36mFirebaseMessaging[0m] [1mLinking[0m FirebaseMessaging.o[0m
-[06:54:38]: ▸ [35m[[36mfirebase_core_objc[0m] [1mLinking[0m firebase_core_objc.o[0m
-[06:54:38]: ▸ [35m[[36mfirebase_core_objc[0m] [1mRegisterExecutionPolicyException[0m firebase_core_objc.o[0m
-[06:54:38]: ▸ [35m[[36mfirebase_core[0m] [1mLinking[0m firebase_core.o[0m
-[06:54:38]: ▸ [35m[[36mFirebaseMessaging[0m] [1mRegisterExecutionPolicyException[0m FirebaseMessaging.o[0m
-[06:54:38]: ▸ [35m[[36mfirebase_core[0m] [1mExtract App Intents Metadata[0m
-[06:54:38]: ▸ [35m[[36mfirebase_core[0m] [1mRegisterExecutionPolicyException[0m firebase_core.o[0m
-[06:54:38]: ▸ [35m[[36mfirebase_messaging[0m] [1mLinking[0m firebase_messaging.o[0m
-[06:54:38]: ▸ [35m[[36mfirebase_messaging[0m] [1mRegisterExecutionPolicyException[0m firebase_messaging.o[0m
-[06:54:38]: ▸ [35m[[36mFlutterGeneratedPluginSwiftPackage[0m] [1mLinking[0m FlutterGeneratedPluginSwiftPackage.o[0m
-[06:54:38]: ▸ [35m[[36mFlutterGeneratedPluginSwiftPackage[0m] [1mExtract App Intents Metadata[0m
-[06:54:38]: ▸ [35m[[36mFlutterGeneratedPluginSwiftPackage[0m] [1mRegisterExecutionPolicyException[0m FlutterGeneratedPluginSwiftPackage.o[0m
-[06:54:38]: ▸ [35m[[36mRunner[0m] [1mCopy[0m url_launcher_ios_url_launcher_ios.bundle -> url_launcher_ios_url_launcher_ios.bundle[0m
-[06:54:38]: ▸ [35m[[36mRunner[0m] [1mRunning script[0m [CP] Check Pods Manifest.lock[0m
-[06:54:38]: ▸ [35m[[36mRunner[0m] [1mCopy[0m shared_preferences_foundation_shared_preferences_foundation.bundle -> shared_preferences_foundation_shared_preferences_foundation.bundle[0m
-[06:54:38]: ▸ [35m[[36mRunner[0m] [1mCopy[0m share_plus_share_plus.bundle -> share_plus_share_plus.bundle[0m
-[06:54:38]: ▸ [35m[[36mRunner[0m] [1mCopy[0m nanopb_nanopb.bundle -> nanopb_nanopb.bundle[0m
-[06:54:38]: ▸ [35m[[36mRunner[0m] [1mCopy[0m mobile_scanner_mobile_scanner.bundle -> mobile_scanner_mobile_scanner.bundle[0m
-[06:54:38]: ▸ [35m[[36mRunner[0m] [1mCopy[0m local_auth_darwin_local_auth_darwin.bundle -> local_auth_darwin_local_auth_darwin.bundle[0m
-[06:54:38]: ▸ [35m[[36mRunner[0m] [1mCopy[0m image_picker_ios_image_picker_ios.bundle -> image_picker_ios_image_picker_ios.bundle[0m
-[06:54:38]: ▸ [35m[[36mRunner[0m] [1mCopy[0m firebase_messaging_firebase_messaging.bundle -> firebase_messaging_firebase_messaging.bundle[0m
-[06:54:38]: ▸ [35m[[36mRunner[0m] [1mCopy[0m app_links_app_links.bundle -> app_links_app_links.bundle[0m
-[06:54:38]: ▸ [35m[[36mRunner[0m] [1mCopy[0m Promises_FBLPromises.bundle -> Promises_FBLPromises.bundle[0m
-[06:54:38]: ▸ [35m[[36mRunner[0m] [1mCopy[0m GoogleUtilities_GoogleUtilities-UserDefaults.bundle -> GoogleUtilities_GoogleUtilities-UserDefaults.bundle[0m
-[06:54:38]: ▸ [35m[[36mRunner[0m] [1mCopy[0m GoogleUtilities_GoogleUtilities-Reachability.bundle -> GoogleUtilities_GoogleUtilities-Reachability.bundle[0m
-[06:54:38]: ▸ [35m[[36mRunner[0m] [1mCopy[0m GoogleUtilities_GoogleUtilities-Network.bundle -> GoogleUtilities_GoogleUtilities-Network.bundle[0m
-[06:54:38]: ▸ [35m[[36mRunner[0m] [1mCopy[0m GoogleUtilities_GoogleUtilities-NSData.bundle -> GoogleUtilities_GoogleUtilities-NSData.bundle[0m
-[06:54:38]: ▸ [35m[[36mRunner[0m] [1mCopy[0m GoogleUtilities_GoogleUtilities-Logger.bundle -> GoogleUtilities_GoogleUtilities-Logger.bundle[0m
-[06:54:38]: ▸ [35m[[36mRunner[0m] [1mCopy[0m GoogleUtilities_GoogleUtilities-Environment.bundle -> GoogleUtilities_GoogleUtilities-Environment.bundle[0m
-[06:54:38]: ▸ [35m[[36mRunner[0m] [1mCopy[0m GoogleUtilities_GoogleUtilities-AppDelegateSwizzler.bundle -> GoogleUtilities_GoogleUtilities-AppDelegateSwizzler.bundle[0m
-[06:54:38]: ▸ [35m[[36mRunner[0m] [1mCopy[0m GoogleDataTransport_GoogleDataTransport.bundle -> GoogleDataTransport_GoogleDataTransport.bundle[0m
-[06:54:38]: ▸ [35m[[36mRunner[0m] [1mCopy[0m Firebase_FirebaseMessaging.bundle -> Firebase_FirebaseMessaging.bundle[0m
-[06:54:38]: ▸ [35m[[36mRunner[0m] [1mCopy[0m Firebase_FirebaseInstallations.bundle -> Firebase_FirebaseInstallations.bundle[0m
-[06:54:38]: ▸ [35m[[36mRunner[0m] [1mCopy[0m Firebase_FirebaseCoreInternal.bundle -> Firebase_FirebaseCoreInternal.bundle[0m
-[06:54:38]: ▸ [35m[[36mRunner[0m] [1mCopy[0m Firebase_FirebaseCore.bundle -> Firebase_FirebaseCore.bundle[0m
-[06:54:38]: ▸ [35m[[36mRunner[0m] [1mRunning script[0m Run Script[0m
-[06:55:25]: ▸ [35m[[36mRunner[0m] [1mGenerate Asset Symbols[0m Assets.xcassets[0m
-[06:55:25]: ▸ [35m[[36mRunner[0m] [1mCopying[0m AppFrameworkInfo.plist[0m
-[06:55:25]: ▸ [35m[[36mRunner[0m] [1mCompiling[0m Main.storyboard[0m
-[06:55:29]: ▸ [35m[[36mRunner[0m] [1mCompiling[0m LaunchScreen.storyboard[0m
-[06:55:38]: ▸ [35m[[36mRunner[0m] [1mCopy[0m arm64-apple-ios.swiftmodule -> Runner.swiftmodule[0m
-[06:55:38]: ▸ [35m[[36mRunner[0m] [1mCopy[0m arm64-apple-ios.swiftdoc -> Runner.swiftdoc[0m
-[06:55:38]: ▸ [35m[[36mRunner[0m] [1mCopy[0m arm64-apple-ios.abi.json -> Runner.abi.json[0m
-[06:55:39]: ▸ [35m[[36mRunner[0m] [1mCompiling[0m Runner_vers.c[0m
-[06:55:39]: ▸ [35m[36;1mnote: [0mEmplaced /Users/runner/Library/Developer/Xcode/DerivedData/Runner-aqxfevlvhocpurgptuajapjknrsa/Build/Intermediates.noindex/ArchiveIntermediates/Runner/InstallationBuildProductsLocation/Applications/Runner.app/AppIcon60x60@2x.png (in target 'Runner' from project 'Runner')[0m
-[06:55:39]: ▸ [35m[36;1mnote: [0mEmplaced /Users/runner/Library/Developer/Xcode/DerivedData/Runner-aqxfevlvhocpurgptuajapjknrsa/Build/Intermediates.noindex/ArchiveIntermediates/Runner/InstallationBuildProductsLocation/Applications/Runner.app/Assets.car (in target 'Runner' from project 'Runner')[0m
-[06:55:39]: ▸ [35m[36;1mnote: [0mEmplaced /Users/runner/Library/Developer/Xcode/DerivedData/Runner-aqxfevlvhocpurgptuajapjknrsa/Build/Intermediates.noindex/ArchiveIntermediates/Runner/InstallationBuildProductsLocation/Applications/Runner.app/AppIcon76x76@2x~ipad.png (in target 'Runner' from project 'Runner')[0m
-[06:55:39]: ▸ [35m[[36mRunner[0m] [1mProcessing[0m Info.plist[0m
-[06:55:45]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/Runner-aqxfevlvhocpurgptuajapjknrsa/Build/Intermediates.noindex/ArchiveIntermediates/Runner/IntermediateBuildFilesPath/GeneratedModuleMaps-iphoneos/mobile_scanner-Swift.h,line=390,col=31::'objc_ownership' only applies to Objective-C object or block pointer types; type here is 'CVPixelBufferRef _Nullable' (aka 'struct __CVBuffer *') [-Wignored-attributes][0m
-[06:55:45]: ▸ [35m  390 | - (CVPixelBufferRef _Nullable __unsafe_unretained)copyPixelBuffer SWIFT_WARN_UNUSED_RESULT;[0m
-[06:55:45]: ▸ [35m      |                               ^[0m
-[06:55:45]: ▸ [35m[[36mRunner[0m] [1mCompiling[0m GeneratedPluginRegistrant.m[0m
-[06:55:45]: ▸ [35m[[36mRunner[0m] [1mLinking[0m Runner[0m
-[06:55:46]: ▸ [35m[[36mRunner[0m] [1mGenerating[0m Runner.app.dSYM[0m
-[06:55:50]: ▸ [35m[[36mRunner[0m] [1mRunning script[0m Thin Binary[0m
-[06:55:50]: ▸ [35m[[36mRunner[0m] [1mRunning script[0m [CP] Embed Pods Frameworks[0m
-[06:55:50]: ▸ [35m[[36mRunner[0m] [1mExtract App Intents Metadata[0m
-[06:55:50]: ▸ [35m[1mSigning[0m Runner.app (in target 'Runner' from project 'Runner')[0m
-[06:55:50]: ▸ [35m[[36mRunner[0m] [1mRegisterExecutionPolicyException[0m Runner.app[0m
-[06:55:50]: ▸ [35m[[36mRunner[0m] [1mValidate[0m Runner.app[0m
-[06:55:50]: ▸ [35m[[36mRunner[0m] [1mTouching[0m Runner.app[0m
-[06:55:50]: ▸ [35m[36;1mnote: [0mRun script build phase 'Run Script' will be run during every build because the option to run the script phase "Based on dependency analysis" is unchecked. (in target 'Runner' from project 'Runner')[0m
-[06:55:50]: ▸ [35m[36;1mnote: [0mRun script build phase 'Thin Binary' will be run during every build because the option to run the script phase "Based on dependency analysis" is unchecked. (in target 'Runner' from project 'Runner')[0m
-[06:55:50]: ▸ [35m[32;1mArchive Succeeded[0m
-[06:55:50]: [33mGenerated plist file with the following values:[0m
-[06:55:50]: ▸ [35m-----------------------------------------[0m
-[06:55:50]: ▸ [35m{[0m
-[06:55:50]: ▸ [35m  "provisioningProfiles": {[0m
-[06:55:50]: ▸ [35m    "app.ghshopper.com": "match AppStore app.ghshopper.com"[0m
-[06:55:50]: ▸ [35m  },[0m
-[06:55:50]: ▸ [35m  "method": "app-store",[0m
-[06:55:50]: ▸ [35m  "signingStyle": "manual",[0m
-[06:55:50]: ▸ [35m  "teamID": "4AS6WC855S"[0m
-[06:55:50]: ▸ [35m}[0m
-[06:55:50]: ▸ [35m-----------------------------------------[0m
-[06:55:50]: [36m$ /usr/bin/xcrun /Users/runner/work/-gh-platform/-gh-platform/vendor/bundle/ruby/3.3.0/gems/fastlane-2.241.1/gym/lib/assets/wrap_xcodebuild/xcbuild-safe.sh -exportArchive -exportOptionsPlist /var/folders/n6/hn37q6pj7sj_9dmqqc2113800000gn/T/gym_config20261020-14039-nciev5.plist -archivePath /Users/runner/Library/Developer/Xcode/Archives/2026-10-20/GHShopper\ 2026-10-20\ 06.53.36.xcarchive -exportPath /var/folders/n6/hn37q6pj7sj_9dmqqc2113800000gn/T/gym_output20261020-14039-lxufgu [0m
-[06:56:02]: Compressing 6 dSYM(s)
-[06:56:02]: [36m$ cd /Users/runner/Library/Developer/Xcode/Archives/2026-10-20/GHShopper\ 2026-10-20\ 06.53.36.xcarchive/dSYMs && zip -r /Users/runner/work/-gh-platform/-gh-platform/build/ipa/GHShopper.app.dSYM.zip *.dSYM[0m
-[06:56:09]: ▸ [35m  adding: App.framework.dSYM/ (stored 0%)[0m
-[06:56:09]: ▸ [35m  adding: App.framework.dSYM/Contents/ (stored 0%)[0m
-[06:56:09]: ▸ [35m  adding: App.framework.dSYM/Contents/Resources/ (stored 0%)[0m
-[06:56:09]: ▸ [35m  adding: App.framework.dSYM/Contents/Resources/DWARF/ (stored 0%)[0m
-[06:56:09]: ▸ [35m  adding: App.framework.dSYM/Contents/Resources/DWARF/App (deflated 70%)[0m
-[06:56:09]: ▸ [35m  adding: flutter_secure_storage.framework.dSYM/ (stored 0%)[0m
-[06:56:09]: ▸ [35m  adding: flutter_secure_storage.framework.dSYM/Contents/ (stored 0%)[0m
-[06:56:09]: ▸ [35m  adding: flutter_secure_storage.framework.dSYM/Contents/Resources/ (stored 0%)[0m
-[06:56:09]: ▸ [35m  adding: flutter_secure_storage.framework.dSYM/Contents/Resources/Relocations/ (stored 0%)[0m
-[06:56:09]: ▸ [35m  adding: flutter_secure_storage.framework.dSYM/Contents/Resources/Relocations/aarch64/ (stored 0%)[0m
-[06:56:09]: ▸ [35m  adding: flutter_secure_storage.framework.dSYM/Contents/Resources/Relocations/aarch64/flutter_secure_storage.yml (deflated 84%)[0m
-[06:56:09]: ▸ [35m  adding: flutter_secure_storage.framework.dSYM/Contents/Resources/DWARF/ (stored 0%)[0m
-[06:56:09]: ▸ [35m  adding: flutter_secure_storage.framework.dSYM/Contents/Resources/DWARF/flutter_secure_storage (deflated 60%)[0m
-[06:56:09]: ▸ [35m  adding: flutter_secure_storage.framework.dSYM/Contents/Info.plist (deflated 52%)[0m
-[06:56:09]: ▸ [35m  adding: Flutter.framework.dSYM/ (stored 0%)[0m
-[06:56:09]: ▸ [35m  adding: Flutter.framework.dSYM/Contents/ (stored 0%)[0m
-[06:56:09]: ▸ [35m  adding: Flutter.framework.dSYM/Contents/Resources/ (stored 0%)[0m
-[06:56:09]: ▸ [35m  adding: Flutter.framework.dSYM/Contents/Resources/Relocations/ (stored 0%)[0m
-[06:56:09]: ▸ [35m  adding: Flutter.framework.dSYM/Contents/Resources/Relocations/aarch64/ (stored 0%)[0m
-[06:56:09]: ▸ [35m  adding: Flutter.framework.dSYM/Contents/Resources/Relocations/aarch64/Flutter.yml (deflated 89%)[0m
-[06:56:09]: ▸ [35m  adding: Flutter.framework.dSYM/Contents/Resources/DWARF/ (stored 0%)[0m
-[06:56:09]: ▸ [35m  adding: Flutter.framework.dSYM/Contents/Resources/DWARF/Flutter (deflated 75%)[0m
-[06:56:09]: ▸ [35m  adding: Flutter.framework.dSYM/Contents/Info.plist (deflated 53%)[0m
-[06:56:09]: ▸ [35m  adding: objective_c.framework 1.dSYM/ (stored 0%)[0m
-[06:56:09]: ▸ [35m  adding: objective_c.framework 1.dSYM/Contents/ (stored 0%)[0m
-[06:56:09]: ▸ [35m  adding: objective_c.framework 1.dSYM/Contents/Resources/ (stored 0%)[0m
-[06:56:09]: ▸ [35m  adding: objective_c.framework 1.dSYM/Contents/Resources/Relocations/ (stored 0%)[0m
-[06:56:09]: ▸ [35m  adding: objective_c.framework 1.dSYM/Contents/Resources/Relocations/aarch64/ (stored 0%)[0m
-[06:56:09]: ▸ [35m  adding: objective_c.framework 1.dSYM/Contents/Resources/Relocations/aarch64/objective_c.yml (deflated 86%)[0m
-[06:56:09]: ▸ [35m  adding: objective_c.framework 1.dSYM/Contents/Resources/DWARF/ (stored 0%)[0m
-[06:56:09]: ▸ [35m  adding: objective_c.framework 1.dSYM/Contents/Resources/DWARF/objective_c (deflated 74%)[0m
-[06:56:09]: ▸ [35m  adding: objective_c.framework 1.dSYM/Contents/Info.plist (deflated 52%)[0m
-[06:56:09]: ▸ [35m  adding: objective_c.framework.dSYM/ (stored 0%)[0m
-[06:56:09]: ▸ [35m  adding: objective_c.framework.dSYM/Contents/ (stored 0%)[0m
-[06:56:09]: ▸ [35m  adding: objective_c.framework.dSYM/Contents/Resources/ (stored 0%)[0m
-[06:56:09]: ▸ [35m  adding: objective_c.framework.dSYM/Contents/Resources/Relocations/ (stored 0%)[0m
-[06:56:09]: ▸ [35m  adding: objective_c.framework.dSYM/Contents/Resources/Relocations/aarch64/ (stored 0%)[0m
-[06:56:09]: ▸ [35m  adding: objective_c.framework.dSYM/Contents/Resources/Relocations/aarch64/objective_c.yml (deflated 86%)[0m
-[06:56:09]: ▸ [35m  adding: objective_c.framework.dSYM/Contents/Resources/DWARF/ (stored 0%)[0m
-[06:56:09]: ▸ [35m  adding: objective_c.framework.dSYM/Contents/Resources/DWARF/objective_c (deflated 74%)[0m
-[06:56:09]: ▸ [35m  adding: objective_c.framework.dSYM/Contents/Info.plist (deflated 52%)[0m
-[06:56:09]: ▸ [35m  adding: Runner.app.dSYM/ (stored 0%)[0m
-[06:56:09]: ▸ [35m  adding: Runner.app.dSYM/Contents/ (stored 0%)[0m
-[06:56:09]: ▸ [35m  adding: Runner.app.dSYM/Contents/Resources/ (stored 0%)[0m
-[06:56:09]: ▸ [35m  adding: Runner.app.dSYM/Contents/Resources/Relocations/ (stored 0%)[0m
-[06:56:09]: ▸ [35m  adding: Runner.app.dSYM/Contents/Resources/Relocations/aarch64/ (stored 0%)[0m
-[06:56:09]: ▸ [35m  adding: Runner.app.dSYM/Contents/Resources/Relocations/aarch64/Runner.yml (deflated 87%)[0m
-[06:56:09]: ▸ [35m  adding: Runner.app.dSYM/Contents/Resources/DWARF/ (stored 0%)[0m
-[06:56:09]: ▸ [35m  adding: Runner.app.dSYM/Contents/Resources/DWARF/Runner (deflated 61%)[0m
-[06:56:09]: ▸ [35m  adding: Runner.app.dSYM/Contents/Info.plist (deflated 52%)[0m
+[09:38:04]: ▸ [35m[[36mGoogleUtilities-UserDefaults[0m] [1mCompiling[0m GULUserDefaults.m[0m
+[09:38:04]: ▸ [35m[[36mGoogleUtilities-Reachability[0m] [1mCompiling[0m GULReachabilityChecker.m[0m
+[09:38:04]: ▸ [35m[[36mGoogleUtilities-Network[0m] [1mCompiling[0m GULNetworkURLSession.m[0m
+[09:38:04]: ▸ [35m[[36mGoogleUtilities-Network[0m] [1mCompiling[0m GULNetworkConstants.m[0m
+[09:38:04]: ▸ [35m[[36mGoogleUtilities-Network[0m] [1mCompiling[0m GULMutableDictionary.m[0m
+[09:38:04]: ▸ [35m[[36mGoogleUtilities-NSData[0m] [1mCompiling[0m GULNSData+zlib.m[0m
+[09:38:04]: ▸ [35m[[36mGoogleUtilities-Logger[0m] [1mCompiling[0m resource_bundle_accessor.m[0m
+[09:38:04]: ▸ [35m[[36mGoogleUtilities-NSData[0m] [1mLinking[0m GoogleUtilities-NSData.o[0m
+[09:38:04]: ▸ [35m[[36mGoogleUtilities-Network[0m] [1mCompiling[0m GULNetwork.m[0m
+[09:38:04]: ▸ [35m[[36mflutter_secure_storage[0m] [1mCopy[0m arm64-apple-ios.swiftmodule -> flutter_secure_storage.swiftmodule[0m
+[09:38:04]: ▸ [35m[[36mflutter_secure_storage[0m] [1mCopy[0m arm64-apple-ios.swiftdoc -> flutter_secure_storage.swiftdoc[0m
+[09:38:04]: ▸ [35m[[36mflutter_secure_storage[0m] [1mCopy[0m arm64-apple-ios.abi.json -> flutter_secure_storage.abi.json[0m
+[09:38:04]: ▸ [35m[[36mGoogleUtilities-Logger[0m] [1mCompiling[0m GULLogger.m[0m
+[09:38:04]: ▸ [35m[[36mGoogleUtilities-Environment[0m] [1mCompiling[0m resource_bundle_accessor.m[0m
+[09:38:04]: ▸ [35m[[36mGoogleUtilities-Environment[0m] [1mCompiling[0m GULKeychainUtils.m[0m
+[09:38:05]: ▸ [35m[[36mGoogleUtilities-Environment[0m] [1mCompiling[0m GULKeychainStorage.m[0m
+[09:38:05]: ▸ [35m[[36mGoogleUtilities-Environment[0m] [1mCompiling[0m GULNetworkInfo.m[0m
+[09:38:05]: ▸ [35m[[36mflutter_secure_storage[0m] [1mCompiling[0m flutter_secure_storage_vers.c[0m
+[09:38:06]: ▸ [35m[[36mGoogleUtilities-AppDelegateSwizzler[0m] [1mCompiling[0m resource_bundle_accessor.m[0m
+[09:38:06]: ▸ [35m[[36mGoogleDataTransport_GoogleDataTransport[0m] [1mProcessing[0m empty-GoogleDataTransport_GoogleDataTransport.plist[0m
+[09:38:06]: ▸ [35m[[36mGoogleDataTransport_GoogleDataTransport[0m] [1mCopying[0m PrivacyInfo.xcprivacy[0m
+[09:38:06]: ▸ [35m[[36mGoogleUtilities-Environment[0m] [1mCompiling[0m GULAppEnvironmentUtil.m[0m
+[09:38:06]: ▸ [35m[[36mGoogleUtilities-AppDelegateSwizzler[0m] [1mCompiling[0m GULSceneDelegateSwizzler.m[0m
+[09:38:06]: ▸ [35m[[36mGoogleUtilities-AppDelegateSwizzler[0m] [1mCompiling[0m GULAppDelegateSwizzler.m[0m
+[09:38:07]: ▸ [35m[[36mGoogleUtilities-Environment[0m] [1mLinking[0m GoogleUtilities-Environment.o[0m
+[09:38:07]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m external_privacy_context.nanopb.c[0m
+[09:38:07]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m external_prequest_context.nanopb.c[0m
+[09:38:07]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m compliance.nanopb.c[0m
+[09:38:07]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m client_metrics.nanopb.c[0m
+[09:38:07]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m cct.nanopb.c[0m
+[09:38:08]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m resource_bundle_accessor.m[0m
+[09:38:08]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m GDTCORUploadBatch.m[0m
+[09:38:08]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m GDTCORStorageMetadata.m[0m
+[09:38:08]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m GDTCORStorageEventSelector.m[0m
+[09:38:08]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m GDTCORProductData.m[0m
+[09:38:08]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m GDTCORMetricsMetadata.m[0m
+[09:38:08]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m GDTCORMetrics.m[0m
+[09:38:09]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m GDTCORLogSourceMetrics.m[0m
+[09:38:09]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m GDTCOREvent+GDTMetricsSupport.m[0m
+[09:38:09]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m GDTCOREvent+GDTCCTSupport.m[0m
+[09:38:09]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m GDTCOREndpoints.m[0m
+[09:38:09]: ▸ [35m[[36mflutter_secure_storage[0m] [1mCompiling[0m flutter_secure_storage-dummy.m[0m
+[09:38:09]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m GDTCORConsoleLogger.m[0m
+[09:38:09]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m GDTCORClock.m[0m
+[09:38:09]: ▸ [35m[[36mflutter_secure_storage[0m] [1mCompiling[0m FlutterSecureStoragePlugin.m[0m
+[09:38:09]: ▸ [35m[[36mflutter_secure_storage[0m] [1mLinking[0m flutter_secure_storage[0m
+[09:38:10]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m GDTCORAssert.m[0m
+[09:38:10]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m GDTCORUploadCoordinator.m[0m
+[09:38:10]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m GDTCORTransport.m[0m
+[09:38:10]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m GDTCORTransformer.m[0m
+[09:38:10]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m GDTCORRegistrar.m[0m
+[09:38:10]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m GDTCORReachability.m[0m
+[09:38:10]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m GDTCORPlatform.m[0m
+[09:38:10]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m GDTCORMetricsController.m[0m
+[09:38:10]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m GDTCORMetrics+GDTCCTSupport.m[0m
+[09:38:10]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m GDTCORLifecycle.m[0m
+[09:38:10]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m GDTCORFlatFileStorage.m[0m
+[09:38:10]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m GDTCORFlatFileStorage+Promises.m[0m
+[09:38:10]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m GDTCOREvent.m[0m
+[09:38:10]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m GDTCORDirectorySizeTracker.m[0m
+[09:38:10]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m GDTCCTUploader.m[0m
+[09:38:10]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m GDTCCTUploadOperation.m[0m
+[09:38:10]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m GDTCCTURLSessionDataResponse.m[0m
+[09:38:10]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m GDTCCTNanopbHelpers.m[0m
+[09:38:10]: ▸ [35m[[36mflutter_secure_storage[0m] [1mGenerating[0m flutter_secure_storage.framework.dSYM[0m
+[09:38:10]: ▸ [35m[[36mflutter_secure_storage[0m] [1mExtract App Intents Metadata[0m
+[09:38:10]: ▸ [35m[[36mGoogleDataTransport[0m] [1mCompiling[0m GDTCCTCompressionHelper.m[0m
+[09:38:11]: ▸ [35m[[36mPods-Runner[0m] [1mCompiling[0m Pods_Runner_vers.c[0m
+[09:38:11]: ▸ [35m[[36mGoogleUtilities-NSData[0m] [1mRegisterExecutionPolicyException[0m GoogleUtilities-NSData.o[0m
+[09:38:11]: ▸ [35m[[36mGoogleUtilities-Environment[0m] [1mRegisterExecutionPolicyException[0m GoogleUtilities-Environment.o[0m
+[09:38:11]: ▸ [35m[[36mGoogleUtilities-Logger[0m] [1mLinking[0m GoogleUtilities-Logger.o[0m
+[09:38:11]: ▸ [35m[[36mflutter_secure_storage[0m] [1mRegisterExecutionPolicyException[0m flutter_secure_storage.framework[0m
+[09:38:11]: ▸ [35m[[36mflutter_secure_storage[0m] [1mTouching[0m flutter_secure_storage.framework[0m
+[09:38:11]: ▸ [35m[[36mPods-Runner[0m] [1mProcessing[0m Pods-Runner-Info.plist[0m
+[09:38:11]: ▸ [35m[[36mGoogleDataTransport_GoogleDataTransport[0m] [1mRegisterExecutionPolicyException[0m GoogleDataTransport_GoogleDataTransport.bundle[0m
+[09:38:11]: ▸ [35m[[36mGoogleDataTransport_GoogleDataTransport[0m] [1mTouching[0m GoogleDataTransport_GoogleDataTransport.bundle[0m
+[09:38:11]: ▸ [35m[[36mFlutterFramework[0m] [1mCompiling[0m FlutterFramework.swift[0m
+[09:38:11]: ▸ [35m[[36mGoogleUtilities-Logger[0m] [1mRegisterExecutionPolicyException[0m GoogleUtilities-Logger.o[0m
+[09:38:11]: ▸ [35m[[36mGoogleUtilities-UserDefaults[0m] [1mLinking[0m GoogleUtilities-UserDefaults.o[0m
+[09:38:11]: ▸ [35m[[36mGoogleUtilities-Reachability[0m] [1mLinking[0m GoogleUtilities-Reachability.o[0m
+[09:38:11]: ▸ [35m[[36mPods-Runner[0m] [1mCompiling[0m Pods-Runner-dummy.m[0m
+[09:38:11]: ▸ [35m[[36mFlutterFramework[0m] [1mCopy[0m arm64-apple-ios.swiftmodule -> FlutterFramework.swiftmodule[0m
+[09:38:11]: ▸ [35m[[36mFlutterFramework[0m] [1mCopy[0m arm64-apple-ios.swiftdoc -> FlutterFramework.swiftdoc[0m
+[09:38:11]: ▸ [35m[[36mFlutterFramework[0m] [1mCopy[0m arm64-apple-ios.abi.json -> FlutterFramework.abi.json[0m
+[09:38:11]: ▸ [35m[[36mFlutterFramework[0m] [1mLinking[0m FlutterFramework.o[0m
+[09:38:12]: ▸ [35m[[36mFirebase_FirebaseMessaging[0m] [1mProcessing[0m empty-Firebase_FirebaseMessaging.plist[0m
+[09:38:12]: ▸ [35m[[36mFirebase_FirebaseMessaging[0m] [1mCopying[0m PrivacyInfo.xcprivacy[0m
+[09:38:12]: ▸ [35m[[36mFirebase_FirebaseInstallations[0m] [1mProcessing[0m empty-Firebase_FirebaseInstallations.plist[0m
+[09:38:12]: ▸ [35m[[36mFirebase_FirebaseInstallations[0m] [1mCopying[0m PrivacyInfo.xcprivacy[0m
+[09:38:12]: ▸ [35m[[36mFlutterFramework[0m] [1mExtract App Intents Metadata[0m
+[09:38:12]: ▸ [35m[[36mFirebase_FirebaseCoreInternal[0m] [1mProcessing[0m empty-Firebase_FirebaseCoreInternal.plist[0m
+[09:38:12]: ▸ [35m[[36mFirebase_FirebaseCoreInternal[0m] [1mCopying[0m PrivacyInfo.xcprivacy[0m
+[09:38:12]: ▸ [35m[[36mGoogleUtilities-UserDefaults[0m] [1mRegisterExecutionPolicyException[0m GoogleUtilities-UserDefaults.o[0m
+[09:38:12]: ▸ [35m[[36mPods-Runner[0m] [1mRegisterExecutionPolicyException[0m Pods_Runner.framework[0m
+[09:38:12]: ▸ [35m[[36mPods-Runner[0m] [1mTouching[0m Pods_Runner.framework[0m
+[09:38:12]: ▸ [35m[[36mGoogleUtilities-Reachability[0m] [1mRegisterExecutionPolicyException[0m GoogleUtilities-Reachability.o[0m
+[09:38:12]: ▸ [35m[[36mGoogleUtilities-Network[0m] [1mLinking[0m GoogleUtilities-Network.o[0m
+[09:38:12]: ▸ [35m[[36mGoogleUtilities-Network[0m] [1mRegisterExecutionPolicyException[0m GoogleUtilities-Network.o[0m
+[09:38:12]: ▸ [35m[[36mFlutterFramework[0m] [1mRegisterExecutionPolicyException[0m FlutterFramework.o[0m
+[09:38:12]: ▸ [35m[[36mGoogleUtilities-AppDelegateSwizzler[0m] [1mLinking[0m GoogleUtilities-AppDelegateSwizzler.o[0m
+[09:38:16]: ▸ [35m[[36mapp_links[0m] [1mCopy[0m arm64-apple-ios.swiftmodule -> app_links.swiftmodule[0m
+[09:38:16]: ▸ [35m[[36mapp_links[0m] [1mCopy[0m arm64-apple-ios.swiftdoc -> app_links.swiftdoc[0m
+[09:38:16]: ▸ [35m[[36mapp_links[0m] [1mCopy[0m arm64-apple-ios.abi.json -> app_links.abi.json[0m
+[09:38:16]: ▸ [35m[[36mFirebase_FirebaseCore[0m] [1mProcessing[0m empty-Firebase_FirebaseCore.plist[0m
+[09:38:16]: ▸ [35m[[36mFirebase_FirebaseCore[0m] [1mCopying[0m PrivacyInfo.xcprivacy[0m
+[09:38:16]: ▸ [35m[[36mapp_links[0m] [1mLinking[0m app_links.o[0m
+[09:38:16]: ▸ [35m[[36mFirebase[0m] [1mCompiling[0m dummy.m[0m
+[09:38:16]: ▸ [35m[[36mFirebase[0m] [1mLinking[0m Firebase.o[0m
+[09:38:16]: ▸ [35m[[36mapp_links[0m] [1mExtract App Intents Metadata[0m
+[09:38:16]: ▸ [35m[[36mGoogleUtilities-AppDelegateSwizzler[0m] [1mRegisterExecutionPolicyException[0m GoogleUtilities-AppDelegateSwizzler.o[0m
+[09:38:16]: ▸ [35m[[36mapp_links[0m] [1mRegisterExecutionPolicyException[0m app_links.o[0m
+[09:38:16]: ▸ [35m[[36mFirebase_FirebaseMessaging[0m] [1mRegisterExecutionPolicyException[0m Firebase_FirebaseMessaging.bundle[0m
+[09:38:16]: ▸ [35m[[36mFirebase_FirebaseMessaging[0m] [1mTouching[0m Firebase_FirebaseMessaging.bundle[0m
+[09:38:16]: ▸ [35m[[36mFirebase_FirebaseInstallations[0m] [1mRegisterExecutionPolicyException[0m Firebase_FirebaseInstallations.bundle[0m
+[09:38:16]: ▸ [35m[[36mFirebase_FirebaseInstallations[0m] [1mTouching[0m Firebase_FirebaseInstallations.bundle[0m
+[09:38:16]: ▸ [35m[[36mFirebase_FirebaseCoreInternal[0m] [1mRegisterExecutionPolicyException[0m Firebase_FirebaseCoreInternal.bundle[0m
+[09:38:16]: ▸ [35m[[36mFirebase_FirebaseCoreInternal[0m] [1mTouching[0m Firebase_FirebaseCoreInternal.bundle[0m
+[09:38:16]: ▸ [35m[[36mFirebase_FirebaseCore[0m] [1mRegisterExecutionPolicyException[0m Firebase_FirebaseCore.bundle[0m
+[09:38:16]: ▸ [35m[[36mFirebase_FirebaseCore[0m] [1mTouching[0m Firebase_FirebaseCore.bundle[0m
+[09:38:16]: ▸ [35m[[36mFBLPromises[0m] [1mCompiling[0m resource_bundle_accessor.m[0m
+[09:38:16]: ▸ [35m[[36mFBLPromises[0m] [1mCompiling[0m FBLPromiseError.m[0m
+[09:38:16]: ▸ [35m[[36mFBLPromises[0m] [1mCompiling[0m FBLPromise.m[0m
+[09:38:16]: ▸ [35m[[36mFBLPromises[0m] [1mCompiling[0m FBLPromise+Wrap.m[0m
+[09:38:16]: ▸ [35m[[36mFBLPromises[0m] [1mCompiling[0m FBLPromise+Validate.m[0m
+[09:38:16]: ▸ [35m[[36mFBLPromises[0m] [1mCompiling[0m FBLPromise+Timeout.m[0m
+[09:38:16]: ▸ [35m[[36mFBLPromises[0m] [1mCompiling[0m FBLPromise+Then.m[0m
+[09:38:16]: ▸ [35m[[36mFBLPromises[0m] [1mCompiling[0m FBLPromise+Testing.m[0m
+[09:38:16]: ▸ [35m[[36mFBLPromises[0m] [1mCompiling[0m FBLPromise+Retry.m[0m
+[09:38:16]: ▸ [35m[[36mFBLPromises[0m] [1mCompiling[0m FBLPromise+Reduce.m[0m
+[09:38:16]: ▸ [35m[[36mFirebaseCoreInternal[0m] [1mCopy[0m arm64-apple-ios.swiftmodule -> FirebaseCoreInternal.swiftmodule[0m
+[09:38:16]: ▸ [35m[[36mFirebaseCoreInternal[0m] [1mCopy[0m arm64-apple-ios.swiftdoc -> FirebaseCoreInternal.swiftdoc[0m
+[09:38:16]: ▸ [35m[[36mFirebaseCoreInternal[0m] [1mCopy[0m arm64-apple-ios.abi.json -> FirebaseCoreInternal.abi.json[0m
+[09:38:16]: ▸ [35m[[36mFBLPromises[0m] [1mCompiling[0m FBLPromise+Recover.m[0m
+[09:38:16]: ▸ [35m[[36mFBLPromises[0m] [1mCompiling[0m FBLPromise+Race.m[0m
+[09:38:16]: ▸ [35m[[36mFBLPromises[0m] [1mCompiling[0m FBLPromise+Do.m[0m
+[09:38:16]: ▸ [35m[[36mFBLPromises[0m] [1mCompiling[0m FBLPromise+Delay.m[0m
+[09:38:16]: ▸ [35m[[36mFBLPromises[0m] [1mCompiling[0m FBLPromise+Catch.m[0m
+[09:38:16]: ▸ [35m[[36mFBLPromises[0m] [1mCompiling[0m FBLPromise+Await.m[0m
+[09:38:16]: ▸ [35m[[36mFBLPromises[0m] [1mCompiling[0m FBLPromise+Async.m[0m
+[09:38:16]: ▸ [35m[[36mFBLPromises[0m] [1mCompiling[0m FBLPromise+Any.m[0m
+[09:38:16]: ▸ [35m[[36mFBLPromises[0m] [1mCompiling[0m FBLPromise+Always.m[0m
+[09:38:16]: ▸ [35m[[36mFBLPromises[0m] [1mCompiling[0m FBLPromise+All.m[0m
+[09:38:16]: ▸ [35m[[36mfirebase_core_objc[0m] [1mCompiling[0m dummy.m[0m
+[09:38:16]: ▸ [35m[[36mFBLPromises[0m] [1mLinking[0m FBLPromises.o[0m
+[09:38:16]: ▸ [35m[[36mprinting[0m] [1mCopy[0m arm64-apple-ios.swiftmodule -> printing.swiftmodule[0m
+[09:38:16]: ▸ [35m[[36mprinting[0m] [1mCopy[0m arm64-apple-ios.swiftdoc -> printing.swiftdoc[0m
+[09:38:16]: ▸ [35m[[36mprinting[0m] [1mCopy[0m arm64-apple-ios.abi.json -> printing.abi.json[0m
+[09:38:16]: ▸ [35m[[36mFirebaseCoreInternal[0m] [1mLinking[0m FirebaseCoreInternal.o[0m
+[09:38:16]: ▸ [35m[[36mprinting[0m] [1mLinking[0m printing.o[0m
+[09:38:16]: ▸ [35m[[36mprinting[0m] [1mExtract App Intents Metadata[0m
+[09:38:18]: ▸ [35m[[36mFirebaseCoreInternal[0m] [1mExtract App Intents Metadata[0m
+[09:38:18]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m me.nanopb.c[0m
+[09:38:20]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m resource_bundle_accessor.m[0m
+[09:38:20]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m NSError+FIRMessaging.m[0m
+[09:38:20]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m NSDictionary+FIRMessaging.m[0m
+[09:38:20]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m FIRMessagingTokenStore.m[0m
+[09:38:20]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m FIRMessagingTokenOperation.m[0m
+[09:38:21]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m FIRMessagingTokenManager.m[0m
+[09:38:21]: ▸ [35m[[36mfirebase_core[0m] [1mCopy[0m arm64-apple-ios.swiftmodule -> firebase_core.swiftmodule[0m
+[09:38:21]: ▸ [35m[[36mfirebase_core[0m] [1mCopy[0m arm64-apple-ios.swiftdoc -> firebase_core.swiftdoc[0m
+[09:38:21]: ▸ [35m[[36mfirebase_core[0m] [1mCopy[0m arm64-apple-ios.abi.json -> firebase_core.abi.json[0m
+[09:38:21]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m FIRMessagingUtilities.m[0m
+[09:38:21]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m FIRMessagingTopicOperation.m[0m
+[09:38:21]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m FIRMessagingTokenInfo.m[0m
+[09:38:21]: ▸ [35m[[36mfirebase_core_objc[0m] [1mCompiling[0m FLTFirebasePluginRegistry.m[0m
+[09:38:21]: ▸ [35m[[36mfirebase_core_objc[0m] [1mCompiling[0m FLTFirebasePlugin.m[0m
+[09:38:21]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m FIRMessagingTokenFetchOperation.m[0m
+[09:38:21]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m FIRMessagingTokenDeleteOperation.m[0m
+[09:38:21]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m FIRMessagingSyncMessageManager.m[0m
+[09:38:21]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m FIRMessagingRmqManager.m[0m
+[09:38:21]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m FIRMessagingPubSub.m[0m
+[09:38:21]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m FIRMessagingPersistentSyncMessage.m[0m
+[09:38:21]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m FIRMessagingRemoteNotificationsProxy.m[0m
+[09:38:21]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m FIRMessagingPendingTopicsList.m[0m
+[09:38:21]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m FIRMessagingLogger.m[0m
+[09:38:21]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m FIRMessagingKeychain.m[0m
+[09:38:21]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m FIRMessagingFIDUnregisterOperation.m[0m
+[09:38:21]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m FIRMessagingFIDRegisterOperation.m[0m
+[09:38:21]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m FIRMessagingExtensionHelper.m[0m
+[09:38:21]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m FIRMessagingContextManagerService.m[0m
+[09:38:21]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m FIRMessagingConstants.m[0m
+[09:38:21]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m FIRMessagingCheckinStore.m[0m
+[09:38:21]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m FIRMessagingCheckinService.m[0m
+[09:38:21]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m FIRMessagingCheckinPreferences.m[0m
+[09:38:22]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m FIRMessagingBackupExcludedPlist.m[0m
+[09:38:22]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m FIRMessagingAuthService.m[0m
+[09:38:22]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m FIRMessagingAuthKeychain.m[0m
+[09:38:22]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m FIRMessagingAnalytics.m[0m
+[09:38:22]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m FIRMessagingAPNSInfo.m[0m
+[09:38:22]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m FIRMessaging+ExtensionHelper.m[0m
+[09:38:22]: ▸ [35m[[36mprinting[0m] [1mRegisterExecutionPolicyException[0m printing.o[0m
+[09:38:22]: ▸ [35m[[36mFirebaseMessaging[0m] [1mCompiling[0m FIRMessaging.m[0m
+[09:38:22]: ▸ [35m[[36mFlutterGeneratedPluginSwiftPackage[0m] [1mCompiling[0m FlutterGeneratedPluginSwiftPackage.swift[0m
+[09:38:23]: ▸ [35m[[36mFlutterGeneratedPluginSwiftPackage[0m] [1mCopy[0m arm64-apple-ios.swiftmodule -> FlutterGeneratedPluginSwiftPackage.swiftmodule[0m
+[09:38:23]: ▸ [35m[[36mFlutterGeneratedPluginSwiftPackage[0m] [1mCopy[0m arm64-apple-ios.swiftdoc -> FlutterGeneratedPluginSwiftPackage.swiftdoc[0m
+[09:38:23]: ▸ [35m[[36mFlutterGeneratedPluginSwiftPackage[0m] [1mCopy[0m arm64-apple-ios.abi.json -> FlutterGeneratedPluginSwiftPackage.abi.json[0m
+[09:38:23]: ▸ [35m[[36mFirebaseInstallations[0m] [1mCompiling[0m resource_bundle_accessor.m[0m
+[09:38:23]: ▸ [35m[[36mFirebaseInstallations[0m] [1mCompiling[0m FIRInstallationsStoredItem.m[0m
+[09:38:23]: ▸ [35m[[36mFirebaseInstallations[0m] [1mCompiling[0m FIRInstallationsStoredAuthToken.m[0m
+[09:38:23]: ▸ [35m[[36mFirebaseInstallations[0m] [1mCompiling[0m FIRInstallationsStore.m[0m
+[09:38:23]: ▸ [35m[[36mFirebaseInstallations[0m] [1mCompiling[0m FIRInstallationsSingleOperationPromiseCache.m[0m
+[09:38:23]: ▸ [35m[[36mFirebaseInstallations[0m] [1mCompiling[0m FIRInstallationsLogger.m[0m
+[09:38:23]: ▸ [35m[[36mFirebaseInstallations[0m] [1mCompiling[0m FIRInstallationsItem.m[0m
+[09:38:23]: ▸ [35m[[36mFirebaseInstallations[0m] [1mCompiling[0m FIRInstallationsItem+RegisterInstallationAPI.m[0m
+[09:38:24]: ▸ [35m[[36mFirebaseInstallations[0m] [1mCompiling[0m FIRInstallationsIIDTokenStore.m[0m
+[09:38:24]: ▸ [35m[[36mFirebaseInstallations[0m] [1mCompiling[0m FIRInstallationsIDController.m[0m
+[09:38:24]: ▸ [35m[[36mFirebaseInstallations[0m] [1mCompiling[0m FIRInstallationsIIDStore.m[0m
+[09:38:24]: ▸ [35m[[36mFirebaseInstallations[0m] [1mCompiling[0m FIRInstallationsHTTPError.m[0m
+[09:38:24]: ▸ [35m[[36mfirebase_messaging[0m] [1mCompiling[0m resource_bundle_accessor.m[0m
+[09:38:24]: ▸ [35m[[36mFirebaseInstallations[0m] [1mCompiling[0m FIRInstallationsErrorUtil.m[0m
+[09:38:24]: ▸ [35m[[36mFirebaseInstallations[0m] [1mCompiling[0m FIRInstallationsBackoffController.m[0m
+[09:38:24]: ▸ [35m[[36mFirebaseInstallations[0m] [1mCompiling[0m FIRInstallationsAuthTokenResult.m[0m
+[09:38:24]: ▸ [35m[[36mFirebaseInstallations[0m] [1mCompiling[0m FIRInstallationsAPIService.m[0m
+[09:38:24]: ▸ [35m[[36mFirebaseInstallations[0m] [1mCompiling[0m FIRInstallations.m[0m
+[09:38:24]: ▸ [35m[[36mFirebaseInstallations[0m] [1mCompiling[0m FIRCurrentDateProvider.m[0m
+[09:38:25]: ▸ [35m[[36mFirebaseCoreInternal[0m] [1mRegisterExecutionPolicyException[0m FirebaseCoreInternal.o[0m
+[09:38:25]: ▸ [35m[[36mFirebase[0m] [1mRegisterExecutionPolicyException[0m Firebase.o[0m
+[09:38:25]: ▸ [35m[[36mFBLPromises[0m] [1mRegisterExecutionPolicyException[0m FBLPromises.o[0m
+[09:38:25]: ▸ [35m[[36mGoogleDataTransport[0m] [1mLinking[0m GoogleDataTransport.o[0m
+[09:38:25]: ▸ [35m[[36mfirebase_messaging[0m] [1mCompiling[0m FLTFirebaseMessagingPlugin.m[0m
+[09:38:25]: ▸ [35m[[36mGoogleDataTransport[0m] [1mRegisterExecutionPolicyException[0m GoogleDataTransport.o[0m
+[09:38:26]: ▸ [35m[[36mFirebaseCore[0m] [1mCompiling[0m resource_bundle_accessor.m[0m
+[09:38:26]: ▸ [35m[[36mFirebaseCore[0m] [1mCompiling[0m FIRVersion.m[0m
+[09:38:26]: ▸ [35m[[36mFirebaseCore[0m] [1mCompiling[0m FIRTimestamp.m[0m
+[09:38:26]: ▸ [35m[[36mFirebaseCore[0m] [1mCompiling[0m FIROptions.m[0m
+[09:38:26]: ▸ [35m[[36mFirebaseCore[0m] [1mCompiling[0m FIRConfiguration.m[0m
+[09:38:26]: ▸ [35m[[36mFirebaseCore[0m] [1mCompiling[0m FIRComponentType.m[0m
+[09:38:26]: ▸ [35m[[36mFirebaseCore[0m] [1mCompiling[0m FIRComponentContainer.m[0m
+[09:38:26]: ▸ [35m[[36mFirebaseCore[0m] [1mCompiling[0m FIRComponent.m[0m
+[09:38:26]: ▸ [35m[[36mFirebaseCore[0m] [1mCompiling[0m FIRAnalyticsConfiguration.m[0m
+[09:38:26]: ▸ [35m[[36mFirebaseCore[0m] [1mCompiling[0m FIRFirebaseUserAgent.m[0m
+[09:38:26]: ▸ [35m[[36mFirebaseCore[0m] [1mCompiling[0m FIRBundleUtil.m[0m
+[09:38:26]: ▸ [35m[[36mFirebaseCore[0m] [1mCompiling[0m FIRLogger.m[0m
+[09:38:26]: ▸ [35m[[36mFirebaseCore[0m] [1mCompiling[0m FIRHeartbeatLogger.m[0m
+[09:38:27]: ▸ [35m[[36mFirebaseCore[0m] [1mCompiling[0m FIRSceneFinder.m[0m
+[09:38:27]: ▸ [35m[[36mFirebaseCore[0m] [1mCompiling[0m FIRApp.m[0m
+[09:38:27]: ▸ [35m[[36mFirebaseCore[0m] [1mLinking[0m FirebaseCore.o[0m
+[09:38:27]: ▸ [35m[[36mFirebaseCore[0m] [1mRegisterExecutionPolicyException[0m FirebaseCore.o[0m
+[09:38:27]: ▸ [35m[[36mFirebaseInstallations[0m] [1mLinking[0m FirebaseInstallations.o[0m
+[09:38:27]: ▸ [35m[[36mFirebaseInstallations[0m] [1mRegisterExecutionPolicyException[0m FirebaseInstallations.o[0m
+[09:38:27]: ▸ [35m[[36mFirebaseMessaging[0m] [1mLinking[0m FirebaseMessaging.o[0m
+[09:38:27]: ▸ [35m[[36mfirebase_core_objc[0m] [1mLinking[0m firebase_core_objc.o[0m
+[09:38:27]: ▸ [35m[[36mfirebase_core_objc[0m] [1mRegisterExecutionPolicyException[0m firebase_core_objc.o[0m
+[09:38:27]: ▸ [35m[[36mfirebase_core[0m] [1mLinking[0m firebase_core.o[0m
+[09:38:27]: ▸ [35m[[36mFirebaseMessaging[0m] [1mRegisterExecutionPolicyException[0m FirebaseMessaging.o[0m
+[09:38:27]: ▸ [35m[[36mfirebase_core[0m] [1mExtract App Intents Metadata[0m
+[09:38:27]: ▸ [35m[[36mfirebase_core[0m] [1mRegisterExecutionPolicyException[0m firebase_core.o[0m
+[09:38:27]: ▸ [35m[[36mfirebase_messaging[0m] [1mLinking[0m firebase_messaging.o[0m
+[09:38:27]: ▸ [35m[[36mfirebase_messaging[0m] [1mRegisterExecutionPolicyException[0m firebase_messaging.o[0m
+[09:38:27]: ▸ [35m[[36mFlutterGeneratedPluginSwiftPackage[0m] [1mLinking[0m FlutterGeneratedPluginSwiftPackage.o[0m
+[09:38:27]: ▸ [35m[[36mFlutterGeneratedPluginSwiftPackage[0m] [1mExtract App Intents Metadata[0m
+[09:38:27]: ▸ [35m[[36mFlutterGeneratedPluginSwiftPackage[0m] [1mRegisterExecutionPolicyException[0m FlutterGeneratedPluginSwiftPackage.o[0m
+[09:38:27]: ▸ [35m[[36mRunner[0m] [1mCopy[0m shared_preferences_foundation_shared_preferences_foundation.bundle -> shared_preferences_foundation_shared_preferences_foundation.bundle[0m
+[09:38:27]: ▸ [35m[[36mRunner[0m] [1mCopy[0m url_launcher_ios_url_launcher_ios.bundle -> url_launcher_ios_url_launcher_ios.bundle[0m
+[09:38:27]: ▸ [35m[[36mRunner[0m] [1mRunning script[0m [CP] Check Pods Manifest.lock[0m
+[09:38:27]: ▸ [35m[[36mRunner[0m] [1mCopy[0m share_plus_share_plus.bundle -> share_plus_share_plus.bundle[0m
+[09:38:27]: ▸ [35m[[36mRunner[0m] [1mCopy[0m nanopb_nanopb.bundle -> nanopb_nanopb.bundle[0m
+[09:38:27]: ▸ [35m[[36mRunner[0m] [1mCopy[0m mobile_scanner_mobile_scanner.bundle -> mobile_scanner_mobile_scanner.bundle[0m
+[09:38:27]: ▸ [35m[[36mRunner[0m] [1mCopy[0m local_auth_darwin_local_auth_darwin.bundle -> local_auth_darwin_local_auth_darwin.bundle[0m
+[09:38:27]: ▸ [35m[[36mRunner[0m] [1mCopy[0m image_picker_ios_image_picker_ios.bundle -> image_picker_ios_image_picker_ios.bundle[0m
+[09:38:27]: ▸ [35m[[36mRunner[0m] [1mCopy[0m firebase_messaging_firebase_messaging.bundle -> firebase_messaging_firebase_messaging.bundle[0m
+[09:38:27]: ▸ [35m[[36mRunner[0m] [1mCopy[0m app_links_app_links.bundle -> app_links_app_links.bundle[0m
+[09:38:27]: ▸ [35m[[36mRunner[0m] [1mCopy[0m Promises_FBLPromises.bundle -> Promises_FBLPromises.bundle[0m
+[09:38:27]: ▸ [35m[[36mRunner[0m] [1mCopy[0m GoogleUtilities_GoogleUtilities-UserDefaults.bundle -> GoogleUtilities_GoogleUtilities-UserDefaults.bundle[0m
+[09:38:27]: ▸ [35m[[36mRunner[0m] [1mCopy[0m GoogleUtilities_GoogleUtilities-Reachability.bundle -> GoogleUtilities_GoogleUtilities-Reachability.bundle[0m
+[09:38:27]: ▸ [35m[[36mRunner[0m] [1mCopy[0m GoogleUtilities_GoogleUtilities-Network.bundle -> GoogleUtilities_GoogleUtilities-Network.bundle[0m
+[09:38:27]: ▸ [35m[[36mRunner[0m] [1mCopy[0m GoogleUtilities_GoogleUtilities-NSData.bundle -> GoogleUtilities_GoogleUtilities-NSData.bundle[0m
+[09:38:27]: ▸ [35m[[36mRunner[0m] [1mCopy[0m GoogleUtilities_GoogleUtilities-Logger.bundle -> GoogleUtilities_GoogleUtilities-Logger.bundle[0m
+[09:38:27]: ▸ [35m[[36mRunner[0m] [1mCopy[0m GoogleUtilities_GoogleUtilities-Environment.bundle -> GoogleUtilities_GoogleUtilities-Environment.bundle[0m
+[09:38:27]: ▸ [35m[[36mRunner[0m] [1mCopy[0m GoogleUtilities_GoogleUtilities-AppDelegateSwizzler.bundle -> GoogleUtilities_GoogleUtilities-AppDelegateSwizzler.bundle[0m
+[09:38:27]: ▸ [35m[[36mRunner[0m] [1mCopy[0m GoogleDataTransport_GoogleDataTransport.bundle -> GoogleDataTransport_GoogleDataTransport.bundle[0m
+[09:38:27]: ▸ [35m[[36mRunner[0m] [1mCopy[0m Firebase_FirebaseMessaging.bundle -> Firebase_FirebaseMessaging.bundle[0m
+[09:38:27]: ▸ [35m[[36mRunner[0m] [1mCopy[0m Firebase_FirebaseInstallations.bundle -> Firebase_FirebaseInstallations.bundle[0m
+[09:38:27]: ▸ [35m[[36mRunner[0m] [1mCopy[0m Firebase_FirebaseCoreInternal.bundle -> Firebase_FirebaseCoreInternal.bundle[0m
+[09:38:27]: ▸ [35m[[36mRunner[0m] [1mCopy[0m Firebase_FirebaseCore.bundle -> Firebase_FirebaseCore.bundle[0m
+[09:38:27]: ▸ [35m[[36mRunner[0m] [1mRunning script[0m Run Script[0m
+[09:39:21]: ▸ [35m[[36mRunner[0m] [1mCopying[0m AppFrameworkInfo.plist[0m
+[09:39:21]: ▸ [35m[[36mRunner[0m] [1mGenerate Asset Symbols[0m Assets.xcassets[0m
+[09:39:21]: ▸ [35m[[36mRunner[0m] [1mCompiling[0m Main.storyboard[0m
+[09:39:30]: ▸ [35m[[36mRunner[0m] [1mCompiling[0m LaunchScreen.storyboard[0m
+[09:39:33]: ▸ [35m[36;1mnote: [0mEmplaced /Users/runner/Library/Developer/Xcode/DerivedData/Runner-aqxfevlvhocpurgptuajapjknrsa/Build/Intermediates.noindex/ArchiveIntermediates/Runner/InstallationBuildProductsLocation/Applications/Runner.app/AppIcon60x60@2x.png (in target 'Runner' from project 'Runner')[0m
+[09:39:33]: ▸ [35m[36;1mnote: [0mEmplaced /Users/runner/Library/Developer/Xcode/DerivedData/Runner-aqxfevlvhocpurgptuajapjknrsa/Build/Intermediates.noindex/ArchiveIntermediates/Runner/InstallationBuildProductsLocation/Applications/Runner.app/Assets.car (in target 'Runner' from project 'Runner')[0m
+[09:39:33]: ▸ [35m[36;1mnote: [0mEmplaced /Users/runner/Library/Developer/Xcode/DerivedData/Runner-aqxfevlvhocpurgptuajapjknrsa/Build/Intermediates.noindex/ArchiveIntermediates/Runner/InstallationBuildProductsLocation/Applications/Runner.app/AppIcon76x76@2x~ipad.png (in target 'Runner' from project 'Runner')[0m
+[09:39:33]: ▸ [35m[[36mRunner[0m] [1mProcessing[0m Info.plist[0m
+[09:39:33]: ▸ [35m[[36mRunner[0m] [1mCopy[0m arm64-apple-ios.swiftmodule -> Runner.swiftmodule[0m
+[09:39:33]: ▸ [35m[[36mRunner[0m] [1mCopy[0m arm64-apple-ios.swiftdoc -> Runner.swiftdoc[0m
+[09:39:33]: ▸ [35m[[36mRunner[0m] [1mCopy[0m arm64-apple-ios.abi.json -> Runner.abi.json[0m
+[09:39:34]: ▸ [35m[[36mRunner[0m] [1mCompiling[0m Runner_vers.c[0m
+[09:39:37]: ▸ [35m::warning file=/Users/runner/Library/Developer/Xcode/DerivedData/Runner-aqxfevlvhocpurgptuajapjknrsa/Build/Intermediates.noindex/ArchiveIntermediates/Runner/IntermediateBuildFilesPath/GeneratedModuleMaps-iphoneos/mobile_scanner-Swift.h,line=390,col=31::'objc_ownership' only applies to Objective-C object or block pointer types; type here is 'CVPixelBufferRef _Nullable' (aka 'struct __CVBuffer *') [-Wignored-attributes][0m
+[09:39:37]: ▸ [35m  390 | - (CVPixelBufferRef _Nullable __unsafe_unretained)copyPixelBuffer SWIFT_WARN_UNUSED_RESULT;[0m
+[09:39:37]: ▸ [35m      |                               ^[0m
+[09:39:37]: ▸ [35m[[36mRunner[0m] [1mCompiling[0m GeneratedPluginRegistrant.m[0m
+[09:39:37]: ▸ [35m[[36mRunner[0m] [1mLinking[0m Runner[0m
+[09:39:38]: ▸ [35m[[36mRunner[0m] [1mRunning script[0m Thin Binary[0m
+[09:39:39]: ▸ [35m[[36mRunner[0m] [1mGenerating[0m Runner.app.dSYM[0m
+[09:39:40]: ▸ [35m[[36mRunner[0m] [1mRunning script[0m [CP] Embed Pods Frameworks[0m
+[09:39:40]: ▸ [35m[[36mRunner[0m] [1mExtract App Intents Metadata[0m
+[09:39:40]: ▸ [35m[1mSigning[0m Runner.app (in target 'Runner' from project 'Runner')[0m
+[09:39:40]: ▸ [35m[[36mRunner[0m] [1mRegisterExecutionPolicyException[0m Runner.app[0m
+[09:39:40]: ▸ [35m[[36mRunner[0m] [1mValidate[0m Runner.app[0m
+[09:39:40]: ▸ [35m[[36mRunner[0m] [1mTouching[0m Runner.app[0m
+[09:39:40]: ▸ [35m[36;1mnote: [0mRun script build phase 'Run Script' will be run during every build because the option to run the script phase "Based on dependency analysis" is unchecked. (in target 'Runner' from project 'Runner')[0m
+[09:39:40]: ▸ [35m[36;1mnote: [0mRun script build phase 'Thin Binary' will be run during every build because the option to run the script phase "Based on dependency analysis" is unchecked. (in target 'Runner' from project 'Runner')[0m
+[09:39:40]: ▸ [35m[32;1mArchive Succeeded[0m
+[09:39:40]: [33mGenerated plist file with the following values:[0m
+[09:39:40]: ▸ [35m-----------------------------------------[0m
+[09:39:40]: ▸ [35m{[0m
+[09:39:40]: ▸ [35m  "provisioningProfiles": {[0m
+[09:39:40]: ▸ [35m    "app.ghshopper.com": "match AppStore app.ghshopper.com"[0m
+[09:39:40]: ▸ [35m  },[0m
+[09:39:40]: ▸ [35m  "method": "app-store",[0m
+[09:39:40]: ▸ [35m  "signingStyle": "manual",[0m
+[09:39:40]: ▸ [35m  "teamID": "4AS6WC855S"[0m
+[09:39:40]: ▸ [35m}[0m
+[09:39:40]: ▸ [35m-----------------------------------------[0m
+[09:39:40]: [36m$ /usr/bin/xcrun /Users/runner/work/-gh-platform/-gh-platform/vendor/bundle/ruby/3.3.0/gems/fastlane-2.241.1/gym/lib/assets/wrap_xcodebuild/xcbuild-safe.sh -exportArchive -exportOptionsPlist /var/folders/n6/hn37q6pj7sj_9dmqqc2113800000gn/T/gym_config20261020-15116-9qvc0u.plist -archivePath /Users/runner/Library/Developer/Xcode/Archives/2026-10-20/GHShopper\ 2026-10-20\ 09.37.10.xcarchive -exportPath /var/folders/n6/hn37q6pj7sj_9dmqqc2113800000gn/T/gym_output20261020-15116-ghbzwr [0m
+[09:39:48]: Compressing 6 dSYM(s)
+[09:39:48]: [36m$ cd /Users/runner/Library/Developer/Xcode/Archives/2026-10-20/GHShopper\ 2026-10-20\ 09.37.10.xcarchive/dSYMs && zip -r /Users/runner/work/-gh-platform/-gh-platform/build/ipa/GHShopper.app.dSYM.zip *.dSYM[0m
+[09:39:53]: ▸ [35m  adding: App.framework.dSYM/ (stored 0%)[0m
+[09:39:53]: ▸ [35m  adding: App.framework.dSYM/Contents/ (stored 0%)[0m
+[09:39:53]: ▸ [35m  adding: App.framework.dSYM/Contents/Resources/ (stored 0%)[0m
+[09:39:53]: ▸ [35m  adding: App.framework.dSYM/Contents/Resources/DWARF/ (stored 0%)[0m
+[09:39:53]: ▸ [35m  adding: App.framework.dSYM/Contents/Resources/DWARF/App (deflated 70%)[0m
+[09:39:53]: ▸ [35m  adding: flutter_secure_storage.framework.dSYM/ (stored 0%)[0m
+[09:39:53]: ▸ [35m  adding: flutter_secure_storage.framework.dSYM/Contents/ (stored 0%)[0m
+[09:39:53]: ▸ [35m  adding: flutter_secure_storage.framework.dSYM/Contents/Resources/ (stored 0%)[0m
+[09:39:53]: ▸ [35m  adding: flutter_secure_storage.framework.dSYM/Contents/Resources/Relocations/ (stored 0%)[0m
+[09:39:53]: ▸ [35m  adding: flutter_secure_storage.framework.dSYM/Contents/Resources/Relocations/aarch64/ (stored 0%)[0m
+[09:39:53]: ▸ [35m  adding: flutter_secure_storage.framework.dSYM/Contents/Resources/Relocations/aarch64/flutter_secure_storage.yml (deflated 84%)[0m
+[09:39:53]: ▸ [35m  adding: flutter_secure_storage.framework.dSYM/Contents/Resources/DWARF/ (stored 0%)[0m
+[09:39:53]: ▸ [35m  adding: flutter_secure_storage.framework.dSYM/Contents/Resources/DWARF/flutter_secure_storage (deflated 60%)[0m
+[09:39:53]: ▸ [35m  adding: flutter_secure_storage.framework.dSYM/Contents/Info.plist (deflated 52%)[0m
+[09:39:53]: ▸ [35m  adding: Flutter.framework.dSYM/ (stored 0%)[0m
+[09:39:53]: ▸ [35m  adding: Flutter.framework.dSYM/Contents/ (stored 0%)[0m
+[09:39:53]: ▸ [35m  adding: Flutter.framework.dSYM/Contents/Resources/ (stored 0%)[0m
+[09:39:53]: ▸ [35m  adding: Flutter.framework.dSYM/Contents/Resources/Relocations/ (stored 0%)[0m
+[09:39:53]: ▸ [35m  adding: Flutter.framework.dSYM/Contents/Resources/Relocations/aarch64/ (stored 0%)[0m
+[09:39:53]: ▸ [35m  adding: Flutter.framework.dSYM/Contents/Resources/Relocations/aarch64/Flutter.yml (deflated 89%)[0m
+[09:39:53]: ▸ [35m  adding: Flutter.framework.dSYM/Contents/Resources/DWARF/ (stored 0%)[0m
+[09:39:53]: ▸ [35m  adding: Flutter.framework.dSYM/Contents/Resources/DWARF/Flutter (deflated 75%)[0m
+[09:39:53]: ▸ [35m  adding: Flutter.framework.dSYM/Contents/Info.plist (deflated 53%)[0m
+[09:39:53]: ▸ [35m  adding: objective_c.framework 1.dSYM/ (stored 0%)[0m
+[09:39:53]: ▸ [35m  adding: objective_c.framework 1.dSYM/Contents/ (stored 0%)[0m
+[09:39:53]: ▸ [35m  adding: objective_c.framework 1.dSYM/Contents/Resources/ (stored 0%)[0m
+[09:39:53]: ▸ [35m  adding: objective_c.framework 1.dSYM/Contents/Resources/Relocations/ (stored 0%)[0m
+[09:39:53]: ▸ [35m  adding: objective_c.framework 1.dSYM/Contents/Resources/Relocations/aarch64/ (stored 0%)[0m
+[09:39:53]: ▸ [35m  adding: objective_c.framework 1.dSYM/Contents/Resources/Relocations/aarch64/objective_c.yml (deflated 86%)[0m
+[09:39:53]: ▸ [35m  adding: objective_c.framework 1.dSYM/Contents/Resources/DWARF/ (stored 0%)[0m
+[09:39:53]: ▸ [35m  adding: objective_c.framework 1.dSYM/Contents/Resources/DWARF/objective_c (deflated 74%)[0m
+[09:39:53]: ▸ [35m  adding: objective_c.framework 1.dSYM/Contents/Info.plist (deflated 52%)[0m
+[09:39:53]: ▸ [35m  adding: objective_c.framework.dSYM/ (stored 0%)[0m
+[09:39:53]: ▸ [35m  adding: objective_c.framework.dSYM/Contents/ (stored 0%)[0m
+[09:39:53]: ▸ [35m  adding: objective_c.framework.dSYM/Contents/Resources/ (stored 0%)[0m
+[09:39:53]: ▸ [35m  adding: objective_c.framework.dSYM/Contents/Resources/Relocations/ (stored 0%)[0m
+[09:39:53]: ▸ [35m  adding: objective_c.framework.dSYM/Contents/Resources/Relocations/aarch64/ (stored 0%)[0m
+[09:39:53]: ▸ [35m  adding: objective_c.framework.dSYM/Contents/Resources/Relocations/aarch64/objective_c.yml (deflated 86%)[0m
+[09:39:53]: ▸ [35m  adding: objective_c.framework.dSYM/Contents/Resources/DWARF/ (stored 0%)[0m
+[09:39:53]: ▸ [35m  adding: objective_c.framework.dSYM/Contents/Resources/DWARF/objective_c (deflated 74%)[0m
+[09:39:53]: ▸ [35m  adding: objective_c.framework.dSYM/Contents/Info.plist (deflated 52%)[0m
+[09:39:53]: ▸ [35m  adding: Runner.app.dSYM/ (stored 0%)[0m
+[09:39:53]: ▸ [35m  adding: Runner.app.dSYM/Contents/ (stored 0%)[0m
+[09:39:53]: ▸ [35m  adding: Runner.app.dSYM/Contents/Resources/ (stored 0%)[0m
+[09:39:53]: ▸ [35m  adding: Runner.app.dSYM/Contents/Resources/Relocations/ (stored 0%)[0m
+[09:39:53]: ▸ [35m  adding: Runner.app.dSYM/Contents/Resources/Relocations/aarch64/ (stored 0%)[0m
+[09:39:53]: ▸ [35m  adding: Runner.app.dSYM/Contents/Resources/Relocations/aarch64/Runner.yml (deflated 87%)[0m
+[09:39:53]: ▸ [35m  adding: Runner.app.dSYM/Contents/Resources/DWARF/ (stored 0%)[0m
+[09:39:53]: ▸ [35m  adding: Runner.app.dSYM/Contents/Resources/DWARF/Runner (deflated 61%)[0m
+[09:39:53]: ▸ [35m  adding: Runner.app.dSYM/Contents/Info.plist (deflated 52%)[0m
 
-[06:56:09]: [32mSuccessfully exported and compressed dSYM file[0m
-[06:56:09]: [32mSuccessfully exported and signed the ipa file:[0m
-[06:56:09]: /Users/runner/work/-gh-platform/-gh-platform/build/ipa/GHShopper.ipa
-[06:56:09]: [32m----------------------------------[0m
-[06:56:09]: [32m--- Step: upload_to_testflight ---[0m
-[06:56:09]: [32m----------------------------------[0m
-[06:56:09]: Creating authorization token for App Store Connect API
-[06:56:09]: [32mReady to upload new build to TestFlight (App: 6824045606)...[0m
-[06:56:09]: Going to upload updated app to App Store Connect
-[06:56:09]: [32mThis might take a few minutes. Please don't interrupt the script.[0m
-[06:57:24]: [32m--------------------------------------------------------------------[0m
-[06:57:24]: [32mSuccessfully uploaded package to App Store Connect. It might take a few minutes until it's visible online.[0m
-[06:57:24]: [32m--------------------------------------------------------------------[0m
-[06:57:24]: [32mSuccessfully uploaded the new binary to App Store Connect[0m
-[06:57:24]: [33m`skip_waiting_for_build_processing` used and no `changelog` supplied - skipping waiting for build processing[0m
+[09:39:53]: [32mSuccessfully exported and compressed dSYM file[0m
+[09:39:53]: [32mSuccessfully exported and signed the ipa file:[0m
+[09:39:53]: /Users/runner/work/-gh-platform/-gh-platform/build/ipa/GHShopper.ipa
+[09:39:53]: [32m----------------------------------[0m
+[09:39:53]: [32m--- Step: upload_to_testflight ---[0m
+[09:39:53]: [32m----------------------------------[0m
+[09:39:53]: Creating authorization token for App Store Connect API
+[09:39:53]: [32mReady to upload new build to TestFlight (App: 6824045606)...[0m
+[09:39:53]: Going to upload updated app to App Store Connect
+[09:39:53]: [32mThis might take a few minutes. Please don't interrupt the script.[0m
+[09:41:23]: [32m--------------------------------------------------------------------[0m
+[09:41:23]: [32mSuccessfully uploaded package to App Store Connect. It might take a few minutes until it's visible online.[0m
+[09:41:23]: [32m--------------------------------------------------------------------[0m
+[09:41:23]: [32mSuccessfully uploaded the new binary to App Store Connect[0m
+[09:41:23]: [33m`skip_waiting_for_build_processing` used and no `changelog` supplied - skipping waiting for build processing[0m
 
 +---------------------------------------------------+
 |                 [32mfastlane summary[0m                  |
@@ -391,10 +391,10 @@
 | 1    | default_platform             | 0           |
 | 2    | setup_ci                     | 0           |
 | 3    | app_store_connect_api_key    | 0           |
-| 4    | match                        | 6           |
+| 4    | match                        | 4           |
 | 5    | update_code_signing_settings | 0           |
-| 6    | build_app                    | 228         |
-| 7    | upload_to_testflight         | 74          |
+| 6    | build_app                    | 241         |
+| 7    | upload_to_testflight         | 90          |
 +------+------------------------------+-------------+
 
-[06:57:24]: [32mfastlane.tools finished successfully 🎉[0m
+[09:41:23]: [32mfastlane.tools just saved you 6 minutes! 🎉[0m
