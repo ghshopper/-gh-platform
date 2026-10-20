@@ -6,8 +6,8 @@ Analyzing -gh-platform...
    info • The import of 'dart:typed_data' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/foundation.dart'. Try removing the import directive • lib/data/store.dart:2:8 • unnecessary_import
    info • 'minSize' is deprecated and shouldn't be used. Use minimumSize instead. This feature was deprecated after v3.28.0-3.0.pre. Try replacing the use of the deprecated member with the replacement • lib/pages/delivery_times_page.dart:57:13 • deprecated_member_use
    info • 'minSize' is deprecated and shouldn't be used. Use minimumSize instead. This feature was deprecated after v3.28.0-3.0.pre. Try replacing the use of the deprecated member with the replacement • lib/pages/delivery_times_page.dart:69:13 • deprecated_member_use
-   info • 'minSize' is deprecated and shouldn't be used. Use minimumSize instead. This feature was deprecated after v3.28.0-3.0.pre. Try replacing the use of the deprecated member with the replacement • lib/pages/gulf_shipping_page.dart:97:11 • deprecated_member_use
-   info • 'minSize' is deprecated and shouldn't be used. Use minimumSize instead. This feature was deprecated after v3.28.0-3.0.pre. Try replacing the use of the deprecated member with the replacement • lib/pages/gulf_shipping_page.dart:109:11 • deprecated_member_use
+   info • 'minSize' is deprecated and shouldn't be used. Use minimumSize instead. This feature was deprecated after v3.28.0-3.0.pre. Try replacing the use of the deprecated member with the replacement • lib/pages/gulf_shipping_page.dart:111:11 • deprecated_member_use
+   info • 'minSize' is deprecated and shouldn't be used. Use minimumSize instead. This feature was deprecated after v3.28.0-3.0.pre. Try replacing the use of the deprecated member with the replacement • lib/pages/gulf_shipping_page.dart:123:11 • deprecated_member_use
    info • 'anonKey' is deprecated and shouldn't be used. Use publishableKey instead. anonKey will be removed in a future major version. Try replacing the use of the deprecated member with the replacement • lib/pages/import_page.dart:16:7 • deprecated_member_use
    info • The 'children' argument should be last in widget constructor invocations. Try moving the argument to the end of the argument list • lib/pages/item_pages.dart:221:11 • sort_child_properties_last
    info • The 'children' argument should be last in widget constructor invocations. Try moving the argument to the end of the argument list • lib/pages/item_pages.dart:243:11 • sort_child_properties_last
@@ -39,4 +39,4 @@ warning • The member 'loadSnapshot' can only be used within 'package:gh_shoppe
 warning • The member 'loadSnapshot' can only be used within 'package:gh_shopper/data/store.dart' or a test • test_shots/screens_test.dart:361:15 • invalid_use_of_visible_for_testing_member
 warning • The member 'loadSnapshot' can only be used within 'package:gh_shopper/data/store.dart' or a test • test_shots/screens_test.dart:391:13 • invalid_use_of_visible_for_testing_member
 
-38 issues found. (ran in 11.8s)
+38 issues found. (ran in 16.6s)
