@@ -545,7 +545,7 @@ export default function Checkout() {
             {errors.payment ? <T size={12} color={C.red}>{errors.payment}</T> : null}
             {loyalty.balance > 0 ? (
               <Check on={useLoyalty} onPress={() => setUseLoyalty(!useLoyalty)}
-                label={tr(`استخدم نقاط الولاء (${loyalty.balance} نقطة = ${omr(loyalty.balance * loyalty.rate)})`, `Use loyalty points (${loyalty.balance} = ${omr(loyalty.balance * loyalty.rate)})`)} />
+                label={tr(`استخدم نقاط الولاء (${loyalty.balance} نقطة = ${omrReal(loyalty.balance * loyalty.rate)})`, `Use loyalty points (${loyalty.balance} = ${omrReal(loyalty.balance * loyalty.rate)})`)} />
             ) : null}
             <CouponBox />
             <Field label={tr('ملاحظات للطلب (اختياري)', 'Order notes (optional)')} value={notes} onChangeText={setNotes} multiline />

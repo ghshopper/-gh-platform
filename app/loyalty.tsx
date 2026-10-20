@@ -1,7 +1,7 @@
 import { Dimensions, ScrollView, View } from 'react-native';
 import { api, listOf } from '@/api';
 import { useAuth } from '@/auth';
-import { dateText, num, omr } from '@/format';
+import { dateText, num, omrReal } from '@/format';
 import { useLoad } from '@/hooks';
 import { Icon } from '@/icons';
 import { useLang } from '@/lang';
@@ -134,7 +134,7 @@ function History({ rows }: { rows: PointsRow[] }) {
                 </View>
                 <View style={{ paddingHorizontal: 14, paddingVertical: 10, gap: 6 }}>
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}><T size={12.5} color={C.muted}>{tr('التاريخ', 'Date')}</T><T size={12.5}>{dateText(r.created_at, isAr)}</T></View>
-                  {r.order_total != null ? <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}><T size={12.5} color={C.muted}>{tr('قيمة الشراء', 'Purchase')}</T><T latin size={12.5}>{omr(r.order_total)}</T></View> : null}
+                  {r.order_total != null ? <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}><T size={12.5} color={C.muted}>{tr('قيمة الشراء', 'Purchase')}</T><T latin size={12.5}>{omrReal(r.order_total)}</T></View> : null}
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}><T size={12.5} color={C.muted}>{tr('الحالة', 'Status')}</T><T size={12.5}>{tr(label[0], label[1])}</T></View>
                 </View>
               </View>
@@ -181,7 +181,7 @@ export default function Loyalty() {
         <ScrollView contentContainerStyle={{ paddingBottom: 50 }}>
           <View style={{ padding: S.gutter, gap: 18 }}>
             {current ? (
-              <TierCard tier={current} index={currentIdx} width={cardW} current reached points={points} worth={tr(`= ${omr(points * rate)}`, `= ${omr(points * rate)}`)} />
+              <TierCard tier={current} index={currentIdx} width={cardW} current reached points={points} worth={tr(`= ${omrReal(points * rate)}`, `= ${omrReal(points * rate)}`)} />
             ) : null}
 
             {next ? (
@@ -208,7 +208,7 @@ export default function Loyalty() {
               </View>
               <View style={{ flex: 1, padding: 14, gap: 2 }}>
                 <T size={11.5} color={C.muted}>{tr('كل نقطة تساوي', 'Each point is worth')}</T>
-                <T latin size={13.5} w="medium">{omr(rate)}</T>
+                <T latin size={13.5} w="medium">{omrReal(rate)}</T>
               </View>
             </View>
             <T size={12.5} color={C.sub}>{tr('النقاط تنضاف لحسابك لما يتسلّم الطلب، وتقدر تستخدمها كخصم في صفحة الدفع. المستوى يحسب على النقاط اللي جمعتها، فاستخدامها ما ينزّل مستواك.', 'Points are added once your order is delivered and can be used as a discount at checkout. Your tier counts the points you have earned, so spending them does not lower it.')}</T>
