@@ -234,6 +234,10 @@ export function ProductCard({ product, width, style }: { product: Product; width
           <View style={{ position: 'absolute', top: 10, left: 10, backgroundColor: C.ink, paddingHorizontal: 7, paddingVertical: 2 }}>
             <T latin size={10.5} color={C.white} spacing={0.6}>{`-${off}%`}</T>
           </View>
+        ) : product.vip_early ? (
+          <View style={{ position: 'absolute', top: 10, left: 10, backgroundColor: '#111', paddingHorizontal: 7, paddingVertical: 2 }}>
+            <T size={10.5} color="#E8D3A6">{tr('🖤 لك قبل الكل', '🖤 Yours first')}</T>
+          </View>
         ) : null}
 
         <Pressable
