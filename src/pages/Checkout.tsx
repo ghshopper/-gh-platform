@@ -156,8 +156,7 @@ export default function Checkout() {
 
   const address = () => {
     if (abroad) {
-      const carrierName = gcc.carrier_name || 'جيناكم';
-      const label = `شحن خليجي — ${carrierName} لباب البيت (${abroad.name_ar})`;
+      const label = `شحن خليجي لباب البيت (${abroad.name_ar})`;
       return {
         delivery_method: `gcc_${gcc.carrier || 'genacom'}`,
         delivery_label: label,
@@ -310,7 +309,7 @@ export default function Checkout() {
               <>
                 <div className="choice-row">
                   <div className="choice on">
-                    <b>{tr(`شحن لباب البيت مع ${gcc.carrier_name || 'جيناكم'}`, `Door delivery by ${gcc.carrier === 'dhl' ? 'DHL' : 'Genacom'}`)}</b>
+                    <b>{tr('شحن سريع لباب البيت', 'Express door delivery')}</b>
                     <span>{omr(abroad.fee)}</span>
                   </div>
                 </div>
