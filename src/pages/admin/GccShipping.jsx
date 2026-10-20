@@ -76,12 +76,12 @@ export default function GccShipping() {
             <label>إلى (أيام عمل)<input className="input" type="number" min="0" value={s.max_days} onChange={(e) => set({ max_days: e.target.value })} /></label>
           </div>
           <p className="gc-hint">تنضاف على مدة تجهيز الطلب نفسه. مثلاً قطعة من أوروبا (7–12 يوم) + الشحن ({s.min_days}–{s.max_days} أيام عمل).</p>
-          <label>شركة الشحن
+          <label>الشركة الافتراضية للطلبات الجديدة
             <div className="gh-seg" style={{ width: '100%' }}>
               {Object.entries(carriers).map(([k, v]) => <button key={k} className={s.carrier === k ? 'on' : ''} onClick={() => set({ carrier: k })} style={{ flex: 1 }}>{v}</button>)}
             </div>
           </label>
-          <p className="gc-hint">تقدر تغيّرها لأي طلب بعدين من صفحة الطلب.</p>
+          <p className="gc-hint">العميل يشوف «شحن سريع لباب البيت» بدون اسم الشركة. أنت تختار جيناكم أو DHL لكل طلب من صفحة الطلب.</p>
         </div>
 
         <div className="card gc-box">
