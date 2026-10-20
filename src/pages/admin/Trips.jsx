@@ -71,6 +71,7 @@ export default function Trips() {
                 {(r.to_buy > 0 || r.unpriced > 0) && (
                   <div className="tr-warn">
                     {r.to_buy > 0 && <span>{r.to_buy} قطعة تنتظر الشراء</span>}
+                    {r.to_buy > 0 && <span className="tr-est">تقريباً بتدفع فيها <b>{money(r.est_to_pay)} ر.ع</b> (تنباع بـ {money(r.to_buy_sales)}){r.est_missing ? ` · ${r.est_missing} بدون سعر تقريبي` : ''}</span>}
                     {r.unpriced > 0 && <span>{r.unpriced} قطعة ما تسجّل سعر شرائها (ما تدخل في الربح)</span>}
                   </div>
                 )}
@@ -136,6 +137,7 @@ export default function Trips() {
 .tr-profit b{direction:ltr;unicode-bidi:isolate}
 .tr-nums b.green{color:#047857}
 .tr-warn{margin-top:10px;display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:#B45309}
+.tr-est{color:var(--text-secondary)}.tr-est b{color:var(--text-primary,#111);direction:ltr;unicode-bidi:isolate}
 .tr-tf-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
 .tr-tf-cards .card{padding:14px 16px;margin:0;display:flex;flex-direction:column;gap:2px}
 .tr-tf-cards small{font-size:12px;color:var(--text-secondary)}
