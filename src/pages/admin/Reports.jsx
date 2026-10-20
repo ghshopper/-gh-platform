@@ -4,6 +4,7 @@ import toast from 'react-hot-toast'
 import { RiDownload2Line, RiArrowUpLine, RiArrowDownLine, RiRefreshLine, RiBarChartBoxLine, RiLoader4Line } from 'react-icons/ri'
 import api from '../../services/api'
 import Empty from '../../components/Empty'
+import MonthlyReportBox from '../../components/MonthlyReportBox'
 
 // Sales reports from every order (app, website and the ones added by hand):
 // the period against the one before it, by brand, by category, best customers,
@@ -200,6 +201,7 @@ export default function Reports() {
           )}
         </>
       )}
+      <MonthlyReportBox />
       <style>{CSS}</style>
     </div>
   )

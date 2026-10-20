@@ -3,6 +3,7 @@ import toast from 'react-hot-toast'
 import { RiPlaneLine, RiCheckLine, RiRefund2Line } from 'react-icons/ri'
 import api from '../../services/api'
 import Empty from '../../components/Empty'
+import ShoppingList from '../../components/ShoppingList'
 
 // Profit of every buying trip, and the tax-free refunds to follow up.
 const money = (n) => Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 })
@@ -12,6 +13,7 @@ export default function Trips() {
   const [d, setD] = useState(null)
   const [tab, setTab] = useState('trips')
   const [tfFilter, setTfFilter] = useState('due')
+  const [list, setList] = useState(null) // trip id, 'none' or 'all'
   const load = () => api.get('/admin/trips-report').then((r) => setD(r.data)).catch(() => toast.error('تعذر التحميل'))
   useEffect(() => { load() }, [])
 
@@ -34,6 +36,7 @@ export default function Trips() {
           <h1 className="page-title-main" style={{ margin: 0 }}>الرحلات والتاكس فري</h1>
           <p className="page-subtitle" style={{ margin: '4px 0 0' }}>ربح كل رحلة شراء بعد التكلفة والمصاريف، ومتابعة استرجاع التاكس فري.</p>
         </div>
+        <button className="btn btn-ghost btn-sm" onClick={() => setList('all')}>🛍 كل اللي ينتظر الشراء</button>
         <div className="gh-seg">
           <button className={tab === 'trips' ? 'on' : ''} onClick={() => setTab('trips')}>الرحلات</button>
           <button className={tab === 'tf' ? 'on' : ''} onClick={() => setTab('tf')}>التاكس فري {t.pending_count ? `(${t.pending_count})` : ''}</button>
@@ -50,6 +53,7 @@ export default function Trips() {
                     <b>{r.name}</b>
                     <span>{[r.destination, r.starts_on && `${day(r.starts_on)}${r.ends_on ? ' – ' + day(r.ends_on) : ''}`].filter(Boolean).join(' · ')}</span>
                   </div>
+                  {r.to_buy > 0 && <button className="btn btn-primary btn-sm" onClick={() => setList(r.id || 'none')}>🛍 قائمة التسوق ({r.to_buy})</button>}
                   <div className={`tr-profit ${r.profit < 0 ? 'neg' : ''}`}>
                     <small>صافي الربح</small>
                     <b>{money(r.profit)} <i>ر.ع</i></b>
@@ -110,6 +114,7 @@ export default function Trips() {
           )}
         </>
       )}
+      {list && <ShoppingList tripId={list} onClose={() => { setList(null); load() }} />}
       <style>{`
 .tr-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:18px}
 .tr-list{display:flex;flex-direction:column;gap:12px}
