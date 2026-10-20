@@ -54,6 +54,7 @@ export default function Shop() {
   const min = sp.get('min') ?? '';
   const max = sp.get('max') ?? '';
   const fast = sp.get('fast') === '1';
+  const boost = sp.get('points_boost') === '1';
 
   const allCats = useMemo(() => {
     const flat = (list: typeof categories): typeof categories => list.flatMap((c) => [c, ...flat(c.children ?? [])]);
@@ -62,7 +63,7 @@ export default function Shop() {
   const cat = allCats.find((c) => String(c.id) === category);
   const parent = cat?.parent_id ? allCats.find((c) => c.id === cat.parent_id) : cat;
   const br = brands.find((b) => String(b.id) === brand);
-  const title = q ? tr(`نتائج "${q}"`, `Results for "${q}"`) : br ? (br.name_en || br.name_ar || '').toUpperCase() : cat ? pick(cat, 'name') : fast ? tr('توصيل سريع', 'Fast delivery') : tr('وصل حديثاً', 'New in');
+  const title = q ? tr(`نتائج "${q}"`, `Results for "${q}"`) : br ? (br.name_en || br.name_ar || '').toUpperCase() : cat ? pick(cat, 'name') : fast ? tr('توصيل سريع', 'Fast delivery') : boost ? tr('نقاط مضاعفة ⚡', 'Bonus points ⚡') : tr('وصل حديثاً', 'New in');
   // a category's count includes its sub-categories
   const countOf = (id: number): number => {
     if (!brandCats) return 0;
@@ -92,7 +93,7 @@ export default function Shop() {
     api.get<unknown>('/customer/attributes').then((r) => setAttrs(listOf<AttributeRow>(r))).catch(() => undefined);
   }, []);
 
-  const key = `${category}|${brand}|${q}|${sort}|${chosenAttrs.join(',')}|${min}|${max}|${fast}|${gender}`;
+  const key = `${category}|${brand}|${q}|${sort}|${chosenAttrs.join(',')}|${min}|${max}|${fast}|${gender}|${boost}`;
   const load = async (p: number) => {
     setLoading(true);
     const s = SORTS.find((x) => x.key === sort) ?? SORTS[0];
@@ -100,7 +101,7 @@ export default function Shop() {
       const r = await api.get<Paginated<Product>>('/customer/products', {
         page: p, per_page: 24, search: q || undefined, category_id: category || undefined, brand_id: brand || undefined,
         attributes: chosenAttrs.length ? chosenAttrs.join(',') : undefined, min_price: min || undefined, max_price: max || undefined,
-        sort_field: s.field, sort_direction: s.dir, fast: fast ? 1 : undefined, gender: gender || undefined,
+        sort_field: s.field, sort_direction: s.dir, fast: fast ? 1 : undefined, gender: gender || undefined, points_boost: boost ? 1 : undefined,
       });
       const rows = listOf<Product>(r);
       setItems((prev) => (p === 1 ? rows : [...prev, ...rows.filter((x) => !prev.some((y) => y.id === x.id))]));

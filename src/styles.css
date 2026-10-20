@@ -596,3 +596,5 @@ a:hover .cat-photo img { transform: scale(1.04); }
 .phone-wrap input { flex: 1; min-width: 0; }
 
 .badge.vip { background: #111; color: #E8D3A6; }
+.badge.boost { background: #5C0B16; color: #F2E3C8; }
+.tag.boost { background: #5C0B16; color: #F2E3C8; border-color: #5C0B16; }

@@ -99,6 +99,7 @@ export default function ProductPage() {
           <div className="pdp-tags">
             <span className={`avail${!available ? ' out' : isOnOrder(p) ? ' order' : ''}`}><i />{!available ? tr('نفدت الكمية', 'Sold out') : isOnOrder(p) ? tr('بالطلب · نجيبها لك بعد الطلب', 'On order · we source it for you') : tr('تسليم فوري', 'Ready to deliver')}</span>
             <span className="tag">{tr('أصلية ١٠٠٪', '100% authentic')}</span>
+            {p.points_boost ? <span className="tag boost">⚡ {tr(`نقاط ×${p.points_boost} على هالقطعة`, `${p.points_boost}× points on this piece`)}{p.points_boost_ends_at ? tr(` لين ${new Date(p.points_boost_ends_at).toLocaleDateString('ar-OM', { day: 'numeric', month: 'long' })}`, ` until ${new Date(p.points_boost_ends_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long' })}`) : ''}</span> : null}
             {avg > 0 ? <span className="tag"><Icon name="star" size={14} /> {avg.toFixed(1)} ({num(p.reviews_count)})</span> : null}
           </div>
           {available ? (() => {
