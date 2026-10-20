@@ -56,13 +56,32 @@ export default function Messaging() {
     <div className="page ms" dir="rtl">
       <div className="ms-head">
         <div>
-          <h1 className="page-title-main" style={{ margin: 0 }}>الرسائل النصية (Infobip)</h1>
+          <h1 className="page-title-main" style={{ margin: 0 }}>الرسائل النصية (SMS)</h1>
           <p className="page-subtitle" style={{ margin: '4px 0 0' }}>رسائل SMS باسم المتجر للعملاء: تأكيد الطلب وتحديثاته وبطاقات الهدايا.</p>
         </div>
-        <span className={`ms-pill ${d.connected ? 'on' : ''}`}>{d.connected ? <><RiCheckLine /> مربوط</> : <><RiCloseLine /> غير مربوط</>}</span>
+        <span className={`ms-pill ${d.sms_connected ? 'on' : ''}`}>{d.sms_connected ? <><RiCheckLine /> مربوط</> : <><RiCloseLine /> غير مربوط</>}</span>
+      </div>
+
+      <div className="gh-seg ms-prov">
+        <button type="button" className={f.provider === 'android' ? 'on' : ''} onClick={() => set({ provider: 'android' })}>📱 من جوال أندرويد</button>
+        <button type="button" className={f.provider !== 'android' ? 'on' : ''} onClick={() => set({ provider: 'infobip' })}>Infobip</button>
       </div>
 
       <form className="ms-grid" onSubmit={save}>
+        {f.provider === 'android' ? (
+        <div className="card ms-box">
+          <h3>جوال أندرويد</h3>
+          <ol className="ms-steps">
+            <li>نزّل تطبيق <b>SMS Gateway for Android</b> على الجوال من Google Play (أو من sms-gate.app).</li>
+            <li>افتح التطبيق، فعّل <b>Cloud server</b> واضغط <b>Online</b>، وعطه صلاحية الرسائل.</li>
+            <li>بيطلع لك <b>Username</b> و <b>Password</b>، اكتبهم هنا واحفظ.</li>
+            <li>خلّ الجوال شغّال ومتصل بالإنترنت وعلى الشاحن، وطلّع التطبيق من «توفير البطارية».</li>
+          </ol>
+          <label>Username<input className="input" dir="ltr" value={f.android_user || ''} onChange={(e) => set({ android_user: e.target.value })} autoComplete="off" /></label>
+          <label>Password<input className="input" dir="ltr" value={f.android_pass || ''} onChange={(e) => set({ android_pass: e.target.value })} autoComplete="off" /></label>
+          <p className="ms-hint">الرسائل تطلع من رقم الشريحة اللي في الجوال (مب باسم GH Shopper). خذ باقة رسائل كثيرة من شركة الاتصالات.</p>
+        </div>
+        ) : (
         <div className="card ms-box">
           <h3>الربط</h3>
           <p className="ms-hint">من حسابك في Infobip: الصفحة الرئيسية فيها <b>API Base URL</b>، والمفتاح من <b>Developer Tools ← API Keys</b> (سوّ مفتاح جديد).</p>
@@ -73,6 +92,7 @@ export default function Messaging() {
             ? <div className="ms-bal"><RiWallet3Line /> الرصيد: <b dir="ltr">{Number(bal.balance).toFixed(2)} {bal.currency}</b></div>
             : <div className="ms-bal err">ما قدرنا نقرأ الرصيد: {bal.error || 'تأكد من الرابط والمفتاح'}</div>)}
         </div>
+        )}
 
         <div className="card ms-box">
           <h3>متى يرسل SMS؟</h3>
@@ -104,9 +124,9 @@ export default function Messaging() {
           <h3>تجربة</h3>
           <div className="ms-row">
             <input className="input" dir="ltr" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="9xxxxxxx" />
-            <button type="button" className="btn btn-ghost" disabled={testing || !d.connected} onClick={test}>{testing ? <RiLoader4Line className="spin" /> : <RiMessage2Line />} أرسل رسالة تجربة</button>
+            <button type="button" className="btn btn-ghost" disabled={testing || !d.sms_connected} onClick={test}>{testing ? <RiLoader4Line className="spin" /> : <RiMessage2Line />} أرسل رسالة تجربة</button>
           </div>
-          {!d.connected && <p className="ms-hint">احفظ الرابط والمفتاح أول.</p>}
+          {!d.sms_connected && <p className="ms-hint">احفظ بيانات الربط أول.</p>}
           {d.log?.length > 0 && (
             <div className="ms-log">
               {d.log.map((l) => (
@@ -122,6 +142,9 @@ export default function Messaging() {
       </form>
       <style>{`
 .ms-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+.ms-prov{margin-bottom:14px}
+.ms-prov button{padding:8px 18px}
+.ms-steps{margin:0;padding-inline-start:20px;font-size:13px;line-height:1.9;color:var(--text-secondary)}
 .ms-pill{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:99px;background:#F3F1EE;color:#6E6A66;font-size:13px;font-weight:600}
 .ms-pill.on{background:#ECFDF5;color:#047857}
 .ms-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
