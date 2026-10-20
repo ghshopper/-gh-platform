@@ -291,6 +291,7 @@ export default function ImportItems() {
           </p>
         </div>
         <div className="imp-actions">
+          <Link to="/admin/import-review" className="btn btn-ghost">مراجعة اللي انضاف</Link>
           <button className="btn btn-ghost" onClick={() => setShowHelp((v) => !v)}>
             <RiBookmarkLine /> زر جمع المنتجات
           </button>

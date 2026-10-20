@@ -31,6 +31,7 @@ import ImportItems from './pages/admin/ImportItems'
 import AbandonedCarts from './pages/admin/AbandonedCarts'
 import Offers from './pages/admin/Offers'
 import PointsBoosts from './pages/admin/PointsBoosts'
+import ImportReview from './pages/admin/ImportReview'
 import Activity from './pages/admin/Activity'
 import GccShipping from './pages/admin/GccShipping'
 import Monitor from './pages/admin/Monitor'
@@ -73,6 +74,7 @@ export default function App() {
           <Route path="gift-cards" element={<GiftCards />} />
           <Route path="products" element={<Products />} />
           <Route path="import-items" element={<ImportItems />} />
+          <Route path="import-review" element={<ImportReview />} />
           <Route path="abandoned-carts" element={<AbandonedCarts />} />
           <Route path="reviews" element={<Reviews />} />
           <Route path="customers" element={<Customers />} />
