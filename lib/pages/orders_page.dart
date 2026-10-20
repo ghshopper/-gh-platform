@@ -9,7 +9,7 @@ import 'order_detail_page.dart';
 import 'scanner_page.dart';
 import 'order_form_page.dart';
 
-enum OrderFilter { all, requested, purchased, arrived, outForDelivery, delivered, balance, website }
+enum OrderFilter { all, requested, purchased, arrived, outForDelivery, delivered, balance, website, gulf }
 
 extension OrderFilterX on OrderFilter {
   String get label {
@@ -30,6 +30,8 @@ extension OrderFilterX on OrderFilter {
         return 'عليها مبلغ';
       case OrderFilter.website:
         return 'من الموقع';
+      case OrderFilter.gulf:
+        return 'شحن خليجي';
     }
   }
 
@@ -51,6 +53,8 @@ extension OrderFilterX on OrderFilter {
         return o.hasBalance;
       case OrderFilter.website:
         return o.fromStore;
+      case OrderFilter.gulf:
+        return o.deliveryMethod?.isGulf == true && o.overallStatus != ItemStatus.delivered;
     }
   }
 }
@@ -117,6 +121,7 @@ class _OrdersPageState extends State<OrdersPage> {
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.fromLTRB(16, 10, 16, 6),
                 children: OrderFilter.values
+                    .where((f) => f != OrderFilter.gulf || store.orders.any((o) => o.deliveryMethod?.isGulf == true))
                     .map((f) => Padding(
                           padding: const EdgeInsetsDirectional.only(end: 8),
                           child: Chip(f.label,

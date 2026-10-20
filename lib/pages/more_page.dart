@@ -10,6 +10,7 @@ import '../models.dart';
 import '../ui/colors.dart';
 import '../ui/kit.dart';
 import 'delivery_times_page.dart';
+import 'gulf_shipping_page.dart';
 import 'drivers_pages.dart';
 import 'import_page.dart';
 import 'purchases_pages.dart';
@@ -127,6 +128,12 @@ class _MorePageState extends State<MorePage> {
             title: 'مدة التوصيل',
             subtitle: 'دبي ${Store.i.settings.eta['dubai']!.label} · أوروبا ${Store.i.settings.eta['europe']!.label}',
             onTap: () => pushPage(context, const DeliveryTimesPage()),
+          ),
+          Tile(
+            leading: const IconBox(CupertinoIcons.globe, color: GH.burgundy),
+            title: 'شحن الخليج',
+            subtitle: 'السعودية، الإمارات، الكويت، قطر، البحرين',
+            onTap: () => pushPage(context, const GulfShippingPage()),
           ),
           Tile(
             leading: const IconBox(CupertinoIcons.building_2_fill,
