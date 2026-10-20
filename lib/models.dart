@@ -825,6 +825,7 @@ class OrderEvent {
         'cancelled' => 'إلغاء',
         'requested' => 'رجع لانتظار الشراء',
         'paid' => 'دفع أونلاين',
+        'returned' => 'مرتجع',
         _ => type,
       };
 
@@ -839,6 +840,7 @@ class OrderEvent {
         'delivered' => CupertinoIcons.checkmark_seal_fill,
         'cancelled' => CupertinoIcons.xmark_circle_fill,
         'paid' => CupertinoIcons.creditcard_fill,
+        'returned' => CupertinoIcons.arrow_uturn_left_circle_fill,
         _ => CupertinoIcons.circle_fill,
       };
 
@@ -851,6 +853,7 @@ class OrderEvent {
         'delivered' => GH.statusDelivered,
         'cancelled' => GH.red,
         'paid' => GH.green,
+        'returned' => GH.amber,
         _ => GH.secondary,
       };
 

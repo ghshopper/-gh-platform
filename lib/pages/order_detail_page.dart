@@ -14,6 +14,7 @@ import '../ui/kit.dart';
 import 'customers_page.dart';
 import 'drivers_pages.dart';
 import 'item_pages.dart';
+import 'return_page.dart';
 import 'trips_page.dart';
 
 class OrderDetailPage extends StatefulWidget {
@@ -194,12 +195,16 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
       if (o.hasBalance) const SheetAction('إرسال رابط الدفع (أموال)', 'paylink'),
       if (o.hasBalance) const SheetAction('نسخ رابط الدفع', 'paylink-copy'),
       if (o.trackingToken != null) const SheetAction('نسخ رابط التتبّع', 'track'),
+      if (o.activeItems.isNotEmpty) const SheetAction('إرجاع قطع…', 'return'),
       const SheetAction('حذف الطلب', 'delete', destructive: true),
     ]);
     if (a == null || !mounted) return;
     switch (a) {
       case 'waybill':
         await printOrderWaybill(context, o);
+        break;
+      case 'return':
+        await presentForm(context, ReturnPage(order: o));
         break;
       case 'trip':
         final id = await pickTrip(context, current: o.tripId);
@@ -623,9 +628,9 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                       presentForm(context, PaymentFormPage(order: o))),
               children: [
                 ...o.payments.map((p) => Tile(
-                      leading: const IconBox(CupertinoIcons.money_dollar,
-                          color: GH.green),
-                      title: omr(p.amount),
+                      leading: IconBox(p.amount < 0 ? CupertinoIcons.arrow_uturn_left : CupertinoIcons.money_dollar,
+                          color: p.amount < 0 ? GH.amber : GH.green),
+                      title: p.amount < 0 ? 'استرجاع ${omr(-p.amount)}' : omr(p.amount),
                       subtitle: [
                         dateStr(p.paidOn),
                         if (p.method != null) p.method!,
