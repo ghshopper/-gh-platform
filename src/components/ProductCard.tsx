@@ -179,7 +179,7 @@ export function ProductCard({ product }: { product: Product }) {
       <Link to={`/product/${product.id}`} className="pcard-media" aria-label={`${brandOf(product)} ${pick(product, 'name')}`}>
         {imgs[0] ? <SafeImg src={imageUrl(imgs[0])} alt={`${brandOf(product)} ${pick(product, 'name')}`.trim()} loading="lazy" /> : <span className="ph">{brandOf(product).toUpperCase()}</span>}
         {imgs[1] ? <SafeImg src={imageUrl(imgs[1])} alt="" loading="lazy" className="alt" /> : null}
-        {out ? <span className="badge soft">{tr('نفدت الكمية', 'Sold out')}</span> : off >= 5 ? <span className="badge">-{off}%</span> : null}
+        {out ? <span className="badge soft">{tr('نفدت الكمية', 'Sold out')}</span> : off >= 5 ? <span className="badge">-{off}%</span> : product.vip_early ? <span className="badge vip">{tr('🖤 لك قبل الكل', '🖤 Yours first')}</span> : null}
       </Link>
       <button
         className={`pcard-heart${saved ? ' on' : ''}`}

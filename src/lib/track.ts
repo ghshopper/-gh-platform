@@ -19,6 +19,28 @@ try {
   sid = Math.random().toString(36).slice(2, 14) + Date.now().toString(36);
 }
 
+// A campaign link (ghshopper.com/c/…) brings ?cmp=… : remembered 7 days for the order
+const CMP = 'gh_cmp';
+let cmpNow = '';
+try {
+  const c = new URLSearchParams(location.search).get('cmp');
+  if (c && /^[A-Za-z0-9]{3,24}$/.test(c)) {
+    cmpNow = c;
+    localStorage.setItem(CMP, JSON.stringify({ c, at: Date.now() }));
+  }
+} catch {
+  // ignore
+}
+/** The campaign that brought this visitor in the last 7 days (for the order). */
+export function currentCampaign(): string | null {
+  try {
+    const v = JSON.parse(localStorage.getItem(CMP) || 'null') as { c: string; at: number } | null;
+    return v && Date.now() - v.at < 7 * 86400000 ? v.c : null;
+  } catch {
+    return null;
+  }
+}
+
 const platform = /iPhone|iPad|Android|Mobile/i.test(navigator.userAgent) ? 'mobile' : 'desktop';
 let current = location.pathname;
 let cartCount = 0;
@@ -40,8 +62,9 @@ function send(path: string, body: Record<string, unknown>) {
 /** A new page opened. */
 export function trackPage(path: string) {
   current = path;
-  send('/t', { sid, source: 'web', platform, path, ref: first ? document.referrer : undefined, first, cart: cartCount });
+  send('/t', { sid, source: 'web', platform, path, ref: first || cmpNow ? document.referrer : undefined, first, cart: cartCount, cmp: cmpNow || undefined });
   first = false;
+  cmpNow = '';
 }
 
 export function setTrackedCart(n: number) {

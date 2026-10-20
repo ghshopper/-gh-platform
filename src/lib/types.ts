@@ -22,6 +22,8 @@ export interface ProductAttribute {
 }
 
 export interface Product {
+  /** New piece in the top tier's early-access window (only they see it). */
+  vip_early?: boolean;
   id: number;
   name_ar?: string | null;
   name_en?: string | null;

@@ -54,7 +54,7 @@ export default function ProductPage() {
   }, [id]);
 
   if (product.loading && !p) return <div className="container page"><div className="pdp"><div className="skeleton tall" /><div className="skeleton" /></div></div>;
-  if (!p) return <div className="container page empty"><p>{tr('القطعة غير متوفرة حالياً', 'This piece is not available')}</p><Link to="/shop" className="btn outline">{tr('تسوّق', 'Shop')}</Link></div>;
+  if (!p) return <div className="container page empty"><p>{product.error && /الأسود|Black/.test(product.error) ? `🖤 ${product.error}` : tr('القطعة غير متوفرة حالياً', 'This piece is not available')}</p><Link to="/shop" className="btn outline">{tr('تسوّق', 'Shop')}</Link></div>;
 
   const images = productImages(p).filter((u) => !badImgs.includes(u));
   const attrs = productAttributes(p);

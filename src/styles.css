@@ -594,3 +594,5 @@ a:hover .cat-photo img { transform: scale(1.04); }
 .phone-wrap { display: flex; align-items: stretch; }
 .phone-wrap .dial { display: inline-flex; align-items: center; padding: 0 10px; border: 1px solid var(--line-strong); border-inline-end: 0; font-size: 14px; color: var(--sub); direction: ltr; }
 .phone-wrap input { flex: 1; min-width: 0; }
+
+.badge.vip { background: #111; color: #E8D3A6; }

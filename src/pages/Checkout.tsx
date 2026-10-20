@@ -1,5 +1,6 @@
 import { etaDates, etaForMany, withGulf, type Origin } from '../lib/eta';
 import { gccConfig, gccCountry, gulfEta, OMAN, showingOtherCurrency } from '../lib/region';
+import { currentCampaign } from '../lib/track';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { api, imageUrl, listOf } from '../lib/api';
@@ -225,6 +226,7 @@ export default function Checkout() {
         gift_message: gift ? [giftMessage.trim(), giftPhone.trim() ? `هاتف المستلم: ${giftPhone.trim()}` : ''].filter(Boolean).join('\n') || null : null,
         payment_method: method === 'bank' ? 'bank_transfer' : 'amwalpay',
         source: 'web',
+        campaign: currentCampaign(),
         subtotal: Number(cart.subtotal.toFixed(3)),
         shipping_cost: Number(fee.toFixed(3)),
         service_fee: Number(service.toFixed(3)),
