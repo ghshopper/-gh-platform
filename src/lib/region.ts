@@ -37,7 +37,7 @@ const KEY = 'gh_country';
 
 // First visit: guess the country from the device's time zone (only used
 // once Gulf shipping is on; the customer can change it any time).
-const TZ: Record<string, string> = { 'Asia/Riyadh': 'SA', 'Asia/Dubai': 'AE', 'Asia/Kuwait': 'KW', 'Asia/Qatar': 'QA', 'Asia/Bahrain': 'BH' };
+const TZ: Record<string, string> = { 'Asia/Riyadh': 'SA', 'Asia/Kuwait': 'KW', 'Asia/Qatar': 'QA', 'Asia/Bahrain': 'BH' } // not Asia/Dubai: Oman shares it;
 try {
   const v = localStorage.getItem(KEY);
   if (v) country = v;

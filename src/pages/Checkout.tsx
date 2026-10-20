@@ -409,7 +409,7 @@ export default function Checkout() {
               </button>
             ) : null}
             {user && loyalty.balance > 0 ? (
-              <label className="check"><input type="checkbox" checked={useLoyalty} onChange={(e) => setUseLoyalty(e.target.checked)} /> {tr(`استخدم نقاطي (${loyalty.balance} نقطة = ${omr(loyalty.balance * loyalty.rate)})`, `Use my points (${loyalty.balance} = ${omr(loyalty.balance * loyalty.rate)})`)}</label>
+              <label className="check"><input type="checkbox" checked={useLoyalty} onChange={(e) => setUseLoyalty(e.target.checked)} /> {tr(`استخدم نقاطي (${loyalty.balance} نقطة = ${omrReal(loyalty.balance * loyalty.rate)})`, `Use my points (${loyalty.balance} = ${omrReal(loyalty.balance * loyalty.rate)})`)}</label>
             ) : null}
             <label className="field wide"><span>{tr('ملاحظات (اختياري)', 'Notes (optional)')}</span><textarea rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} /></label>
           </section>

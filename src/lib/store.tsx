@@ -27,7 +27,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
       const raw = sessionStorage.getItem('gh_data');
       if (raw) {
         const cached = JSON.parse(raw) as AppData;
-        setGccConfig(cached.delivery?.gcc);
         return { ...cached, ready: true };
       }
     } catch {
@@ -66,7 +65,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
             eta: eta && typeof eta === 'object' ? { ...DEFAULT_ETA, ...(eta as Partial<EtaTable>) } : DEFAULT_ETA,
             gcc: (delivery.value as { gcc?: GccConfig }).gcc ?? { enabled: false, countries: [] },
           };
-          setGccConfig(next.delivery.gcc);
         }
         if (fp.status === 'fulfilled') next.policies = fp.value?.policies ?? [];
         try {
@@ -78,6 +76,10 @@ export function DataProvider({ children }: { children: ReactNode }) {
       });
     })();
   }, []);
+
+  // Gulf settings → lib/region (outside render, so listeners may set state)
+  const gcc = d.delivery?.gcc;
+  useEffect(() => { setGccConfig(gcc); }, [gcc]);
 
   return <DataCtx.Provider value={d}>{children}</DataCtx.Provider>;
 }

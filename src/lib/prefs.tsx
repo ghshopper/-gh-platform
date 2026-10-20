@@ -55,6 +55,7 @@ export function PrefsProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const on = () => setCountryState(countryCode());
     window.addEventListener('gh-region', on);
+    on(); // the Gulf settings may have arrived (from the cache) before we listened
     return () => window.removeEventListener('gh-region', on);
   }, []);
   const setCountry = useCallback((code: string) => setCountryCode(code), []);
