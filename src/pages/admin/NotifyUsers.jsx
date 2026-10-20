@@ -14,6 +14,7 @@ const NotifyUsers = () => {
     body_ar: '',
     body_en: '',
     audience: 'all',
+    segment: 'tier:Black',
     user_id: '',
     link_type: 'none',
     link_value: ''
@@ -87,9 +88,26 @@ const NotifyUsers = () => {
   }
   const clearImage = () => { setImageFile(null); setImagePreview('') }
 
+  // a group of customers: tier, brand fans, quiet customers, never ordered, bag waiting
+  const [tiers, setTiers] = useState([])
+  const [segCount, setSegCount] = useState(null)
+  useEffect(() => {
+    api.get('/admin/brands').then((r) => setBrands(Array.isArray(r.data) ? r.data : r.data.data || [])).catch(() => {})
+    api.get('/admin/loyalty-tiers').then((r) => setTiers((r.data.data || r.data || []).slice().sort((a, b) => a.min_points - b.min_points))).catch(() => {})
+  }, [])
+  useEffect(() => {
+    if (formData.audience !== 'segment' || !formData.segment) return
+    setSegCount(null)
+    api.get('/admin/notifications/audience', { params: { segment: formData.segment } }).then((r) => setSegCount(r.data)).catch(() => {})
+  }, [formData.audience, formData.segment])
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     
+    if (formData.audience === 'segment' && segCount && !segCount.customers) {
+      toast.error('ما فيه عملاء في هذي الفئة')
+      return
+    }
     if (formData.audience === 'specific' && !formData.user_id) {
       toast.error(isAr ? 'يرجى اختيار العميل' : 'Please select a customer')
       return
@@ -108,6 +126,7 @@ const NotifyUsers = () => {
         body_ar: '',
         body_en: '',
         audience: 'all',
+        segment: 'tier:Black',
         user_id: '',
         link_type: 'none',
         link_value: ''
@@ -193,6 +212,32 @@ const NotifyUsers = () => {
                   <span style={{ fontWeight: '600', color: formData.audience === 'specific' ? 'var(--color-gold)' : 'var(--text-primary)' }}>{isAr ? 'عميل محدد (شخص واحد)' : 'Specific Customer'}</span>
                 </label>
               </div>
+
+              <label style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '16px', marginTop: 12, borderRadius: '12px', border: formData.audience === 'segment' ? '2px solid var(--color-gold)' : '2px solid transparent', background: '#FFF', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }}>
+                <input type="radio" name="audience" value="segment" checked={formData.audience === 'segment'} onChange={() => setFormData({ ...formData, audience: 'segment' })} style={{ accentColor: 'var(--color-gold)', width: '18px', height: '18px' }} />
+                <span style={{ fontWeight: '600', color: formData.audience === 'segment' ? 'var(--color-gold)' : 'var(--text-primary)' }}>فئة من العملاء</span>
+              </label>
+              {formData.audience === 'segment' && (
+                <div style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <select className="input" value={formData.segment} onChange={(e) => setFormData({ ...formData, segment: e.target.value })} style={{ height: 44 }}>
+                    <optgroup label="مستوى الولاء">
+                      {tiers.map((t) => <option key={t.name} value={`tier:${t.name}`}>مستوى {t.name_ar || t.name}</option>)}
+                    </optgroup>
+                    <optgroup label="يحبون براند (اشتروا منه أو في مفضلتهم)">
+                      {[...brands].sort((a, b) => (a.name_en || '').localeCompare(b.name_en || '')).map((b) => <option key={b.id} value={`brand:${b.id}`}>{b.name_en || b.name_ar}</option>)}
+                    </optgroup>
+                    <optgroup label="حسب الطلبات">
+                      <option value="inactive:60">ما طلبوا من 60 يوم</option>
+                      <option value="inactive:120">ما طلبوا من 4 شهور</option>
+                      <option value="never">سجّلوا وما طلبوا أبداً</option>
+                      <option value="cart">عندهم سلة ما كمّلوها</option>
+                    </optgroup>
+                  </select>
+                  <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
+                    {segCount ? <>بيوصل لـ <b style={{ color: 'var(--ink)' }}>{segCount.customers}</b> عميل في التطبيق، منهم <b style={{ color: 'var(--ink)' }}>{segCount.with_phone}</b> تطلع لهم على الجوال</> : 'نحسب العدد…'}
+                  </div>
+                </div>
+              )}
 
               {formData.audience === 'specific' && (
                 <div style={{ marginTop: '16px', position: 'relative' }}>
