@@ -32,6 +32,7 @@ import AbandonedCarts from './pages/admin/AbandonedCarts'
 import Offers from './pages/admin/Offers'
 import Activity from './pages/admin/Activity'
 import GccShipping from './pages/admin/GccShipping'
+import Monitor from './pages/admin/Monitor'
 import './index.css'
 
 import LandingPage from './pages/website/LandingPage'
@@ -91,6 +92,7 @@ export default function App() {
           <Route path="offers" element={<Offers />} />
           <Route path="activity" element={<Activity />} />
           <Route path="gcc-shipping" element={<GccShipping />} />
+          <Route path="monitor" element={<Monitor />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

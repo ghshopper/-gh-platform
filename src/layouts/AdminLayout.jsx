@@ -39,6 +39,7 @@ import {
   RiPercentLine,
   RiHistoryLine,
   RiGlobalLine,
+  RiPulseLine,
 } from 'react-icons/ri'
 
 // Sidebar, grouped the way the work flows: sell → products → customers → store.
@@ -73,6 +74,7 @@ const navSections = [
     { label: 'الشحن', icon: RiTruckLine, path: '/admin/shipping' },
     { label: 'شحن الخليج', icon: RiGlobalLine, path: '/admin/gcc-shipping' },
     { label: 'التقارير', icon: RiBarChartBoxLine, path: '/admin/reports' },
+    { label: 'حالة النظام والزوار', icon: RiPulseLine, path: '/admin/monitor' },
     { label: 'واتساب', icon: RiWhatsappLine, path: '/admin/whatsapp' },
     { label: 'المستخدمون', icon: RiUserSettingsLine, path: '/admin/users' },
     { label: 'سجل النشاط', icon: RiHistoryLine, path: '/admin/activity' },
@@ -121,6 +123,15 @@ export default function AdminLayout() {
     }).catch(() => {})
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
   const allowedHere = canOpen(window.location.pathname, user)
+  // live visitors pill in the top bar (for those who can open the monitor)
+  const [liveNow, setLiveNow] = useState(null)
+  useEffect(() => {
+    if (!canOpen('/admin/monitor', user)) return
+    const load = () => api.get('/admin/monitor/live').then((r) => setLiveNow(r.data?.now ?? null)).catch(() => {})
+    load()
+    const t = setInterval(load, 30000)
+    return () => clearInterval(t)
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleLogout = () => {
     localStorage.removeItem('token')
@@ -429,6 +440,11 @@ export default function AdminLayout() {
             {/* Left side of header (Language, Notifications and Date) */}
             <div className="flex items-center gap-5">
               <div className="flex items-center gap-4">
+                {liveNow !== null && (
+                  <button className="live-pill" onClick={() => navigate('/admin/monitor')} title="داخلين الموقع والتطبيق الحين">
+                    <i />{liveNow} <span className="hide-on-mobile">داخلين الحين</span>
+                  </button>
+                )}
                 <button 
                   className="font-bold text-gray-500 hover:text-gray-900 transition-colors" 
                   style={{ fontSize: '14px', width: 44, textAlign: 'center' }}
