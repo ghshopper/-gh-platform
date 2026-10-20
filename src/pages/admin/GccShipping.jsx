@@ -30,10 +30,19 @@ export default function GccShipping() {
       toast.error(e.response?.data?.message || 'ما انحفظ')
     } finally { setSaving(false) }
   }
-  const toggle = () => {
-    const next = { ...s, enabled: !s.enabled }
-    if (!window.confirm(next.enabled ? 'نشغّل الشحن لدول الخليج في الموقع والتطبيق؟' : 'نوقف الشحن لدول الخليج؟ الطلبات الحالية ما تتأثر.')) return
-    setS(next); save(next)
+  // the switch saves only itself (unsaved edits on the page stay as they are)
+  const toggle = async () => {
+    const on = !s.enabled
+    if (!window.confirm(on ? 'نشغّل الشحن لدول الخليج في الموقع والتطبيق؟' : 'نوقف الشحن لدول الخليج؟ الطلبات الحالية ما تتأثر.')) return
+    setSaving(true)
+    try {
+      const cur = await api.get('/admin/gcc-shipping')
+      await api.put('/admin/gcc-shipping', { ...cur.data.data, enabled: on })
+      setS((x) => ({ ...x, enabled: on }))
+      toast.success(on ? 'الشحن للخليج شغّال' : 'الشحن للخليج موقّف')
+    } catch (e) {
+      toast.error(e.response?.data?.message || 'ما انحفظ')
+    } finally { setSaving(false) }
   }
 
   if (!s) return <div className="page"><div className="gh-skel" style={{ height: 420 }} /></div>

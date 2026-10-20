@@ -131,7 +131,7 @@ export default function Dashboard() {
       carts: Array.isArray(cartsList) ? cartsList.length : 0,
       soldOut: so.status === 'fulfilled' ? (so.value.data?.total || 0) : 0,
       noPhoto: np.status === 'fulfilled' ? (np.value.data?.total || 0) : 0,
-      gulf: orders.filter((o) => String(o.delivery_method || '').startsWith('gcc_') && live(o).some((x) => x.status !== 'delivered')).length,
+      gulf: orders.filter((o) => String(o.delivery_method || '').startsWith('gcc_') && live(o).length && live(o).some((x) => x.status !== 'delivered')).length,
       today: todays.length,
       todaySales: todays.reduce((a, o) => a + live(o).reduce((s2, x) => s2 + Number(x.price || 0), 0), 0),
     })

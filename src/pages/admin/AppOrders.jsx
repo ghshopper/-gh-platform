@@ -63,7 +63,7 @@ export default function AppOrders() {
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
-  const [filter, setFilter] = useState('open')
+  const [filter, setFilter] = useState(() => new URLSearchParams(window.location.search).get('filter') || 'open')
   const [params, setParams] = useSearchParams()
   const [openId, setOpenIdState] = useState(params.get('order'))
   // the open order lives in the address (?order=…), so search and the home page can link to it
