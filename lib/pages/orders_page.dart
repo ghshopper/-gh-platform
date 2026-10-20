@@ -54,7 +54,7 @@ extension OrderFilterX on OrderFilter {
       case OrderFilter.website:
         return o.fromStore;
       case OrderFilter.gulf:
-        return o.deliveryMethod?.isGulf == true && o.overallStatus != ItemStatus.delivered;
+        return o.deliveryMethod?.isGulf == true && o.overallStatus != ItemStatus.delivered && o.overallStatus != ItemStatus.cancelled;
     }
   }
 }

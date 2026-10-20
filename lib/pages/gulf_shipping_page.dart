@@ -82,9 +82,23 @@ class _GulfShippingPageState extends State<GulfShippingPage> {
       destructive: !on,
     );
     if (!ok) return;
-    setState(() => _s!['enabled'] = on);
-    await _save(quiet: true);
-    if (mounted) toast(context, on ? 'الشحن للخليج شغّال' : 'الشحن للخليج موقّف');
+    setState(() => _saving = true);
+    try {
+      // only the switch: unsaved edits on the page stay unsaved
+      final current = await Api.i.get('/admin/gcc-shipping');
+      final body = Map<String, dynamic>.from(current['data'] as Map)..['enabled'] = on;
+      await Api.i.put('/admin/gcc-shipping', body);
+      if (!mounted) return;
+      setState(() {
+        _s!['enabled'] = on;
+        _saving = false;
+      });
+      toast(context, on ? 'الشحن للخليج شغّال' : 'الشحن للخليج موقّف');
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _saving = false);
+      toast(context, errorText(e), error: true);
+    }
   }
 
   Widget _stepper(String label, int value, ValueChanged<int> onChanged) {

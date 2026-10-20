@@ -367,8 +367,10 @@ class _DeliveryPageState extends State<DeliveryPage> {
 
   void _chooseMethod(DeliveryMethod m) {
     setState(() {
+      final wasGulf = _method.isGulf;
       _method = m;
-      _fee.text = plainFee(Store.i.settings.feeFor(m));
+      // a Gulf order keeps the shipping the customer paid when only the company changes
+      if (!(wasGulf && m.isGulf)) _fee.text = plainFee(Store.i.settings.feeFor(m));
       if (m.isCourier) _driverId = null;
     });
   }
