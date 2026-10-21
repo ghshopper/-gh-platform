@@ -45,9 +45,9 @@ export default function Backups() {
 
       <div className="card" style={{ padding: '16px 20px', marginBottom: 14, display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
         <div style={{ flex: 1, minWidth: 240 }}>
-          <b>أرسل النسخة اليومية على الإيميل</b>
+          <b>نبهني بالإيميل كل يوم</b>
           <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 2 }}>
-            عشان تكون عندك نسخة بعيد عن الاستضافة. توصل: <span dir="ltr">{d.recipients.join('، ') || '—'}</span> (نفس إيميلات التقرير الشهري).
+            يوصلك تنبيه إن النسخة انأخذت، والملف نفسه ما ينرسل لأن فيه بيانات العملاء. نزّل نسخة على جهازك مرة بالأسبوع عشان تكون عندك نسخة بعيد عن الاستضافة. يوصل: <span dir="ltr">{d.recipients.join('، ') || '—'}</span> (نفس إيميلات التقرير الشهري).
           </div>
         </div>
         <button className={`gc-toggle ${s.email ? 'on' : ''}`} onClick={toggleMail} aria-label="إيميل" style={{ width: 58, height: 32, borderRadius: 99, border: 0, background: s.email ? '#5C0B16' : '#D9D5CF', position: 'relative', cursor: 'pointer' }}>
