@@ -115,6 +115,8 @@ export interface HomeConfig {
   hero_slides: HeroSlide[];
   logo_url?: string | null;
   sections: Record<string, SectionSetting>;
+  section_order?: string[];
+  announcement?: { text_ar?: string | null; text_en?: string | null; link?: string | null } | null;
 }
 
 export interface User {

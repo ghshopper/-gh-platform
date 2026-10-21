@@ -1,7 +1,7 @@
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
-import { useMemo, useState } from 'react';
+import { Fragment, type ReactNode, useMemo, useState } from 'react';
 import { Alert, Dimensions, FlatList, Pressable, RefreshControl, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { api, imageUrl, listOf } from '@/api';
@@ -19,6 +19,7 @@ import { Btn, IconBtn, Kicker, Photo, SectionTitle, T } from '@/ui';
 import { CategoryArt } from '@/category-art';
 
 const W = Dimensions.get('window').width;
+const DEFAULT_ORDER = ['categories', 'brands', 'featured_products', 'features_banner', 'flash_sales', 'luxury_collections', 'personal_shopping', 'loyalty_program'];
 
 function active(s?: SectionSetting): boolean {
   return !s || (s.is_active !== 0 && s.is_active !== false);
@@ -143,6 +144,120 @@ export default function Home() {
   const sectionTitle = (s: SectionSetting | undefined, ar: string, en: string) => (s ? pick(s, 'title') : '') || tr(ar, en);
   const sectionAction = (s: SectionSetting | undefined) => (s ? pick(s, 'action_text') : '') || tr('عرض الكل', 'View all');
 
+  const blocks: Record<string, ReactNode> = {
+    categories: (
+      active(sections.categories) && app.categories.length ? (
+          <View style={{ marginTop: 40 }}>
+            <SectionTitle
+              title={sectionTitle(sections.categories, 'تسوّق حسب الفئة', 'Shop by category')}
+              action={sectionAction(sections.categories)}
+              onAction={() => router.push('/categories')}
+            />
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: S.gutter, gap: 10 }}>
+              {homeCategories(app.categories).slice(0, num(sections.categories?.items_count, 12) || 12).map((c: Category, i: number) => (
+                <Pressable key={c.id} onPress={() => router.push({ pathname: '/products', params: { category_id: String(c.id), title: pick(c, 'name') } })} style={{ width: 124 }} accessibilityRole="button">
+                  <CategoryArt c={c} index={i} width={124} height={156} compact />
+                </Pressable>
+              ))}
+            </ScrollView>
+          </View>
+        ) : null
+    ),
+    brands: (
+      active(sections.brands) && app.brands.length ? (
+          <View style={{ marginTop: 40 }}>
+            <SectionTitle title={sectionTitle(sections.brands, 'تسوّق حسب العلامة التجارية', 'Shop by brand')} action={sectionAction(sections.brands)} onAction={() => router.push('/brands')} />
+            <View style={{ marginHorizontal: S.gutter, flexDirection: 'row', flexWrap: 'wrap', borderTopWidth: 1, borderLeftWidth: 1, borderColor: C.line }}>
+              {app.brands.slice(0, brandCount).map((b) => (
+                <Pressable key={b.id} onPress={() => router.push({ pathname: '/brand/[id]', params: { id: String(b.id) } })} accessibilityRole="button"
+                  style={{ width: '33.333%', height: 76, borderRightWidth: 1, borderBottomWidth: 1, borderColor: C.line, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 6 }}>
+                  <T latin w="medium" size={11.5} spacing={1.8} center lines={2}>{(b.name_en ?? b.name_ar ?? '').toUpperCase()}</T>
+                </Pressable>
+              ))}
+            </View>
+          </View>
+        ) : null
+    ),
+    featured_products: (
+      active(sections.featured_products) && products.length ? (
+          <View style={{ marginTop: 40 }}>
+            <SectionTitle title={sectionTitle(sections.featured_products, 'منتجات مميزة', 'Featured products')} action={sectionAction(sections.featured_products)} onAction={() => router.push('/products')} />
+            <View style={{ paddingHorizontal: S.gutter, flexDirection: 'row', flexWrap: 'wrap', gap: 12, rowGap: 24 }}>
+              {products.map((p) => <ProductCard key={p.id} product={p} width={cardW} />)}
+            </View>
+          </View>
+        ) : null
+    ),
+    features_banner: (
+      active(sections.features_banner) ? (
+          <View style={{ marginHorizontal: S.gutter, marginTop: 40, paddingVertical: 22, borderTopWidth: 1, borderBottomWidth: 1, borderColor: C.line, flexDirection: 'row' }}>
+            {features.slice(0, 3).map((f, i) => (
+              <Feature key={i} icon={featureIcons[i] ?? 'shield'} title={(isAr ? f.title_ar : f.title_en) ?? ''} sub={(isAr ? f.sub_ar : f.sub_en) ?? ''} middle={i === 1} />
+            ))}
+          </View>
+        ) : null
+    ),
+    flash_sales: (
+      sections.flash_sales && active(sections.flash_sales) && flash.length ? (
+          <View style={{ marginTop: 40 }}>
+            <SectionTitle title={sectionTitle(sections.flash_sales, 'عروض حصرية', 'Exclusive offers')} action={sectionAction(sections.flash_sales)} onAction={() => router.push('/products')} />
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: S.gutter, gap: 10 }}>
+              {flash.map((p) => <ProductCard key={p.id} product={p} width={150} />)}
+            </ScrollView>
+          </View>
+        ) : null
+    ),
+    luxury_collections: (
+      sections.luxury_collections && active(sections.luxury_collections) && collections.length ? (
+          <View style={{ marginTop: 40 }}>
+            <SectionTitle title={sectionTitle(sections.luxury_collections, 'مجموعات حصرية', 'Luxury collections')} action={sectionAction(sections.luxury_collections)} onAction={() => router.push('/categories')} />
+            <View style={{ paddingHorizontal: S.gutter, gap: 12 }}>
+              {collections.map((c) => (
+                <Pressable key={c.id} onPress={() => router.push({ pathname: '/products', params: { category_id: String(c.id), title: pick(c, 'name') } })} accessibilityRole="button">
+                  <Photo path={c.image} label={c.name_en ?? ''} style={{ height: 180 }} />
+                  <T size={15} w="medium" style={{ marginTop: 8 }}>{pick(c, 'name')}</T>
+                </Pressable>
+              ))}
+            </View>
+          </View>
+        ) : null
+    ),
+    personal_shopping: (
+      active(sections.personal_shopping) ? (
+      <Pressable onPress={() => router.push('/request')} style={{ marginHorizontal: S.gutter, marginTop: 40, backgroundColor: C.cream }} accessibilityRole="button">
+          <Image source={require('../../assets/bags.jpg')} style={{ width: '100%', aspectRatio: 712 / 510 }} contentFit="cover" />
+          <View style={{ padding: 22, paddingTop: 6, alignItems: 'center', gap: 6 }}>
+            <Kicker color={C.gold} center>PERSONAL SHOPPING</Kicker>
+            <T size={19} w="medium" center>{tr('ما لقيت القطعة؟ نجيبها لك', "Can't find it? We'll get it")}</T>
+            <T size={13} color={C.sub} w="light" center>{tr('صوّر القطعة أو الصق رابطها، ونشتريها لك من البوتيك', 'Snap it or paste the link, and we buy it from the boutique')}</T>
+            <Btn label={tr('اطلب قطعة', 'Request a piece')} onPress={() => router.push('/request')} height={44} style={{ marginTop: 10 }} />
+          </View>
+        </Pressable>
+      ) : null
+    ),
+    loyalty_program: (
+      active(loyalty) ? (
+          <View style={{ marginHorizontal: S.gutter, marginTop: 28, padding: 24, backgroundColor: C.cream, alignItems: 'center', gap: 6 }}>
+            <Kicker color={C.gold} center>GH LOYALTY</Kicker>
+            <T size={18} w="medium" center>{(loyalty ? pick(loyalty, 'title') : '') || tr('برنامج الولاء', 'Loyalty program')}</T>
+            <T size={13} color={C.sub} w="light" center>
+              {(isAr ? loyaltySub?.subtitle_ar : loyaltySub?.subtitle_en) || tr('احصل على نقاط حصرية مع كل طلب', 'Earn exclusive points with every order')}
+            </T>
+            <Btn
+              kind="outline"
+              height={42}
+              style={{ marginTop: 10 }}
+              label={loggedIn ? tr('نقاطي', 'My points') : (loyalty ? pick(loyalty, 'action_text') : '') || tr('انضم الآن', 'Join now')}
+              onPress={() => router.push(loggedIn ? '/loyalty' : '/register')}
+            />
+          </View>
+        ) : null
+    ),
+  };
+  const order = [...(app.home?.section_order ?? []), ...DEFAULT_ORDER.filter((k) => !(app.home?.section_order ?? []).includes(k))];
+  const ann = app.home?.announcement;
+  const annText = ann ? (isAr ? ann.text_ar : ann.text_en) || ann.text_ar || ann.text_en : '';
+
   return (
     <View style={{ flex: 1, backgroundColor: C.bg }}>
       <ScrollView
@@ -158,8 +273,23 @@ export default function Home() {
           />
         }
       >
+        {/* Announcement from the dashboard */}
+        {annText ? (
+          <Pressable
+            disabled={!ann?.link}
+            onPress={() => {
+              const l = ann?.link ?? '';
+              if (/^https?:/.test(l)) WebBrowser.openBrowserAsync(l).catch(() => {});
+              else if (l.startsWith('/')) router.push(l as never);
+            }}
+            style={{ backgroundColor: C.ink, paddingTop: insets.top + 8, paddingBottom: 8, paddingHorizontal: 16 }}
+          >
+            <T size={12} color={C.bg} center lines={2}>{annText}</T>
+          </Pressable>
+        ) : null}
+
         {/* Top bar */}
-        <View style={{ paddingTop: insets.top, paddingHorizontal: 12, height: insets.top + 60, flexDirection: 'row', alignItems: 'center' }}>
+        <View style={{ paddingTop: annText ? 0 : insets.top, paddingHorizontal: 12, height: (annText ? 0 : insets.top) + 60, flexDirection: 'row', alignItems: 'center' }}>
           <View style={{ width: 96 }} />
           <View style={{ flex: 1, alignItems: 'center' }}>
             <Image
@@ -195,111 +325,7 @@ export default function Home() {
         <Hero slides={app.home?.hero_slides ?? []} />
         <View style={{ marginTop: 16 }}><GenderSwitch /></View>
 
-        {/* Categories */}
-        {active(sections.categories) && app.categories.length ? (
-          <View style={{ marginTop: 40 }}>
-            <SectionTitle
-              title={sectionTitle(sections.categories, 'تسوّق حسب الفئة', 'Shop by category')}
-              action={sectionAction(sections.categories)}
-              onAction={() => router.push('/categories')}
-            />
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: S.gutter, gap: 10 }}>
-              {homeCategories(app.categories).slice(0, num(sections.categories?.items_count, 12) || 12).map((c: Category, i: number) => (
-                <Pressable key={c.id} onPress={() => router.push({ pathname: '/products', params: { category_id: String(c.id), title: pick(c, 'name') } })} style={{ width: 124 }} accessibilityRole="button">
-                  <CategoryArt c={c} index={i} width={124} height={156} compact />
-                </Pressable>
-              ))}
-            </ScrollView>
-          </View>
-        ) : null}
-
-        {/* Brands */}
-        {active(sections.brands) && app.brands.length ? (
-          <View style={{ marginTop: 40 }}>
-            <SectionTitle title={sectionTitle(sections.brands, 'تسوّق حسب العلامة التجارية', 'Shop by brand')} action={sectionAction(sections.brands)} onAction={() => router.push('/brands')} />
-            <View style={{ marginHorizontal: S.gutter, flexDirection: 'row', flexWrap: 'wrap', borderTopWidth: 1, borderLeftWidth: 1, borderColor: C.line }}>
-              {app.brands.slice(0, brandCount).map((b) => (
-                <Pressable key={b.id} onPress={() => router.push({ pathname: '/brand/[id]', params: { id: String(b.id) } })} accessibilityRole="button"
-                  style={{ width: '33.333%', height: 76, borderRightWidth: 1, borderBottomWidth: 1, borderColor: C.line, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 6 }}>
-                  <T latin w="medium" size={11.5} spacing={1.8} center lines={2}>{(b.name_en ?? b.name_ar ?? '').toUpperCase()}</T>
-                </Pressable>
-              ))}
-            </View>
-          </View>
-        ) : null}
-
-        {/* Featured products */}
-        {active(sections.featured_products) && products.length ? (
-          <View style={{ marginTop: 40 }}>
-            <SectionTitle title={sectionTitle(sections.featured_products, 'منتجات مميزة', 'Featured products')} action={sectionAction(sections.featured_products)} onAction={() => router.push('/products')} />
-            <View style={{ paddingHorizontal: S.gutter, flexDirection: 'row', flexWrap: 'wrap', gap: 12, rowGap: 24 }}>
-              {products.map((p) => <ProductCard key={p.id} product={p} width={cardW} />)}
-            </View>
-          </View>
-        ) : null}
-
-        {/* Features */}
-        {active(sections.features_banner) ? (
-          <View style={{ marginHorizontal: S.gutter, marginTop: 40, paddingVertical: 22, borderTopWidth: 1, borderBottomWidth: 1, borderColor: C.line, flexDirection: 'row' }}>
-            {features.slice(0, 3).map((f, i) => (
-              <Feature key={i} icon={featureIcons[i] ?? 'shield'} title={(isAr ? f.title_ar : f.title_en) ?? ''} sub={(isAr ? f.sub_ar : f.sub_en) ?? ''} middle={i === 1} />
-            ))}
-          </View>
-        ) : null}
-
-        {/* Flash sale (only when switched on in the dashboard) */}
-        {sections.flash_sales && active(sections.flash_sales) && flash.length ? (
-          <View style={{ marginTop: 40 }}>
-            <SectionTitle title={sectionTitle(sections.flash_sales, 'عروض حصرية', 'Exclusive offers')} action={sectionAction(sections.flash_sales)} onAction={() => router.push('/products')} />
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: S.gutter, gap: 10 }}>
-              {flash.map((p) => <ProductCard key={p.id} product={p} width={150} />)}
-            </ScrollView>
-          </View>
-        ) : null}
-
-        {/* Luxury collections (only when switched on) */}
-        {sections.luxury_collections && active(sections.luxury_collections) && collections.length ? (
-          <View style={{ marginTop: 40 }}>
-            <SectionTitle title={sectionTitle(sections.luxury_collections, 'مجموعات حصرية', 'Luxury collections')} action={sectionAction(sections.luxury_collections)} onAction={() => router.push('/categories')} />
-            <View style={{ paddingHorizontal: S.gutter, gap: 12 }}>
-              {collections.map((c) => (
-                <Pressable key={c.id} onPress={() => router.push({ pathname: '/products', params: { category_id: String(c.id), title: pick(c, 'name') } })} accessibilityRole="button">
-                  <Photo path={c.image} label={c.name_en ?? ''} style={{ height: 180 }} />
-                  <T size={15} w="medium" style={{ marginTop: 8 }}>{pick(c, 'name')}</T>
-                </Pressable>
-              ))}
-            </View>
-          </View>
-        ) : null}
-
-        {/* Personal shopping: ask for any piece */}
-        <Pressable onPress={() => router.push('/request')} style={{ marginHorizontal: S.gutter, marginTop: 40, backgroundColor: C.cream }} accessibilityRole="button">
-          <Image source={require('../../assets/bags.jpg')} style={{ width: '100%', aspectRatio: 712 / 510 }} contentFit="cover" />
-          <View style={{ padding: 22, paddingTop: 6, alignItems: 'center', gap: 6 }}>
-            <Kicker color={C.gold} center>PERSONAL SHOPPING</Kicker>
-            <T size={19} w="medium" center>{tr('ما لقيت القطعة؟ نجيبها لك', "Can't find it? We'll get it")}</T>
-            <T size={13} color={C.sub} w="light" center>{tr('صوّر القطعة أو الصق رابطها، ونشتريها لك من البوتيك', 'Snap it or paste the link, and we buy it from the boutique')}</T>
-            <Btn label={tr('اطلب قطعة', 'Request a piece')} onPress={() => router.push('/request')} height={44} style={{ marginTop: 10 }} />
-          </View>
-        </Pressable>
-
-        {/* Loyalty */}
-        {active(loyalty) ? (
-          <View style={{ marginHorizontal: S.gutter, marginTop: 28, padding: 24, backgroundColor: C.cream, alignItems: 'center', gap: 6 }}>
-            <Kicker color={C.gold} center>GH LOYALTY</Kicker>
-            <T size={18} w="medium" center>{(loyalty ? pick(loyalty, 'title') : '') || tr('برنامج الولاء', 'Loyalty program')}</T>
-            <T size={13} color={C.sub} w="light" center>
-              {(isAr ? loyaltySub?.subtitle_ar : loyaltySub?.subtitle_en) || tr('احصل على نقاط حصرية مع كل طلب', 'Earn exclusive points with every order')}
-            </T>
-            <Btn
-              kind="outline"
-              height={42}
-              style={{ marginTop: 10 }}
-              label={loggedIn ? tr('نقاطي', 'My points') : (loyalty ? pick(loyalty, 'action_text') : '') || tr('انضم الآن', 'Join now')}
-              onPress={() => router.push(loggedIn ? '/loyalty' : '/register')}
-            />
-          </View>
-        ) : null}
+        {order.map((k) => (blocks[k] ? <Fragment key={k}>{blocks[k]}</Fragment> : null))}
       </ScrollView>
     </View>
   );
