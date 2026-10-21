@@ -49,7 +49,16 @@ jobs:
           { echo '--- AppDelegate.swift'; cat ios/*/AppDelegate.swift; echo '--- Podfile head'; head -20 ios/Podfile; } >> prebuild.log
       - name: CocoaPods
         shell: bash
-        run: cd ios && pod install 2>&1 | tee ../pods.log | tail -40; exit ${PIPESTATUS[0]}
+        # The CocoaPods CDN sometimes answers 503 for a few minutes: try again before giving up.
+        run: |
+          cd ios
+          for i in 1 2 3 4; do
+            pod install 2>&1 | tee ../pods.log | tail -40
+            [ ${PIPESTATUS[0]} -eq 0 ] && exit 0
+            echo "pod install failed (try $i), waiting before the next try"; sleep 120
+            pod repo update trunk >/dev/null 2>&1 || true
+          done
+          exit 1
       - name: Sign, archive and upload to TestFlight
         shell: bash
         run: bundle exec fastlane ios beta 2>&1 | tee fastlane.log; exit ${PIPESTATUS[0]}
