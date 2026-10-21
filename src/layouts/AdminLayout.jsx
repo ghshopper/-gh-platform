@@ -82,7 +82,7 @@ const navSections = [
     { label: 'روابط الحملات', icon: RiMegaphoneLine, path: '/admin/campaigns' },
   ] },
   { title: 'المتجر', items: [
-    { label: 'واجهة التطبيق', icon: RiSmartphoneLine, path: '/admin/customize-app' },
+    { label: 'واجهة الموقع والتطبيق', icon: RiSmartphoneLine, path: '/admin/customize-app' },
     { label: 'الأسئلة الشائعة', icon: RiQuestionLine, path: '/admin/faqs' },
     { label: 'الشحن', icon: RiTruckLine, path: '/admin/shipping' },
     { label: 'شحن الخليج', icon: RiGlobalLine, path: '/admin/gcc-shipping' },
