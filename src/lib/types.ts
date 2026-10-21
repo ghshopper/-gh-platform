@@ -124,6 +124,24 @@ export interface HomeConfig {
   hero_slides: HeroSlide[];
   logo_url?: string | null;
   sections: Record<string, SectionSetting>;
+  /** Section keys in the order the dashboard set (top first). */
+  section_order?: string[];
+  /** The bar above the header; null = switched off. */
+  announcement?: { text_ar?: string | null; text_en?: string | null; link?: string | null } | null;
+}
+
+export interface FooterSettings {
+  description_ar?: string | null;
+  description_en?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  address_ar?: string | null;
+  address_en?: string | null;
+  instagram?: string | null;
+  tiktok?: string | null;
+  snapchat?: string | null;
+  twitter?: string | null;
+  facebook?: string | null;
 }
 
 export interface User {

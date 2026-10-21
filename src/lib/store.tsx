@@ -4,7 +4,7 @@ import { GENACOM_BRANCHES, type GenacomBranch } from './genacom';
 import { api, ApiError, hasToken, listOf, setToken, setUnauthorizedHandler } from './api';
 import { num } from './format';
 import { setGccConfig, type GccConfig } from './region';
-import type { Brand, CartItem, Category, DeliveryOptions, HomeConfig, Policy, Product, User } from './types';
+import type { Brand, CartItem, Category, DeliveryOptions, FooterSettings, HomeConfig, Policy, Product, User } from './types';
 
 /* ------------------------------- App data ------------------------------- */
 
@@ -16,6 +16,7 @@ interface AppData {
   taxPercent: number;
   delivery: DeliveryOptions;
   policies: Policy[];
+  footer?: FooterSettings | null;
   ready: boolean;
 }
 
@@ -43,7 +44,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         api.get<unknown>('/customer/brands'),
         api.get<{ data?: Record<string, unknown> }>('/app/settings', { group: 'general' }),
         api.get<DeliveryOptions>('/ps/delivery-options'),
-        api.get<{ policies?: Policy[] }>('/app/footer-policies'),
+        api.get<{ policies?: Policy[]; footer?: FooterSettings | null }>('/app/footer-policies'),
       ]);
       setD((prev) => {
         const next = { ...prev, ready: true };
@@ -66,7 +67,10 @@ export function DataProvider({ children }: { children: ReactNode }) {
             gcc: (delivery.value as { gcc?: GccConfig }).gcc ?? { enabled: false, countries: [] },
           };
         }
-        if (fp.status === 'fulfilled') next.policies = fp.value?.policies ?? [];
+        if (fp.status === 'fulfilled') {
+          next.policies = fp.value?.policies ?? [];
+          next.footer = fp.value?.footer ?? null;
+        }
         try {
           sessionStorage.setItem('gh_data', JSON.stringify(next));
         } catch {

@@ -144,11 +144,20 @@ function Header() {
 
   return (
     <>
-      <div className="topbar">
-        <span>{gccConfig().enabled
+      {(() => {
+        // the bar's text comes from the dashboard (Customize → announcement); off = no bar
+        const a = home?.announcement;
+        if (home && !a) return null;
+        const text = a ? (isAr ? a.text_ar || a.text_en : a.text_en || a.text_ar) : gccConfig().enabled
           ? tr('تسوّق شخصي من بوتيكات العالم · توصيل لكل عُمان ودول الخليج', 'Personal shopping from the world’s boutiques · Delivery across Oman & the Gulf')
-          : tr('تسوّق شخصي من بوتيكات العالم · توصيل لكل عُمان', 'Personal shopping from the world’s boutiques · Delivery across Oman')}</span>
-      </div>
+          : tr('تسوّق شخصي من بوتيكات العالم · توصيل لكل عُمان', 'Personal shopping from the world’s boutiques · Delivery across Oman');
+        const link = a?.link || '';
+        return (
+          <div className="topbar">
+            {link ? (/^https?:/.test(link) ? <a href={link}>{text}</a> : <Link to={link}>{text}</Link>) : <span>{text}</span>}
+          </div>
+        );
+      })()}
       <header className="header">
         <div className="header-row container">
           <div className="h-side">
@@ -248,9 +257,20 @@ export function GenderSwitch() {
   );
 }
 
+const socialUrl = (v: string | null | undefined, base: string) => {
+  const t = (v ?? '').trim();
+  if (!t) return '';
+  return /^https?:/.test(t) ? t : base + t.replace(/^@/, '');
+};
+
 function Footer() {
   const { tr, pick } = usePrefs();
-  const { policies, categories } = useData();
+  const { policies, categories, footer } = useData();
+  const desc = footer ? pick(footer as Record<string, unknown>, 'description') : '';
+  const wa = (footer?.phone ?? '').replace(/\D/g, '') || WA;
+  const ig = socialUrl(footer?.instagram, 'https://instagram.com/') || 'https://instagram.com/shopper.gh';
+  const tt = socialUrl(footer?.tiktok, 'https://www.tiktok.com/@');
+  const sc = socialUrl(footer?.snapchat, 'https://www.snapchat.com/add/');
   return (
     <footer className="footer">
       <div className="container features">
@@ -262,11 +282,14 @@ function Footer() {
       <div className="container footer-cols">
         <div className="footer-brand">
           <img src={asset('logo.png')} alt="GH Shopper" width={72} />
-          <p>{tr('عالم من الفخامة في مكان واحد. نشتري لك من أرقى البوتيكات ونوصلها لباب بيتك.', 'A world of luxury in one place. We buy from the finest boutiques and bring it to your door.')}</p>
+          <p>{desc || tr('عالم من الفخامة في مكان واحد. نشتري لك من أرقى البوتيكات ونوصلها لباب بيتك.', 'A world of luxury in one place. We buy from the finest boutiques and bring it to your door.')}</p>
           <div className="social">
-            <a href={`https://wa.me/${WA}`} target="_blank" rel="noreferrer" aria-label="WhatsApp"><Icon name="whatsapp" /></a>
-            <a href="https://instagram.com/shopper.gh" target="_blank" rel="noreferrer" aria-label="Instagram"><Icon name="instagram" /></a>
+            <a href={`https://wa.me/${wa}`} target="_blank" rel="noreferrer" aria-label="WhatsApp"><Icon name="whatsapp" /></a>
+            <a href={ig} target="_blank" rel="noreferrer" aria-label="Instagram"><Icon name="instagram" /></a>
+            {tt ? <a href={tt} target="_blank" rel="noreferrer" aria-label="TikTok" className="social-txt">TikTok</a> : null}
+            {sc ? <a href={sc} target="_blank" rel="noreferrer" aria-label="Snapchat" className="social-txt">Snap</a> : null}
           </div>
+          {footer?.email ? <a className="small" href={`mailto:${footer.email}`} dir="ltr">{footer.email}</a> : null}
         </div>
         <div>
           <h4>{tr('تسوّق', 'Shop')}</h4>
@@ -281,7 +304,7 @@ function Footer() {
           <a href="/track">{tr('تتبع طلب', 'Track an order')}</a>
           <Link to="/account">{tr('حسابي وطلباتي', 'My account & orders')}</Link>
           <Link to="/faq">{tr('الأسئلة الشائعة', 'FAQ')}</Link>
-          <a href={`https://wa.me/${WA}`} target="_blank" rel="noreferrer">{tr('تواصل معنا', 'Contact us')}</a>
+          <a href={`https://wa.me/${wa}`} target="_blank" rel="noreferrer">{tr('تواصل معنا', 'Contact us')}</a>
         </div>
         <div>
           <h4>{tr('السياسات', 'Policies')}</h4>
