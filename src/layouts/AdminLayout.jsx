@@ -46,7 +46,10 @@ import {
   RiMessage2Line,
   RiDatabase2Line,
   RiRadarLine,
+  RiMoonLine,
+  RiSunLine,
 } from 'react-icons/ri'
+import { setThemeChoice } from '../lib/theme'
 
 // Sidebar, grouped the way the work flows: sell → products → customers → store.
 const navSections = [
@@ -106,6 +109,7 @@ export default function AdminLayout() {
   const [isNotifOpen, setIsNotifOpen] = useState(false)
   const [notifFilter, setNotifFilter] = useState('all') // 'all' | 'unread'
   const [lang, setLang] = useState(localStorage.getItem('adminLang') || 'ar')
+  const [dark, setDark] = useState(() => document.documentElement.getAttribute('data-theme') === 'dark')
   const notifDropdownRef = useRef(null)
   const [searchOpen, setSearchOpen] = useState(false)
   // ⌘K / Ctrl+K opens the search from anywhere ("/" too, when not typing)
@@ -457,6 +461,14 @@ export default function AdminLayout() {
                     <i />{liveNow} <span className="hide-on-mobile">داخلين الحين</span>
                   </button>
                 )}
+                <button
+                  className="icon-btn"
+                  title={dark ? 'الوضع النهاري' : 'الوضع الليلي'}
+                  aria-label={dark ? 'الوضع النهاري' : 'الوضع الليلي'}
+                  onClick={() => { const next = dark ? 'light' : 'dark'; setThemeChoice(next); setDark(!dark) }}
+                >
+                  {dark ? <RiSunLine size={20} /> : <RiMoonLine size={20} />}
+                </button>
                 <button 
                   className="font-bold text-gray-500 hover:text-gray-900 transition-colors" 
                   style={{ fontSize: '14px', width: 44, textAlign: 'center' }}

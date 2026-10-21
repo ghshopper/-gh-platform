@@ -1,0 +1,136 @@
+/* ============================================================
+   Dashboard night mode: html[data-theme="dark"].
+   The theme variables first, then the older pages that paint
+   white and grey directly (inline styles and page <style> blocks).
+   ============================================================ */
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --ink: #EDEBE8;
+  --accent: #C9A465;
+  /* older pages put white text on --color-primary: keep it a deep brand tone */
+  --color-primary: #7A1F2B;
+  --color-primary-dark: #5C1520;
+  --color-primary-med: #933040;
+  --color-primary-light: #B04A5A;
+  --color-primary-bg: #2A2522;
+  --color-gold: #C9A45C;
+  --color-gold-light: #D9B873;
+  --color-gold-dark: #E2C48A;
+  --color-gold-bg: #2A2418;
+  --bg-body: #111113;
+  --bg-sidebar: #17171A;
+  --bg-card: #1A1A1D;
+  --bg-hover: #222226;
+  --text-primary: #EDEBE8;
+  --text-secondary: #A9A49D;
+  --text-light: #7E7973;
+  --text-on-dark: #FFFFFF;
+  --border: #2C2C31;
+  --divider: #242428;
+  --shadow-md: 0 6px 20px rgba(0, 0, 0, .35);
+  --shadow-lg: 0 14px 40px rgba(0, 0, 0, .5);
+}
+html[data-theme="dark"] body { background: var(--bg-body); color: var(--ink); }
+html[data-theme="dark"] ::-webkit-scrollbar-thumb { background: #3A3A40; border-color: var(--bg-body); }
+
+/* shell */
+html[data-theme="dark"] .sidebar-dark { background: var(--bg-sidebar); border-color: var(--border); }
+html[data-theme="dark"] .nav-item-dark { color: #C9C4BD; }
+html[data-theme="dark"] .nav-item-dark:hover { background: var(--bg-hover); color: var(--ink); }
+html[data-theme="dark"] .top-navbar-elegant { background: rgba(17, 17, 19, .92) !important; border-color: var(--border) !important; }
+html[data-theme="dark"] .search-bar:focus-within { background: var(--bg-card) !important; }
+html[data-theme="dark"] .card,
+html[data-theme="dark"] .modal-content,
+html[data-theme="dark"] .modal-header,
+html[data-theme="dark"] .modal-body,
+html[data-theme="dark"] .table-container,
+html[data-theme="dark"] .table-wrap { background: var(--bg-card) !important; color: var(--ink); border-color: var(--border) !important; }
+html[data-theme="dark"] .modal-backdrop { background: rgba(0, 0, 0, .6); }
+
+/* buttons, inputs, tables */
+html[data-theme="dark"] .btn-primary { background: #EDEBE8; color: #111 !important; }
+html[data-theme="dark"] .btn-primary:hover { background: #FFFFFF; }
+html[data-theme="dark"] .btn-ghost { background: var(--bg-card); color: var(--ink); border-color: var(--border); }
+html[data-theme="dark"] .btn-ghost:hover { border-color: #4A4A52; }
+html[data-theme="dark"] .btn-outline { color: var(--ink); border-color: var(--ink); }
+html[data-theme="dark"] input, html[data-theme="dark"] select, html[data-theme="dark"] textarea,
+html[data-theme="dark"] .input { background: #141417 !important; color: var(--ink) !important; border-color: var(--border) !important; }
+html[data-theme="dark"] input::placeholder, html[data-theme="dark"] textarea::placeholder { color: #6E6A66 !important; }
+html[data-theme="dark"] input:focus, html[data-theme="dark"] select:focus, html[data-theme="dark"] textarea:focus { border-color: #8A857E !important; box-shadow: 0 0 0 3px rgba(255, 255, 255, .06) !important; }
+html[data-theme="dark"] input[type="checkbox"], html[data-theme="dark"] input[type="radio"] { accent-color: #C9A465; }
+html[data-theme="dark"] thead th { background: #1F1F23 !important; color: var(--text-secondary) !important; border-color: var(--border) !important; }
+html[data-theme="dark"] tbody td { border-color: var(--divider) !important; color: var(--ink); }
+html[data-theme="dark"] tbody tr:hover td { background: #202024 !important; }
+html[data-theme="dark"] .gh-seg { background: #141417 !important; border-color: var(--border) !important; }
+html[data-theme="dark"] .gh-seg button { color: var(--text-secondary); }
+html[data-theme="dark"] .gh-seg button.on { background: #2E2E34 !important; color: var(--ink) !important; box-shadow: none !important; }
+html[data-theme="dark"] .gh-skel { background: linear-gradient(90deg, #1C1C20, #24242A, #1C1C20) !important; background-size: 200% 100% !important; }
+html[data-theme="dark"] .badge { filter: brightness(.95); }
+html[data-theme="dark"] .icon-btn { color: var(--text-secondary); }
+html[data-theme="dark"] .icon-btn:hover { background: var(--bg-hover); color: var(--ink); }
+html[data-theme="dark"] .close-btn { color: var(--text-secondary); }
+html[data-theme="dark"] hr { border-color: var(--border) !important; }
+html[data-theme="dark"] .recharts-cartesian-grid line { stroke: #2C2C31; }
+html[data-theme="dark"] .recharts-text { fill: #8E8982; }
+html[data-theme="dark"] .recharts-default-tooltip { background: #1A1A1D !important; border-color: var(--border) !important; }
+
+/* page-level panels that paint white themselves */
+html[data-theme="dark"] :is(.dash-kpi, .dash-quick-item, .dash-todo-item, .mn-card, .rp-card, .ir-item, .sl-sheet, .sl-bar, .sl-form, .sl-check, .pb-found button, .ir-brands button, .live-pill) { background: var(--bg-card) !important; color: var(--ink); border-color: var(--border) !important; }
+html[data-theme="dark"] :is(.sl-img, .ir-img, .sw-img, .pb-thumbs img) { background: #232327 !important; }
+html[data-theme="dark"] :is(.imp-warn, .ir-warn, .ms-warn) { background: #2A2416 !important; border-color: #5A4A20 !important; color: #E9C77A !important; }
+html[data-theme="dark"] .ir-brands button.on { background: #EDEBE8 !important; color: #111 !important; }
+html[data-theme="dark"] .ir-item.on, html[data-theme="dark"] .ms-mode.on { background: #251C1D !important; border-color: #8A3A45 !important; }
+html[data-theme="dark"] .sl-group h3.none { background: #26262B !important; color: var(--text-secondary) !important; }
+html[data-theme="dark"] .sl-item, html[data-theme="dark"] .sl-bar { border-color: var(--border) !important; }
+html[data-theme="dark"] .sl-info span, html[data-theme="dark"] .sl-price span { color: var(--text-secondary) !important; }
+html[data-theme="dark"] .sl-sum > div:not(.sl-sum-main) { background: #222226 !important; }
+
+/* inline styles: white and near-white backgrounds */
+html[data-theme="dark"] :is([style*="background: rgb(255, 255, 255)"], [style*="background-color: rgb(255, 255, 255)"]) { background: var(--bg-card) !important; }
+html[data-theme="dark"] :is([style*="background: rgb(248, 250, 252)"], [style*="background-color: rgb(248, 250, 252)"],
+  [style*="background: rgb(250, 250, 250)"], [style*="background-color: rgb(250, 250, 250)"],
+  [style*="background: rgb(249, 250, 251)"], [style*="background-color: rgb(249, 250, 251)"],
+  [style*="background: rgb(243, 244, 246)"], [style*="background-color: rgb(243, 244, 246)"],
+  [style*="background: rgb(248, 249, 250)"], [style*="background-color: rgb(248, 249, 250)"],
+  [style*="background: rgb(244, 243, 241)"], [style*="background-color: rgb(244, 243, 241)"],
+  [style*="background: rgb(241, 245, 249)"], [style*="background-color: rgb(241, 245, 249)"],
+  [style*="background: rgb(247, 245, 242)"], [style*="background-color: rgb(247, 245, 242)"],
+  [style*="background: rgb(250, 247, 242)"], [style*="background-color: rgb(250, 247, 242)"],
+  [style*="background: rgb(250, 248, 245)"], [style*="background-color: rgb(250, 248, 245)"],
+  [style*="background: rgb(253, 251, 250)"], [style*="background-color: rgb(253, 251, 250)"],
+  [style*="background: rgb(251, 250, 248)"], [style*="background-color: rgb(251, 250, 248)"],
+  [style*="background: rgb(247, 246, 244)"], [style*="background-color: rgb(247, 246, 244)"]) { background: #202024 !important; }
+/* tinted status boxes */
+html[data-theme="dark"] :is([style*="rgb(254, 242, 242)"], [style*="rgb(254, 243, 242)"], [style*="rgb(254, 226, 226)"], [style*="rgb(253, 232, 232)"], [style*="rgb(255, 240, 242)"], [style*="rgb(252, 248, 248)"]) { background-color: #2B1A1C !important; }
+html[data-theme="dark"] :is([style*="rgb(255, 251, 235)"], [style*="rgb(255, 248, 236)"], [style*="rgb(255, 246, 232)"], [style*="rgb(255, 248, 240)"], [style*="rgb(255, 252, 246)"], [style*="rgb(251, 247, 240)"], [style*="rgb(251, 245, 238)"]) { background-color: #2A2416 !important; }
+html[data-theme="dark"] :is([style*="rgb(236, 253, 245)"], [style*="rgb(232, 245, 233)"]) { background-color: #16261F !important; }
+/* dark text on what is now dark */
+html[data-theme="dark"] :is([style*="color: rgb(17, 17, 17)"], [style*="color: rgb(26, 26, 46)"], [style*="color: rgb(30, 41, 59)"], [style*="color: rgb(51, 65, 85)"],
+  [style*="color: rgb(15, 23, 42)"], [style*="color: rgb(55, 65, 81)"], [style*="color: rgb(75, 85, 99)"], [style*="color: rgb(71, 85, 105)"],
+  [style*="color: rgb(17, 24, 39)"], [style*="color: rgb(85, 85, 85)"], [style*="color: rgb(31, 41, 55)"], [style*="color: rgb(0, 0, 0)"]):not([style*="background-color: rgb(17, 17, 17)"]):not([style*="background: rgb(17, 17, 17)"]) { color: var(--ink) !important; }
+/* light borders */
+html[data-theme="dark"] :is([style*="rgb(226, 232, 240)"], [style*="rgb(229, 231, 235)"], [style*="rgb(203, 213, 225)"], [style*="rgb(238, 238, 238)"], [style*="rgb(209, 213, 219)"], [style*="rgb(240, 240, 240)"]) { border-color: var(--border) !important; }
+
+/* settings & shipping pages (Settings.css) */
+html[data-theme="dark"] :is(.settings-glass-card, .settings-table-wrapper, .add-lang-container, .settings-tab-btn.active) { background: var(--bg-card) !important; border-color: var(--border) !important; box-shadow: none !important; }
+html[data-theme="dark"] .add-lang-container::before { display: none; }
+html[data-theme="dark"] .settings-input { background: #141417 !important; color: var(--ink) !important; border-color: var(--border) !important; }
+html[data-theme="dark"] .settings-label, html[data-theme="dark"] .settings-tab-btn { color: var(--text-secondary) !important; }
+html[data-theme="dark"] .settings-tab-btn.active { color: var(--ink) !important; }
+html[data-theme="dark"] .settings-table th { background: #1F1F23 !important; color: var(--text-secondary) !important; }
+html[data-theme="dark"] .settings-table tbody tr:hover { background: #202024 !important; }
+html[data-theme="dark"] .toggle-switch { background: #3A3A40; }
+html[data-theme="dark"] :is([style*="rgb(236, 253, 243)"], [style*="rgb(255, 250, 235)"]) { background-color: #16261F !important; }
+html[data-theme="dark"] [style*="rgb(255, 250, 235)"] { background-color: #2A2416 !important; }
+
+/* old banner headers (.gh-hero) and stat cards */
+html[data-theme="dark"] .gh-hero [style*="rgba(255, 255, 255"],
+html[data-theme="dark"] .gh-hero button { background: var(--bg-card) !important; border-color: var(--border) !important; }
+html[data-theme="dark"] .gh-hero button:last-of-type { background: #EDEBE8 !important; border-color: #EDEBE8 !important; }
+html[data-theme="dark"] .gh-hero button:last-of-type, html[data-theme="dark"] .gh-hero button:last-of-type * { color: #111 !important; }
+html[data-theme="dark"] .gh-hero button[style*="DC2626"], html[data-theme="dark"] .gh-hero button[style*="220, 38, 38"] { background: #2B1A1C !important; border-color: #5A2A2E !important; }
+html[data-theme="dark"] .gh-hero div[style*="linear-gradient"] { background: var(--color-primary-bg) !important; }
+html[data-theme="dark"] .stat-card-new { background-color: var(--bg-card) !important; border-color: var(--border) !important; }
+html[data-theme="dark"] .search-bar input, html[data-theme="dark"] .search-bar { color: var(--ink) !important; }
+html[data-theme="dark"] :is(.stat-number-new, .stat-value, .stat-label-new) { color: var(--ink) !important; }
+html[data-theme="dark"] .stat-label-new { color: var(--text-secondary) !important; }
