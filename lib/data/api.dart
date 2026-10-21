@@ -28,6 +28,12 @@ class Session {
 
 /// Talks to the GH Shopper server (ghshopper.com). The login token is kept
 /// in the iPhone keychain.
+/// The account asks for the authenticator code before signing in.
+class TwoFactorRequired implements Exception {
+  TwoFactorRequired(this.challenge);
+  final String challenge;
+}
+
 class Api extends ChangeNotifier {
   Api._();
   static final Api i = Api._();
@@ -79,9 +85,25 @@ class Api extends ChangeNotifier {
           'device': 'gh-iphone',
         },
         auth: false);
+    // the authenticator-app step is on for this account
+    if (res['two_factor_required'] == true) {
+      throw TwoFactorRequired((res['challenge'] ?? '').toString());
+    }
     final token = res['token'] as String?;
     if (token == null) throw ApiException('ما قدرنا نسجّل دخول');
+    await _finishLogin(token);
+  }
 
+  /// Second step: the 6-digit code from the authenticator app.
+  Future<void> loginTwoFactor(String challenge, String code) async {
+    final res = await _send('POST', '/auth/two-factor',
+        body: {'challenge': challenge, 'code': code}, auth: false);
+    final token = res['token'] as String?;
+    if (token == null) throw ApiException('الرمز غير صحيح');
+    await _finishLogin(token);
+  }
+
+  Future<void> _finishLogin(String token) async {
     final me = await _send('GET', '/ps/me', token: token);
     final role = (me['role'] ?? 'none').toString();
     if (role != 'admin' && role != 'driver') {

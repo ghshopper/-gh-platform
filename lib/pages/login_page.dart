@@ -34,11 +34,58 @@ class _LoginPageState extends State<LoginPage> {
     setState(() => _busy = true);
     try {
       await Api.i.login(id, password);
+    } on TwoFactorRequired catch (t) {
+      if (mounted) await _askCode(t.challenge);
     } catch (e) {
       if (mounted) toast(context, errorText(e), error: true);
     } finally {
       if (mounted) setState(() => _busy = false);
     }
+  }
+
+  /// The 6-digit code from the authenticator app (Google Authenticator…).
+  Future<void> _askCode(String challenge) async {
+    final code = TextEditingController();
+    while (mounted) {
+      final ok = await showCupertinoDialog<bool>(
+        context: context,
+        builder: (ctx) => CupertinoAlertDialog(
+          title: const Text('الرمز الثاني'),
+          content: Padding(
+            padding: const EdgeInsets.only(top: 10),
+            child: Column(children: [
+              const Text('اكتب الرمز من تطبيق المصادقة في جوالك.'),
+              const SizedBox(height: 10),
+              CupertinoTextField(
+                controller: code,
+                autofocus: true,
+                keyboardType: TextInputType.number,
+                maxLength: 6,
+                textAlign: TextAlign.center,
+                textDirection: TextDirection.ltr,
+                style: const TextStyle(fontSize: 22, letterSpacing: 6, color: GH.label),
+                placeholder: '000000',
+              ),
+            ]),
+          ),
+          actions: [
+            CupertinoDialogAction(onPressed: () => Navigator.pop(ctx, false), child: const Text('إلغاء')),
+            CupertinoDialogAction(isDefaultAction: true, onPressed: () => Navigator.pop(ctx, true), child: const Text('دخول')),
+          ],
+        ),
+      );
+      if (ok != true || !mounted) break;
+      try {
+        await Api.i.loginTwoFactor(challenge, normalizeDigits(code.text.trim()));
+        break;
+      } catch (e) {
+        if (!mounted) break;
+        toast(context, errorText(e), error: true);
+        code.clear();
+        if (errorText(e).contains('انتهت')) break;
+      }
+    }
+    code.dispose();
   }
 
   Widget _field(TextEditingController c, String placeholder,
