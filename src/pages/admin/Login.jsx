@@ -9,21 +9,37 @@ export default function AdminLogin() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
+  const [challenge, setChallenge] = useState(null) // second step: the authenticator code
+  const [code, setCode] = useState('')
   const navigate = useNavigate()
+
+  const finish = (data) => {
+    if (data.success && STAFF_ROLES.includes(data.user?.role)) {
+      localStorage.setItem('token', data.token)
+      localStorage.setItem('user', JSON.stringify(data.user))
+      toast.success('تم تسجيل الدخول بنجاح')
+      navigate('/admin/dashboard', { replace: true })
+    } else {
+      toast.error('هذا الحساب لا يملك صلاحيات الإدارة')
+    }
+  }
 
   const handleLogin = async (e) => {
     e.preventDefault()
     setLoading(true)
     try {
-      const res = await api.post('/auth/login', { email, password, device: 'web-admin' })
-      if (res.data.success && STAFF_ROLES.includes(res.data.user.role)) {
-        localStorage.setItem('token', res.data.token)
-        localStorage.setItem('user', JSON.stringify(res.data.user))
-        toast.success('تم تسجيل الدخول بنجاح')
-        navigate('/admin/dashboard', { replace: true })
-      } else {
-        toast.error('هذا الحساب لا يملك صلاحيات الإدارة')
+      if (challenge) {
+        const res = await api.post('/auth/two-factor', { challenge, code })
+        finish(res.data)
+        return
       }
+      const res = await api.post('/auth/login', { email, password, device: 'web-admin' })
+      if (res.data.two_factor_required) {
+        setChallenge(res.data.challenge)
+        setCode('')
+        return
+      }
+      finish(res.data)
     } catch (err) {
       toast.error(err.response?.data?.message || 'بيانات الدخول غير صحيحة')
     } finally {
@@ -68,6 +84,19 @@ export default function AdminLogin() {
           </div>
 
           <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+            {challenge ? (
+              <div>
+                <label style={{ display: 'block', fontSize: 14, fontWeight: 700, color: '#374151', marginBottom: 10 }}>الرمز من تطبيق المصادقة</label>
+                <input
+                  type="text" inputMode="numeric" autoComplete="one-time-code" autoFocus maxLength={6}
+                  value={code} onChange={(e) => setCode(e.target.value.replace(/[^0-9٠-٩]/g, ''))}
+                  placeholder="000000" required
+                  style={{ width: '100%', padding: '16px', borderRadius: 14, border: '1px solid #E5E7EB', fontSize: 26, letterSpacing: 10, textAlign: 'center', direction: 'ltr', fontFamily: 'inherit', outline: 'none', backgroundColor: '#F9FAFB' }}
+                />
+                <p style={{ fontSize: 13, color: '#6B7280', margin: '10px 0 0' }}>افتح تطبيق المصادقة في جوالك (Google Authenticator أو غيره) واكتب الرمز اللي يطلع لـ GH Shopper.</p>
+                <button type="button" onClick={() => setChallenge(null)} style={{ marginTop: 8, background: 'none', border: 0, color: '#4A0D17', fontWeight: 700, cursor: 'pointer', padding: 0, fontFamily: 'inherit' }}>رجوع</button>
+              </div>
+            ) : (<>
             <div>
               <label style={{ display: 'block', fontSize: 14, fontWeight: 700, color: '#374151', marginBottom: 10 }}>البريد الإلكتروني</label>
               <div style={{ position: 'relative' }}>
@@ -129,6 +158,8 @@ export default function AdminLogin() {
                 <RiLockPasswordLine style={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', right: 18, color: '#9CA3AF' }} size={20} />
               </div>
             </div>
+
+            </>)}
 
             <button 
               type="submit" 

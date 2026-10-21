@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
 import api from '../../services/api';
+import TwoFactor from '../../components/TwoFactor';
 
 export default function Profile() {
   const [user, setUser] = useState(JSON.parse(localStorage.getItem('user') || '{}'));
@@ -144,6 +145,7 @@ export default function Profile() {
           </div>
         </form>
       </div>
+      <TwoFactor />
     </div>
   );
 }

@@ -44,6 +44,7 @@ import {
   RiMegaphoneLine,
   RiFlashlightLine,
   RiMessage2Line,
+  RiDatabase2Line,
 } from 'react-icons/ri'
 
 // Sidebar, grouped the way the work flows: sell → products → customers → store.
@@ -84,6 +85,7 @@ const navSections = [
     { label: 'حالة النظام والزوار', icon: RiPulseLine, path: '/admin/monitor' },
     { label: 'واتساب', icon: RiWhatsappLine, path: '/admin/whatsapp' },
     { label: 'الرسائل النصية', icon: RiMessage2Line, path: '/admin/messaging' },
+    { label: 'النسخ الاحتياطية', icon: RiDatabase2Line, path: '/admin/backups' },
     { label: 'المستخدمون', icon: RiUserSettingsLine, path: '/admin/users' },
     { label: 'سجل النشاط', icon: RiHistoryLine, path: '/admin/activity' },
     { label: 'الإعدادات', icon: RiSettings4Line, path: '/admin/settings' },

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import VipEarly from '../../components/VipEarly'
+import GrowthSettings from '../../components/GrowthSettings'
 import api from '../../services/api'
 import toast from 'react-hot-toast'
 import { RiSave3Line, RiStarSmileLine } from 'react-icons/ri'
@@ -100,6 +101,7 @@ export default function Loyalty() {
         </button>
       </div>
 
+      <GrowthSettings />
       <VipEarly />
 
       <div style={{ 

@@ -141,6 +141,17 @@ export default function Users() {
     }
   }
 
+  const handleResetTwoFactor = async (user) => {
+    if (!window.confirm(`نشيل الرمز الثاني عن "${user.name}"؟ يقدر يدخل بكلمة المرور بس لين يفعّله من جديد.`)) return
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/admin/users/${user.id}/two-factor-reset`, {
+        method: 'POST', headers: { Authorization: `Bearer ${localStorage.getItem('token')}`, Accept: 'application/json' },
+      })
+      const json = await res.json()
+      if (json.success) { toast.success(json.message); fetchUsers() } else toast.error(json.message || 'فشلت العملية')
+    } catch { toast.error('تعذر') }
+  }
+
   const handleDeleteUser = async (user) => {
     if (!window.confirm(`هل أنت متأكد من حذف المستخدم "${user.name}"؟`)) return
     try {
@@ -434,6 +445,9 @@ export default function Users() {
 
                       <td>
                         <div style={{ display: 'flex', gap: 8, justifyContent: 'center' }}>
+                          {user.two_factor_enabled_at && (
+                            <button onClick={() => handleResetTwoFactor(user)} className="icon-btn" title="الرمز الثاني مفعّل · اضغط لشيله (لو ضاع جواله)">🔐</button>
+                          )}
                           <button onClick={() => openEditModal(user)} className="icon-btn" title="تعديل"><RiEditLine size={18} /></button>
                           <button onClick={() => handleDeleteUser(user)} className="icon-btn" title="حذف" style={{ color: 'var(--status-cancelled)' }}><RiDeleteBinLine size={18} /></button>
                         </div>
