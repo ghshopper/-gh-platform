@@ -7,6 +7,7 @@ import { usePrefs } from '../lib/prefs';
 import { useAuth } from '../lib/store';
 import type { MyOrder, MyOrdersResponse } from '../lib/types';
 import { Icon } from '../components/Icon';
+import { currentReferral } from '../lib/track';
 
 const STEPS: [string, string][] = [['استلمناه', 'Received'], ['اشتريناه', 'Bought'], ['وصل عُمان', 'In Oman'], ['في الطريق', 'On the way'], ['تم التسليم', 'Delivered']];
 const FLOW = ['requested', 'purchased', 'arrived', 'out_for_delivery', 'delivered'];
@@ -23,6 +24,7 @@ function SignIn() {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
+  const [refCode, setRefCode] = useState(() => currentReferral());
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const submit = async (e: React.FormEvent) => {
@@ -39,7 +41,7 @@ function SignIn() {
       }
       if (mode === 'reset') await resetPassword(email, code, password);
       else if (mode === 'in') await login(email, password);
-      else await register(name, email, phone, password);
+      else await register(name, email, phone, password, refCode);
       const next = sp.get('next');
       if (next) navigate(next);
     } catch (x) {
@@ -74,6 +76,7 @@ function SignIn() {
         {mode === 'up' ? <label className="field"><span>{tr('الاسم', 'Name')}</span><input value={name} onChange={(e) => setName(e.target.value)} required /></label> : null}
         <label className="field"><span>{tr('البريد الإلكتروني', 'Email')}</span><input type="email" dir="ltr" value={email} onChange={(e) => setEmail(e.target.value)} required /></label>
         {mode === 'up' ? <label className="field"><span>{tr('رقم الهاتف', 'Phone')}</span><input type="tel" dir="ltr" value={phone} onChange={(e) => setPhone(e.target.value)} /></label> : null}
+        {mode === 'up' ? <label className="field"><span>{tr('كود الدعوة (اختياري)', 'Invite code (optional)')}</span><input dir="ltr" value={refCode} onChange={(e) => setRefCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''))} maxLength={16} placeholder={tr('من صديقك', 'from a friend')} /></label> : null}
         {mode === 'reset' ? (
           <label className="field"><span>{tr('الرمز', 'Code')}</span><input inputMode="numeric" autoComplete="one-time-code" dir="ltr" maxLength={6} value={code} onChange={(e) => setCode(e.target.value.replace(/[^0-9٠-٩]/g, '').replace(/[٠-٩]/g, (d) => String('٠١٢٣٤٥٦٧٨٩'.indexOf(d))))} required minLength={6} className="code-input" /></label>
         ) : null}
@@ -172,6 +175,8 @@ export default function Account() {
             {orders.data?.portal_url ? <a href={orders.data.portal_url}><Icon name="doc" />{tr('فواتيري وإيصالاتي', 'Invoices & receipts')}</a> : null}
             <a href="https://wa.me/96877246972" target="_blank" rel="noreferrer"><Icon name="whatsapp" />{tr('تواصل معنا', 'Contact us')}</a>
           </nav>
+          <Invite />
+          <Birthday />
         </aside>
         <section>
           <h2>{tr('طلباتي', 'My orders')}</h2>
@@ -186,3 +191,67 @@ export default function Account() {
   );
 }
 
+
+type RefInfo = { enabled: boolean; code: string; link: string; friend_points: number; referrer_points: number; joined: number; ordered: number };
+
+/** Invite a friend: the customer's code and link, the gifts, how many came. */
+function Invite() {
+  const { tr } = usePrefs();
+  const { user } = useAuth();
+  const ref = useLoad(async () => (user ? await api.get<RefInfo>('/auth/referral') : null), [user?.id]);
+  const [copied, setCopied] = useState(false);
+  const r = ref.data;
+  if (!r || !r.enabled) return null;
+  const text = tr(`تسوّق من GH Shopper بكود الدعوة حقي ${r.code} وخذ ${r.friend_points} نقطة هدية مع أول طلب 🤍\n${r.link}`, `Shop at GH Shopper with my invite code ${r.code} and get ${r.friend_points} gift points on your first order 🤍\n${r.link}`);
+  const share = async () => {
+    try {
+      if (navigator.share) await navigator.share({ text });
+      else {
+        await navigator.clipboard.writeText(text);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      }
+    } catch {
+      // cancelled
+    }
+  };
+  return (
+    <div className="invite">
+      <span className="kicker gold">{tr('ادعُ صديقك', 'Invite a friend')}</span>
+      <p className="small">{tr(`صديقك ياخذ ${r.friend_points} نقطة، وأنت تاخذ ${r.referrer_points} نقطة لما يستلم أول طلب.`, `Your friend gets ${r.friend_points} points and you get ${r.referrer_points} when their first order arrives.`)}</p>
+      <div className="invite-code"><b dir="ltr">{r.code}</b><button type="button" className="btn outline small" onClick={share}>{copied ? tr('انسخ ✓', 'Copied ✓') : tr('شارك', 'Share')}</button></div>
+      {r.joined ? <small className="muted">{tr(`${r.joined} سجّلوا بدعوتك · ${r.ordered} طلبوا`, `${r.joined} joined · ${r.ordered} ordered`)}</small> : null}
+    </div>
+  );
+}
+
+/** Birthday: a gift of points on the day. */
+function Birthday() {
+  const { tr } = usePrefs();
+  const { user, refresh } = useAuth();
+  const [v, setV] = useState(user?.birth_date ?? '');
+  const [msg, setMsg] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  useEffect(() => setV(user?.birth_date ?? ''), [user?.birth_date]);
+  const save = async () => {
+    setBusy(true);
+    setMsg(null);
+    try {
+      await api.put('/auth/profile', { birth_date: v || null });
+      await refresh();
+      setMsg(tr('انحفظ 🎂', 'Saved 🎂'));
+    } catch (x) {
+      setMsg(x instanceof Error ? x.message : tr('تعذّر الحفظ', 'Could not save'));
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <div className="invite">
+      <span className="kicker gold">{tr('عيد ميلادك', 'Your birthday')}</span>
+      <p className="small">{tr('اكتب تاريخ ميلادك ويوصلك منا هدية نقاط في يومك.', 'Add your birthday and get a gift of points on the day.')}</p>
+      <div className="invite-code"><input type="date" dir="ltr" value={v} max={new Date(Date.now() - 10 * 365 * 86400000).toISOString().slice(0, 10)} onChange={(e) => setV(e.target.value)} /><button type="button" className="btn outline small" disabled={busy || v === (user?.birth_date ?? '')} onClick={save}>{tr('حفظ', 'Save')}</button></div>
+      {msg ? <small className="muted">{msg}</small> : null}
+    </div>
+  );
+}

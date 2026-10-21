@@ -31,6 +31,24 @@ try {
 } catch {
   // ignore
 }
+// An invite link (ghshopper.com/?ref=CODE): remembered 30 days for sign-up
+const REF = 'gh_ref';
+try {
+  const r = new URLSearchParams(location.search).get('ref');
+  if (r && /^[A-Za-z0-9]{3,16}$/.test(r)) localStorage.setItem(REF, JSON.stringify({ r: r.toUpperCase(), at: Date.now() }));
+} catch {
+  // ignore
+}
+/** The friend's invite code this visitor came with (last 30 days). */
+export function currentReferral(): string {
+  try {
+    const v = JSON.parse(localStorage.getItem(REF) || 'null') as { r: string; at: number } | null;
+    return v && Date.now() - v.at < 30 * 86400000 ? v.r : '';
+  } catch {
+    return '';
+  }
+}
+
 /** The campaign that brought this visitor in the last 7 days (for the order). */
 export function currentCampaign(): string | null {
   try {

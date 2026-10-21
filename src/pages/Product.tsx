@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { api, imageUrl, listOf } from '../lib/api';
 import { inStock, isOnOrder, mustChoose, num, optionsExtra, productAttributes, productImages } from '../lib/format';
 import { useLoad, useTitle } from '../lib/hooks';
@@ -46,6 +46,14 @@ export default function ProductPage() {
   const [guide, setGuide] = useState(false);
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState('');
+  const [sp] = useSearchParams();
+  const askReview = sp.get('review') === '1';
+  // from the "how is your piece?" message: straight to the review form
+  useEffect(() => {
+    if (!askReview || !p) return;
+    const t = setTimeout(() => document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 400);
+    return () => clearTimeout(t);
+  }, [askReview, p?.id]); // eslint-disable-line react-hooks/exhaustive-deps
   useTitle(p ? `${brandOf(p)} ${pick(p, 'name')}` : '');
   useEffect(() => {
     setImg(0);
@@ -159,8 +167,9 @@ export default function ProductPage() {
               <dl className="specs">{specs.map((a, i) => <div key={i}><dt>{pick(a, 'name')}</dt><dd>{(a.values ?? []).map((v) => pick(v, 'value')).join('، ')}</dd></div>)}</dl>
             </details>
           ) : null}
-          <details>
+          <details id="reviews" open={askReview || undefined}>
             <summary>{tr('التقييمات', 'Reviews')} ({(reviews.data ?? []).length})</summary>
+            {askReview && !user ? <p className="small"><Link to={`/account?next=${encodeURIComponent(`/product/${p.id}?review=1`)}`} className="link">{tr('سجّل دخولك عشان تقيّم القطعة', 'Sign in to review this piece')}</Link></p> : null}
             {(reviews.data ?? []).slice(0, 10).map((r) => (
               <div key={r.id} className="review">
                 <div className="stars">{'★'.repeat(Math.round(r.rating))}<span>{'★'.repeat(5 - Math.round(r.rating))}</span></div>

@@ -96,7 +96,7 @@ interface Auth {
   user: User | null;
   ready: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, phone: string, password: string) => Promise<void>;
+  register: (name: string, email: string, phone: string, password: string, referral?: string) => Promise<void>;
   /** Forgot password: the code from the e-mail and a new password; signs in. */
   resetPassword: (email: string, code: string, password: string) => Promise<void>;
   logout: () => void;
@@ -158,9 +158,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       ready,
       refresh,
       login: async (email, password) => finish(await api.post<LoginResponse>('/auth/login', { email: email.trim(), password }), 'البريد الإلكتروني أو كلمة المرور غير صحيحة'),
-      register: async (name, email, phone, password) =>
+      register: async (name, email, phone, password, referral) =>
         finish(
-          await api.post<LoginResponse>('/auth/register', { name: name.trim(), email: email.trim(), phone: phone.trim(), password, password_confirmation: password }),
+          await api.post<LoginResponse>('/auth/register', { name: name.trim(), email: email.trim(), phone: phone.trim(), password, password_confirmation: password, referral_code: (referral ?? '').trim() || undefined }),
           'تعذّر إنشاء الحساب',
         ),
       resetPassword: async (email, code, password) =>

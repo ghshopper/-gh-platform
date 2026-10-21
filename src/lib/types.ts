@@ -133,6 +133,7 @@ export interface User {
   phone?: string | null;
   loyalty_points?: number | string | null;
   loyalty_tier?: string | null;
+  birth_date?: string | null;
 }
 
 export interface Address {
