@@ -1,7 +1,7 @@
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useVideoPlayer, VideoView } from 'expo-video';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Alert, Dimensions, FlatList, Linking, Modal, Pressable, ScrollView, Share, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { api, imageUrl, listOf, SITE_BASE } from '@/api';
@@ -57,7 +57,7 @@ function Stars({ value, size = 14, onChange }: { value: number; size?: number; o
 }
 
 export default function ProductScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, review } = useLocalSearchParams<{ id: string; review?: string }>();
   const insets = useSafeAreaInsets();
   const { tr, pick, isAr } = useLang();
   const { loggedIn } = useAuth();
@@ -95,6 +95,14 @@ export default function ProductScreen() {
   const [sending, setSending] = useState(false);
 
   const p = product.data ?? cached ?? null;
+  // from the "how is your piece?" notification: open the review form once
+  const asked = useRef(false);
+  useEffect(() => {
+    if (review !== '1' || asked.current || !p) return;
+    asked.current = true;
+    if (loggedIn) setWriting(true);
+    else router.push('/login');
+  }, [review, p, loggedIn]);
   const images = useMemo(() => (p ? productImages(p) : []), [p]);
   const attrs = useMemo(() => (p ? productAttributes(p) : []), [p]);
   const selectable = attrs.filter((a) => a.is_selectable !== false);
@@ -222,6 +230,11 @@ export default function ProductScreen() {
             <View style={{ backgroundColor: C.surface, paddingHorizontal: 10, paddingVertical: 6 }}>
               <T size={12}>{tr('منتج أصلي ١٠٠٪', '100% authentic')}</T>
             </View>
+            {p.points_boost ? (
+              <View style={{ backgroundColor: '#5C0B16', paddingHorizontal: 10, paddingVertical: 6 }}>
+                <T size={12} color="#F2E3C8">{tr(`⚡ نقاط ×${p.points_boost} على هالقطعة`, `⚡ ${p.points_boost}× points on this piece`)}</T>
+              </View>
+            ) : null}
           </View>
         </View>
 

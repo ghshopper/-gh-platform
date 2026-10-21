@@ -45,7 +45,7 @@ function Shell() {
     return listenForPushes(
       (data) => {
         const t = data.type ?? '';
-        if (data.product_id) router.push({ pathname: '/product/[id]', params: { id: data.product_id } });
+        if (data.product_id) router.push({ pathname: '/product/[id]', params: data.review ? { id: data.product_id, review: '1' } : { id: data.product_id } });
         else if (data.brand_id) router.push({ pathname: '/brand/[id]', params: { id: data.brand_id } });
         else if (data.category_id) router.push({ pathname: '/products', params: { category_id: data.category_id } });
         else if (data.url) WebBrowser.openBrowserAsync(data.url).catch(() => undefined);

@@ -130,6 +130,7 @@ export default function Account() {
         <Tile icon="pin" label={tr('عناويني', 'Addresses')} onPress={() => (loggedIn ? router.push('/addresses') : signIn())} />
         <Tile icon="user" label={tr('الملف الشخصي', 'Profile')} note={loggedIn ? tr('الاسم والبريد وكلمة المرور', 'Name, email, password') : undefined} onPress={() => (loggedIn ? router.push('/profile') : signIn())} />
         <Tile icon="crown" label={tr('نقاطي', 'My points')} note={loggedIn ? tr(`${points} نقطة`, `${points} points`) : undefined} onPress={() => (loggedIn ? router.push('/loyalty') : signIn())} />
+        <Tile icon="gift" label={tr('ادعُ صديقك', 'Invite a friend')} note={tr('نقاط لك وله', 'Points for you both')} onPress={() => (loggedIn ? router.push('/invite') : signIn())} />
         <Tile icon="camera" label={tr('اطلب قطعة', 'Request a piece')} note={tr('نجيبها لك', 'We get it for you')} onPress={() => router.push('/request')} />
         <Tile icon="truck" label={tr('تتبع طلب', 'Track an order')} note={tr('برقم الطلب', 'By order number')} onPress={() => router.push('/track')} />
         <Tile icon="bell" label={tr('الإشعارات', 'Notifications')} onPress={() => router.push('/notifications')} />

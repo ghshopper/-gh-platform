@@ -8,12 +8,12 @@ interface AuthCtx {
   user: User | null;
   loggedIn: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, phone: string, password: string) => Promise<void>;
+  register: (name: string, email: string, phone: string, password: string, referral?: string) => Promise<void>;
   /** Forgot password: the code from the e-mail and a new password; signs in. */
   resetPassword: (email: string, code: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   refresh: () => Promise<void>;
-  updateProfile: (data: { name?: string; email?: string; current_password?: string; new_password?: string }) => Promise<string>;
+  updateProfile: (data: { name?: string; email?: string; current_password?: string; new_password?: string; birth_date?: string }) => Promise<string>;
   deleteAccount: () => Promise<void>;
 }
 
@@ -75,12 +75,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   const register = useCallback(
-    async (name: string, email: string, phone: string, password: string) => {
+    async (name: string, email: string, phone: string, password: string, referral?: string) => {
       const r = await api.post<LoginResponse>('/auth/register', {
         name: name.trim(),
         email: email.trim(),
         phone: phone.trim() || null,
         password,
+        referral_code: (referral ?? '').trim() || undefined,
       });
       await finish(r, 'حدث خطأ أثناء إنشاء الحساب');
     },

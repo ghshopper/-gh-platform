@@ -13,6 +13,7 @@ export default function Register() {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
+  const [refCode, setRefCode] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -22,7 +23,7 @@ export default function Register() {
     setBusy(true);
     setError(null);
     try {
-      await register(name, email, phone, password);
+      await register(name, email, phone, password, refCode);
       router.back();
     } catch (e) {
       setError(e instanceof Error ? e.message : tr('حدث خطأ أثناء إنشاء الحساب', 'Could not create the account'));
@@ -45,6 +46,7 @@ export default function Register() {
           <Field label={tr('البريد الإلكتروني', 'Email')} value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" textContentType="emailAddress" ltr />
           <Field label={tr('رقم الهاتف (اختياري)', 'Phone (optional)')} value={phone} onChangeText={setPhone} keyboardType="phone-pad" textContentType="telephoneNumber" ltr />
           <Field label={tr('كلمة المرور', 'Password')} value={password} onChangeText={setPassword} secureTextEntry textContentType="newPassword" />
+          <Field label={tr('كود الدعوة من صديق (اختياري)', 'Invite code from a friend (optional)')} value={refCode} onChangeText={(v: string) => setRefCode(v.toUpperCase().replace(/[^A-Z0-9]/g, ''))} autoCapitalize="characters" ltr />
           {error ? <T size={13} color={C.red}>{error}</T> : null}
           <Btn label={tr('إنشاء الحساب', 'Create account')} loading={busy} onPress={submit} />
           <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 6 }}>
