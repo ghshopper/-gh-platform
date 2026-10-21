@@ -34,6 +34,7 @@ import PointsBoosts from './pages/admin/PointsBoosts'
 import ImportReview from './pages/admin/ImportReview'
 import Messaging from './pages/admin/Messaging'
 import Backups from './pages/admin/Backups'
+import SourceWatch from './pages/admin/SourceWatch'
 import Activity from './pages/admin/Activity'
 import GccShipping from './pages/admin/GccShipping'
 import Monitor from './pages/admin/Monitor'
@@ -77,6 +78,7 @@ export default function App() {
           <Route path="products" element={<Products />} />
           <Route path="import-items" element={<ImportItems />} />
           <Route path="import-review" element={<ImportReview />} />
+          <Route path="source-watch" element={<SourceWatch />} />
           <Route path="abandoned-carts" element={<AbandonedCarts />} />
           <Route path="reviews" element={<Reviews />} />
           <Route path="customers" element={<Customers />} />

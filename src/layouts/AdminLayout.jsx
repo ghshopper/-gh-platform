@@ -45,6 +45,7 @@ import {
   RiFlashlightLine,
   RiMessage2Line,
   RiDatabase2Line,
+  RiRadarLine,
 } from 'react-icons/ri'
 
 // Sidebar, grouped the way the work flows: sell → products → customers → store.
@@ -61,6 +62,7 @@ const navSections = [
   { title: 'المنتجات', items: [
     { label: 'المنتجات', icon: RiShoppingBag3Line, path: '/admin/products' },
     { label: 'منتجات للإضافة', icon: RiSearchFill, path: '/admin/import-items' },
+    { label: 'مراقبة البراندات', icon: RiRadarLine, path: '/admin/source-watch' },
     { label: 'التصنيفات', icon: RiBillLine, path: '/admin/categories' },
     { label: 'البراندات', icon: RiStarSmileLine, path: '/admin/brands' },
     { label: 'الخصائص', icon: RiSettings4Line, path: '/admin/attributes' },

@@ -2,7 +2,7 @@
 const PAGE_AREA = {
   'app-orders': 'orders', 'store-orders': 'orders', 'product-requests': 'orders', 'abandoned-carts': 'orders',
   invoices: 'finance', payments: 'finance', reports: 'finance', trips: 'finance',
-  products: 'products', 'import-items': 'products', 'import-review': 'products', categories: 'products', brands: 'products', attributes: 'products', reviews: 'products',
+  products: 'products', 'import-items': 'products', 'import-review': 'products', 'source-watch': 'products', categories: 'products', brands: 'products', attributes: 'products', reviews: 'products',
   customers: 'customers', loyalty: 'customers', coupons: 'customers', 'gift-cards': 'customers',
   'customize-app': 'marketing', 'notify-users': 'marketing', faqs: 'marketing', offers: 'marketing', 'points-boosts': 'marketing', campaigns: 'marketing',
   shipping: 'shipping', 'gcc-shipping': 'shipping',
