@@ -55,6 +55,7 @@ const navSections = [
   { items: [{ label: 'الرئيسية', icon: RiHome5Line, path: '/admin/dashboard' }] },
   { title: 'البيع', items: [
     { label: 'الطلبات', icon: RiShoppingBag3Line, path: '/admin/app-orders' },
+    { label: 'طلبات سابقة', icon: RiHistoryLine, path: '/admin/past-orders' },
     { label: 'طلبات القطع', icon: RiSearchFill, path: '/admin/product-requests' },
     { label: 'السلات المتروكة', icon: RiShoppingBag3Line, path: '/admin/abandoned-carts' },
     { label: 'الفواتير', icon: RiBillLine, path: '/admin/invoices' },

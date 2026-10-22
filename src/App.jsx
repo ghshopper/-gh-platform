@@ -21,6 +21,7 @@ import NotifyUsers from './pages/admin/NotifyUsers'
 import Login from './pages/admin/Login'
 import ProductRequests from './pages/admin/ProductRequests'
 import AppOrders from './pages/admin/AppOrders'
+import PastOrders from './pages/admin/PastOrders'
 import Coupons from './pages/admin/Coupons'
 import GiftCards from './pages/admin/GiftCards'
 import Faqs from './pages/admin/Faqs'
@@ -74,6 +75,7 @@ export default function App() {
           <Route path="orders" element={<Navigate to="/admin/app-orders" replace />} />
           <Route path="store-orders" element={<Navigate to="/admin/app-orders" replace />} />
           <Route path="app-orders" element={<AppOrders />} />
+          <Route path="past-orders" element={<PastOrders />} />
           <Route path="coupons" element={<Coupons />} />
           <Route path="gift-cards" element={<GiftCards />} />
           <Route path="products" element={<Products />} />

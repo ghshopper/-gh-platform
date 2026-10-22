@@ -1,6 +1,6 @@
 // Which dashboard page belongs to which area (same areas as the server).
 const PAGE_AREA = {
-  'app-orders': 'orders', 'store-orders': 'orders', 'product-requests': 'orders', 'abandoned-carts': 'orders',
+  'app-orders': 'orders', 'past-orders': 'orders', 'store-orders': 'orders', 'product-requests': 'orders', 'abandoned-carts': 'orders',
   invoices: 'finance', payments: 'finance', reports: 'finance', trips: 'finance',
   products: 'products', 'import-items': 'products', 'import-review': 'products', 'source-watch': 'products', categories: 'products', brands: 'products', attributes: 'products', reviews: 'products',
   customers: 'customers', loyalty: 'customers', coupons: 'customers', 'gift-cards': 'customers',
