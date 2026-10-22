@@ -24,6 +24,15 @@ const shortErr = (e) => {
   return t.length > 90 ? t.slice(0, 90) + '…' : t
 }
 
+// The server keeps times in UTC: show them in Oman time.
+const omanTime = (v) => {
+  if (!v) return ''
+  const s = String(v)
+  const d = new Date(/[zZ]|[+-]\d\d:?\d\d$/.test(s) ? s : s.replace(' ', 'T') + 'Z')
+  if (isNaN(d)) return s.slice(0, 16)
+  return d.toLocaleString('en-GB', { timeZone: 'Asia/Muscat', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false }).replace(',', '')
+}
+
 const box = { background: '#fff', border: '1px solid var(--border)', borderRadius: 14, padding: 20, marginBottom: 16 }
 const input = { width: '100%', border: '1px solid #E5E7EB', borderRadius: 10, padding: '10px 12px', fontFamily: 'inherit', fontSize: 14, boxSizing: 'border-box' }
 const lbl = { display: 'block', fontSize: 12.5, fontWeight: 700, color: '#6B7280', marginBottom: 6 }
@@ -164,7 +173,7 @@ export default function WhatsApp() {
               <span dir="ltr" style={{ minWidth: 110 }}>{l.phone}</span>
               <span style={{ minWidth: 120 }}>{TEMPLATE_LABEL[l.template] || l.template}</span>
               <span style={{ color: '#9CA3AF', flex: 1, wordBreak: 'break-word' }}>{shortErr(l.error)}</span>
-              <span dir="ltr" style={{ color: '#9CA3AF' }}>{String(l.created_at).slice(0, 16)}</span>
+              <span dir="ltr" style={{ color: '#9CA3AF' }}>{omanTime(l.created_at)}</span>
             </div>
           ))}
         </div>
