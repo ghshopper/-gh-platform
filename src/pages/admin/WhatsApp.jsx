@@ -72,8 +72,8 @@ export default function WhatsApp() {
     await load()
   })
   const test = () => run('test', async () => {
-    await api.post('/admin/whatsapp/test', { phone: testPhone })
-    toast.success('انرسلت، شوف الواتساب')
+    const r = await api.post('/admin/whatsapp/test', { phone: testPhone })
+    toast.success(r.data?.sample ? 'انرسلت رسالة «Hello World» من ميتا (قوالبك للحين قيد المراجعة). إذا وصلتك، الربط شغال ✅' : 'انرسلت، شوف الواتساب', { duration: 7000 })
     await load()
   })
   const disconnect = () => {
