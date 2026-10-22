@@ -13,6 +13,7 @@ const keep = {
   set: (k, v) => { try { localStorage.setItem('past_' + k, v) } catch { /* private window */ } },
 }
 const METHODS = ['تحويل بنكي', 'نقداً', 'أموال', 'رابط دفع']
+const CURRENCIES = [['OMR', 'ريال عماني'], ['AED', 'درهم إماراتي'], ['EUR', 'يورو'], ['USD', 'دولار'], ['SAR', 'ريال سعودي'], ['GBP', 'جنيه إسترليني']]
 const emptyItem = () => ({ brand: '', name: '', price: '', cost: '' })
 
 export default function PastOrders() {
@@ -30,18 +31,26 @@ export default function PastOrders() {
   const [paid, setPaid] = useState('')
   const [notes, setNotes] = useState('')
   const [busy, setBusy] = useState(false)
+  const [opts, setOpts] = useState(null)
+  const [cur, setCur] = useState(() => keep.get('cur', 'OMR'))
+  const [rate, setRate] = useState('')
+  const [points, setPoints] = useState(() => keep.get('points', '0') === '1')
   const [recent, setRecent] = useState(null)
   const firstItem = useRef(null)
 
   const loadRecent = () => api.get('/ps/past-orders').then((r) => setRecent(r.data.data)).catch(() => setRecent([]))
-  useEffect(() => { loadRecent() }, [])
+  useEffect(() => { loadRecent(); api.get('/ps/past-orders/options').then((r) => setOpts(r.data)).catch(() => setOpts({ rates: {}, loyalty: null })) }, [])
+  useEffect(() => { if (opts) setRate(cur === 'OMR' ? '1' : String(opts.rates?.[cur] ?? '')) }, [cur, opts])
   useEffect(() => {
     if (cust || isNew || q.trim().length < 2) { setFound([]); return }
     const t = setTimeout(() => api.get('/ps/past-orders/customers', { params: { q } }).then((r) => setFound(r.data.data)).catch(() => {}), 250)
     return () => clearTimeout(t)
   }, [q, cust, isNew])
 
-  const total = items.reduce((s, i) => s + (Number(i.price) || 0), 0) + (Number(fee) || 0) - (Number(discount) || 0)
+  const r = cur === 'OMR' ? 1 : Number(rate) || 0
+  const omr = (v) => Math.round((Number(v) || 0) * r * 1000) / 1000
+  const total = items.reduce((s, i) => s + omr(i.price), 0) + (Number(fee) || 0) - (Number(discount) || 0)
+  const estPoints = opts?.loyalty ? Math.floor(Math.max(0, Math.floor(total)) * opts.loyalty.per_omr) : 0
   const setItem = (k, f, v) => setItems((xs) => xs.map((x, i) => (i === k ? { ...x, [f]: v } : x)))
   const onItemKey = (e, k) => {
     if (e.key === 'Enter') { e.preventDefault(); if (k === items.length - 1) setItems((xs) => [...xs, emptyItem()]) }
@@ -58,6 +67,7 @@ export default function PastOrders() {
     if (!cust && !(isNew && nc.name.trim())) return toast.error('اختار العميل أو ضيف عميل جديد')
     if (!list.length) return toast.error('اكتب قطعة وحدة على الأقل')
     if (list.some((i) => i.price === '' || isNaN(Number(i.price)))) return toast.error('اكتب سعر كل قطعة')
+    if (cur !== 'OMR' && !(Number(rate) > 0)) return toast.error('اكتب سعر الصرف')
     setBusy(true)
     try {
       const r = await api.post('/ps/past-orders', {
@@ -70,10 +80,13 @@ export default function PastOrders() {
         discount: Number(discount) || 0,
         paid: partial ? Number(paid) || 0 : null,
         method,
+        currency: cur,
+        rate: cur === 'OMR' ? null : Number(rate),
+        points,
         notes: notes.trim() || null,
       })
-      keep.set('date', date); keep.set('method', method)
-      toast.success(`انضاف طلب #${r.data.order_no}`)
+      keep.set('date', date); keep.set('method', method); keep.set('cur', cur); keep.set('points', points ? '1' : '0')
+      toast.success(`انضاف طلب #${r.data.order_no}` + (r.data.points ? ` · ${r.data.points} نقطة للعميل` : ''))
       reset()
       loadRecent()
     } catch (er) { toast.error(er.response?.data?.message || 'ما انحفظ') } finally { setBusy(false) }
@@ -94,6 +107,11 @@ export default function PastOrders() {
           <div className="po-row2">
             <label>تاريخ الطلب<input className="input" type="date" max={today()} required value={date} onChange={(e) => setDate(e.target.value)} /></label>
             <label>طريقة الدفع<select className="input" value={method} onChange={(e) => setMethod(e.target.value)}>{METHODS.map((m) => <option key={m}>{m}</option>)}</select></label>
+          </div>
+
+          <div className="po-row2">
+            <label>عملة الأسعار<select className="input" value={cur} onChange={(e) => setCur(e.target.value)}>{CURRENCIES.map(([c, l]) => <option key={c} value={c}>{l} ({c})</option>)}</select></label>
+            {cur !== 'OMR' && <label>١ {cur} = كم ريال<input className="input" type="number" min="0" step="0.0001" dir="ltr" value={rate} onChange={(e) => setRate(e.target.value)} /></label>}
           </div>
 
           <div className="po-sec">العميل</div>
@@ -119,31 +137,35 @@ export default function PastOrders() {
 
           <div className="po-sec">القطع</div>
           <div className="po-items">
-            <div className="po-ih"><span>البراند</span><span>القطعة</span><span>سعر البيع</span><span>التكلفة (اختياري)</span><span /></div>
+            <div className="po-ih"><span>البراند</span><span>القطعة</span><span>سعر البيع ({cur})</span><span>التكلفة ({cur}، اختياري)</span><span /></div>
             {items.map((it, k) => (
               <div className="po-item" key={k}>
                 <input className="input" placeholder="Dior" value={it.brand} onChange={(e) => setItem(k, 'brand', e.target.value)} onKeyDown={(e) => onItemKey(e, k)} />
                 <input className="input" ref={k === 0 ? firstItem : null} placeholder="اسم القطعة" value={it.name} onChange={(e) => setItem(k, 'name', e.target.value)} onKeyDown={(e) => onItemKey(e, k)} />
-                <input className="input" type="number" min="0" step="0.001" dir="ltr" placeholder="ر.ع" value={it.price} onChange={(e) => setItem(k, 'price', e.target.value)} onKeyDown={(e) => onItemKey(e, k)} />
-                <input className="input" type="number" min="0" step="0.001" dir="ltr" placeholder="ر.ع" value={it.cost} onChange={(e) => setItem(k, 'cost', e.target.value)} onKeyDown={(e) => onItemKey(e, k)} />
+                <input className="input" type="number" min="0" step="0.001" dir="ltr" placeholder={cur} value={it.price} onChange={(e) => setItem(k, 'price', e.target.value)} onKeyDown={(e) => onItemKey(e, k)} />
+                <input className="input" type="number" min="0" step="0.001" dir="ltr" placeholder={cur} value={it.cost} onChange={(e) => setItem(k, 'cost', e.target.value)} onKeyDown={(e) => onItemKey(e, k)} />
                 <button type="button" className="po-x" aria-label="حذف القطعة" disabled={items.length === 1} onClick={() => setItems((xs) => xs.filter((_, i) => i !== k))}><RiDeleteBinLine /></button>
+                {cur !== 'OMR' && it.price !== '' ? <span className="po-conv">= {money(omr(it.price))} ر.ع</span> : null}
               </div>
             ))}
             <button type="button" className="po-link" onClick={() => setItems((xs) => [...xs, emptyItem()])}><RiAddLine /> قطعة ثانية</button>
           </div>
 
           <div className="po-row3">
-            <label>التوصيل<input className="input" type="number" min="0" step="0.001" dir="ltr" value={fee} onChange={(e) => setFee(e.target.value)} placeholder="0" /></label>
-            <label>الخصم<input className="input" type="number" min="0" step="0.001" dir="ltr" value={discount} onChange={(e) => setDiscount(e.target.value)} placeholder="0" /></label>
+            <label>التوصيل (ر.ع)<input className="input" type="number" min="0" step="0.001" dir="ltr" value={fee} onChange={(e) => setFee(e.target.value)} placeholder="0" /></label>
+            <label>الخصم (ر.ع)<input className="input" type="number" min="0" step="0.001" dir="ltr" value={discount} onChange={(e) => setDiscount(e.target.value)} placeholder="0" /></label>
             <div className="po-total"><small>الإجمالي</small><b>{money(total)} ر.ع</b></div>
           </div>
 
+          {opts?.loyalty ? (
+            <label className="po-check"><input type="checkbox" checked={points} onChange={(e) => setPoints(e.target.checked)} /> أعطه نقاط ولاء على هالطلب{estPoints > 0 ? ` (تقريباً ${estPoints} نقطة، وأكثر حسب مستواه)` : ''}</label>
+          ) : null}
           <label className="po-check"><input type="checkbox" checked={partial} onChange={(e) => setPartial(e.target.checked)} /> ما دفع المبلغ كامل</label>
           {partial && <label>اللي دفعه<input className="input" type="number" min="0" step="0.001" dir="ltr" value={paid} onChange={(e) => setPaid(e.target.value)} /></label>}
           <label>ملاحظة<input className="input" value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="اختياري" /></label>
 
           <button className="btn btn-primary" disabled={busy}>{busy ? 'يحفظ…' : 'حفظ الطلب'}</button>
-          <small className="po-hint">نصيحة: اضغط Enter في آخر قطعة عشان تضيف قطعة ثانية. التاريخ وطريقة الدفع يبقون للطلب اللي بعده.</small>
+          <small className="po-hint">نصيحة: اضغط Enter في آخر قطعة عشان تضيف قطعة ثانية. التاريخ وطريقة الدفع والعملة يبقون للطلب اللي بعده.</small>
         </form>
 
         <div className="card po-recent">
@@ -151,7 +173,7 @@ export default function PastOrders() {
           {!recent ? <div className="gh-skel" style={{ height: 120 }} /> : recent.length === 0 ? <p className="po-empty">للحين ما ضفت طلبات سابقة.</p> : recent.map((o) => (
             <div className="po-r" key={o.id}>
               <div className="po-r1"><b>#{o.order_no} · {o.customer}</b><span>{day(o.date)}</span></div>
-              <div className="po-r2">{o.items.join('، ')}</div>
+              <div className="po-r2">{o.items.join('، ')}{o.points ? ` · ${o.points} نقطة` : ''}</div>
               <div className="po-r1"><span>{money(o.total)} ر.ع{o.paid + 0.0005 < o.total ? ` · باقي ${money(o.total - o.paid)}` : ''}</span><button className="po-x" aria-label="حذف الطلب" onClick={() => remove(o)}><RiDeleteBinLine /></button></div>
             </div>
           ))}
@@ -179,6 +201,7 @@ export default function PastOrders() {
 .po-ih,.po-item{display:grid;grid-template-columns:1fr 2fr 1fr 1fr 32px;gap:6px;align-items:center}
 .po-ih span{font-size:11.5px;color:var(--text-secondary);font-weight:600}
 .po-item .input{height:38px;padding:0 10px;min-width:0}
+.po-conv{grid-column:3/5;font-size:11.5px;color:var(--text-secondary);margin-top:-4px}
 .po-total{display:flex;flex-direction:column;align-items:flex-end;gap:2px}
 .po-total small{font-size:12px;color:var(--text-secondary)}.po-total b{font-size:20px}
 .po-check{flex-direction:row!important;align-items:center;gap:8px!important;color:inherit!important}
