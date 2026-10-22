@@ -47,8 +47,7 @@ import {
   RiDatabase2Line,
   RiRadarLine,
   RiMoonLine,
-  RiSunLine,
-} from 'react-icons/ri'
+  RiSunLine, RiHandCoinLine } from 'react-icons/ri'
 import { setThemeChoice } from '../lib/theme'
 
 // Sidebar, grouped the way the work flows: sell → products → customers → store.
@@ -87,6 +86,7 @@ const navSections = [
     { label: 'الشحن', icon: RiTruckLine, path: '/admin/shipping' },
     { label: 'شحن الخليج', icon: RiGlobalLine, path: '/admin/gcc-shipping' },
     { label: 'التقارير', icon: RiBarChartBoxLine, path: '/admin/reports' },
+    { label: 'الاستثمار الداخلي', icon: RiHandCoinLine, path: '/admin/investments' },
     { label: 'حالة النظام والزوار', icon: RiPulseLine, path: '/admin/monitor' },
     { label: 'واتساب', icon: RiWhatsappLine, path: '/admin/whatsapp' },
     { label: 'الرسائل النصية', icon: RiMessage2Line, path: '/admin/messaging' },

@@ -35,6 +35,7 @@ import ImportReview from './pages/admin/ImportReview'
 import Messaging from './pages/admin/Messaging'
 import Backups from './pages/admin/Backups'
 import SourceWatch from './pages/admin/SourceWatch'
+import Investments from './pages/admin/Investments'
 import Activity from './pages/admin/Activity'
 import GccShipping from './pages/admin/GccShipping'
 import Monitor from './pages/admin/Monitor'
@@ -99,6 +100,7 @@ export default function App() {
           <Route path="whatsapp" element={<WhatsApp />} />
           <Route path="messaging" element={<Messaging />} />
           <Route path="backups" element={<Backups />} />
+          <Route path="investments" element={<Investments />} />
           <Route path="profile" element={<Profile />} />
           <Route path="offers" element={<Offers />} />
           <Route path="points-boosts" element={<PointsBoosts />} />
