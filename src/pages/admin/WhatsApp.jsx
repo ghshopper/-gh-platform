@@ -42,6 +42,7 @@ export default function WhatsApp() {
   const [data, setData] = useState(null)
   const [form, setForm] = useState({ driver: 'meta', token: '', phone_id: '', waba_id: '' })
   const [edit, setEdit] = useState(false)
+  const [app, setApp] = useState({ app_id: '', app_secret: '', config_id: '' })
   const [busy, setBusy] = useState('')
   const [testPhone, setTestPhone] = useState('')
 
@@ -51,6 +52,7 @@ export default function WhatsApp() {
       setData(r.data)
       const st = r.data.settings || {}
       setForm({ driver: 'meta', token: st.token || '', phone_id: st.phone_id || '', waba_id: st.waba_id || '' })
+      setApp({ app_id: st.app_id || '', app_secret: st.app_secret || '', config_id: st.config_id || '' })
     } catch {
       toast.error('تعذّر التحميل')
     }
@@ -60,6 +62,63 @@ export default function WhatsApp() {
   const run = async (key, fn) => {
     setBusy(key)
     try { await fn() } catch (x) { toast.error(x.response?.data?.error || x.response?.data?.message || 'حدث خطأ') } finally { setBusy('') }
+  }
+
+  const saveApp = () => run('app', async () => {
+    await api.post('/admin/whatsapp/app', app)
+    toast.success('انحفظ')
+    await load()
+  })
+
+  // Meta's "Connect WhatsApp" window (Embedded Signup for numbers already on the WhatsApp Business app).
+  const loadSdk = () => new Promise((resolve, reject) => {
+    if (window.FB) return resolve(window.FB)
+    const s = document.createElement('script')
+    s.src = 'https://connect.facebook.net/en_US/sdk.js'
+    s.async = true
+    s.crossOrigin = 'anonymous'
+    s.onload = () => (window.FB ? resolve(window.FB) : reject(new Error('sdk')))
+    s.onerror = () => reject(new Error('sdk'))
+    document.body.appendChild(s)
+  })
+  const connectWa = async () => {
+    if (!app.app_id || !app.config_id) return toast.error('احفظ App ID و Configuration ID أول')
+    setBusy('connect')
+    let FB
+    try { FB = await loadSdk() } catch { setBusy(''); return toast.error('ما قدرنا نفتح نافذة فيسبوك') }
+    FB.init({ appId: app.app_id, autoLogAppEvents: true, xfbml: false, version: 'v21.0' })
+    const info = {}
+    const onMsg = (e) => {
+      try {
+        if (!/(^|\.)facebook\.com$/.test(new URL(e.origin).hostname)) return
+        const d = typeof e.data === 'string' ? JSON.parse(e.data) : e.data
+        if (d?.type === 'WA_EMBEDDED_SIGNUP') {
+          if (d.data?.waba_id) info.waba_id = d.data.waba_id
+          if (d.data?.phone_number_id) info.phone_number_id = d.data.phone_number_id
+          info.event = d.event
+        }
+      } catch { /* other messages */ }
+    }
+    window.addEventListener('message', onMsg)
+    FB.login((resp) => {
+      const code = resp?.authResponse?.code
+      // the window's message can land a moment after the login answer
+      setTimeout(() => {
+        window.removeEventListener('message', onMsg)
+        if (!code) { setBusy(''); toast(info.event === 'CANCEL' ? 'انلغى الربط' : 'ما اكتمل الربط'); return }
+        run('connect', async () => {
+          const r = await api.post('/admin/whatsapp/embedded', { code, waba_id: info.waba_id || null, phone_number_id: info.phone_number_id || null })
+          toast.success('انربط الواتساب ✓')
+          if (r.data?.steps) console.info('whatsapp connect', r.data.steps)
+          await load()
+        })
+      }, 1200)
+    }, {
+      config_id: app.config_id,
+      response_type: 'code',
+      override_default_response_type: true,
+      extras: { setup: {}, featureType: 'whatsapp_business_app_onboarding', sessionInfoVersion: '3' },
+    })
   }
 
   const save = (e) => {
@@ -107,6 +166,29 @@ export default function WhatsApp() {
           <div style={{ fontSize: 13, color: '#6B7280' }}>{data.connected ? 'عن طريق Meta مباشرة' : 'الرسائل التلقائية متوقفة لين تربط الرقم'}</div>
         </div>
         {data.connected ? <button className="btn btn-ghost" onClick={disconnect} disabled={!!busy} style={{ color: '#B42318' }}>فصل</button> : null}
+      </div>
+
+      <div style={box}>
+        <h3 style={{ marginTop: 0 }}>الرقم اللي في جوالك (واتساب للأعمال)</h3>
+        <p style={{ fontSize: 13.5, color: '#6B7280', margin: '0 0 14px', lineHeight: 1.8 }}>
+          رقمك شغال في تطبيق واتساب للأعمال، فميتا ما تخلي النظام يرسل منه إلا بعد هالخطوة (وإلا يطلع «Account not registered»). تضغط «اربط واتساب»، تختار رقمك، وتمسح الـ QR من جوالك. الرقم يظل شغال في جوالك عادي، ومحادثاتك ما تروح.
+        </p>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
+          <label><span style={lbl}>App ID</span><input dir="ltr" style={input} value={app.app_id} onChange={(e) => setApp({ ...app, app_id: e.target.value })} /></label>
+          <label><span style={lbl}>App Secret</span><input dir="ltr" style={input} value={app.app_secret} onChange={(e) => setApp({ ...app, app_secret: e.target.value })} autoComplete="off" /></label>
+          <label><span style={lbl}>Configuration ID</span><input dir="ltr" style={input} value={app.config_id} onChange={(e) => setApp({ ...app, config_id: e.target.value })} /></label>
+        </div>
+        <div style={{ display: 'flex', gap: 8, marginTop: 12, flexWrap: 'wrap' }}>
+          <button type="button" className="btn btn-ghost" onClick={saveApp} disabled={!!busy}>{busy === 'app' ? 'يحفظ…' : 'حفظ'}</button>
+          <button type="button" className="btn btn-primary" onClick={connectWa} disabled={!!busy} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#25D366', borderColor: '#25D366' }}>
+            <RiWhatsappLine /> {busy === 'connect' ? 'يربط…' : 'اربط واتساب'}
+          </button>
+        </div>
+        <div style={{ marginTop: 14, padding: 12, background: '#F9FAFB', borderRadius: 10, fontSize: 12.5, lineHeight: 1.9 }}>
+          <b>Webhook</b> (في تطبيق ميتا ← WhatsApp ← Configuration):<br />
+          Callback URL: <code dir="ltr" style={{ userSelect: 'all' }}>{data.settings.webhook_url}</code><br />
+          Verify token: <code dir="ltr" style={{ userSelect: 'all' }}>{data.settings.verify_token}</code>
+        </div>
       </div>
 
       {data.connected && !edit ? (
