@@ -1,65 +1,48 @@
-/Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/OrderDetail/ItemPages.swift:245:28: error: use of 'actionSheet' refers to instance method rather than global function 'actionSheet(title:message:actions:)' in module 'GHAdmin'
-        let source = await actionSheet(title: "صورة الإيصال", actions: [
-/Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/OrderDetail/ItemPages.swift:245:28: note: use 'GHAdmin.' to reference the global function in module 'GHAdmin'
-        let source = await actionSheet(title: "صورة الإيصال", actions: [
-/Users/runner/work/-gh-platform/-gh-platform/GHAdmin/UI/Dialogs.swift:51:6: note: 'actionSheet(title:message:actions:)' declared here
-/Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/OrderDetail/ItemPages.swift:437:26: error: use of 'actionSheet' refers to instance method rather than global function 'actionSheet(title:message:actions:)' in module 'GHAdmin'
-        if let s = await actionSheet(title: "محلات في خطتك", actions: actions) { storeText = s }
-/Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/OrderDetail/ItemPages.swift:437:26: note: use 'GHAdmin.' to reference the global function in module 'GHAdmin'
-        if let s = await actionSheet(title: "محلات في خطتك", actions: actions) { storeText = s }
-/Users/runner/work/-gh-platform/-gh-platform/GHAdmin/UI/Dialogs.swift:51:6: note: 'actionSheet(title:message:actions:)' declared here
-/Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/OrderDetail/ItemPages.swift:504:26: error: use of 'actionSheet' refers to instance method rather than global function 'actionSheet(title:message:actions:)' in module 'GHAdmin'
-        if let m = await actionSheet(actions: actions) { method = m }
-                         ^
-/Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/OrderDetail/ItemPages.swift:504:26: note: use 'GHAdmin.' to reference the global function in module 'GHAdmin'
-        if let m = await actionSheet(actions: actions) { method = m }
-/Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/More/MorePages.swift:150:35: error: use of 'actionSheet' refers to instance method rather than global function 'actionSheet(title:message:actions:)' in module 'GHAdmin'
-        let m: YearMonth? = await actionSheet(title: "تقرير Excel", message: "اختر الشهر", actions: actions)
-/Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/More/MorePages.swift:150:35: note: use 'GHAdmin.' to reference the global function in module 'GHAdmin'
-        let m: YearMonth? = await actionSheet(title: "تقرير Excel", message: "اختر الشهر", actions: actions)
-/Users/runner/work/-gh-platform/-gh-platform/GHAdmin/UI/Dialogs.swift:51:6: note: 'actionSheet(title:message:actions:)' declared here
-/Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/OrderDetail/OrderDetailPage.swift:367:28: error: use of 'actionSheet' refers to instance method rather than global function 'actionSheet(title:message:actions:)' in module 'GHAdmin'
-        let source = await actionSheet(title: kind == "photo" ? "صورة القطعة" : "صورة الإيصال", actions: [
-/Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/OrderDetail/OrderDetailPage.swift:367:28: note: use 'GHAdmin.' to reference the global function in module 'GHAdmin'
-        let source = await actionSheet(title: kind == "photo" ? "صورة القطعة" : "صورة الإيصال", actions: [
-/Users/runner/work/-gh-platform/-gh-platform/GHAdmin/UI/Dialogs.swift:51:6: note: 'actionSheet(title:message:actions:)' declared here
-/Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/OrderDetail/OrderDetailPage.swift:398:28: error: use of 'actionSheet' refers to instance method rather than global function 'actionSheet(title:message:actions:)' in module 'GHAdmin'
-        let picked = await actionSheet(title: item.title, message: item.status.label, actions: itemSheetActions(item))
-                           ^
-/Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/OrderDetail/OrderDetailPage.swift:398:28: note: use 'GHAdmin.' to reference the global function in module 'GHAdmin'
-        let picked = await actionSheet(title: item.title, message: item.status.label, actions: itemSheetActions(item))
-/Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/OrderDetail/OrderDetailPage.swift:417:30: error: use of 'actionSheet' refers to instance method rather than global function 'actionSheet(title:message:actions:)' in module 'GHAdmin'
-            if let s = await actionSheet(title: "الحالة", actions: choices) { await advance(item, s) }
-/Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/OrderDetail/OrderDetailPage.swift:417:30: note: use 'GHAdmin.' to reference the global function in module 'GHAdmin'
-            if let s = await actionSheet(title: "الحالة", actions: choices) { await advance(item, s) }
-/Users/runner/work/-gh-platform/-gh-platform/GHAdmin/UI/Dialogs.swift:51:6: note: 'actionSheet(title:message:actions:)' declared here
-/Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/OrderDetail/OrderDetailPage.swift:433:23: error: use of 'actionSheet' refers to instance method rather than global function 'actionSheet(title:message:actions:)' in module 'GHAdmin'
-        let v = await actionSheet(actions: [
-                      ^
-/Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/OrderDetail/OrderDetailPage.swift:433:23: note: use 'GHAdmin.' to reference the global function in module 'GHAdmin'
-        let v = await actionSheet(actions: [
-/Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/OrderDetail/OrderDetailPage.swift:501:28: error: use of 'actionSheet' refers to instance method rather than global function 'actionSheet(title:message:actions:)' in module 'GHAdmin'
-        let picked = await actionSheet(title: o.invoiceNo, actions: orderSheetActions(o))
-                           ^
-/Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/OrderDetail/OrderDetailPage.swift:501:28: note: use 'GHAdmin.' to reference the global function in module 'GHAdmin'
-        let picked = await actionSheet(title: o.invoiceNo, actions: orderSheetActions(o))
-/Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/OrderDetail/OrderDetailPage.swift:577:26: error: use of 'actionSheet' refers to instance method rather than global function 'actionSheet(title:message:actions:)' in module 'GHAdmin'
-        if let t = await actionSheet(title: "رسالة واتساب", actions: actions) {
-/Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/OrderDetail/OrderDetailPage.swift:577:26: note: use 'GHAdmin.' to reference the global function in module 'GHAdmin'
-        if let t = await actionSheet(title: "رسالة واتساب", actions: actions) {
-/Users/runner/work/-gh-platform/-gh-platform/GHAdmin/UI/Dialogs.swift:51:6: note: 'actionSheet(title:message:actions:)' declared here
-/Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/OrderDetail/OrderDetailPage.swift:604:28: error: use of 'actionSheet' refers to instance method rather than global function 'actionSheet(title:message:actions:)' in module 'GHAdmin'
-        let picked = await actionSheet(title: "من وين شحنتها؟", actions: [
-/Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/OrderDetail/OrderDetailPage.swift:604:28: note: use 'GHAdmin.' to reference the global function in module 'GHAdmin'
-        let picked = await actionSheet(title: "من وين شحنتها؟", actions: [
-/Users/runner/work/-gh-platform/-gh-platform/GHAdmin/UI/Dialogs.swift:51:6: note: 'actionSheet(title:message:actions:)' declared here
-/Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/Orders/OrderFormPage.swift:211:36: error: use of 'actionSheet' refers to instance method rather than global function 'actionSheet(title:message:actions:)' in module 'GHAdmin'
-            let m: String? = await actionSheet(title: "طريقة الدفع", actions: actions)
-/Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/Orders/OrderFormPage.swift:211:36: note: use 'GHAdmin.' to reference the global function in module 'GHAdmin'
-            let m: String? = await actionSheet(title: "طريقة الدفع", actions: actions)
-/Users/runner/work/-gh-platform/-gh-platform/GHAdmin/UI/Dialogs.swift:51:6: note: 'actionSheet(title:message:actions:)' declared here
-/Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/More/PurchasesPages.swift:180:32: error: use of 'actionSheet' refers to instance method rather than global function 'actionSheet(title:message:actions:)' in module 'GHAdmin'
-        let c: String? = await actionSheet(actions: rateCurrencies.map { SheetAction($0, $0) })
-                               ^
-/Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/More/PurchasesPages.swift:180:32: note: use 'GHAdmin.' to reference the global function in module 'GHAdmin'
-        let c: String? = await actionSheet(actions: rateCurrencies.map { SheetAction($0, $0) })
+/Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/OrderDetail/ItemPages.swift:27:18: error: cannot find 'pickAction' in scope
+    return await pickAction(title: "العملة", actions: actions)
+/Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/OrderDetail/ItemPages.swift:245:28: error: cannot find 'pickAction' in scope
+        let source = await pickAction(title: "صورة الإيصال", actions: [
+/Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/OrderDetail/ItemPages.swift:437:26: error: cannot find 'pickAction' in scope
+        if let s = await pickAction(title: "محلات في خطتك", actions: actions) { storeText = s }
+/Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/OrderDetail/ItemPages.swift:504:26: error: cannot find 'pickAction' in scope
+        if let m = await pickAction(actions: actions) { method = m }
+                         ^~~~~~~~~~
+
+SwiftCompile normal x86_64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/UI/Kit.swift (in target 'GHAdmin' from project 'GHAdmin')
+/Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/More/MorePages.swift:150:35: error: cannot find 'pickAction' in scope
+        let m: YearMonth? = await pickAction(title: "تقرير Excel", message: "اختر الشهر", actions: actions)
+
+SwiftCompile normal x86_64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/UI/Nav.swift (in target 'GHAdmin' from project 'GHAdmin')
+    cd /Users/runner/work/-gh-platform/-gh-platform
+/Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/OrderDetail/OrderDetailPage.swift:367:28: error: cannot find 'pickAction' in scope
+        let source = await pickAction(title: kind == "photo" ? "صورة القطعة" : "صورة الإيصال", actions: [
+/Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/OrderDetail/OrderDetailPage.swift:398:28: error: cannot find 'pickAction' in scope
+        let picked = await pickAction(title: item.title, message: item.status.label, actions: itemSheetActions(item))
+                           ^~~~~~~~~~
+/Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/OrderDetail/OrderDetailPage.swift:417:30: error: cannot find 'pickAction' in scope
+            if let s = await pickAction(title: "الحالة", actions: choices) { await advance(item, s) }
+/Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/OrderDetail/OrderDetailPage.swift:433:23: error: cannot find 'pickAction' in scope
+        let v = await pickAction(actions: [
+                      ^~~~~~~~~~
+/Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/OrderDetail/OrderDetailPage.swift:501:28: error: cannot find 'pickAction' in scope
+        let picked = await pickAction(title: o.invoiceNo, actions: orderSheetActions(o))
+                           ^~~~~~~~~~
+/Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/OrderDetail/OrderDetailPage.swift:571:21: warning: no calls to throwing functions occur within 'try' expression
+        await run { try await shareInvoice(o, customer: s.customer(o.customerId), biz: s.settings) }
+/Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/OrderDetail/OrderDetailPage.swift:577:26: error: cannot find 'pickAction' in scope
+        if let t = await pickAction(title: "رسالة واتساب", actions: actions) {
+/Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/OrderDetail/OrderDetailPage.swift:604:28: error: cannot find 'pickAction' in scope
+        let picked = await pickAction(title: "من وين شحنتها؟", actions: [
+
+SwiftCompile normal x86_64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/Orders/OrderFormPage.swift (in target 'GHAdmin' from project 'GHAdmin')
+    cd /Users/runner/work/-gh-platform/-gh-platform
+/Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/Orders/OrderFormPage.swift:211:36: error: cannot find 'pickAction' in scope
+            let m: String? = await pickAction(title: "طريقة الدفع", actions: actions)
+
+SwiftCompile normal x86_64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/OrderDetail/OrderPhotoPicker.swift (in target 'GHAdmin' from project 'GHAdmin')
+    cd /Users/runner/work/-gh-platform/-gh-platform
+/Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/More/PurchasesPages.swift:180:32: error: cannot find 'pickAction' in scope
+        let c: String? = await pickAction(actions: rateCurrencies.map { SheetAction($0, $0) })
+                               ^~~~~~~~~~
+
+** BUILD FAILED **

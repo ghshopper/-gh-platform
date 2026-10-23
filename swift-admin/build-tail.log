@@ -1,60 +1,60 @@
-SwiftCompile normal x86_64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/Drivers/ScannerPage.swift (in target 'GHAdmin' from project 'GHAdmin')
+/Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/OrderDetail/OrderDetailPage.swift:501:28: error: cannot find 'pickAction' in scope
+        let picked = await pickAction(title: o.invoiceNo, actions: orderSheetActions(o))
+                           ^~~~~~~~~~
+/Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/OrderDetail/OrderDetailPage.swift:571:21: warning: no calls to throwing functions occur within 'try' expression
+        await run { try await shareInvoice(o, customer: s.customer(o.customerId), biz: s.settings) }
+                    ^
+/Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/OrderDetail/OrderDetailPage.swift:577:26: error: cannot find 'pickAction' in scope
+        if let t = await pickAction(title: "رسالة واتساب", actions: actions) {
+/Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/OrderDetail/OrderDetailPage.swift:604:28: error: cannot find 'pickAction' in scope
+        let picked = await pickAction(title: "من وين شحنتها؟", actions: [
+
+SwiftCompile normal x86_64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/Orders/OrderFormPage.swift (in target 'GHAdmin' from project 'GHAdmin')
+    cd /Users/runner/work/-gh-platform/-gh-platform
+    
+/Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/Orders/OrderFormPage.swift:211:36: error: cannot find 'pickAction' in scope
+            let m: String? = await pickAction(title: "طريقة الدفع", actions: actions)
+
+SwiftCompile normal x86_64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/OrderDetail/OrderPhotoPicker.swift (in target 'GHAdmin' from project 'GHAdmin')
     cd /Users/runner/work/-gh-platform/-gh-platform
     
 
-SwiftCompile normal x86_64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/Orders/SearchPage.swift (in target 'GHAdmin' from project 'GHAdmin')
+SwiftCompile normal x86_64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/Orders/OrdersPage.swift (in target 'GHAdmin' from project 'GHAdmin')
     cd /Users/runner/work/-gh-platform/-gh-platform
     
 
-SwiftCompile normal x86_64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Core/Services.swift (in target 'GHAdmin' from project 'GHAdmin')
+SwiftCompile normal x86_64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/PDF/PDFDrawing.swift (in target 'GHAdmin' from project 'GHAdmin')
     cd /Users/runner/work/-gh-platform/-gh-platform
     
 
-SwiftCompile normal x86_64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Core/Store.swift (in target 'GHAdmin' from project 'GHAdmin')
+SwiftCompile normal x86_64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/UI/PriceEntry.swift (in target 'GHAdmin' from project 'GHAdmin')
     cd /Users/runner/work/-gh-platform/-gh-platform
     
 
-SwiftCompile normal x86_64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/Products/StoryCanvas.swift (in target 'GHAdmin' from project 'GHAdmin')
+SwiftCompile normal x86_64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Core/Products.swift (in target 'GHAdmin' from project 'GHAdmin')
     cd /Users/runner/work/-gh-platform/-gh-platform
     
 
-SwiftCompile normal x86_64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/Products/StoryPage.swift (in target 'GHAdmin' from project 'GHAdmin')
+SwiftCompile normal x86_64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/Products/ProductsPage.swift (in target 'GHAdmin' from project 'GHAdmin')
     cd /Users/runner/work/-gh-platform/-gh-platform
     
 
-SwiftCompile normal x86_64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/UI/Theme.swift (in target 'GHAdmin' from project 'GHAdmin')
+SwiftCompile normal x86_64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/More/PurchasesPages.swift (in target 'GHAdmin' from project 'GHAdmin')
     cd /Users/runner/work/-gh-platform/-gh-platform
     
-
-SwiftCompile normal x86_64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/Customers/Tiers.swift (in target 'GHAdmin' from project 'GHAdmin')
-    cd /Users/runner/work/-gh-platform/-gh-platform
-    
-
-SwiftCompile normal x86_64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/Orders/TodayPage.swift (in target 'GHAdmin' from project 'GHAdmin')
-    cd /Users/runner/work/-gh-platform/-gh-platform
-    
-
-SwiftCompile normal x86_64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/More/TripsPages.swift (in target 'GHAdmin' from project 'GHAdmin')
-    cd /Users/runner/work/-gh-platform/-gh-platform
-    
-
-SwiftCompile normal x86_64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/PDF/WaybillPDF.swift (in target 'GHAdmin' from project 'GHAdmin')
-    cd /Users/runner/work/-gh-platform/-gh-platform
-    
-
-SwiftCompile normal x86_64 /Users/runner/work/-gh-platform/-gh-platform/build/Build/Intermediates.noindex/GHAdmin.build/Debug-iphonesimulator/GHAdmin.build/DerivedSources/GeneratedAssetSymbols.swift (in target 'GHAdmin' from project 'GHAdmin')
-    cd /Users/runner/work/-gh-platform/-gh-platform
-    
+/Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/More/PurchasesPages.swift:180:32: error: cannot find 'pickAction' in scope
+        let c: String? = await pickAction(actions: rateCurrencies.map { SheetAction($0, $0) })
+                               ^~~~~~~~~~
 
 ** BUILD FAILED **
 
 
 The following build commands failed:
-	SwiftCompile normal arm64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/OrderDetail/ItemPages.swift (in target 'GHAdmin' from project 'GHAdmin')
-	SwiftCompile normal arm64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/More/MorePages.swift (in target 'GHAdmin' from project 'GHAdmin')
-	SwiftCompile normal arm64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/OrderDetail/OrderDetailPage.swift (in target 'GHAdmin' from project 'GHAdmin')
-	SwiftCompile normal arm64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/Orders/OrderFormPage.swift (in target 'GHAdmin' from project 'GHAdmin')
-	SwiftCompile normal arm64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/More/PurchasesPages.swift (in target 'GHAdmin' from project 'GHAdmin')
-	SwiftCompile normal arm64 Compiling\ InvoicePDF.swift,\ ItemPages.swift,\ Kit.swift,\ LoginPage.swift,\ Messages.swift,\ Models.swift,\ MorePages.swift,\ Nav.swift,\ OrderDetailPage.swift,\ OrderFormPage.swift,\ OrderPhotoPicker.swift,\ OrdersPage.swift,\ PDFDrawing.swift,\ PriceEntry.swift,\ Products.swift,\ ProductsPage.swift,\ PurchasesPages.swift /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/PDF/InvoicePDF.swift /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/OrderDetail/ItemPages.swift /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/UI/Kit.swift /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/LoginPage.swift /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Core/Messages.swift /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Core/Models.swift /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/More/MorePages.swift /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/UI/Nav.swift /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/OrderDetail/OrderDetailPage.swift /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/Orders/OrderFormPage.swift /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/OrderDetail/OrderPhotoPicker.swift /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/Orders/OrdersPage.swift /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/PDF/PDFDrawing.swift /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/UI/PriceEntry.swift /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Core/Products.swift /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/Products/ProductsPage.swift /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/More/PurchasesPages.swift (in target 'GHAdmin' from project 'GHAdmin')
+	SwiftCompile normal x86_64 Compiling\ InvoicePDF.swift,\ ItemPages.swift,\ Kit.swift,\ LoginPage.swift,\ Messages.swift,\ Models.swift,\ MorePages.swift,\ Nav.swift,\ OrderDetailPage.swift,\ OrderFormPage.swift,\ OrderPhotoPicker.swift,\ OrdersPage.swift,\ PDFDrawing.swift,\ PriceEntry.swift,\ Products.swift,\ ProductsPage.swift,\ PurchasesPages.swift /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/PDF/InvoicePDF.swift /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/OrderDetail/ItemPages.swift /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/UI/Kit.swift /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/LoginPage.swift /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Core/Messages.swift /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Core/Models.swift /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/More/MorePages.swift /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/UI/Nav.swift /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/OrderDetail/OrderDetailPage.swift /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/Orders/OrderFormPage.swift /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/OrderDetail/OrderPhotoPicker.swift /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/Orders/OrdersPage.swift /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/PDF/PDFDrawing.swift /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/UI/PriceEntry.swift /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Core/Products.swift /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/Products/ProductsPage.swift /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/More/PurchasesPages.swift (in target 'GHAdmin' from project 'GHAdmin')
+	SwiftCompile normal x86_64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/OrderDetail/ItemPages.swift (in target 'GHAdmin' from project 'GHAdmin')
+	SwiftCompile normal x86_64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/More/MorePages.swift (in target 'GHAdmin' from project 'GHAdmin')
+	SwiftCompile normal x86_64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/OrderDetail/OrderDetailPage.swift (in target 'GHAdmin' from project 'GHAdmin')
+	SwiftCompile normal x86_64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/Orders/OrderFormPage.swift (in target 'GHAdmin' from project 'GHAdmin')
+	SwiftCompile normal x86_64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/More/PurchasesPages.swift (in target 'GHAdmin' from project 'GHAdmin')
 	Building project GHAdmin with scheme GHAdmin and configuration Debug
 (7 failures)
