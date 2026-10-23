@@ -55,9 +55,8 @@ jobs:
           xcodebuild -project GHAdmin.xcodeproj -scheme GHAdmin -configuration Debug \
             -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' \
             -derivedDataPath build -clonedSourcePackagesDirPath spm \
-            CODE_SIGNING_ALLOWED=NO ONLY_ACTIVE_ARCH=NO build > build-full.log 2>&1
-          code=$?
-          grep -E -A4 "error:" build-full.log | grep -v "^--$" | head -400 > errors.log || true
+            CODE_SIGNING_ALLOWED=NO ONLY_ACTIVE_ARCH=NO build > build-full.log 2>&1 && code=0 || code=$?
+          grep -E -A4 "error:|Command .* failed" build-full.log | grep -v "^--$" | head -400 > errors.log || true
           tail -n 60 build-full.log > build-tail.log
           exit $code
 
