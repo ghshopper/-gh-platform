@@ -33,26 +33,6 @@ struct SearchLauncher: View {
 fileprivate let searchQueryAllowed = CharacterSet(charactersIn:
     "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._~")
 
-/// Loyalty tiers (same rules as customers_page.dart) for the badge colour.
-fileprivate func searchTierIndex(_ tier: String?, _ points: Int) -> Int {
-    let t = (tier ?? "").trimmingCharacters(in: .whitespaces).lowercased()
-    let keys = ["beige", "burgundy", "black"]
-    let ar = ["بيج", "عنابي", "أسود"]
-    let mins = [0, 20000, 50000]
-    for i in 0..<keys.count where keys[i] == t || ar[i] == t { return i }
-    var idx = 0
-    for k in 0..<mins.count where points >= mins[k] { idx = k }
-    return idx
-}
-
-fileprivate func searchTierColor(_ tier: String?, _ points: Int = 0) -> Color {
-    switch searchTierIndex(tier, points) {
-    case 0: return GH.gold
-    case 1: return GH.burgundy
-    default: return GH.label
-    }
-}
-
 /// One search over orders (ref / number / name / phone / piece), customers
 /// (name / phone) and store products (from the server).
 struct SearchPage: View {
@@ -241,7 +221,7 @@ struct SearchPage: View {
         if let tier = c.loyaltyTier {
             Tile(c.name, subtitle: customerSubtitle(c), action: open,
                  leading: { Avatar(c.name, size: 32) },
-                 trailing: { Badge(tierName(tier), color: searchTierColor(tier)) })
+                 trailing: { Badge(tierName(tier), color: tierColor(tier)) })
         } else {
             Tile(c.name, subtitle: customerSubtitle(c), action: open,
                  leading: { Avatar(c.name, size: 32) })

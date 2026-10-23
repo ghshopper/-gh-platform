@@ -280,7 +280,12 @@ struct OrderFormPage: View {
                     customerId: c.id, tripId: trip, deliveryFee: fee, deliveryMethod: methodKey,
                     notes: n.isEmpty ? nil : n, items: items, deposit: dep, depositMethod: depMethod)
                 for d in drafts { d.price.remember() }
-                if let done { done(id) } else { dismiss() }
+                if let done {
+                    done(id)
+                } else {
+                    dismiss()
+                    pushPage(OrderDetailPage(orderId: id))
+                }
             } catch {
                 saving = false
                 toastError(error)

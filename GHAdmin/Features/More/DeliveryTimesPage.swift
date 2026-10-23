@@ -76,10 +76,10 @@ struct DeliveryTimesPage: View {
 
     private func originSection(_ k: String) -> some View {
         let r = rule(k)
-        let work = Binding<Bool>(get: { rule(k).workDays }, set: { v in set(k, work: v) })
+        let work = Binding<Bool>(get: { rule(k).workDays }, set: { v in update(k, work: v) })
         return GHSection(label(k), footer: "يطلع للعميل: يوصلك خلال \(r.label)") {
-            DayStepper(label: "من", value: r.min, onChanged: { v in set(k, min: v) })
-            DayStepper(label: "إلى", value: r.max, onChanged: { v in set(k, max: v) })
+            DayStepper(label: "من", value: r.min, onChanged: { v in update(k, min: v) })
+            DayStepper(label: "إلى", value: r.max, onChanged: { v in update(k, max: v) })
             Segments(value: work, options: [(true, "أيام عمل"), (false, "أيام")])
         }
     }
@@ -88,7 +88,7 @@ struct DeliveryTimesPage: View {
         v < lo ? lo : (v > hi ? hi : v)
     }
 
-    private func set(_ k: String, min: Int? = nil, max: Int? = nil, work: Bool? = nil) {
+    private func update(_ k: String, min: Int? = nil, max: Int? = nil, work: Bool? = nil) {
         let r = rule(k)
         var a = clamp(min ?? r.min, 0, 90)
         var b = clamp(max ?? r.max, 0, 120)
@@ -99,10 +99,10 @@ struct DeliveryTimesPage: View {
 
     private func save() async {
         saving = true
-        var body: JSON = [:]
-        for (k, r) in eta { body[k] = r.json }
+        var out: JSON = [:]
+        for (k, r) in eta { out[k] = r.json }
         do {
-            try await Store.shared.saveSettings(["delivery_eta": body])
+            try await Store.shared.saveSettings(["delivery_eta": out])
             toast("تم الحفظ، ويطلع للعملاء على طول")
             dismiss()
         } catch {
