@@ -14,7 +14,7 @@ settings:
     SWIFT_VERSION: "5.10"
     MARKETING_VERSION: "2.0"
     CURRENT_PROJECT_VERSION: "1"
-    TARGETED_DEVICE_FAMILY: "1"
+    TARGETED_DEVICE_FAMILY: "1,2"
     DEVELOPMENT_LANGUAGE: ar
 targets:
   GHAdmin:
@@ -44,6 +44,7 @@ targets:
         UILaunchScreen:
           UIColorName: AccentColor
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
+        UIRequiresFullScreen: true
         UIBackgroundModes: [remote-notification]
         UIAppFonts:
           - IBMPlexSansArabic-Regular.ttf
