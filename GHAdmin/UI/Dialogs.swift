@@ -48,7 +48,7 @@ struct SheetAction<T> {
 
 /// iOS action sheet. Returns the chosen value, or nil when cancelled.
 @MainActor
-func actionSheet<T>(title: String? = nil, message: String? = nil, actions: [SheetAction<T>]) async -> T? {
+func pickAction<T>(title: String? = nil, message: String? = nil, actions: [SheetAction<T>]) async -> T? {
     await withCheckedContinuation { cont in
         guard let top = topViewController() else { cont.resume(returning: nil); return }
         let a = UIAlertController(title: title, message: message, preferredStyle: .actionSheet)
