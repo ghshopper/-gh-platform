@@ -1,0 +1,107 @@
+require "base64"
+
+default_platform(:ios)
+
+# The Swift admin app (GHAdmin.xcodeproj, made by XcodeGen). Same App Store
+# record, bundle ID and signing files as the old Flutter app, so it ships as
+# an update to the team's phones.
+platform :ios do
+  desc "Sign with the App Store profile (encrypted on the certificates branch) and upload to TestFlight"
+  lane :beta do
+    bundle_id = ENV.fetch("BUNDLE_ID")
+    team_id = ENV.fetch("APPLE_TEAM_ID")
+
+    setup_ci
+
+    api_key = app_store_connect_api_key(
+      key_id: ENV.fetch("ASC_KEY_ID"),
+      issuer_id: ENV.fetch("ASC_ISSUER_ID"),
+      key_content: ENV.fetch("ASC_KEY_P8"),
+      is_key_content_base64: false,
+      in_house: false
+    )
+
+    unless Spaceship::ConnectAPI::BundleId.find(bundle_id)
+      Spaceship::ConnectAPI::BundleId.create(
+        name: "GH Shopper",
+        identifier: bundle_id,
+        platform: Spaceship::ConnectAPI::BundleIdPlatform::IOS
+      )
+    end
+
+    push_on = false
+    begin
+      bid = Spaceship::ConnectAPI::BundleId.find(bundle_id)
+      push_type = Spaceship::ConnectAPI::BundleIdCapability::Type::PUSH_NOTIFICATIONS
+      push_on = bid.get_capabilities.any? { |c| c.capability_type == push_type }
+      unless push_on
+        bid.update_capability(push_type, enabled: true)
+        push_on = true
+      end
+    rescue => e
+      UI.important("Could not turn on push notifications: #{e.message}")
+    end
+
+    repo = ENV.fetch("GITHUB_REPOSITORY")
+    match_options = {
+      type: "appstore",
+      app_identifier: bundle_id,
+      team_id: team_id,
+      api_key: api_key,
+      storage_mode: "git",
+      git_url: "https://github.com/#{repo}.git",
+      git_branch: "certificates",
+      git_basic_authorization: Base64.strict_encode64("x-access-token:#{ENV.fetch('GITHUB_TOKEN')}"),
+      readonly: false
+    }
+    match(match_options)
+
+    profile_has_push = lambda do
+      path = ENV["sigh_#{bundle_id}_appstore_profile-path"]
+      path && File.exist?(path) && `security cms -D -i "#{path}" 2>/dev/null`.include?("aps-environment")
+    end
+    if push_on && !profile_has_push.call
+      begin
+        match(match_options.merge(force: true))
+      rescue => e
+        UI.important("Could not renew the profile for push: #{e.message}")
+      end
+    end
+    pbx = "../GHAdmin.xcodeproj/project.pbxproj"
+    unless profile_has_push.call
+      File.write(pbx, File.read(pbx).gsub(/ ?CODE_SIGN_ENTITLEMENTS = [^;]*;/, ""))
+      UI.important("Profile has no push: building without the push entitlement")
+    end
+    profile_name = ENV["sigh_#{bundle_id}_appstore_profile-name"]
+
+    update_code_signing_settings(
+      use_automatic_signing: false,
+      path: "GHAdmin.xcodeproj",
+      targets: ["GHAdmin"],
+      team_id: team_id,
+      bundle_identifier: bundle_id,
+      code_sign_identity: "Apple Distribution",
+      profile_name: profile_name
+    )
+
+    build_app(
+      project: "GHAdmin.xcodeproj",
+      scheme: "GHAdmin",
+      configuration: "Release",
+      cloned_source_packages_path: "spm",
+      export_method: "app-store",
+      export_team_id: team_id,
+      export_options: {
+        provisioningProfiles: { bundle_id => profile_name }
+      },
+      xcargs: "CURRENT_PROJECT_VERSION=#{ENV.fetch('BUILD_NUMBER', '1')}",
+      output_directory: "build/ipa",
+      output_name: "GHShopper.ipa"
+    )
+
+    upload_to_testflight(
+      api_key: api_key,
+      skip_waiting_for_build_processing: true
+    )
+  end
+end

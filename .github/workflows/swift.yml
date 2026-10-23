@@ -1,0 +1,93 @@
+name: Swift admin app
+
+on:
+  push:
+    branches: [swift-admin, swift-admin-release]
+  workflow_dispatch:
+
+concurrency:
+  group: swift-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+env:
+  BUNDLE_ID: ${{ vars.BUNDLE_ID || 'app.ghshopper.com' }}
+
+jobs:
+  build:
+    name: Build, screenshots (swift-admin) or TestFlight (swift-admin-release)
+    runs-on: macos-26
+    timeout-minutes: 75
+    env:
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      BUILD_NUMBER: ${{ github.run_number }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Latest stable Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Swift packages cache
+        uses: actions/cache@v4
+        with:
+          path: spm
+          key: spm-${{ hashFiles('project.yml') }}
+          restore-keys: spm-
+
+      - name: Generate the Xcode project
+        run: |
+          brew list xcodegen >/dev/null 2>&1 || brew install xcodegen
+          xcodegen generate
+
+      - name: Build for the simulator
+        shell: bash
+        run: |
+          set -o pipefail
+          xcodebuild -project GHAdmin.xcodeproj -scheme GHAdmin -configuration Debug \
+            -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath build -clonedSourcePackagesDirPath spm \
+            CODE_SIGNING_ALLOWED=NO ONLY_ACTIVE_ARCH=NO build > build-full.log 2>&1
+          code=$?
+          grep -E -A4 "error:" build-full.log | grep -v "^--$" | head -400 > errors.log || true
+          tail -n 60 build-full.log > build-tail.log
+          exit $code
+
+      - name: Screenshots
+        if: success() && github.ref == 'refs/heads/swift-admin'
+        shell: bash
+        run: bash ci/shots.sh 2>&1 | tee shots.log
+
+      - uses: ruby/setup-ruby@v1
+        if: success() && github.ref == 'refs/heads/swift-admin-release'
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
+
+      - name: Sign, archive and upload to TestFlight
+        if: success() && github.ref == 'refs/heads/swift-admin-release'
+        shell: bash
+        run: bundle exec fastlane ios beta 2>&1 | tee fastlane.log; exit ${PIPESTATUS[0]}
+
+      - name: Publish logs and screenshots to the ci-logs branch
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p /tmp/out
+          cp errors.log build-tail.log shots.log /tmp/out/ 2>/dev/null || true
+          cp ~/Library/Logs/gym/*.log /tmp/out/ 2>/dev/null || true
+          [ -f fastlane.log ] && tail -n 300 fastlane.log | sed -E 's/(key_content|password|PASSWORD)[^ ]*/\1 [hidden]/g' > /tmp/out/fastlane.log
+          [ -d shots ] && mkdir -p /tmp/out/shots && cp shots/*.png /tmp/out/shots/ 2>/dev/null || true
+          echo "${{ job.status }} ${{ github.sha }} ${{ github.ref_name }} ${{ github.run_number }}" > /tmp/out/status.txt
+          git config user.name "ci" && git config user.email "ci@users.noreply.github.com"
+          git fetch origin ci-logs 2>/dev/null && git checkout -q -B ci-logs origin/ci-logs || git checkout -q --orphan ci-logs
+          rm -rf swift-admin && mkdir -p swift-admin && cp -R /tmp/out/. swift-admin/
+          git add -A swift-admin && git commit -qm "swift-admin ${{ github.run_number }}" && git push -q origin ci-logs || true

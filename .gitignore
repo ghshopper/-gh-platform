@@ -1,0 +1,5 @@
+GHAdmin.xcodeproj/
+build/
+spm/
+*.xcuserstate
+DerivedData/
