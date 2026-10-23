@@ -40,6 +40,7 @@ targets:
         CFBundleDevelopmentRegion: ar
         CFBundleLocalizations: [ar, en]
         ITSAppUsesNonExemptEncryption: false
+        UIDesignRequiresCompatibility: true
         UILaunchScreen:
           UIColorName: AccentColor
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]

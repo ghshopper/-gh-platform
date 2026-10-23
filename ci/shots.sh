@@ -29,7 +29,7 @@ while read -r line; do
   case "$key" in driver:*) role=driver; key="${key#driver:}";; esac
   xcrun simctl ui "$UDID" appearance "$mode"
   xcrun simctl launch --terminate-running-process "$UDID" app.ghshopper.com -demo -role "$role" -screen "$key" >/dev/null
-  sleep 5
+  sleep 7
   name="$key"; [ "$mode" = dark ] && name="dark-$key"; [ "$role" = driver ] && name="driver-$name"
   xcrun simctl io "$UDID" screenshot "shots/$name.png" >/dev/null 2>&1
   echo "shot $name"

@@ -15,6 +15,15 @@ enum DemoScreens {
         case "more": tab.wrappedValue = 4
         case "order": if let order { pushPage(OrderDetailPage(orderId: order.id)) }
         case "requests": pushPage(RequestsPage())
+        case "customer": if let c = store.customers.first(where: { !store.ordersOf($0.id).isEmpty }) ?? store.customers.first { pushPage(CustomerDetailPage(customerId: c.id)) }
+        case "trip": if let t = store.trips.first { tab.wrappedValue = 3; pushPage(TripDetailPage(tripId: t.id)) }
+        case "summary": tab.wrappedValue = 4; pushPage(SummaryPage())
+        case "settings": tab.wrappedValue = 4; pushPage(SettingsPage())
+        case "drivers": tab.wrappedValue = 4; pushPage(DriversPage())
+        case "products": tab.wrappedValue = 4; pushPage(ProductsPage())
+        case "purchases": tab.wrappedValue = 4; pushPage(PurchaseInvoicesPage())
+        case "neworder": presentForm(OrderFormPage())
+        case "search": pushPage(SearchPage())
         default: break
         }
     }

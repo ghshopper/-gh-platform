@@ -4,4 +4,16 @@ customers
 trips
 more
 order
+customer
+trip
+requests
+summary
+settings
+drivers
+products
+purchases
+neworder
+search
 dark:today
+dark:order
+driver:today
