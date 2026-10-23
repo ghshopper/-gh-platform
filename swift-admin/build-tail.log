@@ -1,0 +1,60 @@
+SwiftCompile normal x86_64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/Drivers/ScannerPage.swift (in target 'GHAdmin' from project 'GHAdmin')
+    cd /Users/runner/work/-gh-platform/-gh-platform
+    
+
+SwiftCompile normal x86_64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/Orders/SearchPage.swift (in target 'GHAdmin' from project 'GHAdmin')
+    cd /Users/runner/work/-gh-platform/-gh-platform
+    
+
+SwiftCompile normal x86_64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Core/Services.swift (in target 'GHAdmin' from project 'GHAdmin')
+    cd /Users/runner/work/-gh-platform/-gh-platform
+    
+
+SwiftCompile normal x86_64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Core/Store.swift (in target 'GHAdmin' from project 'GHAdmin')
+    cd /Users/runner/work/-gh-platform/-gh-platform
+    
+
+SwiftCompile normal x86_64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/Products/StoryCanvas.swift (in target 'GHAdmin' from project 'GHAdmin')
+    cd /Users/runner/work/-gh-platform/-gh-platform
+    
+
+SwiftCompile normal x86_64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/Products/StoryPage.swift (in target 'GHAdmin' from project 'GHAdmin')
+    cd /Users/runner/work/-gh-platform/-gh-platform
+    
+
+SwiftCompile normal x86_64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/UI/Theme.swift (in target 'GHAdmin' from project 'GHAdmin')
+    cd /Users/runner/work/-gh-platform/-gh-platform
+    
+
+SwiftCompile normal x86_64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/Customers/Tiers.swift (in target 'GHAdmin' from project 'GHAdmin')
+    cd /Users/runner/work/-gh-platform/-gh-platform
+    
+
+SwiftCompile normal x86_64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/Orders/TodayPage.swift (in target 'GHAdmin' from project 'GHAdmin')
+    cd /Users/runner/work/-gh-platform/-gh-platform
+    
+
+SwiftCompile normal x86_64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/More/TripsPages.swift (in target 'GHAdmin' from project 'GHAdmin')
+    cd /Users/runner/work/-gh-platform/-gh-platform
+    
+
+SwiftCompile normal x86_64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/PDF/WaybillPDF.swift (in target 'GHAdmin' from project 'GHAdmin')
+    cd /Users/runner/work/-gh-platform/-gh-platform
+    
+
+SwiftCompile normal x86_64 /Users/runner/work/-gh-platform/-gh-platform/build/Build/Intermediates.noindex/GHAdmin.build/Debug-iphonesimulator/GHAdmin.build/DerivedSources/GeneratedAssetSymbols.swift (in target 'GHAdmin' from project 'GHAdmin')
+    cd /Users/runner/work/-gh-platform/-gh-platform
+    
+
+** BUILD FAILED **
+
+
+The following build commands failed:
+	SwiftCompile normal arm64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/OrderDetail/ItemPages.swift (in target 'GHAdmin' from project 'GHAdmin')
+	SwiftCompile normal arm64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/More/MorePages.swift (in target 'GHAdmin' from project 'GHAdmin')
+	SwiftCompile normal arm64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/OrderDetail/OrderDetailPage.swift (in target 'GHAdmin' from project 'GHAdmin')
+	SwiftCompile normal arm64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/Orders/OrderFormPage.swift (in target 'GHAdmin' from project 'GHAdmin')
+	SwiftCompile normal arm64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/More/PurchasesPages.swift (in target 'GHAdmin' from project 'GHAdmin')
+	SwiftCompile normal arm64 Compiling\ InvoicePDF.swift,\ ItemPages.swift,\ Kit.swift,\ LoginPage.swift,\ Messages.swift,\ Models.swift,\ MorePages.swift,\ Nav.swift,\ OrderDetailPage.swift,\ OrderFormPage.swift,\ OrderPhotoPicker.swift,\ OrdersPage.swift,\ PDFDrawing.swift,\ PriceEntry.swift,\ Products.swift,\ ProductsPage.swift,\ PurchasesPages.swift /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/PDF/InvoicePDF.swift /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/OrderDetail/ItemPages.swift /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/UI/Kit.swift /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/LoginPage.swift /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Core/Messages.swift /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Core/Models.swift /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/More/MorePages.swift /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/UI/Nav.swift /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/OrderDetail/OrderDetailPage.swift /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/Orders/OrderFormPage.swift /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/OrderDetail/OrderPhotoPicker.swift /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/Orders/OrdersPage.swift /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/PDF/PDFDrawing.swift /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/UI/PriceEntry.swift /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Core/Products.swift /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/Products/ProductsPage.swift /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/More/PurchasesPages.swift (in target 'GHAdmin' from project 'GHAdmin')
+	Building project GHAdmin with scheme GHAdmin and configuration Debug
+(7 failures)
