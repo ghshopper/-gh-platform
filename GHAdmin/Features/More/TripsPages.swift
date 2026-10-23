@@ -222,25 +222,42 @@ fileprivate struct TripShoppingList: View {
 
     /// one stop per shop from the plan; pieces without a shop stay by brand
     private var groups: [ShopGroup] {
+        // "LV", "Lv" and " lv " are the same shop: group by a folded name,
+        // show the spelling with the most capitals (LV over Lv).
+        func tidy(_ s: String) -> String {
+            s.split(whereSeparator: { $0.isWhitespace }).joined(separator: " ")
+        }
+        func fold(_ s: String) -> String {
+            tidy(s).folding(options: [.caseInsensitive, .diacriticInsensitive, .widthInsensitive], locale: nil)
+        }
+        func caps(_ s: String) -> Int { s.filter { $0.isUppercase }.count }
         var order: [String] = []
+        var label: [String: String] = [:]
         var map: [String: [ShopEntry]] = [:]
         for o in stats.orders {
             for i in o.activeItems {
                 if i.status != .requested { continue }
-                let store = (i.planStore ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
-                let brand = (i.brand ?? "بدون براند").trimmingCharacters(in: .whitespacesAndNewlines)
-                let key = store.isEmpty ? "\(brand) · \(noShopSuffix)" : store
-                if map[key] == nil { order.append(key); map[key] = [] }
-                map[key]?.append(ShopEntry(order: o, item: i))
+                let store = tidy(i.planStore ?? "")
+                let rawBrand = tidy(i.brand ?? "")
+                let brand = rawBrand.isEmpty ? "بدون براند" : rawBrand
+                let shown = store.isEmpty ? "\(brand) · \(noShopSuffix)" : store
+                let id = store.isEmpty ? "b:" + fold(brand) : "s:" + fold(store)
+                if map[id] == nil { order.append(id); map[id] = [] }
+                if let cur = label[id] {
+                    if caps(shown) > caps(cur) { label[id] = shown }
+                } else {
+                    label[id] = shown
+                }
+                map[id]?.append(ShopEntry(order: o, item: i))
             }
         }
-        let keys = order.sorted { a, b in
-            let na = a.hasSuffix(noShopSuffix)
-            let nb = b.hasSuffix(noShopSuffix)
+        let ids = order.sorted { a, b in
+            let na = a.hasPrefix("b:")
+            let nb = b.hasPrefix("b:")
             if na != nb { return !na }
-            return a < b
+            return (label[a] ?? "").lowercased() < (label[b] ?? "").lowercased()
         }
-        return keys.map { ShopGroup(key: $0, entries: map[$0] ?? []) }
+        return ids.map { ShopGroup(key: label[$0] ?? $0, entries: map[$0] ?? []) }
     }
 
     var body: some View {
