@@ -14,7 +14,7 @@ func pickTrip(current: String? = nil) async -> String? {
     }
     actions.append(SheetAction("بدون رحلة", ""))
     actions.append(SheetAction("＋ رحلة جديدة", "__new"))
-    let v: String? = await actionSheet(title: "الرحلة", actions: actions)
+    let v: String? = await pickAction(title: "الرحلة", actions: actions)
     if v == "__new" {
         let id: String? = await Nav.shared.presentForResult { (done: @escaping (String?) -> Void) in
             TripFormPage(done: done)
@@ -155,7 +155,7 @@ struct TripDetailPage: View {
     }
 
     private func menu(_ t: Trip) async {
-        let a: String? = await actionSheet(actions: [
+        let a: String? = await pickAction(actions: [
             SheetAction("تعديل الرحلة", "edit"),
             SheetAction("حذف الرحلة", "delete", destructive: true),
         ])
@@ -336,7 +336,7 @@ fileprivate struct ShopItemRow: View {
     }
 
     private func tap(_ i: OrderItem) async {
-        let a: String? = await actionSheet(title: i.title, actions: [
+        let a: String? = await pickAction(title: i.title, actions: [
             SheetAction("اشتريتها (أكّد السعر)", "buy"),
             SheetAction(i.hasPlan ? "تعديل وين وبكم" : "وين وبكم تقريباً", "plan"),
         ])
@@ -551,7 +551,7 @@ struct ExpenseFormPage: View {
     }
 
     private func pickCurrency() async {
-        let c: String? = await actionSheet(actions: rateCurrencies.map { SheetAction($0, $0) })
+        let c: String? = await pickAction(actions: rateCurrencies.map { SheetAction($0, $0) })
         if let c {
             currency = c
             rate = c == "OMR" ? "1" : Rates.shared.rateText(c)

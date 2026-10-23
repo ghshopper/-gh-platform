@@ -369,7 +369,7 @@ struct ConvertRequestPage: View {
     private func pickDepositMethod() {
         Task {
             let actions = requestPaymentMethods.map { SheetAction($0, $0) }
-            if let m = await actionSheet(title: "طريقة الدفع", actions: actions) {
+            if let m = await pickAction(title: "طريقة الدفع", actions: actions) {
                 depositMethod = m
             }
         }

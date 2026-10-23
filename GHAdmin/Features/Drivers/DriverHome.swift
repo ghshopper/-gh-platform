@@ -561,7 +561,7 @@ struct DriverOrderPage: View {
             SheetAction("الكاميرا", true),
             SheetAction("من الصور", false),
         ]
-        guard let camera = await actionSheet(title: "صورة التسليم",
+        guard let camera = await pickAction(title: "صورة التسليم",
                                              message: "صوّر الطلب مع الزبون أو عند الباب",
                                              actions: actions) else { return }
         guard let image = await DeliveryPhotoGrabber.pick(camera: camera) else { return }
@@ -608,7 +608,7 @@ struct DriverOrderPage: View {
              "شكراً \(first) 🤍\nتم تسليم \(g("طلبكِ", "طلبك")) من GH Shopper، إن شاء الله \(g("يعجبكِ", "يعجبك")).")
         ]
         let actions: [SheetAction<String>] = templates.map { SheetAction($0.0, $0.1) }
-        guard let text = await actionSheet(title: "رسالة للعميل",
+        guard let text = await pickAction(title: "رسالة للعميل",
                                            message: "تنفتح في واتساب، وتقدر تعدّلها قبل الإرسال",
                                            actions: actions) else { return }
         openURL("https://wa.me/\(phone)?text=\(driverHomeEncode(text))")

@@ -364,7 +364,7 @@ struct OrderDetailPage: View {
     }
 
     private func pickPhoto(_ item: OrderItem, _ kind: String) async {
-        let source = await actionSheet(title: kind == "photo" ? "صورة القطعة" : "صورة الإيصال", actions: [
+        let source = await pickAction(title: kind == "photo" ? "صورة القطعة" : "صورة الإيصال", actions: [
             SheetAction("الكاميرا", true),
             SheetAction("من الصور", false),
         ])
@@ -395,7 +395,7 @@ struct OrderDetailPage: View {
     }
 
     private func itemActions(_ o: Order, _ item: OrderItem) async {
-        let picked = await actionSheet(title: item.title, message: item.status.label, actions: itemSheetActions(item))
+        let picked = await pickAction(title: item.title, message: item.status.label, actions: itemSheetActions(item))
         guard let a = picked else { return }
         switch a {
         case "next":
@@ -414,7 +414,7 @@ struct OrderDetailPage: View {
             let choices: [SheetAction<ItemStatus>] = ItemStatus.allCases
                 .filter { $0 != item.status }
                 .map { SheetAction($0.label, $0, destructive: $0 == .cancelled) }
-            if let s = await actionSheet(title: "الحالة", actions: choices) { await advance(item, s) }
+            if let s = await pickAction(title: "الحالة", actions: choices) { await advance(item, s) }
         case "delete":
             if await confirm("حذف \(item.name)؟") {
                 await run { try await Store.shared.deleteItem(item.id) }
@@ -430,7 +430,7 @@ struct OrderDetailPage: View {
             await pickPhoto(item, kind)
             return
         }
-        let v = await actionSheet(actions: [
+        let v = await pickAction(actions: [
             SheetAction("عرض", "view"),
             SheetAction("تغيير", "change"),
             SheetAction("حذف الصورة", "remove", destructive: true),
@@ -498,7 +498,7 @@ struct OrderDetailPage: View {
     }
 
     private func orderActions(_ o: Order) async {
-        let picked = await actionSheet(title: o.invoiceNo, actions: orderSheetActions(o))
+        let picked = await pickAction(title: o.invoiceNo, actions: orderSheetActions(o))
         guard let a = picked else { return }
         switch a {
         case "waybill":
@@ -574,7 +574,7 @@ struct OrderDetailPage: View {
     private func pickMessage(_ o: Order) async {
         let list = messageTemplates.filter { o.trackingToken != nil || !$0.title.contains("تتبّع") }
         let actions: [SheetAction<MsgTemplate>] = list.map { SheetAction($0.title, $0) }
-        if let t = await actionSheet(title: "رسالة واتساب", actions: actions) {
+        if let t = await pickAction(title: "رسالة واتساب", actions: actions) {
             presentForm(MessagePage(order: o, template: t))
         }
     }
@@ -601,7 +601,7 @@ struct OrderDetailPage: View {
     }
 
     private func shipItems(_ o: Order) async {
-        let picked = await actionSheet(title: "من وين شحنتها؟", actions: [
+        let picked = await pickAction(title: "من وين شحنتها؟", actions: [
             SheetAction("من أوروبا", "أوروبا"),
             SheetAction("من دبي", "دبي"),
             SheetAction("من مكان ثاني", ""),

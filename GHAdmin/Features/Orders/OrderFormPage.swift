@@ -208,7 +208,7 @@ struct OrderFormPage: View {
     private func pickMethod() {
         Task { @MainActor in
             let actions = orderPaymentMethods.map { SheetAction($0, $0) }
-            let m: String? = await actionSheet(title: "طريقة الدفع", actions: actions)
+            let m: String? = await pickAction(title: "طريقة الدفع", actions: actions)
             if let m { method = m }
         }
     }

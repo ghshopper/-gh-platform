@@ -177,7 +177,7 @@ struct PurchaseInvoiceFormPage: View {
     }
 
     private func pickCurrency() async {
-        let c: String? = await actionSheet(actions: rateCurrencies.map { SheetAction($0, $0) })
+        let c: String? = await pickAction(actions: rateCurrencies.map { SheetAction($0, $0) })
         if let c {
             currency = c
             rate = Rates.shared.rateText(c)

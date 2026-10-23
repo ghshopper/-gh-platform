@@ -147,7 +147,7 @@ struct MorePage: View {
         let actions = months.map { ym in
             SheetAction("\(monthNames[ym.month - 1]) \(ym.year)", ym)
         }
-        let m: YearMonth? = await actionSheet(title: "تقرير Excel", message: "اختر الشهر", actions: actions)
+        let m: YearMonth? = await pickAction(title: "تقرير Excel", message: "اختر الشهر", actions: actions)
         guard let m else { return }
         Report.shareMonth(year: m.year, month: m.month)
     }

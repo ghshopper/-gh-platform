@@ -24,7 +24,7 @@ fileprivate func ipOpenWhatsApp(phone: String?, text: String) async -> Bool {
 @MainActor
 fileprivate func ipPickRateCurrency() async -> String? {
     let actions: [SheetAction<String>] = rateCurrencies.map { SheetAction($0, $0) }
-    return await actionSheet(title: "العملة", actions: actions)
+    return await pickAction(title: "العملة", actions: actions)
 }
 
 // MARK: - Item add / edit
@@ -242,7 +242,7 @@ struct PurchasePage: View {
     /// Photo of the boutique receipt: saved on the piece, and its total and
     /// currency filled in here (checked by you before saving).
     private func scanReceipt() async {
-        let source = await actionSheet(title: "صورة الإيصال", actions: [
+        let source = await pickAction(title: "صورة الإيصال", actions: [
             SheetAction("الكاميرا", true),
             SheetAction("من الصور", false),
         ])
@@ -434,7 +434,7 @@ struct PlanPage: View {
 
     private func pickStore() async {
         let actions: [SheetAction<String>] = knownStores.map { SheetAction($0, $0) }
-        if let s = await actionSheet(title: "محلات في خطتك", actions: actions) { storeText = s }
+        if let s = await pickAction(title: "محلات في خطتك", actions: actions) { storeText = s }
     }
 
     private func pickCurrency() async {
@@ -501,7 +501,7 @@ struct PaymentFormPage: View {
 
     private func pickMethod() async {
         let actions: [SheetAction<String>] = itemPaymentMethods.map { SheetAction($0, $0) }
-        if let m = await actionSheet(actions: actions) { method = m }
+        if let m = await pickAction(actions: actions) { method = m }
     }
 
     private func chooseDate() async {

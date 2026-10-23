@@ -46,7 +46,7 @@ There is no Swift compiler here. Write careful, conservative Swift that compiles
     `RemoteImage(url:)` / `RemoteImage(path:)` (private photo through `Store.photoUrl`).
 - `UI/Dialogs.swift` — all async, call from a `Task`:
   `await confirm("title", message:, ok: "حذف", destructive: true) -> Bool`, `await alert("title", message:)`,
-  `await actionSheet(title:, message:, actions: [SheetAction("label", value, destructive:)]) -> T?`,
+  `await pickAction(title:, message:, actions: [SheetAction("label", value, destructive:)]) -> T?`,
   `await promptText("title", message:, placeholder:, initial:, ok:, keyboard:, secure:) -> String?`,
   `await pickDate(initial) -> Date?`, `toast("text")`, `toast("text", error: true)`, `toast("...", icon:, onTap:)`,
   `toastError(error)`, `await attempt { try await ... } -> Bool` (shows the error as a red toast), `Haptic.select()/light()/success()`.

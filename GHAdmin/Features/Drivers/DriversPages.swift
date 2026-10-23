@@ -34,7 +34,7 @@ fileprivate func shareDriverLogin(name: String, phone: String, password: String)
         SheetAction("إرسال واتساب", "wa"),
         SheetAction("نسخ", "copy"),
     ]
-    let a = await actionSheet(title: "تم إضافة \(name)", message: "أرسل له بيانات الدخول؟", actions: actions)
+    let a = await pickAction(title: "تم إضافة \(name)", message: "أرسل له بيانات الدخول؟", actions: actions)
     if a == "wa" {
         let p = waPhone(phone) ?? ""
         openURL("https://wa.me/\(p)?text=\(driversEncodeComponent(msg))")
@@ -451,7 +451,7 @@ struct DeliveryPage: View {
         }
         var actions: [SheetAction<String>] = drivers.map { SheetAction($0.name, $0.id) }
         if driverId != nil { actions.append(SheetAction("بدون مندوب", "", destructive: true)) }
-        if let id = await actionSheet(title: "المندوب", actions: actions) {
+        if let id = await pickAction(title: "المندوب", actions: actions) {
             driverId = id.isEmpty ? nil : id
         }
     }
