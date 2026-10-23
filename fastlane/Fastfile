@@ -94,7 +94,7 @@ platform :ios do
       export_options: {
         provisioningProfiles: { bundle_id => profile_name }
       },
-      xcargs: "CURRENT_PROJECT_VERSION=#{ENV.fetch('BUILD_NUMBER', '1')}",
+      xcargs: "CURRENT_PROJECT_VERSION=#{200 + ENV.fetch('BUILD_NUMBER', '1').to_i}",
       output_directory: "build/ipa",
       output_name: "GHShopper.ipa"
     )
