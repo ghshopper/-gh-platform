@@ -6,12 +6,13 @@ import UIKit
 /// Same list as `paymentMethods` in order_form_page.dart.
 fileprivate let itemPaymentMethods = ["تحويل بنكي", "نقداً", "رابط دفع", "أخرى"]
 
-fileprivate func trimmed(_ s: String) -> String { s.trimmingCharacters(in: .whitespacesAndNewlines) }
-fileprivate func clean(_ s: String) -> String? { trimmed(s).isEmpty ? nil : trimmed(s) }
-fileprivate func fixed(_ v: Double, _ digits: Int) -> String { String(format: "%.\(digits)f", v) }
+fileprivate func ipTrimmed(_ s: String) -> String { s.trimmingCharacters(in: .whitespacesAndNewlines) }
+fileprivate func ipClean(_ s: String) -> String? { ipTrimmed(s).isEmpty ? nil : ipTrimmed(s) }
+fileprivate func ipEnabled(_ on: Bool, _ f: @escaping () -> Void) -> (() -> Void)? { on ? f : nil }
+fileprivate func ipFixed(_ v: Double, _ digits: Int) -> String { String(format: "%.\(digits)f", v) }
 
 @MainActor
-fileprivate func openWhatsAppChecked(phone: String?, text: String) async -> Bool {
+fileprivate func ipOpenWhatsApp(phone: String?, text: String) async -> Bool {
     let enc = text.addingPercentEncoding(withAllowedCharacters: .alphanumerics) ?? ""
     let s: String
     if let p = waPhone(phone) { s = "https://wa.me/\(p)?text=\(enc)" } else { s = "https://wa.me/?text=\(enc)" }
@@ -21,7 +22,7 @@ fileprivate func openWhatsAppChecked(phone: String?, text: String) async -> Bool
 
 /// Currency picker shared by the purchase and plan pages.
 @MainActor
-fileprivate func pickRateCurrency() async -> String? {
+fileprivate func ipPickRateCurrency() async -> String? {
     let actions: [SheetAction<String>] = rateCurrencies.map { SheetAction($0, $0) }
     return await actionSheet(title: "العملة", actions: actions)
 }
@@ -73,15 +74,15 @@ struct ItemFormPage: View {
     }
 
     private func save() async {
-        let n = trimmed(name)
+        let n = ipTrimmed(name)
         if n.isEmpty {
             toast("اكتب اسم القطعة", error: true)
             return
         }
         saving = true
         do {
-            try await Store.shared.saveItem(id: item?.id, orderId: orderId, name: n, brand: clean(brand),
-                                            details: clean(details), price: price.omrValue, pricing: price.fields)
+            try await Store.shared.saveItem(id: item?.id, orderId: orderId, name: n, brand: ipClean(brand),
+                                            details: ipClean(details), price: price.omrValue, pricing: price.fields)
             price.remember()
             dismiss()
         } catch {
@@ -93,15 +94,15 @@ struct ItemFormPage: View {
 
 // MARK: - Record purchase
 
-@MainActor fileprivate var lastPurchasePlace: PurchasePlace = .boutiqueEu
+@MainActor fileprivate var ipLastPurchasePlace: PurchasePlace = .boutiqueEu
 
 @MainActor
-fileprivate func initialPurchasePlace(_ i: OrderItem) -> PurchasePlace {
+fileprivate func ipInitialPurchasePlace(_ i: OrderItem) -> PurchasePlace {
     if let p = i.purchasePlace { return p }
     if let p = i.planPlace { return p }
     if i.listCurrency == "AED" { return .dubai }
     if i.listCurrency == "EUR" { return .boutiqueEu }
-    return lastPurchasePlace
+    return ipLastPurchasePlace
 }
 
 /// Where it was bought and for how much. Private: never on the invoice.
@@ -122,14 +123,14 @@ struct PurchasePage: View {
         self.item = item
         self.done = done
         // the plan made before the trip fills the form: confirm and save
-        let p = initialPurchasePlace(item)
+        let p = ipInitialPurchasePlace(item)
         let cur = item.costCurrency ?? item.estCurrency ?? p.currency
         var guess: Double? = item.costAmount
         if guess == nil && item.estCurrency == cur { guess = item.estCost }
         if guess == nil && item.listCurrency == cur { guess = item.listPrice }
         _place = State(initialValue: p)
         _currency = State(initialValue: cur)
-        _priceText = State(initialValue: guess.map { fixed($0, 2) } ?? "")
+        _priceText = State(initialValue: guess.map { ipFixed($0, 2) } ?? "")
         _rateText = State(initialValue: item.costRate.map { "\($0)" } ?? Rates.shared.rateText(cur))
     }
 
@@ -177,7 +178,7 @@ struct PurchasePage: View {
     private var scanSection: some View {
         GHSection(footer: scanNote ?? "صوّر الإيصال ونعبي السعر والعملة عنك، وتنحفظ الصورة مع القطعة.") {
             Tile(scanning ? "نقرأ الإيصال…" : "اقرأ السعر من الإيصال",
-                 action: scanning ? nil : { Task { await scanReceipt() } },
+                 action: ipEnabled(!scanning) { Task { await scanReceipt() } },
                  leading: { IconBox("doc.text.viewfinder", color: GH.burgundy) },
                  trailing: {
                      if scanning { ProgressView() }
@@ -203,7 +204,7 @@ struct PurchasePage: View {
     }
 
     private var taxFreeLabel: String {
-        pct > 0 ? "تاكس فري المفروض (\(fixed(pct, 0))٪)" : "تاكس فري"
+        pct > 0 ? "تاكس فري المفروض (\(ipFixed(pct, 0))٪)" : "تاكس فري"
     }
 
     private var summarySection: some View {
@@ -233,7 +234,7 @@ struct PurchasePage: View {
     }
 
     private func pickCurrency() async {
-        guard let c = await pickRateCurrency() else { return }
+        guard let c = await ipPickRateCurrency() else { return }
         currency = c
         rateText = Rates.shared.rateText(c)
     }
@@ -265,7 +266,7 @@ struct PurchasePage: View {
         scanning = false
         let total = jdn(res["total"])
         let cur = js(res["currency"])?.uppercased()
-        if let total { priceText = fixed(total, 2) }
+        if let total { priceText = ipFixed(total, 2) }
         if let cur, defaultRates[cur] != nil, cur != currency {
             let match = PurchasePlace.allCases.filter { $0 != .other && $0.currency == cur }
             place = (!match.isEmpty && match[0] == place) ? place : .other
@@ -274,7 +275,7 @@ struct PurchasePage: View {
         }
         let storeName = js(res["store"])
         let storePart = storeName.map { " (\($0))" } ?? ""
-        let totalPart = total.map { fixed($0, 2) } ?? "—"
+        let totalPart = total.map { ipFixed($0, 2) } ?? "—"
         scanNote = "من الإيصال\(storePart): \(totalPart) \(cur ?? "") · راجعه قبل الحفظ"
     }
 
@@ -292,7 +293,7 @@ struct PurchasePage: View {
         saving = true
         do {
             try await Store.shared.recordPurchase(item, place: place, price: price, currency: currency, rate: rate)
-            lastPurchasePlace = place
+            ipLastPurchasePlace = place
             close(true)
         } catch {
             saving = false
@@ -303,7 +304,7 @@ struct PurchasePage: View {
 
 // MARK: - Buying plan
 
-fileprivate func initialPlanPlace(_ i: OrderItem) -> PurchasePlace? {
+fileprivate func ipInitialPlanPlace(_ i: OrderItem) -> PurchasePlace? {
     if let p = i.planPlace { return p }
     if i.listCurrency == "AED" { return .dubai }
     if i.listCurrency == "EUR" { return .boutiqueEu }
@@ -326,14 +327,14 @@ struct PlanPage: View {
     init(item: OrderItem, done: ((Bool?) -> Void)? = nil) {
         self.item = item
         self.done = done
-        let p = initialPlanPlace(item)
+        let p = ipInitialPlanPlace(item)
         let cur = item.estCurrency ?? item.listCurrency ?? p?.currency ?? "EUR"
         var c: Double? = item.estCost
         if c == nil && item.listCurrency == cur { c = item.listPrice }
         _storeText = State(initialValue: item.planStore ?? "")
         _place = State(initialValue: p)
         _currency = State(initialValue: cur)
-        _costText = State(initialValue: c.map { fixed($0, 2) } ?? "")
+        _costText = State(initialValue: c.map { ipFixed($0, 2) } ?? "")
     }
 
     private var knownStores: [String] {
@@ -402,7 +403,7 @@ struct PlanPage: View {
     }
 
     private var taxFreeLabel: String {
-        pct > 0 ? "تاكس فري متوقع (\(fixed(pct, 0))٪)" : "تاكس فري"
+        pct > 0 ? "تاكس فري متوقع (\(ipFixed(pct, 0))٪)" : "تاكس فري"
     }
 
     @ViewBuilder private var estimateSection: some View {
@@ -420,7 +421,7 @@ struct PlanPage: View {
     @ViewBuilder private var clearSection: some View {
         if item.hasPlan {
             GHSection {
-                Tile("مسح الخطة", chevron: false, action: saving ? nil : { Task { await save(clear: true) } })
+                Tile("مسح الخطة", chevron: false, action: ipEnabled(!saving) { Task { await save(clear: true) } })
             }
         }
     }
@@ -437,7 +438,7 @@ struct PlanPage: View {
     }
 
     private func pickCurrency() async {
-        if let c = await pickRateCurrency() { currency = c }
+        if let c = await ipPickRateCurrency() { currency = c }
     }
 
     private func save(clear: Bool = false) async {
@@ -447,7 +448,7 @@ struct PlanPage: View {
         saving = true
         do {
             try await Store.shared.savePlan(item,
-                                            store: clear ? "" : trimmed(storeText),
+                                            store: clear ? "" : ipTrimmed(storeText),
                                             place: clear ? nil : place,
                                             cost: c,
                                             currency: currency,
@@ -515,7 +516,7 @@ struct PaymentFormPage: View {
         }
         saving = true
         do {
-            try await Store.shared.addPayment(order.id, amount: v, method: method, paidOn: date, note: clean(note))
+            try await Store.shared.addPayment(order.id, amount: v, method: method, paidOn: date, note: ipClean(note))
             dismiss()
         } catch {
             saving = false
@@ -568,7 +569,7 @@ struct MessagePage: View {
 
     private func send() async {
         let c = Store.shared.customer(order.customerId)
-        let ok = await openWhatsAppChecked(phone: c?.phone, text: text)
+        let ok = await ipOpenWhatsApp(phone: c?.phone, text: text)
         if ok {
             dismiss()
         } else {

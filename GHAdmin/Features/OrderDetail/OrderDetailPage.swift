@@ -4,11 +4,11 @@ import UIKit
 // Port of lib/pages/order_detail_page.dart
 
 /// An action that is nil (disabled) when `on` is false.
-fileprivate func enabled(_ on: Bool, _ f: @escaping () -> Void) -> (() -> Void)? { on ? f : nil }
+fileprivate func odEnabled(_ on: Bool, _ f: @escaping () -> Void) -> (() -> Void)? { on ? f : nil }
 
 /// Opens WhatsApp with the text. Returns false when it could not be opened.
 @MainActor
-fileprivate func sendWhatsApp(phone: String?, text: String) async -> Bool {
+fileprivate func odSendWhatsApp(phone: String?, text: String) async -> Bool {
     let enc = text.addingPercentEncoding(withAllowedCharacters: .alphanumerics) ?? ""
     let s: String
     if let p = waPhone(phone) { s = "https://wa.me/\(p)?text=\(enc)" } else { s = "https://wa.me/?text=\(enc)" }
@@ -16,21 +16,10 @@ fileprivate func sendWhatsApp(phone: String?, text: String) async -> Bool {
     return await UIApplication.shared.open(url, options: [:])
 }
 
-/// Trip picker (same as pickTrip in trips_page.dart).
+/// Trip picker (the shared pickTrip from trips_page).
 @MainActor
-fileprivate func pickTripForOrder(current: String?) async -> String? {
-    var actions: [SheetAction<String>] = Store.shared.trips.map { t in
-        SheetAction(t.id == current ? "✓ \(t.name)" : t.name, t.id)
-    }
-    actions.append(SheetAction("بدون رحلة", ""))
-    actions.append(SheetAction("＋ رحلة جديدة", "__new"))
-    let v = await actionSheet(title: "الرحلة", actions: actions)
-    if v == "__new" {
-        // TripFormPage (contract) gives no result back: open it, the order keeps its trip.
-        presentForm(TripFormPage())
-        return nil
-    }
-    return v
+fileprivate func odPickTrip(current: String?) async -> String? {
+    await pickTrip(current: current)
 }
 
 /// Prints the shipping label for an order and records it on the server.
@@ -97,7 +86,7 @@ struct OrderDetailPage: View {
 
     private func bottomBar(_ o: Order) -> some View {
         HStack(spacing: 10) {
-            SecondaryButton("الفاتورة", icon: "doc.richtext", action: enabled(!busy) { Task { await sharePdf(o) } })
+            SecondaryButton("الفاتورة", icon: "doc.richtext", action: odEnabled(!busy) { Task { await sharePdf(o) } })
             PrimaryButton("واتساب", icon: "bubble.left.fill", action: { Task { await pickMessage(o) } })
         }
     }
@@ -177,7 +166,7 @@ struct OrderDetailPage: View {
             ChipBar {
                 ForEach(markSteps(o), id: \.self) { s in
                     ChipButton("الكل: \(s.actionLabel)", icon: "checkmark",
-                               action: enabled(!busy) { Task { await markAll(o, s) } })
+                               action: odEnabled(!busy) { Task { await markAll(o, s) } })
                 }
             }
             .padding(.top, 8)
@@ -191,7 +180,7 @@ struct OrderDetailPage: View {
                 if !quickReplies[k].needsPayLink || o.hasBalance {
                     ChipButton(quickReplies[k].label,
                                icon: quickReplies[k].needsPayLink ? "creditcard" : "text.bubble",
-                               action: enabled(!busy) { Task { await quickReply(o, quickReplies[k]) } })
+                               action: odEnabled(!busy) { Task { await quickReply(o, quickReplies[k]) } })
                 }
             }
         }
@@ -517,7 +506,7 @@ struct OrderDetailPage: View {
         case "return":
             presentForm(ReturnPage(order: o))
         case "trip":
-            if let id = await pickTripForOrder(current: o.tripId) {
+            if let id = await odPickTrip(current: o.tripId) {
                 let value: Any = nn(id.isEmpty ? nil : id)
                 await run { try await Store.shared.updateOrder(o.id, ["trip_id": value]) }
             }
@@ -605,7 +594,7 @@ struct OrderDetailPage: View {
             busy = false
         }
         let text = r.build(o, c, url)
-        let ok = await sendWhatsApp(phone: c?.phone, text: text)
+        let ok = await odSendWhatsApp(phone: c?.phone, text: text)
         if !ok {
             copyText(text, toastText: "ما قدرت أفتح واتساب، نسخت الرسالة")
         }

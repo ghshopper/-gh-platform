@@ -39,26 +39,7 @@ fileprivate final class OrderItemsDraft: ObservableObject {
 /// Picks a trip (Dart `pickTrip` from trips_page.dart). Returns the trip id, "" for no trip, nil when cancelled.
 @MainActor
 fileprivate func orderFormPickTrip(current: String?) async -> String? {
-    let trips = Store.shared.trips
-    var actions: [SheetAction<String>] = trips.map { t in
-        SheetAction(t.id == current ? "✓ \(t.name)" : t.name, t.id)
-    }
-    actions.append(SheetAction("بدون رحلة", ""))
-    actions.append(SheetAction("＋ رحلة جديدة", "__new"))
-    let v: String? = await actionSheet(title: "الرحلة", actions: actions)
-    if v == "__new" {
-        // TripFormPage gives no value back here: wait for the form to close,
-        // then pick the trip that was just added.
-        let before = Set(Store.shared.trips.map { $0.id })
-        let level = Nav.shared.modals.count
-        presentForm(TripFormPage())
-        try? await Task.sleep(nanoseconds: 400_000_000)
-        while Nav.shared.modals.count > level {
-            try? await Task.sleep(nanoseconds: 300_000_000)
-        }
-        return Store.shared.trips.first { !before.contains($0.id) }?.id
-    }
-    return v
+    await pickTrip(current: current)
 }
 
 /// The fields of one piece (inside its GHSection).
