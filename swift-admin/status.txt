@@ -1,1 +1,1 @@
-failure 17c19c7d80828288825f889706fc5766e7d378b4 swift-admin 5
+success e4a9b94b64e2d0a8b08f6b85b13917cb58986337 swift-admin 6
