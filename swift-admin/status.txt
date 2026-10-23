@@ -1,1 +1,1 @@
-failure 0a43d2072c24e3380027fd3b65cf6b8252ca3d1a swift-admin-release 8
+success 14bdbd86851b7c5ff3a11966bbcedeae6abdb1df swift-admin-release 10
