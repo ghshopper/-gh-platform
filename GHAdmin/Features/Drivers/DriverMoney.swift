@@ -87,11 +87,8 @@ struct DriverBalanceCard: View {
     }
 
     var body: some View {
-        ZStack(alignment: .bottomTrailing) {
-            cheetah
-            content
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
+        content
+            .background(alignment: .bottomTrailing) { cheetah }
         .background(RoundedRectangle(cornerRadius: 22, style: .continuous).fill(GH.brandGradient))
         .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
         .shadow(color: GH.burgundyDeep.opacity(0.27), radius: 11, x: 0, y: 10)
