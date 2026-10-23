@@ -1,1 +1,1 @@
-success e8ecf796a311188d5fda4f49da1db6856d5ff86d swift-admin 2
+failure 9b39bd6a34868cb738ec89c1d2eabcf0e3b5ce44 swift-admin 3
