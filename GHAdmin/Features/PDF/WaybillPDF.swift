@@ -142,7 +142,7 @@ func buildWaybillPdf(_ o: Order, customer: Customer?, biz: BusinessSettings, dri
     let address = cleanAddress(split.address, customer: customer)
     let r = route(o.deliveryMethod, office: office)
     // The gold cheetah printed as a black silhouette.
-    let cheetah = GHImage.named("story_cheetah")?.withTintColor(WC.ink, renderingMode: .alwaysOriginal)
+    let cheetah = GHImage.named("story_cheetah").map { waybillSilhouette($0) }
     // A gift goes to its recipient: their name and phone on the label.
     let gift = o.gift
     let recipientName = gift?.to ?? customer?.name ?? "—"
@@ -418,4 +418,21 @@ func shareWaybill(_ o: Order, customer: Customer?, biz: BusinessSettings, driver
         return
     }
     share([url])
+}
+
+
+/// The cheetah as a solid black silhouette that keeps its transparent background
+/// (thermal printers print black only). Drawn into a bitmap: image, then black
+/// filled only where the image has paint (.sourceIn).
+fileprivate func waybillSilhouette(_ img: UIImage) -> UIImage {
+    let fmt = UIGraphicsImageRendererFormat()
+    fmt.scale = max(img.scale, 3)
+    fmt.opaque = false
+    let rect = CGRect(origin: .zero, size: img.size)
+    return UIGraphicsImageRenderer(size: img.size, format: fmt).image { ctx in
+        img.draw(in: rect)
+        ctx.cgContext.setBlendMode(.sourceIn)
+        UIColor.black.setFill()
+        ctx.cgContext.fill(rect)
+    }
 }
