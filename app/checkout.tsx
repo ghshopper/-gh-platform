@@ -20,7 +20,7 @@ import { type Carrier, deliveryKey, GOVERNORATES } from '@/oman';
 import { GENACOM_BRANCHES } from '@/genacom';
 import { AMWAL_CODES, payWithAmwal } from '@/payment';
 import { C, F, S } from '@/theme';
-import { redeemGift, walletBalance } from '@/wallet';
+import { fetchWallet, redeemGift, walletBalance } from '@/wallet';
 import type { Address, PaymentGateway } from '@/types';
 import { Btn, Check, Divider, Field, Header, Segments, SummaryRow, T } from '@/ui';
 
@@ -211,8 +211,10 @@ export default function Checkout() {
   const couponValue = cart.coupon ? Math.min(cart.coupon.discount, gross) : 0;
   const before = gross - couponValue;
   const loyaltyValue = useLoyalty ? Math.min(loyalty.balance * loyalty.rate, before) : 0;
-  const wrapOn = giftsF.on && giftsF.wrap !== false;
-  const wrapFee = gift && wrapOn && giftWrap ? num(giftsF.wrap_fee, 2) : 0;
+  // only with the server's own fee (features.tsx keeps wrap off until /app/features answers)
+  const serverWrapFee = num(giftsF.wrap_fee, 0);
+  const wrapOn = giftsF.on && giftsF.wrap === true && serverWrapFee > 0;
+  const wrapFee = gift && wrapOn && giftWrap ? serverWrapFee : 0;
   const total = Math.max(0, before - loyaltyValue) + wrapFee;
   // رصيدك: the full balance up to the total; only the rest goes to Amwal / the chosen method.
   const walletUse = walletOn && useWallet ? Math.round(Math.min(walletBal, total) * 1000) / 1000 : 0;
@@ -349,6 +351,22 @@ export default function Checkout() {
           return;
         }
       }
+      // رصيدك may have changed since this screen loaded (spent elsewhere): check it
+      // right before any money moves; if it dropped, show the new numbers first.
+      if (walletUse > 0) {
+        let fresh: number;
+        try {
+          fresh = (await fetchWallet()).balance;
+        } catch {
+          Alert.alert(tr('ما قدرنا نتأكد من رصيدك', 'Could not check your balance'), tr('حاول مرة ثانية', 'Please try again'));
+          return;
+        }
+        setWalletBal(fresh);
+        if (fresh + 0.0005 < walletUse) {
+          Alert.alert(tr('رصيدك تغيّر', 'Your balance changed'), tr('راجع المبلغ الجديد ثم أكمل الطلب', 'Check the new amount, then place the order'));
+          return;
+        }
+      }
       if (allWallet) {
         paidSure = true;
       } else if (AMWAL_CODES.includes(payment)) {
@@ -371,7 +389,11 @@ export default function Checkout() {
           paidNote = `مدفوع عبر ${via} · رقم العملية ${r.transactionId}${r.reference ? ` · المرجع ${r.reference}` : ''}`;
         }
       }
-      const res = await api.post<{ data?: { id: number; order_number: string; guest_token?: string } }>('/customer/orders', {
+      const res = await api.post<{
+        data?: { id: number; order_number: string; guest_token?: string; payment_status?: string };
+        amount_due?: number | string;
+        wallet_short?: boolean;
+      }>('/customer/orders', {
         customer_name: name.trim(),
         customer_phone: fullPhone(phone),
         customer_email: email.trim() || null,
@@ -409,8 +431,20 @@ export default function Checkout() {
       const order = res?.data;
       if (order?.guest_token) await rememberGuestOrder(order.guest_token).catch(() => undefined);
       cart.clear();
-      router.replace({ pathname: '/order-placed', params: { number: order?.order_number ?? '', gift: gift ? giftName : '', paid: paidSure ? '1' : '', bank: realCode === 'bank_transfer' ? '1' : '' } });
+      // What the server says counts (it asked Amwal / checked the balance), not what the phone thinks.
+      const serverPaid = order?.payment_status === 'paid' || order?.payment_status === 'completed';
+      const charged = paidSure && !allWallet;
+      router.replace({ pathname: '/order-placed', params: {
+        number: order?.order_number ?? '',
+        gift: gift ? giftName : '',
+        paid: serverPaid ? '1' : '',
+        // card charged but not confirmed as fully paid: "we're checking" (+ what is still owed when the balance fell short)
+        check: !serverPaid && charged ? '1' : '',
+        due: !serverPaid && charged && res?.wallet_short ? String(num(res?.amount_due)) : '',
+        bank: realCode === 'bank_transfer' ? '1' : '',
+      } });
     } catch (e) {
+      if (walletUse > 0 && !amwalTx) loadWallet().catch(() => undefined); // e.g. "رصيدك تغيّر، حدّث الصفحة"
       Alert.alert(
         tr('ما قدرنا نرسل الطلب', 'Could not place the order'),
         `${e instanceof Error ? e.message : ''}${paidNote ? `\n${tr('تم الدفع — تواصل معنا على واتساب وبنثبت طلبك.', 'You were charged — message us on WhatsApp and we will confirm your order.')}` : ''}`,
@@ -466,7 +500,7 @@ export default function Checkout() {
                   <View>
                     {wrapOn ? (
                       <Check on={giftWrap} onPress={() => setGiftWrap(!giftWrap)}
-                        label={tr(`تغليف هدية فاخر (+${omr(num(giftsF.wrap_fee, 2))})`, `Luxury gift wrap (+${omr(num(giftsF.wrap_fee, 2))})`)} />
+                        label={tr(`تغليف هدية فاخر (+${omr(serverWrapFee)})`, `Luxury gift wrap (+${omr(serverWrapFee)})`)} />
                     ) : null}
                     <Check on={hidePrices} onPress={() => setHidePrices(!hidePrices)} label={tr('إخفاء الأسعار من الفاتورة والطرد', 'Hide prices on the invoice and parcel')} />
                   </View>

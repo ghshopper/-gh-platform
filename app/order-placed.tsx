@@ -12,7 +12,7 @@ import { Btn, Kicker, T } from '@/ui';
 interface BankDetails { bank_name?: string; account_name?: string; account_number?: string; iban?: string; note?: string }
 
 export default function OrderPlaced() {
-  const { number, gift, paid, bank } = useLocalSearchParams<{ number?: string; gift?: string; paid?: string; bank?: string }>();
+  const { number, gift, paid, bank, check, due } = useLocalSearchParams<{ number?: string; gift?: string; paid?: string; bank?: string; check?: string; due?: string }>();
   const insets = useSafeAreaInsets();
   const { tr } = useLang();
   const isBank = bank === '1';
@@ -59,6 +59,8 @@ export default function OrderPlaced() {
       ) : (
         <T size={14} color={C.sub} center>
           {paid ? tr('تم الدفع بنجاح. ', 'Payment received. ') : ''}
+          {!paid && check ? tr('وصلتنا دفعتك وبنتأكد منها. ', 'We received your payment and are confirming it. ') : ''}
+          {!paid && check && Number(due) > 0 ? tr(`رصيدك ما كفى: باقي عليك ${Number(due).toFixed(3)} ر.ع وبنتواصل معك. `, `Your balance fell short: ${Number(due).toFixed(3)} OMR is still due; we'll contact you. `) : ''}
           {gift ? tr(`بنجهّز هديتك لـ ${gift} بتغليف فاخر.`, `We'll gift-wrap it for ${gift}.`) : tr('طلبك قيد التجهيز الآن، شكراً لثقتك.', "We're preparing your order. Thank you.")}
         </T>
       )}

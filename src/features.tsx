@@ -29,7 +29,8 @@ const DEFAULTS: FeatureMap = {
   quotes: { on: false, expires_days: 3 },
   smart_push: { on: true },
   wallet: { on: false, points_convert: true, topup: true, topup_min: 5, topup_max: 1000 },
-  gifts: { on: true, wrap: true, wrap_fee: 2 },
+  // Gift wrap stays off (fee 0) until the server says otherwise: never charge a fee it didn't give.
+  gifts: { on: true, wrap: false, wrap_fee: 0 },
   vip_progress: { on: true },
   purchase_photos: { on: true },
   reviews: { on: true, service: true },
@@ -63,6 +64,12 @@ function parse(raw: unknown): FeatureMap | null {
       out[k] = { ...(DEFAULTS as unknown as Record<string, Record<string, unknown>>)[k], on: truthy(v) };
     }
   }
+  // Wrap only with a fee the server itself sent (never a default).
+  const g = o.gifts && typeof o.gifts === 'object' ? (o.gifts as Record<string, unknown>) : null;
+  const fee = g ? Number(g.wrap_fee) : NaN;
+  out.gifts = Number.isFinite(fee) && fee > 0 && g && g.wrap !== false && g.wrap !== 0 && g.wrap !== '0'
+    ? { ...out.gifts, wrap: true, wrap_fee: fee }
+    : { ...out.gifts, wrap: false, wrap_fee: 0 };
   return any ? (out as unknown as FeatureMap) : null;
 }
 
