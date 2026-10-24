@@ -1,1 +1,1 @@
-success 05536d74256dabca16cc3415355a0f2875cac2d4 swift-admin-release 20
+success 05536d74256dabca16cc3415355a0f2875cac2d4 swift-admin 19
