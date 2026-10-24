@@ -1,0 +1,169 @@
+[08:19:26]: fastlane 2.241.1 (Ruby 3.3.13, bundler)
+[08:19:27]: Sending anonymous analytics information
+[08:19:27]: Learn more at https://docs.fastlane.tools/#metrics
+[08:19:27]: No personal or sensitive data is sent.
+[08:19:27]: You can disable this by adding `opt_out_usage` at the top of your Fastfile
+[08:19:27]: [32m------------------------------[0m
+[08:19:27]: [32m--- Step: default_platform ---[0m
+[08:19:27]: [32m------------------------------[0m
+[08:19:27]: [32mDriving the lane 'ios beta' 🚀[0m
+[08:19:27]: [32m----------------------[0m
+[08:19:27]: [32m--- Step: setup_ci ---[0m
+[08:19:27]: [32m----------------------[0m
+[08:19:27]: Creating temporary keychain: "fastlane_tmp_keychain".
+[08:19:27]: [36m$ security list-keychains -d user[0m
+[08:19:27]: ▸ [35m"/Users/runner/Library/Keychains/fastlane_tmp_keychain-db"[0m
+[08:19:27]: [33mFound keychain '/Users/runner/Library/Keychains/fastlane_tmp_keychain-db' in list-keychains, adding to search list skipped[0m
+[08:19:27]: Enabling match readonly mode.
+[08:19:27]: [32m---------------------------------------[0m
+[08:19:27]: [32m--- Step: app_store_connect_api_key ---[0m
+[08:19:27]: [32m---------------------------------------[0m
+[08:19:28]: [33mCould not turn on push notifications: unexpected character: 'Unauthenticated' at line 1 column 1[0m
+[08:19:28]: [32m-------------------[0m
+[08:19:28]: [32m--- Step: match ---[0m
+[08:19:28]: [32m-------------------[0m
+
++----------------------------------------------------------------------------------------+
+|                               [32mSummary for match 2.241.1[0m                                |
++----------------------------------------+-----------------------------------------------+
+| type                                   | appstore                                      |
+| app_identifier                         | ["app.ghshopper.com"]                         |
+| team_id                                | 4AS6WC855S                                    |
+| api_key                                | API_KEY_REDACTED                              |
+| storage_mode                           | git                                           |
+| git_url                                | https://github.com/ghshopper/-gh-platform.git |
+| git_branch                             | certificates                                  |
+| git_basic_authorization                | GIT_BASIC_AUTHORIZATION_REDACTED              |
+| readonly                               | false                                         |
+| generate_apple_certs                   | true                                          |
+| skip_provisioning_profiles             | false                                         |
+| shallow_clone                          | false                                         |
+| clone_branch_directly                  | false                                         |
+| skip_google_cloud_account_confirmation | false                                         |
+| s3_skip_encryption                     | false                                         |
+| gitlab_host                            | https://gitlab.com                            |
+| keychain_name                          | fastlane_tmp_keychain                         |
+| force                                  | false                                         |
+| force_for_new_devices                  | false                                         |
+| include_mac_in_profiles                | false                                         |
+| include_all_certificates               | false                                         |
+| force_for_new_certificates             | false                                         |
+| renew_expired_certs                    | false                                         |
+| skip_confirmation                      | false                                         |
+| safe_remove_certs                      | false                                         |
+| skip_docs                              | false                                         |
+| platform                               | ios                                           |
+| derive_catalyst_app_identifier         | false                                         |
+| fail_on_name_taken                     | false                                         |
+| skip_certificate_matching              | false                                         |
+| skip_set_partition_list                | false                                         |
+| force_legacy_encryption                | false                                         |
+| offline_profile                        | false                                         |
+| verbose                                | false                                         |
++----------------------------------------+-----------------------------------------------+
+
+[08:19:28]: Cloning remote git repo...
+[08:19:28]: If cloning the repo takes too long, you can use the `clone_branch_directly` option in match.
+[08:19:30]: Checking out branch certificates...
+[08:19:30]: [32m🔓  Successfully decrypted certificates repo[0m
+[08:19:30]: Verifying that the certificate and profile are still valid on the Dev Portal...
+[08:19:30]: Creating authorization token for App Store Connect API
+[08:19:30]: Installing certificate...
+[08:19:31]: [31mThere are no local code signing identities found.
+You can run `security find-identity -v -p codesigning /Users/runner/Library/Keychains/fastlane_tmp_keychain-db` to get this output.
+This Stack Overflow thread has more information: https://stackoverflow.com/q/35390072/774.
+(Check in Keychain Access for an expired WWDR certificate: https://stackoverflow.com/a/35409835/774 has more info.)[0m
+[08:19:31]: Setting key partition list... (this can take a minute if there are a lot of keys installed)
+[08:19:31]: [31msecurity: SecItemCopyMatching: The specified item could not be found in the keychain.[0m
+[08:19:31]: Setting key partition list... (this can take a minute if there are a lot of keys installed)
+
++------------------------------------------------------------------------+
+|                         [32mInstalled Certificate[0m                          |
++-------------------+----------------------------------------------------+
+| User ID           | 4AS6WC855S                                         |
+| Common Name       | Apple Distribution: Ghasan AL Zadjali (4AS6WC855S) |
+| Organisation Unit | 4AS6WC855S                                         |
+| Organisation      | Ghasan AL Zadjali                                  |
+| Country           | US                                                 |
+| Start Datetime    | 2026-10-17 19:42:09 UTC                            |
+| End Datetime      | 2027-10-17 19:42:08 UTC                            |
++-------------------+----------------------------------------------------+
+
+[08:19:32]: Installing provisioning profile...
+
++----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+|                                                                                   [32mInstalled Provisioning Profile[0m                                                                                   |
++---------------------+--------------------------------------------------+---------------------------------------------------------------------------------------------------------------------------+
+| Parameter           | Environment Variable                             | Value                                                                                                                     |
++---------------------+--------------------------------------------------+---------------------------------------------------------------------------------------------------------------------------+
+| App Identifier      |                                                  | app.ghshopper.com                                                                                                         |
+| Type                |                                                  | appstore                                                                                                                  |
+| Platform            |                                                  | ios                                                                                                                       |
+| Profile UUID        | sigh_app.ghshopper.com_appstore                  | c98d14f6-8195-4ccb-9965-811610158c73                                                                                      |
+| Profile Name        | sigh_app.ghshopper.com_appstore_profile-name     | match AppStore app.ghshopper.com                                                                                          |
+| Profile Path        | sigh_app.ghshopper.com_appstore_profile-path     | /Users/runner/Library/Developer/Xcode/UserData/Provisioning Profiles/c98d14f6-8195-4ccb-9965-811610158c73.mobileprovision |
+| Development Team ID | sigh_app.ghshopper.com_appstore_team-id          | 4AS6WC855S                                                                                                                |
+| Certificate Name    | sigh_app.ghshopper.com_appstore_certificate-name | Apple Distribution: Ghasan AL Zadjali (4AS6WC855S)                                                                        |
++---------------------+--------------------------------------------------+---------------------------------------------------------------------------------------------------------------------------+
+
+[08:19:32]: [32m[32mAll required keys, certificates and provisioning profiles are installed 🙌[0m
+[08:19:32]: Setting Provisioning Profile type to 'app-store'
+[08:19:32]: [33mProfile has no push: building without the push entitlement[0m
+[08:19:32]: [32m------------------------------------------[0m
+[08:19:32]: [32m--- Step: update_code_signing_settings ---[0m
+[08:19:32]: [32m------------------------------------------[0m
+
++----------------------------------------------------------+
+|            [32mSummary for code signing settings[0m             |
++-----------------------+----------------------------------+
+| use_automatic_signing | false                            |
+| path                  | GHAdmin.xcodeproj                |
+| targets               | ["GHAdmin"]                      |
+| team_id               | 4AS6WC855S                       |
+| bundle_identifier     | app.ghshopper.com                |
+| code_sign_identity    | Apple Distribution               |
+| profile_name          | match AppStore app.ghshopper.com |
++-----------------------+----------------------------------+
+
+[08:19:32]: Updating the Automatic Codesigning flag to disabled for the given project '/Users/runner/work/-gh-platform/-gh-platform/GHAdmin.xcodeproj/project.pbxproj'
+[08:19:32]: [33mSet Team id to: 4AS6WC855S for target: GHAdmin for build configuration: Debug[0m
+[08:19:32]: [33mSet Code Sign identity to: Apple Distribution for target: GHAdmin for build configuration: Debug[0m
+[08:19:32]: [33mSet Provisioning Profile name to: match AppStore app.ghshopper.com for target: GHAdmin for build configuration: Debug[0m
+[08:19:32]: [33mSet Bundle identifier to: app.ghshopper.com for target: GHAdmin for build configuration: Debug[0m
+[08:19:32]: [33mSet Team id to: 4AS6WC855S for target: GHAdmin for build configuration: Release[0m
+[08:19:32]: [33mSet Code Sign identity to: Apple Distribution for target: GHAdmin for build configuration: Release[0m
+[08:19:32]: [33mSet Provisioning Profile name to: match AppStore app.ghshopper.com for target: GHAdmin for build configuration: Release[0m
+[08:19:32]: [33mSet Bundle identifier to: app.ghshopper.com for target: GHAdmin for build configuration: Release[0m
+[08:19:32]: [32mSuccessfully updated project settings to use Code Sign Style = 'Manual'[0m
+[08:19:32]: [32mModified Targets:[0m
+[08:19:32]: [32m	 * GHAdmin[0m
+[08:19:32]: [32mModified Build Configurations:[0m
+[08:19:32]: [32m	 * Debug[0m
+[08:19:32]: [32m	 * Release[0m
+[08:19:32]: [32m-----------------------[0m
+[08:19:32]: [32m--- Step: build_app ---[0m
+[08:19:32]: [32m-----------------------[0m
+[08:19:32]: [33mResolving Swift Package Manager dependencies...[0m
+[08:19:32]: [36m$ xcodebuild -resolvePackageDependencies -scheme GHAdmin -project GHAdmin.xcodeproj -configuration Release -clonedSourcePackagesDirPath spm[0m
+[08:19:33]: ▸ [35mCommand line invocation:[0m
+[08:19:33]: ▸ [35m    /Applications/Xcode_26.6.app/Contents/Developer/usr/bin/xcodebuild -resolvePackageDependencies -scheme GHAdmin -project GHAdmin.xcodeproj -configuration Release -clonedSourcePackagesDirPath spm[0m
+[08:19:34]: ▸ [35mResolve Package Graph[0m
+[08:19:40]: ▸ [35mResolved source packages:[0m
+[08:19:40]: ▸ [35m  GoogleDataTransport: https://github.com/google/GoogleDataTransport.git @ 10.1.1[0m
+[08:19:40]: ▸ [35m  InteropForGoogle: https://github.com/google/interop-ios-for-google-sdks.git @ 101.0.0[0m
+[08:19:40]: ▸ [35m  nanopb: https://github.com/firebase/nanopb.git @ 2.30910.1[0m
+[08:19:40]: ▸ [35m  SwiftProtobuf: https://github.com/apple/swift-protobuf.git @ 1.39.0[0m
+[08:19:40]: ▸ [35m  leveldb: https://github.com/firebase/leveldb.git @ 1.22.5[0m
+[08:19:40]: ▸ [35m  GoogleAdsOnDeviceConversion: https://github.com/googleads/google-ads-on-device-conversion-ios-sdk @ 2.3.0[0m
+[08:19:40]: ▸ [35m  abseil: https://github.com/google/abseil-cpp-binary.git @ 1.2024072200.0[0m
+[08:19:40]: ▸ [35m  gRPC: https://github.com/google/grpc-binary.git @ 1.69.1[0m
+[08:19:40]: ▸ [35m  GTMSessionFetcher: https://github.com/google/gtm-session-fetcher.git @ 4.5.0[0m
+[08:19:40]: ▸ [35m  Firebase: https://github.com/firebase/firebase-ios-sdk @ 11.15.0[0m
+[08:19:40]: ▸ [35m  GoogleAppMeasurement: https://github.com/google/GoogleAppMeasurement.git @ 11.15.0[0m
+[08:19:40]: ▸ [35m  Promises: https://github.com/google/promises.git @ 2.4.1[0m
+[08:19:40]: ▸ [35m  GoogleUtilities: https://github.com/google/GoogleUtilities.git @ 8.1.5[0m
+[08:19:40]: ▸ [35m  AppCheck: https://github.com/google/app-check.git @ 11.3.2[0m
+[08:19:40]: ▸ [35m2026-10-24 08:19:40.730 xcodebuild[9641:31874] [MT] IDERunDestination: Supported platforms for the buildables in the current scheme is empty.[0m
+[08:19:40]: ▸ [35mresolved source packages: GoogleDataTransport, InteropForGoogle, nanopb, SwiftProtobuf, leveldb, GoogleAdsOnDeviceConversion, abseil, gRPC, GTMSessionFetcher, Firebase, GoogleAppMeasurement, Promises, GoogleUtilities, AppCheck[0m
+[08:19:40]: [36m$ xcodebuild -showBuildSettings -scheme GHAdmin -project GHAdmin.xcodeproj -configuration Release -clonedSourcePackagesDirPath spm 2>&1[0m
+[08:19:43]: [33mCommand timed out after 3 seconds on try 1 of 4, trying again with a 6 second timeout...[0m

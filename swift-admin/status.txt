@@ -1,1 +1,1 @@
-success 077c1c3b5ea5bedebfd5ab818edf0d0728f73b12 swift-admin 17
+cancelled 077c1c3b5ea5bedebfd5ab818edf0d0728f73b12 swift-admin-release 18
