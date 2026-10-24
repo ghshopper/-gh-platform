@@ -1,13 +1,14 @@
 import * as Location from 'expo-location';
 import { router, useFocusEffect } from 'expo-router';
 import { type ReactNode, useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, Switch, View } from 'react-native';
+import { ActivityIndicator, Alert, KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, Switch, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { api, listOf } from '@/api';
 import { useAppData } from '@/appdata';
 import { useAuth } from '@/auth';
 import { useCart } from '@/cart';
 import { CouponBox } from '@/coupon-box';
+import { useFeature } from '@/features';
 import { num, omr, omrReal } from '@/format';
 import { FLAG, gccConfig, gccCountry, gulfEta, OMAN, setCountryCode, showingOtherCurrency } from '@/region';
 import { etaDates, etaForMany, withGulf, type Origin } from '@/eta';
@@ -18,7 +19,8 @@ import { pickedLocation, clearPickedLocation } from '@/location-store';
 import { type Carrier, deliveryKey, GOVERNORATES } from '@/oman';
 import { GENACOM_BRANCHES } from '@/genacom';
 import { AMWAL_CODES, payWithAmwal } from '@/payment';
-import { C, S } from '@/theme';
+import { C, F, S } from '@/theme';
+import { redeemGift, walletBalance } from '@/wallet';
 import type { Address, PaymentGateway } from '@/types';
 import { Btn, Check, Divider, Field, Header, Segments, SummaryRow, T } from '@/ui';
 
@@ -66,6 +68,18 @@ export default function Checkout() {
   const [giftName, setGiftName] = useState('');
   const [giftPhone, setGiftPhone] = useState('');
   const [giftMessage, setGiftMessage] = useState('');
+  // Gift options (features §5): wrap (server's fee) and no prices on the invoice
+  const giftsF = useFeature('gifts');
+  const [giftWrap, setGiftWrap] = useState(false);
+  const [hidePrices, setHidePrices] = useState(false);
+  // رصيدك — the GH wallet (features §4)
+  const walletF = useFeature('wallet');
+  const [walletBal, setWalletBal] = useState(0);
+  const [useWallet, setUseWallet] = useState(false);
+  const [redeemOpen, setRedeemOpen] = useState(false);
+  const [giftCode, setGiftCode] = useState('');
+  const [redeeming, setRedeeming] = useState(false);
+  const [redeemErr, setRedeemErr] = useState<string | null>(null);
   // Delivery
   // Muscat & Barka: our driver or a Genacom office. Rest of Oman: Genacom door or office.
   const [zone, setZone] = useState<'local' | 'oman'>('local');
@@ -124,6 +138,31 @@ export default function Checkout() {
     }
   }, [loggedIn]);
 
+  const walletOn = walletF.on && loggedIn;
+  const loadWallet = useCallback(async () => {
+    if (!walletOn) return setWalletBal(0);
+    setWalletBal(await walletBalance());
+  }, [walletOn]);
+  useEffect(() => { loadWallet(); }, [loadWallet]);
+
+  const redeem = async () => {
+    if (!giftCode.trim()) return;
+    setRedeeming(true);
+    setRedeemErr(null);
+    try {
+      const r = await redeemGift(giftCode);
+      setWalletBal(r.balance);
+      setUseWallet(true);
+      setGiftCode('');
+      setRedeemOpen(false);
+      Alert.alert(tr('تمت الإضافة 🤍', 'Added 🤍'), tr(`انضاف ${omrReal(r.added)} لرصيدك`, `${omrReal(r.added)} added to your balance`));
+    } catch (e) {
+      setRedeemErr(e instanceof Error ? e.message : tr('الكود غير صحيح أو مستخدم', 'Invalid or used code'));
+    } finally {
+      setRedeeming(false);
+    }
+  };
+
   // Pin chosen on the map screen.
   useFocusEffect(
     useCallback(() => {
@@ -172,7 +211,13 @@ export default function Checkout() {
   const couponValue = cart.coupon ? Math.min(cart.coupon.discount, gross) : 0;
   const before = gross - couponValue;
   const loyaltyValue = useLoyalty ? Math.min(loyalty.balance * loyalty.rate, before) : 0;
-  const total = Math.max(0, before - loyaltyValue);
+  const wrapOn = giftsF.on && giftsF.wrap !== false;
+  const wrapFee = gift && wrapOn && giftWrap ? num(giftsF.wrap_fee, 2) : 0;
+  const total = Math.max(0, before - loyaltyValue) + wrapFee;
+  // رصيدك: the full balance up to the total; only the rest goes to Amwal / the chosen method.
+  const walletUse = walletOn && useWallet ? Math.round(Math.min(walletBal, total) * 1000) / 1000 : 0;
+  const charge = Math.max(0, Math.round((total - walletUse) * 1000) / 1000);
+  const allWallet = walletUse > 0 && charge <= 0.0005;
 
   const chosenAddress = abroad || addressId === 'new' ? null : saved.find((a) => a.id === addressId) ?? null;
   const branchOnly = !abroad && carrier !== 'own' && branch;
@@ -304,9 +349,11 @@ export default function Checkout() {
           return;
         }
       }
-      if (AMWAL_CODES.includes(payment)) {
+      if (allWallet) {
+        paidSure = true;
+      } else if (AMWAL_CODES.includes(payment)) {
         const wallet = payment === 'amwal_apple' || payment === 'amwal_google';
-        const r = await payWithAmwal(total, wallet, isAr);
+        const r = await payWithAmwal(charge, wallet, isAr);
         if (r.ok !== false) amwalTx = r.transactionId;
         const via = `أموال${wallet ? (Platform.OS === 'ios' ? ' (Apple Pay)' : ' (Google Pay)') : ''}`;
         if (r.ok === 'unknown') {
@@ -330,7 +377,14 @@ export default function Checkout() {
         customer_email: email.trim() || null,
         is_gift: gift,
         gift_recipient_name: gift ? giftName.trim() : null,
-        gift_message: gift ? [giftMessage.trim(), giftPhone.trim() ? `هاتف المستلم: ${giftPhone.trim()}` : ''].filter(Boolean).join('\n') || null : null,
+        gift_message: gift
+          ? (giftsF.on ? giftMessage.trim() : [giftMessage.trim(), giftPhone.trim() ? `هاتف المستلم: ${giftPhone.trim()}` : ''].filter(Boolean).join('\n')) || null
+          : null,
+        ...(giftsF.on && gift
+          ? { gift_recipient_phone: giftPhone.trim() ? fullPhone(giftPhone) : null, gift_wrap: wrapFee > 0, gift_hide_prices: hidePrices }
+          : {}),
+        // رصيدك: the server takes min(this, balance, total) and checks Amwal against the rest.
+        ...(walletUse > 0 ? { wallet_amount: Number(walletUse.toFixed(3)) } : {}),
         payment_method: realCode,
         subtotal: Number(cart.subtotal.toFixed(3)),
         shipping_cost: Number(fee.toFixed(3)),
@@ -408,6 +462,15 @@ export default function Checkout() {
                 <Field label={tr('اسم المستلم', 'Recipient name')} value={giftName} onChangeText={setGiftName} error={errors.giftName} />
                 <Field label={tr('رقم هاتف المستلم (للتوصيل)', 'Recipient phone (for delivery)')} value={giftPhone} onChangeText={setGiftPhone} keyboardType="phone-pad" ltr />
                 <Field label={tr('رسالة الإهداء (اختياري)', 'Gift message (optional)')} value={giftMessage} onChangeText={setGiftMessage} multiline />
+                {giftsF.on ? (
+                  <View>
+                    {wrapOn ? (
+                      <Check on={giftWrap} onPress={() => setGiftWrap(!giftWrap)}
+                        label={tr(`تغليف هدية فاخر (+${omr(num(giftsF.wrap_fee, 2))})`, `Luxury gift wrap (+${omr(num(giftsF.wrap_fee, 2))})`)} />
+                    ) : null}
+                    <Check on={hidePrices} onPress={() => setHidePrices(!hidePrices)} label={tr('إخفاء الأسعار من الفاتورة والطرد', 'Hide prices on the invoice and parcel')} />
+                  </View>
+                ) : null}
               </View>
             ) : null}
           </Section>
@@ -543,6 +606,32 @@ export default function Checkout() {
                 right={num(g.extra_fee) > 0 ? `+${omr(g.extra_fee)}` : undefined} />
             ))}
             {errors.payment ? <T size={12} color={C.red}>{errors.payment}</T> : null}
+            {walletOn && walletBal > 0 ? (
+              <View style={{ borderWidth: 1, borderColor: useWallet ? C.ink : C.line, padding: 14, gap: 8 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                  <Icon name="card" size={21} color={C.gold} stroke={1.3} />
+                  <View style={{ flex: 1 }}>
+                    <T size={14.5} w="medium">{tr('رصيدك', 'Your balance')}</T>
+                    <T latin size={13} color={C.sub}>{omrReal(walletBal)}</T>
+                  </View>
+                  <T size={12.5} color={C.sub}>{tr('استخدم رصيدك', 'Use balance')}</T>
+                  <Switch value={useWallet} onValueChange={setUseWallet} trackColor={{ true: C.ink, false: C.lineStrong }} accessibilityLabel={tr('استخدم رصيدك', 'Use your balance')} />
+                </View>
+                {useWallet ? (
+                  <View style={{ gap: 4, paddingTop: 6, borderTopWidth: 1, borderTopColor: C.line }}>
+                    <SummaryRow label={tr('ينخصم من رصيدك', 'Taken from your balance')} value={omrReal(walletUse)} color={C.green} />
+                    <SummaryRow label={tr('الباقي للدفع', 'Left to pay')} value={omrReal(charge)} strong />
+                  </View>
+                ) : null}
+                <Pressable onPress={() => { setRedeemErr(null); setRedeemOpen(true); }} hitSlop={8} accessibilityRole="button">
+                  <T size={12.5} color={C.sub} style={{ textDecorationLine: 'underline' }}>{tr('عندك بطاقة هدية؟ حوّلها لرصيدك', 'Have a gift card? Add it to your balance')}</T>
+                </Pressable>
+              </View>
+            ) : walletOn ? (
+              <Pressable onPress={() => { setRedeemErr(null); setRedeemOpen(true); }} hitSlop={8} accessibilityRole="button">
+                <T size={12.5} color={C.sub} style={{ textDecorationLine: 'underline' }}>{tr('عندك بطاقة هدية؟ حوّلها لرصيدك', 'Have a gift card? Add it to your balance')}</T>
+              </Pressable>
+            ) : null}
             {loyalty.balance > 0 ? (
               <Check on={useLoyalty} onPress={() => setUseLoyalty(!useLoyalty)}
                 label={tr(`استخدم نقاط الولاء (${loyalty.balance} نقطة = ${omrReal(loyalty.balance * loyalty.rate)})`, `Use loyalty points (${loyalty.balance} = ${omrReal(loyalty.balance * loyalty.rate)})`)} />
@@ -560,8 +649,15 @@ export default function Checkout() {
             {extra > 0 ? <SummaryRow label={tr('رسوم الدفع', 'Payment fee')} value={omr(extra)} /> : null}
             {couponValue > 0 && cart.coupon ? <SummaryRow label={tr(`كود الخصم (${cart.coupon.code})`, `Discount (${cart.coupon.code})`)} value={`-${omr(couponValue)}`} color={C.green} /> : null}
             {loyaltyValue > 0 ? <SummaryRow label={tr('خصم الولاء', 'Loyalty discount')} value={`-${omr(loyaltyValue)}`} color={C.green} /> : null}
+            {wrapFee > 0 ? <SummaryRow label={tr('تغليف الهدية', 'Gift wrap')} value={omr(wrapFee)} /> : null}
             <View style={{ height: 6 }} />
             <SummaryRow label={tr('الإجمالي', 'Total')} value={omr(total)} strong />
+            {walletUse > 0 ? (
+              <>
+                <SummaryRow label={tr('من رصيدك', 'From your balance')} value={`-${omr(walletUse)}`} color={C.green} />
+                <SummaryRow label={tr('الباقي للدفع', 'Left to pay')} value={omr(charge)} strong />
+              </>
+            ) : null}
             {(() => {
               const base = etaForMany(cart.items.map((i) => (i.origin ?? 'europe') as Origin), app.delivery.eta);
               const e = base ? withGulf(base, gulfEta()) : null;
@@ -569,10 +665,10 @@ export default function Checkout() {
             })()}
             {showingOtherCurrency() ? (
               <T size={12} color={C.muted} style={{ marginTop: 4 }}>
-                {tr(`المبلغ يُخصم بالريال العماني: ${omrReal(total)}. الأسعار بعملتك تقريبية، وبنكك يحوّلها.`, `You will be charged ${omrReal(total)} in Omani rials. Prices in your currency are approximate.`)}
+                {tr(`المبلغ يُخصم بالريال العماني: ${omrReal(charge)}. الأسعار بعملتك تقريبية، وبنكك يحوّلها.`, `You will be charged ${omrReal(charge)} in Omani rials. Prices in your currency are approximate.`)}
               </T>
             ) : null}
-            <Btn label={tr(`تأكيد ودفع ${omrReal(total)}`, `Confirm & pay ${omrReal(total)}`)} loading={busy} onPress={placeOrder} style={{ marginTop: 16, marginBottom: insets.bottom }} />
+            <Btn label={allWallet ? tr('تأكيد الطلب · من رصيدك', 'Place order · from your balance') : tr(`تأكيد ودفع ${omrReal(charge)}`, `Confirm & pay ${omrReal(charge)}`)} loading={busy} onPress={placeOrder} style={{ marginTop: 16, marginBottom: insets.bottom }} />
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 8 }}>
               <Icon name="lock" size={14} color={C.muted} />
               <T size={11.5} color={C.muted}>{tr('دفع آمن عبر أموال', 'Secure payment by Amwal')}</T>
@@ -580,6 +676,24 @@ export default function Checkout() {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+
+      {/* gift card → رصيدك */}
+      <Modal visible={redeemOpen} transparent animationType="fade" onRequestClose={() => setRedeemOpen(false)}>
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1, justifyContent: 'center', padding: 24, backgroundColor: C.scrim }}>
+          <View style={{ backgroundColor: C.bg, padding: 22, gap: 14, direction: isAr ? 'rtl' : 'ltr' }}>
+            <T size={17} w="medium">{tr('حوّل بطاقة الهدية لرصيدك', 'Add a gift card to your balance')}</T>
+            <T size={13} color={C.sub}>{tr('رصيد البطاقة كامل ينضاف لرصيدك.', "The card's whole balance is added to yours.")}</T>
+            <TextInput value={giftCode} onChangeText={(v) => { setGiftCode(v.toUpperCase()); setRedeemErr(null); }} autoCapitalize="characters" autoCorrect={false}
+              placeholder="GH-XXXX-XXXX" placeholderTextColor={C.muted}
+              style={{ height: 48, paddingHorizontal: 12, borderWidth: 1, borderColor: redeemErr ? C.red : C.lineStrong, color: C.ink, textAlign: 'left', fontFamily: F.latin }} />
+            {redeemErr ? <T size={12.5} color={C.red}>{redeemErr}</T> : null}
+            <View style={{ flexDirection: 'row', gap: 10 }}>
+              <Btn style={{ flex: 1 }} height={46} label={tr('حوّلها لرصيدك', 'Add to balance')} loading={redeeming} disabled={!giftCode.trim()} onPress={redeem} />
+              <Btn style={{ flex: 1 }} height={46} kind="outline" label={tr('إلغاء', 'Cancel')} onPress={() => setRedeemOpen(false)} />
+            </View>
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
     </View>
   );
 }

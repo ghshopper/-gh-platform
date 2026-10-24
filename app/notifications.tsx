@@ -5,6 +5,10 @@ import { FlatList, Pressable, RefreshControl, View } from 'react-native';
 import { api, hasToken, listOf } from '@/api';
 import { dateText } from '@/format';
 import { useLoad } from '@/hooks';
+import { useAuth } from '@/auth';
+import { openFeatureTarget } from '@/feature-links';
+import { useFeature } from '@/features';
+import { Icon } from '@/icons';
 import { useLang } from '@/lang';
 import { C, S } from '@/theme';
 import type { AppNotification } from '@/types';
@@ -14,6 +18,7 @@ import { Empty, ErrorBox, Header, Loader, T } from '@/ui';
 function open(n: AppNotification): void {
   const d = n.data ?? {};
   const s = (k: string) => (d[k] !== undefined && d[k] !== null && d[k] !== '' ? String(d[k]) : '');
+  if (openFeatureTarget(s('type') || (n.type ?? ''), d)) return;
   if (s('product_id')) router.push({ pathname: '/product/[id]', params: { id: s('product_id') } });
   else if (s('brand_id')) router.push({ pathname: '/brand/[id]', params: { id: s('brand_id') } });
   else if (s('category_id')) router.push({ pathname: '/products', params: { category_id: s('category_id') } });
@@ -23,6 +28,8 @@ function open(n: AppNotification): void {
 
 export default function Notifications() {
   const { tr, pick, isAr } = useLang();
+  const { loggedIn } = useAuth();
+  const alerts = useFeature('wishlist_alerts');
   const q = useLoad(async () => {
     const list = listOf<AppNotification>(await api.get<unknown>('/customer/notifications'));
     if (hasToken()) {
@@ -32,7 +39,11 @@ export default function Notifications() {
   }, []);
   return (
     <View style={{ flex: 1, backgroundColor: C.white }}>
-      <Header title={tr('الإشعارات', 'Notifications')} />
+      <Header title={tr('الإشعارات', 'Notifications')} right={alerts.on && loggedIn ? (
+        <Pressable onPress={() => router.push('/alert-prefs')} hitSlop={8} style={{ paddingHorizontal: 10 }} accessibilityLabel={tr('تنبيهات المفضلة', 'Wishlist alerts')}>
+          <Icon name="filter" size={20} />
+        </Pressable>
+      ) : undefined} />
       {q.loading ? <Loader /> : q.error ? <ErrorBox message={q.error} onRetry={q.reload} /> : (
         <FlatList
           data={q.data ?? []}

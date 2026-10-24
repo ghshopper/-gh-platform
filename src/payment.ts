@@ -7,7 +7,7 @@ import { api } from './api';
  * /customer/amwal-session gives the merchant, terminal, hash and session
  * token (nothing about the Amwal account or the server changes).
  */
-interface Session {
+export interface Session {
   merchant_id?: string | number;
   terminal_id?: string | number;
   transaction_id?: string;
@@ -86,8 +86,17 @@ export function readAmwalResponse(r: unknown): { verdict: 'ok' | 'fail' | 'cance
 
 export const AMWAL_CODES = ['amwalpay', 'card', 'amwal_apple', 'amwal_google'];
 
-export async function payWithAmwal(amount: number, wallet: boolean, isAr: boolean): Promise<PayResult> {
-  const s = await api.post<Session>('/customer/amwal-session', { amount: Number(amount.toFixed(3)) });
+/**
+ * `start` lets another flow (the GH wallet top-up) get the same session from
+ * its own endpoint; orders keep using /customer/amwal-session exactly as before.
+ */
+export async function payWithAmwal(
+  amount: number,
+  wallet: boolean,
+  isAr: boolean,
+  start?: () => Promise<Session>,
+): Promise<PayResult> {
+  const s = start ? await start() : await api.post<Session>('/customer/amwal-session', { amount: Number(amount.toFixed(3)) });
   if (!s?.merchant_id) throw new Error(isAr ? 'تعذّر بدء الدفع' : 'Could not start the payment');
   const live = s.is_live === true || s.is_live === 1 || s.is_live === '1' || s.is_live === 'true';
   const transactionId = s.transaction_id || UuidUtil.generateTransactionId();

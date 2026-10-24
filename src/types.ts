@@ -51,6 +51,11 @@ export interface Product {
   category_name?: string | null;
   reviews_count?: number | string | null;
   reviews_avg_rating?: number | string | null;
+  /** Approved reviews only (features §8). */
+  rating_avg?: number | string | null;
+  rating_count?: number | string | null;
+  /** Signed in: "notify me when it is back" is on for this piece. */
+  watching?: boolean;
   is_featured?: number | boolean;
   images?: { image_path: string }[];
   group_key?: string | null;
@@ -234,6 +239,8 @@ export interface MyOrder {
   /** Card / Apple Pay page for what's left (server makes it). */
   pay_url?: string | null;
   payments: { amount: number; paid_on?: string | null }[];
+  /** Sent as a gift (features §5). */
+  gift?: { to?: string | null; phone?: string | null; message?: string | null; wrap?: boolean; hide_prices?: boolean } | null;
   events: { type: string; at?: string | null }[];
 }
 

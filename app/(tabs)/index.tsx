@@ -17,9 +17,12 @@ import type { Category, HeroSlide, Product, SectionSetting } from '@/types';
 import { GenderSwitch, useGender } from '@/gender';
 import { Btn, IconBtn, Kicker, Photo, SectionTitle, T } from '@/ui';
 import { CategoryArt } from '@/category-art';
+import { CustomerReviews, ServiceReviewPrompt } from '@/reviews';
+import { WeeklyStories } from '@/stories';
+import { VipCard } from '@/vip';
 
 const W = Dimensions.get('window').width;
-const DEFAULT_ORDER = ['categories', 'brands', 'featured_products', 'features_banner', 'flash_sales', 'luxury_collections', 'personal_shopping', 'loyalty_program'];
+const DEFAULT_ORDER = ['categories', 'brands', 'featured_products', 'features_banner', 'flash_sales', 'luxury_collections', 'personal_shopping', 'loyalty_program', 'customer_reviews'];
 
 function active(s?: SectionSetting): boolean {
   return !s || (s.is_active !== 0 && s.is_active !== false);
@@ -253,6 +256,8 @@ export default function Home() {
           </View>
         ) : null
     ),
+    // "آراء عملائنا" (features §8): approved service reviews; hides itself when off or empty
+    customer_reviews: active(sections.customer_reviews) ? <CustomerReviews /> : null,
   };
   const order = [...(app.home?.section_order ?? []), ...DEFAULT_ORDER.filter((k) => !(app.home?.section_order ?? []).includes(k))];
   const ann = app.home?.announcement;
@@ -311,6 +316,9 @@ export default function Home() {
             <T size={13.5} color={C.muted} w="light">{tr('اختر الأفضل. نحن نهتم بالباقي', 'Choose the best. We take care of the rest.')}</T>
           </View>
         ) : null}
+        {/* VIP progress and "how was your experience?" (signed in, each behind its switch) */}
+        <VipCard style={{ marginTop: 16 }} />
+        <ServiceReviewPrompt />
 
         {/* Search */}
         <Pressable
@@ -323,6 +331,8 @@ export default function Home() {
         </Pressable>
 
         <Hero slides={app.home?.hero_slides ?? []} />
+        {/* جديدنا هذا الأسبوع: story bubbles (weekly_new) */}
+        <WeeklyStories />
         <View style={{ marginTop: 16 }}><GenderSwitch /></View>
 
         {order.map((k) => (blocks[k] ? <Fragment key={k}>{blocks[k]}</Fragment> : null))}

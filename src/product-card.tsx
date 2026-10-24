@@ -13,6 +13,7 @@ import { C, S } from './theme';
 import type { Product } from './types';
 import { BrandText, Btn, Photo, Price, T } from './ui';
 import { useWishlist } from './wishlist';
+import { RatingLine } from './reviews';
 
 export function brandOf(p: Product): string {
   return (p.brand_name_en || p.brand_name || '').trim();
@@ -290,6 +291,7 @@ export function ProductCard({ product, width, style }: { product: Product; width
           <T latin size={13} w="medium" color={off ? C.red : C.ink}>{omr(price)}</T>
           {off ? <T latin size={11.5} color={C.faint} style={{ textDecorationLine: 'line-through' }}>{omr(was ?? 0)}</T> : null}
         </View>
+        <RatingLine product={product} />
         {!out ? (
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 3 }}>
             <View style={{ width: 5, height: 5, borderRadius: 3, backgroundColor: isOnOrder(product) ? C.amber : C.green }} />

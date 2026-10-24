@@ -21,6 +21,8 @@ import { useWishlist } from '@/wishlist';
 import { EngraveInput } from '@/engrave';
 import { etaDates, etaDuration, ORIGIN_LABEL, originOf, productEta, withGulf } from '@/eta';
 import { gccCountry, gulfEta } from '@/region';
+import { useFeatures } from '@/features';
+import { productRating, Stars } from '@/reviews';
 
 const W = Dimensions.get('window').width;
 // Photo height: tall on iPhone, not taller than the screen allows on iPad.
@@ -42,18 +44,6 @@ function RoundBtn({ icon, label, onPress, color = C.ink, fill }: { icon: 'back' 
 function ProductVideo({ url }: { url: string }) {
   const player = useVideoPlayer(url, (p) => { p.muted = true; p.loop = true; });
   return <VideoView player={player} style={{ width: W, height: PH }} contentFit="cover" nativeControls />;
-}
-
-function Stars({ value, size = 14, onChange }: { value: number; size?: number; onChange?: (v: number) => void }) {
-  return (
-    <View style={{ flexDirection: 'row', gap: 2 }}>
-      {[1, 2, 3, 4, 5].map((i) => (
-        <Pressable key={i} disabled={!onChange} onPress={() => onChange?.(i)} hitSlop={4} accessibilityLabel={`${i}`}>
-          <Icon name={i <= Math.round(value) ? 'starFill' : 'star'} size={size} color={C.ink} stroke={1.2} />
-        </Pressable>
-      ))}
-    </View>
-  );
 }
 
 export default function ProductScreen() {
@@ -93,6 +83,11 @@ export default function ProductScreen() {
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState('');
   const [sending, setSending] = useState(false);
+  const f = useFeatures();
+  // "نبّهني إذا توفرت" (features §1): null = what the server said
+  const [watching, setWatching] = useState<boolean | null>(null);
+  const [watchBusy, setWatchBusy] = useState(false);
+  useEffect(() => setWatching(null), [id]);
 
   const p = product.data ?? cached ?? null;
   // from the "how is your piece?" notification: open the review form once
@@ -125,8 +120,34 @@ export default function ProductScreen() {
   const was = productWasPrice(p) ? (productWasPrice(p) as number) + extra : productWasPrice(p);
   const available = inStock(p);
   const saved = wish.has(p.id);
-  const avg = num(p.reviews_avg_rating);
-  const count = num(p.reviews_count);
+  const { avg, count } = productRating(p);
+  const isWatching = watching ?? !!p.watching;
+
+  const toggleWatch = async () => {
+    if (!loggedIn) {
+      Alert.alert(tr('سجّل دخولك', 'Sign in'), tr('سجّل دخولك عشان ننبهك أول ما تتوفر', 'Sign in so we can tell you when it is back'), [
+        { text: tr('لاحقاً', 'Later'), style: 'cancel' },
+        { text: tr('تسجيل الدخول', 'Sign in'), onPress: () => router.push('/login') },
+      ]);
+      return;
+    }
+    setWatchBusy(true);
+    try {
+      const r = await api.post<{ watching?: boolean }>(`/customer/products/${p.id}/notify-me`, {});
+      const on = r?.watching ?? !isWatching;
+      setWatching(on);
+      showToast(on ? tr('بننبهك أول ما تتوفر 🤍', "We'll let you know when it's back 🤍") : tr('ألغينا التنبيه', 'Alert removed'), false);
+    } catch (e) {
+      Alert.alert(tr('حدث خطأ', 'Something went wrong'), e instanceof Error ? e.message : '');
+    } finally {
+      setWatchBusy(false);
+    }
+  };
+
+  const askInChat = () => router.push({
+    pathname: '/chat',
+    params: { product_id: String(p.id), product_name: [brand, name].filter(Boolean).join(' '), product_image: images[0] ?? '' },
+  });
   const description = pick(p, 'description');
   const media: ({ kind: 'img'; path: string } | { kind: 'video'; url: string })[] = images.map((path) => ({ kind: 'img' as const, path }));
   if (p.video_url) media.push({ kind: 'video', url: imageUrl(p.video_url) });
@@ -216,9 +237,10 @@ export default function ProductScreen() {
           ) : null}
           <T size={17} color={C.ink}>{name}</T>
           <Price value={price} was={was} size={17} />
-          {count > 0 ? (
+          {f.reviews.on && count > 0 ? (
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
               <Stars value={avg} size={13} />
+              <T latin size={12} color={C.sub}>{avg.toFixed(1)}</T>
               <T latin size={12} color={C.muted}>({count})</T>
             </View>
           ) : null}
@@ -368,6 +390,7 @@ export default function ProductScreen() {
         </View>
 
         {/* Reviews */}
+        {f.reviews.on ? (
         <View style={{ paddingHorizontal: 22, marginTop: 28, gap: 12 }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
             <T size={15} w="medium">{tr('التقييمات', 'Reviews')}</T>
@@ -390,6 +413,7 @@ export default function ProductScreen() {
             ))
           )}
         </View>
+        ) : null}
 
         {/* Related */}
         {(related.data ?? []).length ? (
@@ -408,7 +432,18 @@ export default function ProductScreen() {
           style={{ width: 52, height: 52, borderWidth: 1, borderColor: C.lineStrong, alignItems: 'center', justifyContent: 'center' }}>
           <Icon name="whatsapp" size={21} stroke={1.5} />
         </Pressable>
-        <Btn style={{ flex: 1 }} label={available ? tr('أضف إلى السلة', 'Add to bag') : tr('نفدت الكمية', 'Sold out')} disabled={!available} onPress={addToBag} />
+        {f.chat.on ? (
+          <Pressable onPress={() => (loggedIn ? askInChat() : router.push('/login'))} accessibilityRole="button" accessibilityLabel={tr('اسأل عن القطعة', 'Ask about this piece')}
+            style={{ width: 52, height: 52, borderWidth: 1, borderColor: C.lineStrong, alignItems: 'center', justifyContent: 'center' }}>
+            <Icon name="chat" size={21} stroke={1.4} />
+          </Pressable>
+        ) : null}
+        {!available && f.wishlist_alerts.on ? (
+          <Btn style={{ flex: 1 }} kind={isWatching ? 'outline' : 'solid'} icon={isWatching ? 'check' : 'bell'} loading={watchBusy}
+            label={isWatching ? tr('بننبهك إذا توفرت', "We'll notify you") : tr('نبّهني إذا توفرت', 'Notify me when available')} onPress={toggleWatch} />
+        ) : (
+          <Btn style={{ flex: 1 }} label={available ? tr('أضف إلى السلة', 'Add to bag') : tr('نفدت الكمية', 'Sold out')} disabled={!available} onPress={addToBag} />
+        )}
       </View>
 
       {/* Size guide */}

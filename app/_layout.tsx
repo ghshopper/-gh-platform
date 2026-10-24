@@ -23,6 +23,9 @@ import { setTrackedCart, trackScreen } from '@/track';
 import { LangProvider, useLang } from '@/lang';
 import { QuickAddHost, showToast } from '@/product-card';
 import { listenForPushes, registerPushToken } from '@/push';
+import { chatOpen, pokeChat } from '@/chat-poke';
+import { openFeatureTarget } from '@/feature-links';
+import { FeaturesProvider } from '@/features';
 import { BrandSplash } from '@/splash';
 import { C } from '@/theme';
 import { WishlistProvider } from '@/wishlist';
@@ -45,6 +48,8 @@ function Shell() {
     return listenForPushes(
       (data) => {
         const t = data.type ?? '';
+        // new feature pushes first (purchase_photo etc. also carry an order_id)
+        if (openFeatureTarget(t, data)) return;
         if (data.product_id) router.push({ pathname: '/product/[id]', params: data.review ? { id: data.product_id, review: '1' } : { id: data.product_id } });
         else if (data.brand_id) router.push({ pathname: '/brand/[id]', params: { id: data.brand_id } });
         else if (data.category_id) router.push({ pathname: '/products', params: { category_id: data.category_id } });
@@ -52,7 +57,13 @@ function Shell() {
         else if (data.order_id || t.startsWith('order')) router.push('/orders');
         else router.push('/notifications');
       },
-      (title, body) => showToast([title, body].filter(Boolean).join(' · '), false),
+      (title, body, data) => {
+        if (data?.type === 'chat') {
+          pokeChat();
+          if (chatOpen()) return; // the open chat shows it already
+        }
+        if (title || body) showToast([title, body].filter(Boolean).join(' · '), false);
+      },
     );
   }, [ready]);
 
@@ -78,6 +89,7 @@ function Shell() {
         <Stack.Screen name="login" options={{ presentation: 'modal' }} />
         <Stack.Screen name="forgot-password" options={{ presentation: 'modal' }} />
         <Stack.Screen name="register" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="service-review" options={{ presentation: 'modal' }} />
       </Stack>
       <QuickAddHost />
       {ready && !splashDone ? <BrandSplash onDone={() => setSplashDone(true)} /> : null}
@@ -99,6 +111,7 @@ export default function RootLayout() {
   return (
       <SafeAreaProvider>
         <LangProvider>
+          <FeaturesProvider>
           <AuthProvider>
             <AppDataProvider>
               <GenderProvider>
@@ -112,6 +125,7 @@ export default function RootLayout() {
               </GenderProvider>
             </AppDataProvider>
           </AuthProvider>
+          </FeaturesProvider>
         </LangProvider>
       </SafeAreaProvider>
   );

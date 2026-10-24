@@ -87,7 +87,7 @@ export async function registerPushToken(): Promise<boolean> {
 }
 
 type Opened = (data: Record<string, string>) => void;
-type Shown = (title: string, body: string) => void;
+type Shown = (title: string, body: string, data: Record<string, string>) => void;
 
 /**
  * Taps on a notification open the right screen; a notification arriving while
@@ -107,7 +107,7 @@ export function listenForPushes(onOpen: Opened, onForeground: Shown): () => void
     const offMsg = onMessage(messaging, async (m) => {
       const title = m.notification?.title ?? '';
       const body = m.notification?.body ?? '';
-      if (title || body) onForeground(title, body);
+      if (title || body || m.data) onForeground(title, body, asData(m.data));
     });
     return () => {
       offOpen();

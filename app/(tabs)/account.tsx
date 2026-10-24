@@ -1,10 +1,10 @@
-import { router } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { router, useFocusEffect } from 'expo-router';
+import { useCallback, useEffect, useState } from 'react';
 import { Alert, Linking, Pressable, ScrollView, Switch, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { type ThemeMode, useAppearance } from '@/appearance';
 import { useAuth } from '@/auth';
-import { num, waNumber } from '@/format';
+import { num, omrReal, waNumber } from '@/format';
 import { Icon, type IconName } from '@/icons';
 import { useLang } from '@/lang';
 import { pushEnabled, setPushEnabled } from '@/push';
@@ -14,6 +14,9 @@ import { FLAG, gccConfig, OMAN, setCountryCode } from '@/region';
 import { useWishlist } from '@/wishlist';
 import { LinearGradient } from 'expo-linear-gradient';
 import { tierLook } from '@/tier-look';
+import { useFeatures } from '@/features';
+import { VipCard } from '@/vip';
+import { walletBalance } from '@/wallet';
 
 const COMPANY_WA = '96877246972';
 const INSTAGRAM = 'https://instagram.com/shopper.gh';
@@ -44,6 +47,12 @@ export default function Account() {
   const { user, loggedIn, logout } = useAuth();
   const wish = useWishlist();
   const [push, setPush] = useState(true);
+  const f = useFeatures();
+  const [balance, setBalance] = useState<number | null>(null);
+  useFocusEffect(useCallback(() => {
+    if (loggedIn && f.wallet.on) walletBalance().then(setBalance).catch(() => undefined);
+    else setBalance(null);
+  }, [loggedIn, f.wallet.on]));
 
   useEffect(() => {
     pushEnabled().then(setPush).catch(() => undefined);
@@ -123,6 +132,9 @@ export default function Account() {
         </View>
       )}
 
+      {/* VIP progress (vip_progress) */}
+      <VipCard style={{ marginTop: 12 }} />
+
       {/* Shortcuts */}
       <View style={{ marginHorizontal: S.gutter, marginTop: 20, flexDirection: 'row', flexWrap: 'wrap', borderTopWidth: 1, borderStartWidth: 1, borderColor: C.line }}>
         <Tile icon="doc" label={tr('طلباتي', 'My orders')} note={loggedIn ? tr('الطلبات والفواتير', 'Orders & invoices') : tr('في هذا الجهاز', 'On this phone')} onPress={() => router.push('/orders')} />
@@ -132,6 +144,15 @@ export default function Account() {
         <Tile icon="crown" label={tr('نقاطي', 'My points')} note={loggedIn ? tr(`${points} نقطة`, `${points} points`) : undefined} onPress={() => (loggedIn ? router.push('/loyalty') : signIn())} />
         <Tile icon="gift" label={tr('ادعُ صديقك', 'Invite a friend')} note={tr('نقاط لك وله', 'Points for you both')} onPress={() => (loggedIn ? router.push('/invite') : signIn())} />
         <Tile icon="camera" label={tr('اطلب قطعة', 'Request a piece')} note={tr('نجيبها لك', 'We get it for you')} onPress={() => router.push('/request')} />
+        {f.quotes.on ? (
+          <Tile icon="tag" label={tr('طلباتي الخاصة', 'My piece requests')} note={tr('عروض الأسعار', 'Price quotes')} onPress={() => (loggedIn ? router.push('/requests') : signIn())} />
+        ) : null}
+        {f.wallet.on ? (
+          <Tile icon="card" label={tr('رصيدك', 'My balance')} note={balance !== null ? omrReal(balance) : undefined} onPress={() => (loggedIn ? router.push('/wallet') : signIn())} />
+        ) : null}
+        {f.chat.on ? (
+          <Tile icon="chat" label={tr('المحادثة', 'Chat')} note={tr('كلّم فريق GH', 'Talk to the GH team')} onPress={() => (loggedIn ? router.push('/chat') : signIn())} />
+        ) : null}
         <Tile icon="truck" label={tr('تتبع طلب', 'Track an order')} note={tr('برقم الطلب', 'By order number')} onPress={() => router.push('/track')} />
         <Tile icon="bell" label={tr('الإشعارات', 'Notifications')} onPress={() => router.push('/notifications')} />
       </View>
@@ -182,10 +203,16 @@ export default function Account() {
           </View>
           <Switch value={push} onValueChange={togglePush} trackColor={{ true: C.ink, false: C.lineStrong }} thumbColor={C.white} ios_backgroundColor={C.lineStrong} />
         </View>
+        {f.wishlist_alerts.on && loggedIn ? (
+          <Row icon="heart" title={tr('تنبيهات المفضلة', 'Wishlist alerts')} subtitle={tr('نزول السعر، رجوع القطعة، جديد البراندات', 'Price drops, back in stock, new from brands')} onPress={() => router.push('/alert-prefs')} />
+        ) : null}
       </View>
 
       <Section title={tr('المساعدة', 'Help')} />
       <View style={{ paddingHorizontal: S.gutter }}>
+        {f.chat.on ? (
+          <Row icon="chat" title={tr('المحادثة المباشرة', 'Live chat')} subtitle={tr('داخل التطبيق · فريق GH', 'In the app · the GH team')} onPress={() => (loggedIn ? router.push('/chat') : signIn())} />
+        ) : null}
         <Row icon="whatsapp" title={tr('تحدث معنا', 'Chat with us')} subtitle={tr('واتساب · نرد عليك بسرعة', 'WhatsApp · we reply fast')} onPress={() => Linking.openURL(`https://wa.me/${waNumber(COMPANY_WA)}`)} />
         <Row icon="instagram" title={tr('تابعنا', 'Follow us')} value="@shopper.gh" onPress={() => Linking.openURL(INSTAGRAM)} />
         <Row icon="info" title={tr('الأسئلة الشائعة', 'FAQ')} onPress={() => router.push('/faq')} />

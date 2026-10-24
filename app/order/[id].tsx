@@ -1,5 +1,5 @@
 import { Image } from 'expo-image';
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import { useState } from 'react';
 import { Dimensions, Linking, Modal, Pressable, ScrollView, View } from 'react-native';
@@ -10,7 +10,11 @@ import { Icon } from '@/icons';
 import { useLang } from '@/lang';
 import { CARRIER, cachedOrder, cachedOrders, fetchMyOrders, STATUS } from '@/orders';
 import { C, S } from '@/theme';
-import { BrandText, Btn, Divider, Empty, Header, Photo, SummaryRow, T } from '@/ui';
+import { BrandText, Btn, Divider, Empty, Header, Loader, Photo, SummaryRow, T } from '@/ui';
+import { useAuth } from '@/auth';
+import { useFeatures } from '@/features';
+import { useLoad } from '@/hooks';
+import { payPsOrder } from '@/wallet';
 
 const W = Dimensions.get('window').width;
 const STEPS = [
@@ -25,19 +29,31 @@ export default function OrderDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const insets = useSafeAreaInsets();
   const { tr, isAr } = useLang();
+  const f = useFeatures();
+  const { loggedIn } = useAuth();
+  // opened from a push (e.g. the purchase photo) before the orders list was loaded
+  const loader = useLoad(async () => (cachedOrder(id) ? null : fetchMyOrders()), [id]);
   const o = cachedOrder(id);
   const company = cachedOrders()?.company;
   const customer = cachedOrders()?.customer;
   const [invoice, setInvoice] = useState(false);
   const [gallery, setGallery] = useState<{ url: string; caption: string }[] | null>(null);
   const [, setTick] = useState(0);
-  // Pay what's left on the secure Amwal page, then refresh the order.
+  // Pay what's left: رصيدك first if there is one, then the secure Amwal page; then refresh the order.
   const pay = async (url: string) => {
-    await WebBrowser.openBrowserAsync(url);
+    await payPsOrder({ payUrl: url, walletOn: f.wallet.on && loggedIn, tr });
     await fetchMyOrders().catch(() => undefined);
     setTick((t) => t + 1);
   };
 
+  if (!o && loader.loading) {
+    return (
+      <View style={{ flex: 1, backgroundColor: C.white }}>
+        <Header title={tr('الطلب', 'Order')} />
+        <Loader />
+      </View>
+    );
+  }
   if (!o) {
     return (
       <View style={{ flex: 1, backgroundColor: C.white }}>
@@ -163,10 +179,32 @@ export default function OrderDetail() {
           {o.pay_url && o.remaining > 0 ? (
             <View style={{ gap: 6, paddingTop: 14 }}>
               <Btn icon="card" label={tr(`ادفع الآن · ${omrReal(o.remaining)}`, `Pay now · ${omrReal(o.remaining)}`)} onPress={() => pay(o.pay_url as string)} />
-              <T size={11.5} color={C.muted} center>{tr('بطاقة أو Apple Pay · دفع آمن عبر أموال', 'Card or Apple Pay · secure payment via Amwal')}</T>
+              <T size={11.5} color={C.muted} center>{f.wallet.on && loggedIn ? tr('رصيدك أو بطاقة أو Apple Pay · دفع آمن عبر أموال', 'Your balance, card or Apple Pay · secure payment via Amwal') : tr('بطاقة أو Apple Pay · دفع آمن عبر أموال', 'Card or Apple Pay · secure payment via Amwal')}</T>
             </View>
           ) : null}
         </View>
+
+        {o.gift && f.gifts.on ? (
+          <View style={{ marginHorizontal: 22, marginTop: 24, padding: 14, backgroundColor: C.cream, gap: 4 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <Icon name="gift" size={18} color={C.gold} stroke={1.3} />
+              <T size={14} w="medium">{tr('هدية 🎁', 'Gift 🎁')}</T>
+            </View>
+            {o.gift.to ? <T size={13} color={C.sub}>{tr(`إلى ${o.gift.to}`, `To ${o.gift.to}`)}{o.gift.phone ? ` · ` : ''}{o.gift.phone ? <T latin size={13} color={C.sub}>{o.gift.phone}</T> : null}</T> : null}
+            {o.gift.message ? <T size={13} color={C.ink} w="light">«{o.gift.message}»</T> : null}
+            {o.gift.wrap || o.gift.hide_prices ? (
+              <T size={12} color={C.muted}>{[o.gift.wrap ? tr('تغليف هدية', 'Gift wrapped') : '', o.gift.hide_prices ? tr('بدون أسعار في الطرد', 'No prices in the parcel') : ''].filter(Boolean).join(' · ')}</T>
+            ) : null}
+          </View>
+        ) : null}
+
+        {f.chat.on && loggedIn ? (
+          <Pressable onPress={() => router.push({ pathname: '/chat', params: { ps_order_id: String(o.id), invoice_no: o.invoice_no } })}
+            style={{ marginHorizontal: 22, marginTop: 22, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, height: 48, backgroundColor: C.ink }}>
+            <Icon name="chat" size={18} color={C.white} stroke={1.5} />
+            <T size={14} color={C.white}>{tr('اسأل عن طلبك', 'Ask about your order')}</T>
+          </Pressable>
+        ) : null}
 
         {companyWa ? (
           <Pressable onPress={() => Linking.openURL(`https://wa.me/${companyWa}?text=${encodeURIComponent(tr(`مرحبا، بخصوص طلبي ${o.invoice_no}`, `Hi, about my order ${o.invoice_no}`))}`)}

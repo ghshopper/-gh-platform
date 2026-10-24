@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { ActionSheetIOS, Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, View } from 'react-native';
 import { api } from '@/api';
 import { useAuth } from '@/auth';
+import { useFeature } from '@/features';
 import { Icon } from '@/icons';
 import { useLang } from '@/lang';
 import { C, S } from '@/theme';
@@ -21,7 +22,8 @@ const CATEGORIES = [
 
 export default function RequestPiece() {
   const { tr, isAr } = useLang();
-  const { user } = useAuth();
+  const { user, loggedIn } = useAuth();
+  const quotes = useFeature('quotes');
   const [photo, setPhoto] = useState<ImagePicker.ImagePickerAsset | null>(null);
   const [link, setLink] = useState('');
   const [productName, setProductName] = useState('');
@@ -103,8 +105,15 @@ export default function RequestPiece() {
         <View style={{ padding: 30, alignItems: 'center', gap: 12, marginTop: 40 }}>
           <Icon name="check" size={40} stroke={1.4} />
           <T size={22} w="medium" center>{tr('وصلنا طلبك', 'Request received')}</T>
-          <T size={14} color={C.sub} center>{tr('بنتواصل معك على الواتساب بالسعر أول ما نلقى القطعة.', "We'll WhatsApp you with the price once we find it.")}</T>
-          <Btn label={tr('العودة للرئيسية', 'Back to home')} onPress={() => router.replace('/')} style={{ alignSelf: 'stretch', marginTop: 20 }} />
+          <T size={14} color={C.sub} center>
+            {quotes.on && loggedIn
+              ? tr('أول ما نلقى القطعة يوصلك السعر هنا في التطبيق، وتأكده بضغطة.', "Once we find it, the price arrives here in the app and you confirm it in one tap.")
+              : tr('بنتواصل معك على الواتساب بالسعر أول ما نلقى القطعة.', "We'll WhatsApp you with the price once we find it.")}
+          </T>
+          {quotes.on && loggedIn ? (
+            <Btn label={tr('طلباتي الخاصة', 'My piece requests')} onPress={() => router.replace('/requests')} style={{ alignSelf: 'stretch', marginTop: 20 }} />
+          ) : null}
+          <Btn kind={quotes.on && loggedIn ? 'outline' : 'solid'} label={tr('العودة للرئيسية', 'Back to home')} onPress={() => router.replace('/')} style={{ alignSelf: 'stretch', marginTop: quotes.on && loggedIn ? 0 : 20 }} />
         </View>
       </View>
     );
