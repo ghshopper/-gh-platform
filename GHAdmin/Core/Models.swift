@@ -619,8 +619,11 @@ struct Order: Identifiable, Hashable {
     var remaining: Double { total - paid }
     var hasBalance: Bool { remaining > 0.0005 }
     var costOmr: Double { activeItems.reduce(0) { $0 + ($1.costOmr ?? 0) } }
-    /// What the customer transferred minus what you paid for her items.
-    var customerBalance: Double { paid - costOmr }
+    /// Every live piece is delivered (past orders included): nothing is held for her any more.
+    var allDelivered: Bool { !activeItems.isEmpty && activeItems.allSatisfy { $0.status == .delivered } }
+    /// What the customer transferred minus what you paid for her items, while
+    /// the order is still open. A delivered order holds nothing (its money is sales).
+    var customerBalance: Double { allDelivered ? 0 : paid - costOmr }
 
     /// Tax-free still to collect, grouped by currency.
     var taxFreePending: [String: Double] {
