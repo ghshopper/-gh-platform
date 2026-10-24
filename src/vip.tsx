@@ -101,3 +101,44 @@ export function VipCard({ style }: { style?: object }) {
     </Pressable>
   );
 }
+
+/**
+ * Just the progress to the next tier (bar + "باقي لك X نقطة لـ …"), to sit
+ * inside the member card on Account. Signed in and vip_progress on only.
+ */
+export function VipProgress({ look }: { look: { ink: string; sub: string; line: string } }) {
+  const { tr, isAr } = useLang();
+  const { loggedIn } = useAuth();
+  const flag = useFeature('vip_progress');
+  const [b, setB] = useState<Balance | null>(null);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!loggedIn || !flag.on) return;
+      api.get<Balance>('/customer/loyalty/balance').then(setB).catch(() => undefined);
+    }, [loggedIn, flag.on]),
+  );
+
+  if (!loggedIn || !flag.on || !b?.tier) return null;
+  const nameOf = (t?: Tier | null) => (t ? (isAr ? t.name_ar : t.name_en) || t.name || t.name_ar || t.name_en || '' : '');
+  const tier = b.tier;
+  const next = b.next_tier ?? null;
+  const pts = num(b.tier_points);
+  const from = num(tier.min_points);
+  const to = next ? num(next.min_points) : from;
+  const progress = Math.min(1, Math.max(0, b.progress !== undefined && b.progress !== null ? num(b.progress) : next && to > from ? (pts - from) / (to - from) : 1));
+  const left = Math.max(0, Math.ceil(num(b.to_next, next ? to - pts : 0)));
+
+  return (
+    <View style={{ gap: 8, marginTop: 14 }}>
+      <View style={{ height: 3, backgroundColor: 'rgba(127,127,127,0.3)' }}>
+        <View style={{ width: `${progress * 100}%`, height: 3, backgroundColor: look.line }} />
+      </View>
+      <T size={12.5} color={look.sub}>
+        {next
+          ? tr(`باقي لك ${left.toLocaleString('en-US')} نقطة لـ ${nameOf(next)}`, `${left.toLocaleString('en-US')} points to ${nameOf(next)}`)
+          : tr('وصلت أعلى مستوى 🤍', 'You are at the top tier 🤍')}
+      </T>
+    </View>
+  );
+}

@@ -19,7 +19,6 @@ import { Btn, IconBtn, Kicker, Photo, SectionTitle, T } from '@/ui';
 import { CategoryArt } from '@/category-art';
 import { CustomerReviews, ServiceReviewPrompt } from '@/reviews';
 import { WeeklyStories } from '@/stories';
-import { VipCard } from '@/vip';
 
 const W = Dimensions.get('window').width;
 const DEFAULT_ORDER = ['categories', 'brands', 'featured_products', 'features_banner', 'flash_sales', 'luxury_collections', 'personal_shopping', 'loyalty_program', 'customer_reviews'];
@@ -317,7 +316,6 @@ export default function Home() {
           </View>
         ) : null}
         {/* VIP progress and "how was your experience?" (signed in, each behind its switch) */}
-        <VipCard style={{ marginTop: 16 }} />
         <ServiceReviewPrompt />
 
         {/* Search */}

@@ -15,7 +15,7 @@ import { useWishlist } from '@/wishlist';
 import { LinearGradient } from 'expo-linear-gradient';
 import { tierLook } from '@/tier-look';
 import { useFeatures } from '@/features';
-import { VipCard } from '@/vip';
+import { VipProgress } from '@/vip';
 import { walletBalance } from '@/wallet';
 
 const COMPANY_WA = '96877246972';
@@ -113,6 +113,8 @@ export default function Account() {
             </View>
             <T size={12} color={look.soft} style={{ textDecorationLine: 'underline' }}>{tr('تفاصيل النقاط', 'Points details')}</T>
           </View>
+          {/* progress to the next tier, inside the same card (vip_progress) */}
+          <VipProgress look={look} />
           </LinearGradient>
         </Pressable>
         );
@@ -131,9 +133,6 @@ export default function Account() {
           </View>
         </View>
       )}
-
-      {/* VIP progress (vip_progress) */}
-      <VipCard style={{ marginTop: 12 }} />
 
       {/* Shortcuts */}
       <View style={{ marginHorizontal: S.gutter, marginTop: 20, flexDirection: 'row', flexWrap: 'wrap', borderTopWidth: 1, borderStartWidth: 1, borderColor: C.line }}>
