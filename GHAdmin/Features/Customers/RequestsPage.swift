@@ -287,9 +287,6 @@ fileprivate struct RequestQuoteSection: View {
                 KV(methodLabel.map { "التوصيل · \($0)" } ?? "التوصيل", omr(fee))
             }
             KV("الإجمالي", omr(quote.total), strong: true, color: GH.burgundy)
-            if let dep = quote.deposit, dep > 0 {
-                KV("يدفع الحين", omr(dep))
-            }
             if let note = quote.note {
                 Text(note).font(TS.sub).foregroundStyle(GH.secondary)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -358,7 +355,6 @@ struct QuoteRequestPage: View {
             return
         }
         var data: JSON = ["price": p, "delivery_method": method.key]
-        if let d = parseAmount(deposit), d > 0 { data["deposit"] = d }
         if let f = parseAmount(delivery) { data["delivery_fee"] = f }
         let n = note.trimmingCharacters(in: .whitespacesAndNewlines)
         if !n.isEmpty { data["note"] = n }
@@ -404,7 +400,6 @@ struct QuoteRequestPage: View {
     private var priceSection: some View {
         GHSection("\(request.name) · لـ \(request.customerName)") {
             AmountRow("سعر القطعة", text: $price, autofocus: true)
-            AmountRow("العربون", text: $deposit)
         }
     }
 
@@ -425,7 +420,7 @@ struct QuoteRequestPage: View {
     private var totalSection: some View {
         let p = parseAmount(price) ?? 0
         let d = parseAmount(delivery) ?? 0
-        return GHSection(footer: "العميل يشوف العرض في «طلباتي الخاصة» ويوصله إشعار. العربون هو اللي يدفعه الحين.") {
+        return GHSection(footer: "العميل يشوف العرض في «طلباتي الخاصة» ويوصله إشعار.") {
             KV("القطعة", omr(p))
             KV("التوصيل", omr(d))
             KV("الإجمالي", omr(p + d), strong: true, color: GH.burgundy)
