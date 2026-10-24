@@ -25,7 +25,10 @@ const DRIVER_STATUS = {
   assigned: { label: 'عند المندوب', color: '#2F7CF6' },
   picked:   { label: 'في الطريق', color: '#C26A00' },
   delivered:{ label: 'سلّمها المندوب', color: '#16804A' },
+  failed:   { label: 'ما تسلّم', color: '#E5383B' },
 }
+// Driver: why it couldn't be delivered (ps_orders.failed_reason)
+const FAILED_REASON = { no_answer: 'ما رد على الاتصال', postponed: 'طلب تأجيل', wrong_address: 'العنوان غلط', refused: 'رفض الاستلام', other: 'سبب ثاني' }
 const METHOD = { home: 'مندوبنا · للبيت', office: 'إلى المكتب', nool: 'نول · للبيت', nool_office: 'نول · من الفرع', genacom: 'جيناكم · للبيت', genacom_office: 'جيناكم · من الفرع', gcc_genacom: 'جيناكم · شحن خليجي', gcc_dhl: 'DHL · شحن خليجي' }
 const COURIERS = ['nool', 'nool_office', 'genacom', 'genacom_office', 'gcc_genacom', 'gcc_dhl']
 const EVENT_LABEL = {
@@ -33,6 +36,7 @@ const EVENT_LABEL = {
   created: 'تم إنشاء الطلب', purchased: 'تم الشراء', arrived: 'وصل مسقط', out_for_delivery: 'خرج للتوصيل',
   label: 'طُبعت البوليصة', note: 'ملاحظة', paid: 'دفعة', shipped: 'شُحن', assigned: 'سُلّم للمندوب', unassigned: 'سُحب من المندوب',
   picked: 'المندوب استلم', delivered: 'تم التسليم', cancelled: 'إلغاء', requested: 'رجع للانتظار',
+  failed: 'ما قدر يسلّم', driver_arrived: 'المندوب وصل عند الباب',
 }
 
 const omr = (v) => `${Number(v || 0).toLocaleString('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 })} ر.ع`
@@ -417,6 +421,8 @@ function OrderDetail({ o, c, driver, busy, onStatus, onPrint, onReload, headers 
         </Card>
       )}
 
+      {o.driver_status === 'failed' && <FailedCard o={o} driver={driver} />}
+
       {giftOf(o) && <GiftCard g={giftOf(o)} />}
 
       <Card title="القطع" icon={<RiShoppingBag3Line />} action={active.length > 1 && nextFor(overall(o)) && (
@@ -482,6 +488,8 @@ function OrderDetail({ o, c, driver, busy, onStatus, onPrint, onReload, headers 
         <Row k="رسوم التوصيل" v={o.delivery_collect ? `يحصّلها المندوب (${omr(o.delivery_fee)})` : 'مدفوعة مسبقاً'} />
         {o.delivery_address && <Row k="العنوان" v={o.delivery_address} />}
         {o.driver_note && <Row k="ملاحظة" v={o.driver_note} />}
+        {c?.delivery_note && <Row k="ملاحظة التوصيل (من المندوب)" v={c.delivery_note} />}
+        {o.collected_by === 'transfer' && <Row k="التحصيل عند الباب" v="العميل حوّل (تحويل بنكي)" />}
       </Card>
 
       <Card title="سجل الطلب والملاحظات" icon={<RiTimeLine />}>
@@ -521,6 +529,18 @@ function giftOf(o) {
   if (!g || typeof g !== 'object') return null
   if (!g.to && !g.phone && !g.message && !truthy(g.wrap) && !truthy(g.hide_prices)) return null
   return g
+}
+/** Driver couldn't deliver (driver_status = failed): reason, note, retry date. */
+function FailedCard({ o, driver }) {
+  return (
+    <div style={{ background: '#FDECEC', border: '1.5px solid #F5B5B6', borderRadius: 16, padding: '14px 16px', marginBottom: 14 }}>
+      <div style={{ fontWeight: 800, color: '#B42318', marginBottom: 6 }}>ما تسلّم{driver?.name ? ` · ${driver.name}` : ''}</div>
+      <Row k="السبب" v={FAILED_REASON[o.failed_reason] || o.failed_reason || '—'} color="#B42318" />
+      {o.failed_note && <Row k="ملاحظة المندوب" v={o.failed_note} />}
+      {o.failed_at && <Row k="متى" v={dateTime(o.failed_at)} />}
+      {o.retry_on && <Row k="يعيد المحاولة" v={dateStr(o.retry_on)} />}
+    </div>
+  )
 }
 function GiftCard({ g }) {
   const ph = String(g.phone || '').replace(/\D/g, '')
