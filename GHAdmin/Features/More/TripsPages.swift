@@ -139,6 +139,7 @@ struct TripDetailPage: View {
             }
         }) {
             TripStatGrid(stats: s)
+            TripLiveRow(trip: t)
             Pad(h: 6, top: 6) {
                 Segments(value: $tab, options: [
                     (TripView.shopping, "قائمة التسوّق"),

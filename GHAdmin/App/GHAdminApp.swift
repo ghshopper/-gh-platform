@@ -67,6 +67,7 @@ struct AuthGate: View {
                     .onAppear { if store.ready { store.clear() }; Nav.shared.popToRoot() }
             }
         }
+        .onOpenURL { url in DeepLinks.shared.open(url) }
         .task {
             if DemoData.isOn {
                 api.useDemoSession(role: DemoData.role)
@@ -131,6 +132,7 @@ struct LockGate<Content: View>: View {
 struct Tabs: View {
     @AppStorage("gh_tab") private var index = 0
     @ObservedObject private var store = Store.shared
+    @ObservedObject private var links = DeepLinks.shared
 
     private let items: [(icon: String, selected: String, label: String)] = [
         ("sun.max", "sun.max.fill", "اليوم"),
@@ -149,6 +151,12 @@ struct Tabs: View {
                     await Push.shared.start()
                 } else {
                     DemoScreens.openIfAsked(tab: $index)
+                }
+            }
+            .onChange(of: links.tab) { _, t in
+                if let t {
+                    index = t
+                    DeepLinks.shared.tab = nil
                 }
             }
     }

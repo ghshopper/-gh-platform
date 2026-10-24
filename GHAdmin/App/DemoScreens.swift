@@ -28,6 +28,8 @@ enum DemoScreens {
         case "chat": tab.wrappedValue = 4; pushPage(ChatThreadPage(threadId: "1", title: "مريم البلوشية"))
         case "features": tab.wrappedValue = 4; pushPage(FeaturesPage())
         case "reviews": tab.wrappedValue = 4; pushPage(ReviewsPage())
+        case "widgets": tab.wrappedValue = 4; pushPage(WidgetGalleryPage())
+        case "liveactivity": tab.wrappedValue = 4; pushPage(LiveActivityGalleryPage())
         case "giftcard":
             if let o = store.orders.first(where: { $0.gift != nil }) ?? order {
                 presentForm(GiftCardPage(gift: o.gift))

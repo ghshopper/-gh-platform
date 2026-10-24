@@ -63,6 +63,7 @@ final class Store: ObservableObject {
             apply(raw)
             lastError = nil
             ready = true
+            WidgetBridge.storeRefreshed()
             if let data = try? JSONSerialization.data(withJSONObject: raw) {
                 let url = cacheURL
                 Task.detached { try? data.write(to: url, options: .atomic) }

@@ -24,13 +24,22 @@ targets:
       - path: GHAdmin
         excludes:
           - "Resources/Fonts/OFL.txt"
+      # widget faces, Live Activity attributes and the shared keychain (also in GHAdminWidgets)
+      - path: Shared
     dependencies:
       - package: Firebase
         product: FirebaseMessaging
+      - target: GHAdminWidgets
+        embed: true
     entitlements:
       path: GHAdmin/GHAdmin.entitlements
       properties:
         aps-environment: production
+        # the app's own group first (stays the default for its existing keychain items),
+        # then the group shared with the widget extension (no portal capability needed)
+        keychain-access-groups:
+          - $(AppIdentifierPrefix)app.ghshopper.com
+          - $(AppIdentifierPrefix)app.ghshopper.shared
     info:
       path: GHAdmin/Info.plist
       properties:
@@ -58,6 +67,11 @@ targets:
         NSFaceIDUsageDescription: لقفل التطبيق بالـ Face ID
         FirebaseAppDelegateProxyEnabled: true
         LSApplicationQueriesSchemes: [whatsapp, instagram-stories, comgooglemaps, waze]
+        CFBundleURLTypes:
+          - CFBundleURLName: app.ghshopper.com
+            CFBundleURLSchemes: [ghadmin]
+        NSSupportsLiveActivities: true
+        GHKeychainGroup: $(AppIdentifierPrefix)app.ghshopper.shared
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: app.ghshopper.com
@@ -65,3 +79,51 @@ targets:
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         ENABLE_PREVIEWS: NO
         CODE_SIGN_STYLE: Manual
+
+  # Home screen / lock screen widgets and the Live Activities (WidgetKit + ActivityKit).
+  GHAdminWidgets:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: GHAdminWidgets
+      - path: Shared
+      - path: GHAdmin/Resources/Fonts/IBMPlexSansArabic-Regular.ttf
+        buildPhase: resources
+      - path: GHAdmin/Resources/Fonts/IBMPlexSansArabic-Medium.ttf
+        buildPhase: resources
+      - path: GHAdmin/Resources/Fonts/IBMPlexSansArabic-SemiBold.ttf
+        buildPhase: resources
+      - path: GHAdmin/Resources/Fonts/IBMPlexSansArabic-Bold.ttf
+        buildPhase: resources
+      - path: GHAdmin/Resources/Images/story_cheetah.png
+        buildPhase: resources
+      - path: GHAdmin/Resources/Images/story_cheetah_light.png
+        buildPhase: resources
+    entitlements:
+      path: GHAdminWidgets/GHAdminWidgets.entitlements
+      properties:
+        keychain-access-groups:
+          - $(AppIdentifierPrefix)app.ghshopper.shared
+    info:
+      path: GHAdminWidgets/Info.plist
+      properties:
+        CFBundleDisplayName: GH Shopper
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        CFBundleDevelopmentRegion: ar
+        CFBundleLocalizations: [ar, en]
+        GHKeychainGroup: $(AppIdentifierPrefix)app.ghshopper.shared
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+        UIAppFonts:
+          - IBMPlexSansArabic-Regular.ttf
+          - IBMPlexSansArabic-Medium.ttf
+          - IBMPlexSansArabic-SemiBold.ttf
+          - IBMPlexSansArabic-Bold.ttf
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: app.ghshopper.com.widgets
+        ENABLE_PREVIEWS: NO
+        CODE_SIGN_STYLE: Manual
+        SKIP_INSTALL: YES
+        LD_RUNPATH_SEARCH_PATHS: "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks"

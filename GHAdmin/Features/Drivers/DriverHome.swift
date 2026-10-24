@@ -25,6 +25,7 @@ final class DriverData: ObservableObject {
             let raw = try? await Api.shared.get("/ps/driver/account")
             if let m = raw as? JSON {
                 self.account = DriverAccount(m)
+                WidgetBridge.driverRefreshed()
             }
         }
         do {
@@ -32,6 +33,8 @@ final class DriverData: ObservableObject {
             let m = res as? JSON
             orders = DriverData.sorted(jlist(m?["orders"]).map { DriverOrder($0) })
             self.error = nil
+            WidgetBridge.driverRefreshed()
+            LiveActivities.reconcileDeliveries(orders)
         } catch {
             self.error = error
         }
@@ -526,6 +529,9 @@ struct DriverHome: View {
             await DriverData.shared.refresh()
             let m = res as? JSON ?? [:]
             let id = jstr(m["id"])
+            if let o = DriverData.shared.orders.first(where: { $0.id == id }), !o.isDone {
+                LiveActivities.delivery(o, step: o.status == .picked ? 1 : 0)
+            }
             toast(js(m["status"]) == "delivered" ? "الطلب متسلّم من قبل" : "استلمت الطلب ✓")
             pushPage(DriverOrderPage(orderId: id))
         } catch {
@@ -1162,6 +1168,8 @@ struct DriverOrderPage: View {
         do {
             try await DriverData.shared.setStatus(o, .picked)
             Haptic.success()
+            let fresh = DriverData.shared.orders.first { $0.id == o.id } ?? o
+            LiveActivities.delivery(fresh, step: 1)
             toast("بالتوفيق 🚗")
         } catch {
             toastError(error)
@@ -1196,6 +1204,7 @@ struct DriverOrderPage: View {
         }
         do {
             try await DriverData.shared.setStatus(o, .delivered, photo: bytes, collectedBy: collectedBy)
+            LiveActivities.deliveryFinished(o.id, delivered: true)
             Haptic.success()
             toast(collectedBy == "transfer" ? "تم التسليم ✓ · التحويل يتأكد عندنا" : "تم التسليم ✓")
             dismiss()
@@ -1231,6 +1240,7 @@ struct DriverOrderPage: View {
         busy = true
         do {
             try await DriverData.shared.markFailed(o, reason: reason, note: note, retryOn: retry)
+            LiveActivities.deliveryFinished(o.id, delivered: false)
             Haptic.success()
             toast("انحفظ: \(reason.label)")
         } catch {
@@ -1269,6 +1279,7 @@ struct DriverOrderPage: View {
         var sent = false
         do {
             sent = try await DriverData.shared.arrived(o)
+            LiveActivities.delivery(o, step: 2)
             Haptic.success()
         } catch {
             toastError(error)

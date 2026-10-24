@@ -76,12 +76,15 @@ final class Api: ObservableObject {
             session = Session(token: t, role: r, name: Keychain.get(kName) ?? "")
         }
         restored = true
+        WidgetBridge.sessionChanged(session)
+        LiveActivities.endStale(session)
     }
 
     /// Demo mode (screenshots): a fake signed-in owner, no network.
     func useDemoSession(role: String = "admin") {
         session = Session(token: "demo", role: role, name: "غسان")
         restored = true
+        WidgetBridge.sessionChanged(session)
     }
 
     /// Drivers type their phone; it maps to their private sign-in e-mail.
@@ -121,6 +124,7 @@ final class Api: ObservableObject {
         Keychain.set(role, for: kRole)
         Keychain.set(s.name, for: kName)
         session = s
+        WidgetBridge.sessionChanged(s)
     }
 
     func logout() {
@@ -129,6 +133,8 @@ final class Api: ObservableObject {
         Keychain.set(nil, for: kToken)
         Keychain.set(nil, for: kRole)
         Keychain.set(nil, for: kName)
+        WidgetBridge.sessionChanged(nil)
+        LiveActivities.endAll()
         if let token, token != "demo" {
             Task { _ = try? await self.send("POST", "/auth/logout", token: token) }
         }
