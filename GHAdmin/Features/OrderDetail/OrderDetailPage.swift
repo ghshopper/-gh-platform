@@ -73,6 +73,9 @@ struct OrderDetailPage: View {
             bottomBar(o)
         }) {
             summaryCard(o)
+            if o.driverStatus == .failed {
+                ODFailedBanner(order: o, driverName: store.driver(o.driverId)?.name)
+            }
             markAllBar(o)
             quickBar(o)
             itemsSection(o)
@@ -628,6 +631,47 @@ struct OrderDetailPage: View {
 // MARK: - Item row
 
 /// إرسال هدية: who receives it, the card message, wrapping, prices hidden.
+/// Red: the driver couldn't deliver (reason, note, next try).
+fileprivate struct ODFailedBanner: View {
+    let order: Order
+    let driverName: String?
+
+    private var reason: String {
+        order.failedReasonLabel ?? DriverFailReason.label(order.failedReason) ?? "ما قدر يسلّم"
+    }
+
+    private var title: String {
+        if let d = driverName { return "\(d) ما قدر يسلّم · \(reason)" }
+        return "ما تسلّم · \(reason)"
+    }
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 12) {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .font(.system(size: 22))
+                .foregroundStyle(GH.red)
+            VStack(alignment: .leading, spacing: 3) {
+                Text(title).font(.gh(15.5, .semibold)).foregroundStyle(GH.red)
+                if let n = order.failedNote {
+                    Text(n).font(TS.body).foregroundStyle(GH.label)
+                }
+                if let r = order.retryOn {
+                    Text("المحاولة الجاية \(dateStr(r))").font(.gh(14.5, .medium)).foregroundStyle(GH.label)
+                }
+                if let at = order.failedAt {
+                    Text(dateTimeStr(at)).font(TS.small).foregroundStyle(GH.secondary)
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .padding(14)
+        .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(GH.red.opacity(0.1)))
+        .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(GH.red.opacity(0.35), lineWidth: 1))
+        .padding(.horizontal, 16)
+        .padding(.top, 10)
+    }
+}
+
 fileprivate struct ODGiftSection: View {
     let gift: OrderGift
 

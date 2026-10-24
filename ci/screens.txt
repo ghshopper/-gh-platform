@@ -21,3 +21,8 @@ reviews
 dark:today
 dark:order
 driver:today
+driver:order
+driver:failed
+driver:money
+driver:route
+dark:driver:order

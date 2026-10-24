@@ -57,7 +57,7 @@ targets:
         NSPhotoLibraryAddUsageDescription: لحفظ صور الستوري
         NSFaceIDUsageDescription: لقفل التطبيق بالـ Face ID
         FirebaseAppDelegateProxyEnabled: true
-        LSApplicationQueriesSchemes: [whatsapp, instagram-stories]
+        LSApplicationQueriesSchemes: [whatsapp, instagram-stories, comgooglemaps, waze]
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: app.ghshopper.com

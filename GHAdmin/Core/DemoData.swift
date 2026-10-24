@@ -27,25 +27,71 @@ enum DemoData {
     static var bootstrap: JSON { withFeatures(file("demo_bootstrap") as? JSON ?? [:]) }
     static var extra: JSON { file("demo_extra") as? JSON ?? [:] }
 
-    /// Orders as a driver sees them (made from the snapshot).
+    private static func dayAgo(_ days: Int) -> String {
+        let d = Calendar.current.date(byAdding: .day, value: -days, to: Date()) ?? Date()
+        return dayString(d)
+    }
+
+    private static func dItem(_ brand: String, _ name: String, _ details: String? = nil) -> JSON {
+        ["brand": brand, "name": name, "details": nn(details)]
+    }
+
+    /// Orders as a driver sees them: a gift with coordinates, cash on delivery, a failed try,
+    /// a delivery note, and a few delivered today / earlier.
     static var driverOrders: JSON {
-        let b = bootstrap
-        let customers = Dictionary(jlist(b["customers"]).map { (jstr($0["id"]), $0) }, uniquingKeysWith: { a, _ in a })
-        let orders = jlist(b["orders"]).prefix(6).enumerated().map { (n, o) -> JSON in
-            let c = customers[jstr(o["customer_id"])] ?? [:]
-            return [
-                "id": o["id"] ?? "", "order_no": o["order_no"] ?? 0, "ref_no": o["ref_no"] ?? NSNull(),
-                "created_at": o["created_at"] ?? NSNull(),
-                "customer_name": c["name"] ?? "", "customer_phone": c["phone"] ?? NSNull(), "customer_city": c["city"] ?? "مسقط",
-                "customer_gender": c["gender"] ?? "f",
-                "address": c["address"] ?? "الخوير، شارع ١٨ نوفمبر، فيلا ١٢",
-                "delivery_fee": 2, "delivery_collect": n % 2 == 0, "cod_amount": n == 1 ? 45.5 : NSNull(),
-                "driver_status": ["assigned", "picked", "assigned", "delivered", "assigned", "delivered"][n],
-                "waybill_no": o["waybill_no"] ?? "GH-000001",
-                "items": jlist(o["items"]).map { ["brand": $0["brand"] ?? NSNull(), "name": $0["name"] ?? "", "details": $0["details"] ?? NSNull()] },
-            ]
-        }
-        return ["driver": ["id": "demo", "name": "خالد"], "orders": Array(orders)]
+        let base: JSON = ["delivery_fee": 2, "delivery_collect": false, "cod_amount": NSNull(), "gift": NSNull(),
+                          "lat": NSNull(), "lng": NSNull(), "maps_url": NSNull(), "route_pos": NSNull(),
+                          "customer_delivery_note": NSNull(), "driver_note": NSNull(), "customer_gender": "f",
+                          "created_at": isoAgo(hours: 30)]
+        var rows: [JSON] = [
+            ["id": "d1", "order_no": 41, "ref_no": "241001", "waybill_no": "GH-000041",
+             "customer_name": "مريم البلوشية", "customer_phone": "+968 9555 1234", "customer_city": "الخوير",
+             "address": "الخوير ٣٣، شارع ١٨ نوفمبر، فيلا ١٢ https://maps.google.com/?q=23.5880,58.4059",
+             "driver_status": "picked", "route_pos": 0, "lat": 23.5880, "lng": 58.4059,
+             "maps_url": "https://maps.google.com/?q=23.5880,58.4059",
+             "gift": ["to": "نورة السالمي", "phone": "+968 9123 4567", "message": "كل عام وأنتِ بخير 🤍"] as JSON,
+             "items": [dItem("Dior", "Lady Dior Mini", "أسود"), dItem("Chanel", "Chance Eau Tendre", "100ml")]],
+            ["id": "d2", "order_no": 42, "ref_no": "241002", "waybill_no": "GH-000042",
+             "customer_name": "سارة الهنائية", "customer_phone": "+968 9222 4455", "customer_city": "العذيبة",
+             "address": "العذيبة الجنوبية، سكة ٤٢٧، بيت ٩", "driver_status": "picked", "route_pos": 1,
+             "cod_amount": 45.5, "lat": 23.5946, "lng": 58.3712,
+             "customer_delivery_note": "البيت الأبيض جنب المسجد، الباب الخلفي",
+             "items": [dItem("Gucci", "Ophidia Card Case")]],
+            ["id": "d3", "order_no": 43, "ref_no": "241003", "waybill_no": "GH-000043",
+             "customer_name": "عائشة الكندية", "customer_phone": "+968 9333 7788", "customer_city": "بوشر",
+             "address": "بوشر، قرب مسجد الأمين", "driver_status": "failed", "route_pos": 2,
+             "delivery_collect": true, "failed_reason": "no_answer", "failed_reason_label": "ما رد على الاتصال",
+             "failed_note": "اتصلت مرتين", "failed_at": isoAgo(hours: 2), "retry_on": dayAgo(-1),
+             "items": [dItem("YSL", "Rouge Pur Couture", "1966 Rouge Libre")]],
+            ["id": "d4", "order_no": 44, "ref_no": "241004", "waybill_no": "GH-000044",
+             "customer_name": "نورة الحارثية", "customer_phone": "+968 9444 1122", "customer_city": "السيب",
+             "address": "المعبيلة الجنوبية، المرحلة السابعة", "driver_status": "assigned",
+             "delivery_collect": true, "customer_gender": "m",
+             "items": [dItem("On", "Cloud 6 Geo WP Sneakers", "42"), dItem("Nike", "Dunk Low", "43")]],
+            ["id": "d5", "order_no": 39, "ref_no": "231009", "waybill_no": "GH-000039",
+             "customer_name": "هند الرواحية", "customer_phone": "+968 9666 3344", "customer_city": "القرم",
+             "address": "القرم، شارع الشاطئ", "driver_status": "delivered", "delivery_collect": true,
+             "collected_by": "transfer", "driver_delivered_at": isoAgo(hours: 1),
+             "items": [dItem("Prada", "Re-Edition 2005")]],
+            ["id": "d6", "order_no": 37, "ref_no": "221004", "waybill_no": "GH-000037",
+             "customer_name": "لمياء الزدجالية", "customer_phone": "+968 9777 5566", "customer_city": "الموالح",
+             "address": "الموالح الشمالية", "driver_status": "delivered", "collected_by": "cash",
+             "driver_delivered_at": isoAgo(hours: 50),
+             "items": [dItem("Celine", "Triomphe Belt")]],
+        ]
+        for i in rows.indices { rows[i] = base.merging(rows[i]) { _, new in new } }
+        return ["driver": ["id": "demo", "name": "خالد"], "orders": rows]
+    }
+
+    private static let demoHandovers: [Any] = [
+        ["id": "h1", "amount": 30, "note": "سلّمتها لغسان في المكتب", "status": "pending", "created_at": isoAgo(hours: 3)] as JSON,
+    ]
+
+    /// The driver's money: the snapshot's account plus a pending handover.
+    private static var driverAccount: JSON {
+        var acc = extra.first { $0.key.contains("/account") }?.value as? JSON ?? [:]
+        acc["pending_handovers"] = demoHandovers
+        return acc
     }
 
     // MARK: the 10 customer features (chat, quotes, wallet, gifts, reviews…)
@@ -78,6 +124,28 @@ enum DemoData {
         }
         var customers = jlist(b["customers"])
         for i in customers.indices where i % 3 == 0 { customers[i]["wallet_balance"] = 12.5 }
+        // Driver upgrade: a failed delivery, a delivery note, a pending cash handover.
+        let driverId = jstr(jlist(b["drivers"]).first?["id"])
+        var orders2 = jlist(b["orders"])
+        if !driverId.isEmpty, let i = orders2.firstIndex(where: { o in
+            let free = o["driver_id"] == nil || o["driver_id"] is NSNull
+            let noGift = o["gift"] == nil || o["gift"] is NSNull
+            return free && noGift && !jlist(o["items"]).isEmpty
+        }) {
+            orders2[i]["driver_id"] = driverId
+            orders2[i]["driver_status"] = "failed"
+            orders2[i]["failed_reason"] = "no_answer"
+            orders2[i]["failed_reason_label"] = "ما رد على الاتصال"
+            orders2[i]["failed_note"] = "اتصل مرتين وما رد"
+            orders2[i]["failed_at"] = isoAgo(hours: 2)
+            orders2[i]["retry_on"] = dayAgo(-1)
+            let cid = jstr(orders2[i]["customer_id"])
+            if let ci = customers.firstIndex(where: { jstr($0["id"]) == cid }) {
+                customers[ci]["delivery_note"] = "البيت الأبيض جنب المسجد، الباب الخلفي"
+            }
+            b["orders"] = orders2
+        }
+        if b["driver_handovers_pending"] == nil { b["driver_handovers_pending"] = 1 }
         b["customers"] = customers
         return b
     }
@@ -194,8 +262,9 @@ enum DemoData {
             if p == "/ps/me" { return ["role": role, "name": "غسان"] }
             if p == "/ps/driver/orders" { return driverOrders }
             if p == "/ps/driver/account" || (p.hasPrefix("/ps/drivers/") && p.hasSuffix("/account")) {
-                return extra.first { $0.key.contains("/account") }?.value ?? [:]
+                return driverAccount
             }
+            if p.hasPrefix("/ps/drivers/") && p.hasSuffix("/handovers") { return ["handovers": demoHandovers] }
             if p.hasPrefix("/admin/products") { return extra.first { $0.key.hasPrefix("/api/admin/products") }?.value ?? ["data": []] }
             if p.hasPrefix("/admin/categories") { return extra["/api/admin/categories"] ?? [] }
             if p.hasPrefix("/admin/gcc-shipping") { return extra["/api/admin/gcc-shipping"] ?? ["data": [:]] }

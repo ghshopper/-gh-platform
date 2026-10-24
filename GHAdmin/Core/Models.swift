@@ -25,6 +25,8 @@ struct Customer: Identifiable, Hashable {
     var loyaltyTier: String?
     /// محفظة GH balance (the customer's account on the app / website).
     var walletBalance: Double = 0
+    /// Saved by the driver for next time ("البيت الأبيض جنب المسجد").
+    var deliveryNote: String?
 
     var firstName: String {
         let n = name.trimmingCharacters(in: .whitespaces)
@@ -48,6 +50,7 @@ struct Customer: Identifiable, Hashable {
         loyaltyPoints = ji(m["loyalty_points"])
         loyaltyTier = js(m["loyalty_tier"])
         walletBalance = jd(m["wallet_balance"])
+        deliveryNote = js(m["delivery_note"])
     }
 }
 
@@ -464,7 +467,7 @@ struct Payment: Identifiable, Hashable {
 // MARK: - Orders
 
 enum DriverStatus: String, CaseIterable, Hashable {
-    case assigned, picked, delivered
+    case assigned, picked, delivered, failed
 
     static func from(_ v: String?) -> DriverStatus? { v.flatMap { DriverStatus(rawValue: $0) } }
 
@@ -473,6 +476,7 @@ enum DriverStatus: String, CaseIterable, Hashable {
         case .assigned: return "عند المندوب"
         case .picked: return "في الطريق"
         case .delivered: return "تم التسليم"
+        case .failed: return "ما تسلّم"
         }
     }
 
@@ -481,8 +485,53 @@ enum DriverStatus: String, CaseIterable, Hashable {
         case .assigned: return GH.blue
         case .picked: return GH.amber
         case .delivered: return GH.green
+        case .failed: return GH.red
         }
     }
+}
+
+/// Why the driver couldn't deliver (ps_orders.failed_reason).
+enum DriverFailReason: String, CaseIterable, Hashable {
+    case noAnswer = "no_answer"
+    case postponed
+    case wrongAddress = "wrong_address"
+    case refused
+    case other
+
+    var label: String {
+        switch self {
+        case .noAnswer: return "ما رد على الاتصال"
+        case .postponed: return "طلب تأجيل"
+        case .wrongAddress: return "العنوان غلط"
+        case .refused: return "رفض الاستلام"
+        case .other: return "سبب ثاني"
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .noAnswer: return "phone.down.fill"
+        case .postponed: return "clock.fill"
+        case .wrongAddress: return "mappin.slash"
+        case .refused: return "hand.raised.fill"
+        case .other: return "ellipsis.circle.fill"
+        }
+    }
+
+    /// The Arabic label for a stored key (unknown keys as they are).
+    static func label(_ key: String?) -> String? {
+        guard let key, !key.isEmpty else { return nil }
+        return DriverFailReason(rawValue: key)?.label ?? key
+    }
+}
+
+/// "ما رد على الاتصال · نرجع له ٢٥/١٠ · ملاحظة": the failed-delivery line.
+func driverFailedLine(reason: String?, note: String?, retryOn: Date?) -> String {
+    var parts: [String] = []
+    if let r = DriverFailReason.label(reason) { parts.append(r) }
+    if let retryOn { parts.append("المحاولة الجاية \(dateStr(retryOn))") }
+    if let n = note?.trimmingCharacters(in: .whitespacesAndNewlines), !n.isEmpty { parts.append(n) }
+    return parts.isEmpty ? "ما قدر يسلّم" : parts.joined(separator: " · ")
 }
 
 /// One step in an order's history (created, purchased, picked up…).
@@ -509,6 +558,8 @@ struct OrderEvent: Hashable {
         case "unassigned": return "سُحب من المندوب"
         case "picked": return "المندوب استلم الطلب"
         case "delivered": return "تم التسليم"
+        case "failed": return "ما قدر المندوب يسلّم"
+        case "driver_arrived": return "المندوب وصل الباب"
         case "cancelled": return "إلغاء"
         case "requested": return "رجع لانتظار الشراء"
         case "paid": return "دفع أونلاين"
@@ -530,6 +581,8 @@ struct OrderEvent: Hashable {
         case "assigned", "unassigned": return "person.fill"
         case "picked", "out_for_delivery": return "car.fill"
         case "delivered": return "checkmark.seal.fill"
+        case "failed": return "exclamationmark.triangle.fill"
+        case "driver_arrived": return "mappin.and.ellipse"
         case "cancelled": return "xmark.circle.fill"
         case "paid": return "creditcard.fill"
         case "returned": return "arrow.uturn.left.circle.fill"
@@ -545,6 +598,8 @@ struct OrderEvent: Hashable {
         case "assigned", "picked": return GH.blue
         case "out_for_delivery": return GH.teal
         case "delivered": return GH.statusDelivered
+        case "failed": return GH.red
+        case "driver_arrived": return GH.amber
         case "cancelled": return GH.red
         case "paid": return GH.green
         case "returned": return GH.amber
@@ -577,6 +632,12 @@ struct Order: Identifiable, Hashable {
     var driverNote: String?
     var deliveryPhotoPath: String?
     var driverDeliveredAt: Date?
+    /// Couldn't deliver: no_answer / postponed / wrong_address / refused / other.
+    var failedReason: String?
+    var failedReasonLabel: String?
+    var failedNote: String?
+    var failedAt: Date?
+    var retryOn: Date?
     var labelPrintedAt: Date?
     var events: [OrderEvent] = []
     var deliveryMethod: DeliveryMethod?
@@ -665,6 +726,11 @@ struct Order: Identifiable, Hashable {
         driverNote = js(m["driver_note"])
         deliveryPhotoPath = js(m["delivery_photo_path"])
         driverDeliveredAt = jdate(m["driver_delivered_at"])
+        failedReason = js(m["failed_reason"])
+        failedReasonLabel = js(m["failed_reason_label"])
+        failedNote = js(m["failed_note"])
+        failedAt = jdate(m["failed_at"])
+        retryOn = jdate(m["retry_on"])
         labelPrintedAt = jdate(m["label_printed_at"])
         deliveryMethod = DeliveryMethod.from(js(m["delivery_method"]))
         carrierTracking = js(m["carrier_tracking"])
@@ -755,11 +821,44 @@ struct DriverOrder: Identifiable, Hashable {
     var customerIsMale: Bool = false
     var codAmount: Double?
     var items: [DriverOrderItem]
+    var createdAt: Date?
+    /// Sent as a gift: deliver to the recipient (prices are never sent to drivers).
+    var gift: OrderGift?
+    var failedReason: String?
+    /// The Arabic reason from the server.
+    var failedReasonLabel: String?
+    var failedNote: String?
+    var failedAt: Date?
+    var retryOn: Date?
+    /// How the driver was paid at the door: cash / transfer.
+    var collectedBy: String?
+    /// Delivery address coordinates, when known.
+    var lat: Double?
+    var lng: Double?
+    /// The first maps link found in the address.
+    var mapsUrl: String?
+    /// The driver's own order of today's route.
+    var routePos: Int?
+    /// Saved on the customer for next time (users.delivery_note).
+    var customerDeliveryNote: String?
 
     /// What to collect at the door: the order (cash on delivery) or the fee.
     var toCollect: Double { codAmount ?? (collect && deliveryFee > 0 ? deliveryFee : 0) }
     var isCod: Bool { codAmount != nil }
     var isDone: Bool { status == .delivered }
+    var isFailed: Bool { status == .failed }
+    var hasCoordinates: Bool { lat != nil && lng != nil }
+
+    /// Who opens the door: the gift's recipient, or the customer.
+    var recipientName: String {
+        if let to = gift?.to?.trimmingCharacters(in: .whitespaces), !to.isEmpty { return to }
+        return customerName
+    }
+    /// The phone to call at the door (the recipient's for a gift, when given).
+    var recipientPhone: String? {
+        if let p = gift?.phone, !p.trimmingCharacters(in: .whitespaces).isEmpty { return p }
+        return customerPhone
+    }
 
     init(_ m: JSON) {
         id = jstr(m["id"])
@@ -779,6 +878,19 @@ struct DriverOrder: Identifiable, Hashable {
         codAmount = jdn(m["cod_amount"])
         deliveredAt = jdate(m["driver_delivered_at"])
         items = jlist(m["items"]).map { DriverOrderItem(brand: js($0["brand"]), name: jstr($0["name"]), details: js($0["details"])) }
+        createdAt = jdate(m["created_at"])
+        gift = OrderGift.from(m["gift"])
+        failedReason = js(m["failed_reason"])
+        failedReasonLabel = js(m["failed_reason_label"])
+        failedNote = js(m["failed_note"])
+        failedAt = jdate(m["failed_at"])
+        retryOn = jdate(m["retry_on"])
+        collectedBy = js(m["collected_by"])
+        lat = jdn(m["lat"])
+        lng = jdn(m["lng"])
+        mapsUrl = js(m["maps_url"])
+        routePos = (m["route_pos"] == nil || m["route_pos"] is NSNull) ? nil : ji(m["route_pos"])
+        customerDeliveryNote = js(m["customer_delivery_note"])
     }
 }
 

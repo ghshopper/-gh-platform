@@ -23,6 +23,8 @@ final class Store: ObservableObject {
     @Published var settings = BusinessSettings()
     /// Customer chat messages staff have not read yet (المحادثات).
     @Published var chatsUnread = 0
+    /// Cash handovers from drivers waiting for a staff confirm.
+    @Published var driverHandoversPending = 0
 
     @Published var ready = false
     @Published var syncing = false
@@ -81,6 +83,7 @@ final class Store: ObservableObject {
         requests = jlist(raw["requests"]).map(PieceRequest.init)
         settings = (raw["settings"] as? JSON).map(BusinessSettings.init) ?? BusinessSettings()
         chatsUnread = ji(raw["chats_unread"])
+        driverHandoversPending = ji(raw["driver_handovers_pending"])
         customerById = Dictionary(customers.map { ($0.id, $0) }, uniquingKeysWith: { a, _ in a })
         tripById = Dictionary(trips.map { ($0.id, $0) }, uniquingKeysWith: { a, _ in a })
         orderById = Dictionary(orders.map { ($0.id, $0) }, uniquingKeysWith: { a, _ in a })
@@ -96,6 +99,7 @@ final class Store: ObservableObject {
         orders = []; customers = []; trips = []; expenses = []; invoices = []; drivers = []; requests = []
         settings = BusinessSettings()
         chatsUnread = 0
+        driverHandoversPending = 0
         customerById = [:]; tripById = [:]; orderById = [:]
         signed.removeAll()
         ready = false
@@ -145,6 +149,17 @@ final class Store: ObservableObject {
                               "notes": nn(notes), "gender": isMale ? "m" : "f"]
             let res = id == nil ? try await api.post("/ps/customers", data) : try await api.put("/ps/customers/\(id!)", data)
             return Customer(((res as? JSON)?["customer"] as? JSON) ?? [:])
+        }
+    }
+
+    /// The driver's delivery note on a customer ("الباب الخلفي"); empty clears it.
+    func saveDeliveryNote(_ c: Customer, note: String?) async throws {
+        let clean = note?.trimmingCharacters(in: .whitespacesAndNewlines)
+        let value: String? = (clean?.isEmpty ?? true) ? nil : clean
+        try await write {
+            let data: JSON = ["name": c.name, "phone": nn(c.phone), "city": nn(c.city), "address": nn(c.address),
+                              "notes": nn(c.notes), "gender": c.isMale ? "m" : "f", "delivery_note": nn(value)]
+            _ = try await api.put("/ps/customers/\(c.id)", data)
         }
     }
 

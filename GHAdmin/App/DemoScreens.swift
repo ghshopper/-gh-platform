@@ -31,4 +31,25 @@ enum DemoScreens {
         default: break
         }
     }
+
+    /// Driver role ("driver:<key>" in ci/screens.txt): today · past · money · order (the gift) · failed · route.
+    @MainActor
+    static func openDriverIfAsked(tab: Binding<Int>) {
+        guard let key = DemoData.screen else { return }
+        let orders = DriverData.shared.orders
+        switch key {
+        case "today", "home": tab.wrappedValue = 0
+        case "past": tab.wrappedValue = 1
+        case "money": tab.wrappedValue = 2
+        case "order":
+            let o = orders.first { $0.gift != nil && !$0.isDone } ?? orders.first { !$0.isDone }
+            if let o { pushPage(DriverOrderPage(orderId: o.id)) }
+        case "picked":
+            if let o = orders.first(where: { $0.status == .picked }) { pushPage(DriverOrderPage(orderId: o.id)) }
+        case "failed":
+            if let o = orders.first(where: { $0.isFailed }) { pushPage(DriverOrderPage(orderId: o.id)) }
+        case "route": pushPage(DriverRoutePage())
+        default: break
+        }
+    }
 }

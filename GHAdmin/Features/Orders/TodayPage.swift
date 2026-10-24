@@ -37,6 +37,9 @@ fileprivate struct TodayData {
     var collectedToday: Double = 0
     var late: [TodayLate] = []
     var drivers: [TodayDriver] = []
+    /// Driver couldn't deliver (ما تسلّمت).
+    var failed: [Order] = []
+    var handoversPending = 0
     var taxFreeText = "—"
     var withDriversEmpty = true
 
@@ -83,6 +86,8 @@ fileprivate struct TodayData {
 
         late = TodayData.lateOrders(orders, now: now)
         drivers = TodayData.byDriver(store.withDrivers)
+        failed = orders.filter { $0.driverStatus == .failed }
+        handoversPending = store.driverHandoversPending
         withDriversEmpty = store.withDrivers.isEmpty
         taxFreeText = TodayData.taxFree(orders)
     }
@@ -138,7 +143,8 @@ fileprivate struct TodayData {
 
     var allClear: Bool {
         newRequests.isEmpty && newOnline.isEmpty && toBuy.isEmpty && toDeliver.isEmpty &&
-            outForDelivery.isEmpty && unpaid.isEmpty && withDriversEmpty && late.isEmpty
+            outForDelivery.isEmpty && unpaid.isEmpty && withDriversEmpty && late.isEmpty &&
+            failed.isEmpty && handoversPending == 0
     }
 }
 
@@ -325,7 +331,9 @@ fileprivate struct TodayContent: View {
         strip
         stats
         allClearState
+        handoversBanner
         requestsSection
+        failedSection
         lateSection
         driversSection
         onlineSection
@@ -386,6 +394,48 @@ fileprivate struct TodayContent: View {
         }
     }
 
+    /// Drivers said they handed over cash: confirm it on the driver's page.
+    @ViewBuilder
+    private var handoversBanner: some View {
+        let n = data.handoversPending
+        if n > 0 {
+            GHSection {
+                Tile("كاش من المناديب ينتظر تأكيدك",
+                     subtitle: n == 1 ? "تسليم واحد" : "\(n) تسليمات",
+                     titleFont: .gh(16, .semibold),
+                     action: { pushPage(DriversPage()) },
+                     leading: { IconBox("banknote.fill", color: GH.amber) },
+                     trailing: {
+                         Text("\(n)")
+                             .font(.gh(12, .semibold)).foregroundStyle(.white)
+                             .padding(.horizontal, 7).padding(.vertical, 2)
+                             .background(Capsule().fill(GH.amber))
+                     })
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var failedSection: some View {
+        if !data.failed.isEmpty {
+            GHSection("ما تسلّمت · \(data.failed.count)") {
+                ForEach(Array(data.failed.prefix(8))) { o in
+                    failedTile(o)
+                }
+            }
+        }
+    }
+
+    private func failedTile(_ o: Order) -> some View {
+        let id = o.id
+        let line = driverFailedLine(reason: o.failedReasonLabel ?? o.failedReason, note: o.failedNote, retryOn: o.retryOn)
+        let driver = store.driver(o.driverId)?.name
+        let sub = driver.map { "\($0) · \(line)" } ?? line
+        return Tile("\(store.customerName(o)) · \(o.invoiceNo)", subtitle: sub,
+                    action: { openOrder(id) },
+                    leading: { IconBox("exclamationmark.triangle.fill", color: GH.red) })
+    }
+
     @ViewBuilder
     private var lateSection: some View {
         if !data.late.isEmpty {
@@ -418,9 +468,11 @@ fileprivate struct TodayContent: View {
     private func driverTile(_ e: TodayDriver) -> some View {
         let name = store.driver(e.driverId)?.name ?? "مندوب"
         let onRoad = e.orders.filter { $0.driverStatus == .picked }.count
+        let failedCount = e.orders.filter { $0.driverStatus == .failed }.count
         let collect = e.orders.reduce(0.0) { $0 + ($1.toCollect > 0 ? $1.toCollect : 0) }
         var parts: [String] = ["\(e.orders.count) طلب"]
         if onRoad > 0 { parts.append("في الطريق \(onRoad)") }
+        if failedCount > 0 { parts.append("ما تسلّم \(failedCount)") }
         if collect > 0 { parts.append("يحصّل \(omr(collect))") }
         let driverId = e.driverId
         return Tile(name, subtitle: parts.joined(separator: " · "),

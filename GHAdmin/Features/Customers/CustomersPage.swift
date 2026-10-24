@@ -195,6 +195,42 @@ struct CustomerDetailPage: View {
     }
 }
 
+/// "ملاحظة التوصيل": what the driver saved for next time; staff can edit it.
+fileprivate struct CustomerDeliveryNoteSection: View {
+    let customer: Customer
+
+    var body: some View {
+        GHSection("ملاحظة التوصيل", footer: "تطلع للمندوب في كل طلب لهذا العميل.", trailing: {
+            HeaderButton(customer.deliveryNote == nil ? "أضف" : "تعديل", icon: "square.and.pencil") { edit() }
+        }) {
+            if let note = customer.deliveryNote {
+                Text(note)
+                    .font(TS.body)
+                    .foregroundStyle(GH.label)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(14)
+                    .background(Color(hex: 0xFFFFD43B).opacity(0.18))
+            } else {
+                Tile("ما في ملاحظة", subtitle: "مثلاً: البيت الأبيض جنب المسجد، الباب الخلفي",
+                     titleColor: GH.secondary, action: { edit() },
+                     leading: { IconBox("note.text", color: GH.amber) })
+            }
+        }
+    }
+
+    private func edit() {
+        let c = customer
+        Task { @MainActor in
+            guard let text = await promptText("ملاحظة التوصيل", message: "للمندوب: وين البيت، أي باب…",
+                                              placeholder: "البيت الأبيض جنب المسجد، الباب الخلفي",
+                                              initial: c.deliveryNote ?? "") else { return }
+            if await attempt({ try await Store.shared.saveDeliveryNote(c, note: text) }) {
+                toast("انحفظت ✓")
+            }
+        }
+    }
+}
+
 fileprivate struct CustomerDetailContent: View {
     let customer: Customer
     let onDelete: () -> Void
@@ -223,6 +259,7 @@ fileprivate struct CustomerDetailContent: View {
             }
             CustomerInfoSection(customer: customer, balance: all.reduce(0) { $0 + $1.customerBalance })
             CustomerPortalSection(customer: customer)
+            CustomerDeliveryNoteSection(customer: customer)
             if let notes = customer.notes {
                 GHSection("ملاحظات") {
                     Text(notes).font(TS.body).foregroundStyle(GH.label)

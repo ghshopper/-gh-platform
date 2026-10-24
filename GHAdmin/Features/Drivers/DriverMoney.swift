@@ -30,6 +30,36 @@ struct DriverAccount {
     var entries: [DriverEntry] { jlist(m["entries"]).map { DriverEntry($0) } }
 
     var recent: [PastDelivery] { jlist(m["recent"]).map { PastDelivery($0) } }
+
+    /// Cash the driver says he handed over, waiting for a staff confirm.
+    var pendingHandovers: [DriverHandover] {
+        jlist(m["pending_handovers"]).map { DriverHandover($0) }.filter { $0.isPending }
+    }
+    var pendingTotal: Double { pendingHandovers.reduce(0.0) { $0 + $1.amount } }
+}
+
+/// ps_driver_handovers: pending → confirmed / rejected by staff.
+struct DriverHandover {
+    let m: JSON
+
+    init(_ m: JSON) { self.m = m }
+
+    var id: String { jstr(m["id"]) }
+    var amount: Double { jd(m["amount"]) }
+    var note: String? {
+        guard let n = js(m["note"]) else { return nil }
+        return n.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? nil : n
+    }
+    var status: String { js(m["status"]) ?? "pending" }
+    var isPending: Bool { status == "pending" }
+    var createdAt: Date? { jdate(m["created_at"]) }
+
+    var subtitle: String {
+        var parts: [String] = []
+        if let d = createdAt { parts.append(dateTimeStr(d)) }
+        if let n = note { parts.append(n) }
+        return parts.isEmpty ? "بانتظار التأكيد" : parts.joined(separator: " · ")
+    }
 }
 
 struct DriverEntry {
@@ -58,6 +88,9 @@ struct PastDelivery {
     var at: Date? { jdate(m["delivered_at"]) }
     var collected: Double { jd(m["collected"]) }
     var pay: Double { jd(m["pay"]) }
+    /// cash / transfer (the customer transferred to the shop).
+    var collectedBy: String? { js(m["collected_by"]) }
+    var transferred: Bool { jb(m["transferred"]) || collectedBy == "transfer" }
     var invoiceNo: String {
         let n = ji(m["order_no"])
         if let ref = js(m["ref_no"]), !ref.isEmpty { return ref }
@@ -216,7 +249,9 @@ struct PastDeliveryTile: View {
     private var subtitle: String {
         var parts = [dateStr(d.at)]
         if let c = d.city, !c.isEmpty { parts.append(c) }
-        if d.collected > 0 { parts.append("حصّل \(omr(d.collected))") }
+        if d.collected > 0 {
+            parts.append(d.transferred ? "حوّل \(omr(d.collected))" : "حصّل \(omr(d.collected))")
+        }
         return parts.joined(separator: " · ")
     }
 
@@ -229,6 +264,51 @@ struct PastDeliveryTile: View {
              chevron: onTap != nil,
              action: onTap,
              leading: { Avatar(d.customer, size: 34) })
+    }
+}
+
+// MARK: - Driver: hand over cash
+
+/// "سلّمت الكاش": amount (prefilled with the cash he holds) + note → pending handover.
+@MainActor
+func driverHandOverCash() async {
+    let acc = DriverData.shared.account
+    let held = max((acc?.cash ?? 0) - (acc?.pendingTotal ?? 0), 0)
+    let start = held > 0.0005 ? moneyFixed3(held) : ""
+    let res: DriverMoneyFormResult? = await Nav.shared.presentForResult { done in
+        DriverMoneyForm(title: "سلّمت الكاش",
+                        footer: "الكاش اللي سلّمته للمكتب. ينخصم من اللي معك لما يأكدون إنهم استلموه.",
+                        amountLabel: "المبلغ", withNote: true, initialAmount: start, done: done)
+    }
+    guard let res else { return }
+    guard let v = parseAmount(res.amount), v > 0 else {
+        toast("اكتب المبلغ", error: true)
+        return
+    }
+    let note = res.note.trimmingCharacters(in: .whitespacesAndNewlines)
+    do {
+        try await DriverData.shared.handOver(amount: v, note: note.isEmpty ? nil : note)
+        Haptic.success()
+        toast("انرسل ✓ بانتظار تأكيد المكتب")
+    } catch {
+        toastError(error)
+    }
+}
+
+/// On the driver's حسابي: handovers waiting for the office.
+struct DriverPendingHandovers: View {
+    let list: [DriverHandover]
+
+    var body: some View {
+        if !list.isEmpty {
+            GHSection("بانتظار تأكيد المكتب", footer: "ينحسب من الكاش اللي معك بعد ما يأكدونه.") {
+                ForEach(Array(list.enumerated()), id: \.offset) { _, h in
+                    Tile("سلّمت كاش", subtitle: h.subtitle, value: omr(h.amount),
+                         valueColor: GH.amber, valueFont: .gh(15, .semibold), chevron: false,
+                         leading: { IconBox("clock.fill", color: GH.amber) })
+                }
+            }
+        }
     }
 }
 
@@ -245,12 +325,15 @@ struct AdminDriverMoney: View {
     @State private var a: DriverAccount?
     @State private var loadError: String?
     @State private var started = false
+    @State private var handovers: [DriverHandover] = []
+    @State private var handoverBusy: String?
 
     init(driverId: String, name: String, initial: DriverAccount? = nil) {
         self.driverId = driverId
         self.name = name
         self.initial = initial
         _a = State(initialValue: initial)
+        _handovers = State(initialValue: initial?.pendingHandovers ?? [])
     }
 
     var body: some View {
@@ -269,12 +352,14 @@ struct AdminDriverMoney: View {
             if started { return }
             started = true
             if a == nil { await load() }
+            await loadHandovers()
         }
     }
 
     private func loaded(_ a: DriverAccount) -> some View {
         VStack(alignment: .leading, spacing: 0) {
             DriverBalanceCard(a, forDriver: false)
+            handoversSection
             buttons
             accountSection(a)
             entriesSection(a)
@@ -289,6 +374,20 @@ struct AdminDriverMoney: View {
         }
         .padding(.horizontal, 16)
         .padding(.top, 12)
+    }
+
+    @ViewBuilder
+    private var handoversSection: some View {
+        if !handovers.isEmpty {
+            GHSection("سلّم كاش وينتظر تأكيدك · \(handovers.count)",
+                      footer: "تأكيد: ينسجل إنك استلمت منه الكاش. رفض: ما وصلك شي.") {
+                ForEach(Array(handovers.enumerated()), id: \.offset) { _, h in
+                    AdminHandoverRow(h: h, busy: handoverBusy == h.id,
+                                     onConfirm: { Task { await decide(h, confirm: true) } },
+                                     onReject: { Task { await decide(h, confirm: false) } })
+                }
+            }
+        }
     }
 
     private func accountSection(_ a: DriverAccount) -> some View {
@@ -329,6 +428,47 @@ struct AdminDriverMoney: View {
         } catch {
             loadError = errorText(error)
         }
+    }
+
+    private func loadHandovers() async {
+        guard let res = try? await Api.shared.get("/ps/drivers/\(driverId)/handovers") else { return }
+        var rows: [JSON] = []
+        if let arr = res as? [Any] {
+            rows = arr.compactMap { $0 as? JSON }
+        } else if let m = res as? JSON {
+            rows = jlist(m["handovers"] ?? m["data"] ?? m["pending_handovers"])
+        }
+        handovers = rows.map { DriverHandover($0) }.filter { $0.isPending }
+    }
+
+    /// Confirm records it like "استلمت منه" (balances update); reject drops it.
+    private func decide(_ h: DriverHandover, confirm yes: Bool) async {
+        let ok: Bool
+        if yes {
+            ok = await confirm("استلمت \(omr(h.amount)) من \(name)؟", message: h.note,
+                               ok: "تأكيد", destructive: false)
+        } else {
+            ok = await confirm("رفض التسليم؟", message: "\(omr(h.amount)) · ما وصلك منه", ok: "رفض", destructive: true)
+        }
+        if !ok { return }
+        handoverBusy = h.id
+        do {
+            let path = "/ps/driver-handovers/\(h.id)/\(yes ? "confirm" : "reject")"
+            let r = try await Api.shared.post(path)
+            if let m = r as? JSON, m["net"] != nil {
+                a = DriverAccount(m)
+            } else {
+                await load()
+            }
+            handovers.removeAll { $0.id == h.id }
+            Haptic.success()
+            toast(yes ? "تأكد الاستلام ✓" : "انرفض")
+            Task { await Store.shared.refresh() }
+        } catch {
+            toastError(error)
+        }
+        handoverBusy = nil
+        await loadHandovers()
     }
 
     private func entry(_ type: String) async {
@@ -393,6 +533,51 @@ struct AdminDriverMoney: View {
         } catch {
             toastError(error)
         }
+    }
+}
+
+/// A pending handover with تأكيد / رفض (big enough to tap).
+fileprivate struct AdminHandoverRow: View {
+    let h: DriverHandover
+    let busy: Bool
+    let onConfirm: () -> Void
+    let onReject: () -> Void
+
+    var body: some View {
+        HStack(spacing: 10) {
+            IconBox("banknote.fill", color: GH.amber)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(omr(h.amount)).font(.gh(16.5, .semibold).monospacedDigit()).foregroundStyle(GH.label)
+                Text(h.subtitle).font(TS.sub).foregroundStyle(GH.secondary).lineLimit(2)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            if busy {
+                ProgressView()
+            } else {
+                rejectButton
+                confirmButton
+            }
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 10)
+    }
+
+    private var confirmButton: some View {
+        Button(action: onConfirm) {
+            Text("تأكيد").font(.gh(14.5, .semibold)).foregroundStyle(Color.white)
+                .padding(.horizontal, 14).frame(height: 40)
+                .background(Capsule().fill(GH.green))
+        }
+        .buttonStyle(.plain)
+    }
+
+    private var rejectButton: some View {
+        Button(action: onReject) {
+            Text("رفض").font(.gh(14.5, .semibold)).foregroundStyle(GH.red)
+                .padding(.horizontal, 12).frame(height: 40)
+                .overlay(Capsule().stroke(GH.red.opacity(0.6), lineWidth: 1.2))
+        }
+        .buttonStyle(.plain)
     }
 }
 

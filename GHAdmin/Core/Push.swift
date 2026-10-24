@@ -5,6 +5,7 @@ import FirebaseCore
 import FirebaseMessaging
 
 /// Staff notifications (new order, payment, piece request) through Firebase.
+/// Drivers register on their own endpoint and only get their own pushes (new order, handover confirmed).
 /// Anything missing or failing is ignored: the app works the same, just without pushes.
 @MainActor
 final class Push: NSObject, ObservableObject {
@@ -25,9 +26,9 @@ final class Push: NSObject, ObservableObject {
         configured = true
     }
 
-    /// After sign-in (staff only): ask for permission, send the token to the server.
+    /// After sign-in (staff and drivers): ask for permission, send the token to the server.
     func start() async {
-        guard configured, let s = Api.shared.session, !s.isDriver else { return }
+        guard configured, Api.shared.session != nil else { return }
         let granted = (try? await UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound])) ?? false
         guard granted else { return }
         UIApplication.shared.registerForRemoteNotifications()
@@ -41,8 +42,10 @@ final class Push: NSObject, ObservableObject {
 
     func register(_ token: String) async {
         let key = "\(Api.shared.session?.token ?? ""):\(token)"
-        guard sentFor != key, Api.shared.session != nil else { return }
-        if (try? await Api.shared.post("/ps/push-device", ["token": token, "platform": "ios"])) != nil {
+        guard sentFor != key, let s = Api.shared.session else { return }
+        // A driver must never land on the staff list (/ps/push-device is staff only).
+        let path = s.isDriver ? "/ps/driver/push-device" : "/ps/push-device"
+        if (try? await Api.shared.post(path, ["token": token, "platform": "ios"])) != nil {
             sentFor = key
         }
     }
@@ -53,14 +56,26 @@ final class Push: NSObject, ObservableObject {
         case "product_request": return "sparkles"
         case "chat": return "bubble.left.and.bubble.right.fill"
         case "review", "review_service": return "star.fill"
+        case "driver_order": return "car.fill"
+        case "driver_failed": return "exclamationmark.triangle.fill"
+        case "driver_handover", "handover", "handover_confirmed", "handover_rejected": return "banknote.fill"
         default: return "bell.fill"
         }
     }
 
     /// Opens what a notification is about: the order, or the piece requests.
     func open(_ data: [AnyHashable: Any]) async {
-        guard Api.shared.session != nil else { pending = data; return }
+        guard let session = Api.shared.session else { pending = data; return }
         let type = data["type"] as? String
+        if session.isDriver {
+            await openForDriver(type, data)
+            return
+        }
+        if type == "driver_handover" || type == "handover" {
+            Task { await Store.shared.refresh() }
+            pushPage(DriversPage())
+            return
+        }
         if type == "chat" {
             let threadId = (data["thread_id"] as? String) ?? (data["thread_id"] as? NSNumber)?.stringValue
             Task { await Store.shared.refreshChatsUnread() }
@@ -85,10 +100,33 @@ final class Push: NSObject, ObservableObject {
         pushPage(OrderDetailPage(orderId: orderId))
     }
 
+    /// Driver pushes: a new order opens it; money (handover) opens حسابي.
+    private func openForDriver(_ type: String?, _ data: [AnyHashable: Any]) async {
+        let orderId = (data["ps_order_id"] as? String) ?? (data["ps_order_id"] as? NSNumber)?.stringValue
+        await DriverData.shared.refresh()
+        if let type, type.contains("handover") {
+            Nav.shared.popToRoot()
+            DriverData.shared.wantTab = 2
+            return
+        }
+        guard let orderId, !orderId.isEmpty else { return }
+        guard DriverData.shared.orders.contains(where: { $0.id == orderId }) else { return }
+        pushPage(DriverOrderPage(orderId: orderId))
+    }
+
     fileprivate func foreground(_ n: UNNotification) {
         let info = n.request.content.userInfo
-        if let ch = info["channel"] as? String, ch != "staff" { return }
-        Task { await Store.shared.refresh() }
+        let isDriver = Api.shared.session?.isDriver ?? false
+        if let ch = info["channel"] as? String {
+            // staff pushes never show on a driver's phone, and the other way round
+            if isDriver && ch == "staff" { return }
+            if !isDriver && ch != "staff" { return }
+        }
+        if isDriver {
+            Task { await DriverData.shared.refresh() }
+        } else {
+            Task { await Store.shared.refresh() }
+        }
         let text = [n.request.content.title, n.request.content.body].filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty }.joined(separator: " · ")
         toast(text.isEmpty ? "إشعار جديد" : text, icon: Push.icon(info["type"] as? String)) {
             Task { await Push.shared.open(info) }
