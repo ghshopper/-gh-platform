@@ -185,13 +185,11 @@ export default function ProductRequests() {
   const submitQuote = async () => {
     const price = Number(qf.price)
     if (!(price > 0)) { toast.error('اكتب سعر القطعة'); return }
-    const deposit = qf.deposit === '' ? null : Number(qf.deposit)
-    if (deposit != null && (!(deposit >= 0) || deposit > price + Number(qf.delivery_fee || 0))) { toast.error('العربون لازم يكون أقل من الإجمالي'); return }
     const days = parseInt(qf.expires_days, 10)
     setQBusy(true)
     try {
       const body = {
-        price, note: qf.note.trim() || null, deposit,
+        price, note: qf.note.trim() || null,
         delivery_fee: qf.delivery_fee === '' ? null : Number(qf.delivery_fee),
         delivery_method: qf.delivery_method || null,
         expires_days: days > 0 ? days : null,
@@ -497,7 +495,6 @@ export default function ProductRequests() {
                       <div style={{ fontWeight: 800, color: '#1e3a8a' }}>{q ? 'تعديل العرض' : 'إرسال عرض سعر للعميل'}</div>
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                         <label style={lab}>سعر القطعة (ر.ع) *<input autoFocus dir="ltr" inputMode="decimal" type="number" min="0" step="0.001" value={qf.price} onChange={(e) => setQf({ ...qf, price: e.target.value })} style={inp} /></label>
-                        <label style={lab}>العربون المطلوب الحين (ر.ع)<input dir="ltr" inputMode="decimal" type="number" min="0" step="0.001" value={qf.deposit} onChange={(e) => setQf({ ...qf, deposit: e.target.value })} placeholder="فاضي = يدفع الكل" style={inp} /></label>
                         <label style={lab}>التوصيل (ر.ع)<input dir="ltr" inputMode="decimal" type="number" min="0" step="0.001" value={qf.delivery_fee} onChange={(e) => setQf({ ...qf, delivery_fee: e.target.value })} style={inp} /></label>
                         <label style={lab}>طريقة التوصيل
                           <select value={qf.delivery_method} onChange={(e) => setQf({ ...qf, delivery_method: e.target.value })} style={{ ...inp, backgroundColor: '#fff' }}>
@@ -527,7 +524,6 @@ export default function ProductRequests() {
                         <span>القطعة: <b dir="ltr">{omr3(q.price)}</b></span>
                         {Number(q.delivery_fee) > 0 && <span>التوصيل: <b dir="ltr">{omr3(q.delivery_fee)}</b></span>}
                         <span>الإجمالي: <b dir="ltr">{omr3(total)}</b> ر.ع</span>
-                        {q.deposit != null && Number(q.deposit) > 0 && <span>العربون: <b dir="ltr">{omr3(q.deposit)}</b></span>}
                         {q.delivery_method && <span>{DELIVERY[q.delivery_method] || q.delivery_method}</span>}
                       </div>
                       {q.note && <div style={{ fontSize: 13, color: '#475569' }}>📝 {q.note}</div>}
