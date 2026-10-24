@@ -8,42 +8,45 @@ import UIKit
 /// Label page size (100 × 150 mm).
 let ghWaybillPageSize = CGSize(width: 100 * ghPdfMM, height: 150 * ghPdfMM)
 
+/// Thermal label printers print black only: everything on the label is
+/// pure black on white (white text inside the cash block).
 private enum WC {
-    static var ink: UIColor { .black }
-    static var muted: UIColor { UIColor(hex: 0xFF555555) }
-    static var white: UIColor { .white }
+    static var ink: UIColor { UIColor(red: 0, green: 0, blue: 0, alpha: 1) }
+    static var paper: UIColor { UIColor(red: 1, green: 1, blue: 1, alpha: 1) }
 }
 
-private func wt(_ s: String, _ size: CGFloat, _ w: GHWeight = .regular, _ c: UIColor? = nil,
-                kern: CGFloat = 0, ltr: Bool = false, maxLines: Int = 0) -> GHPdfText {
-    GHPdfText(s, size: size, weight: w, color: c ?? WC.ink, kern: kern, ltr: ltr, maxLines: maxLines)
+/// One printer dot at 203 dpi (the usual thermal label resolution), in points.
+private let waybillDot: CGFloat = 72.0 / 203.0
+
+private func mm(_ v: CGFloat) -> CGFloat { v * ghPdfMM }
+
+/// IBM Plex text; size and letter-spacing in mm; black unless a colour is given.
+private func wp(_ s: String, _ size: CGFloat, _ w: GHWeight = .regular, _ c: UIColor? = nil,
+                kern: CGFloat = 0, lh: CGFloat? = nil, align: NSTextAlignment = .right,
+                ltr: Bool = false, maxLines: Int = 0) -> GHPdfPara {
+    GHPdfPara(s, ghPdfPlex(size, w), c ?? WC.ink, kern: mm(kern), lh: lh, align: align, ltr: ltr,
+              maxLines: maxLines)
 }
 
-/// Small English label then the Arabic one (a pw.Row in RTL: English on the right).
-private struct Kicker {
-    let en: GHPdfText
-    let ar: GHPdfText
-    let enSize: CGSize
-    let arSize: CGSize
+/// Small spaced English label (.en): medium, letter-spaced.
+private func wen(_ s: String, size: CGFloat = 1.65, kern: CGFloat = 0.5, color: UIColor? = nil,
+                 align: NSTextAlignment = .left) -> GHPdfPara {
+    wp(s, size, .medium, color, kern: kern, align: align, ltr: true)
+}
 
-    init(_ ar: String, _ en: String) {
-        self.en = wt(en, 5.6, .regular, WC.muted, kern: 1.4)
-        self.ar = wt(ar, 6.8, .medium, WC.muted)
-        self.enSize = self.en.size(maxWidth: 1000)
-        self.arSize = self.ar.size(maxWidth: 1000)
-    }
+/// The Arabic label then its English one, on one baseline (.lab).
+private func wlab(_ ar: String, _ en: String) -> GHPdfInline {
+    GHPdfInline([wp(ar, 2.15, .medium), wen(en, size: 1.5, kern: 0.45)], gap: mm(1.6))
+}
 
-    var width: CGFloat { enSize.width + 4 + arSize.width }
-    var height: CGFloat { max(enSize.height, arSize.height) }
+/// A piece of a vertical stack: its height (with the space above it) and how to draw it.
+private struct WBPiece {
+    let height: CGFloat
+    let draw: (CGFloat) -> Void
+}
 
-    func draw(right: CGFloat, y: CGFloat) {
-        let h = height
-        en.draw(in: CGRect(x: right - enSize.width, y: y + (h - enSize.height) / 2,
-                           width: enSize.width, height: enSize.height))
-        let arX = right - enSize.width - 4 - arSize.width
-        ar.draw(in: CGRect(x: arX, y: y + (h - arSize.height) / 2,
-                           width: arSize.width, height: arSize.height))
-    }
+private func wbRule(_ x: CGFloat, _ y: CGFloat, _ w: CGFloat) {
+    ghPdfFill(CGRect(x: x, y: y, width: w, height: mm(0.25)), WC.ink)
 }
 
 private func digits(_ s: String) -> String {
@@ -125,11 +128,10 @@ private func route(_ method: DeliveryMethod?, office: String?) -> (ar: String, e
 func buildWaybillPdf(_ o: Order, customer: Customer?, biz: BusinessSettings, driverName: String? = nil) -> Data {
     let pageW = ghWaybillPageSize.width
     let pageH = ghWaybillPageSize.height
-    let margin: CGFloat = 4.5 * ghPdfMM
-    let L = margin
-    let W = pageW - 2 * margin
+    let L = mm(5)
+    let W = pageW - 2 * L
     let R = L + W
-    let bottom = pageH - margin
+    let bottom = pageH - mm(4.5)
 
     let waybill = o.waybillNo
     let trackUrl = o.trackingToken.map { AppConfig.trackingBaseUrl + $0 } ?? "https://ghshopper.com"
@@ -139,7 +141,8 @@ func buildWaybillPdf(_ o: Order, customer: Customer?, biz: BusinessSettings, dri
     let office = split.office
     let address = cleanAddress(split.address, customer: customer)
     let r = route(o.deliveryMethod, office: office)
-    let logo = GHImage.named("logo")
+    // The gold cheetah printed as a black silhouette.
+    let cheetah = GHImage.named("story_cheetah")?.withTintColor(WC.ink, renderingMode: .alwaysOriginal)
     // A gift goes to its recipient: their name and phone on the label.
     let gift = o.gift
     let recipientName = gift?.to ?? customer?.name ?? "—"
@@ -151,176 +154,207 @@ func buildWaybillPdf(_ o: Order, customer: Customer?, biz: BusinessSettings, dri
 
     return renderer.pdfData { ctx in
         ctx.beginPage()
-        var y = margin
+        ghPdfFill(CGRect(x: 0, y: 0, width: pageW, height: pageH), WC.paper)
+        var y = mm(5)
 
-        // Brand and label title
+        // Label title (right) and brand mark (left)
         do {
-            var title = GHPdfStack()
-            title.add(wt("بوليصة شحن", 11, .bold))
-            title.add(wt("SHIPPING LABEL", 5.8, .regular, WC.muted, kern: 1.6))
-            let tw = title.width(maxWidth: W)
-            let th = title.height(width: tw)
-            var logoW: CGFloat = 0
-            if let logo, logo.size.height > 0 { logoW = 30 * logo.size.width / logo.size.height }
-            let h = max(th, 30)
-            title.draw(x: R - tw, y: y + (h - th) / 2, width: tw)
-            ghPdfDrawImage(logo, fitIn: CGRect(x: L, y: y + (h - 30) / 2, width: logoW, height: 30))
-            y += h
+            let tAr = wp("بوليصة شحن", 3.6, lh: 1.1)
+            let tEn = wen("SHIPPING LABEL")
+            let tW = max(tAr.width(), tEn.width())
+            let tH = tAr.lineBox + mm(0.6) + tEn.lineBox
+            let brand = GHPdfPara("GH SHOPPER", ghPdfSerif(3.1, weight: 600), WC.ink, kern: mm(1),
+                                  align: .left, ltr: true)
+            let imgW = mm(12)
+            var imgH: CGFloat = 0
+            if let c = cheetah, c.size.width > 0 { imgH = imgW * c.size.height / c.size.width }
+            let bmH = max(brand.lineBox, imgH)
+            let headH = max(tH, bmH)
+            let tTop = y + (headH - tH) / 2
+            tAr.drawLine(right: R, baseline: tTop + tAr.firstBaseline)
+            tEn.drawLine(left: R - tW, baseline: tTop + tAr.lineBox + mm(0.6) + tEn.firstBaseline)
+            let bmTop = y + (headH - bmH) / 2
+            if let c = cheetah, imgH > 0 {
+                c.draw(in: CGRect(x: L, y: bmTop + (bmH - imgH) / 2, width: imgW, height: imgH))
+            }
+            brand.draw(x: L + imgW + mm(2.4), y: bmTop + (bmH - brand.lineBox) / 2, width: brand.width())
+            y += headH + mm(2.6)
         }
-        // rule(t: 1.2)
-        y += 5
-        ghPdfFill(CGRect(x: L, y: y, width: W, height: 1.2), WC.ink)
-        y += 1.2 + 5
+        wbRule(L, y, W)
+        y += mm(0.25)
 
         // How it travels
         do {
-            let inner = W - 16
-            let en = wt(r.en, 6, .regular, WC.white, kern: 1.2, ltr: true)
-            let enSize = en.size(maxWidth: inner / 2)
-            let arW = max(inner - 6 - enSize.width, 1)
-            let ar = wt(r.ar, 12.5, .bold, WC.white, maxLines: 2)
-            let arH = ar.size(maxWidth: arW).height
-            let rowH = max(arH, enSize.height)
-            let h = rowH + 12
-            ghPdfFill(CGRect(x: L, y: y, width: W, height: h), WC.ink)
-            ar.draw(right: R - 8, y: y + 6 + (rowH - arH) / 2, maxWidth: arW)
-            en.draw(in: CGRect(x: L + 8, y: y + 6 + (rowH - enSize.height) / 2,
-                               width: enSize.width, height: enSize.height))
-            y += h
+            let en = wen(r.en, size: 1.9, kern: 0.6)
+            let enW = en.width()
+            let arW = max(W - enW - mm(3), 1)
+            let ar = wp(r.ar, 5.2, .medium, lh: 1.25, maxLines: 2)
+            let arH = ar.height(width: arW)
+            let rowH = max(arH, en.lineBox)
+            y += mm(2.8)
+            ar.draw(x: R - arW, y: y + (rowH - arH) / 2, width: arW)
+            en.draw(x: L, y: y + (rowH - en.lineBox) / 2, width: enW)
+            y += rowH + mm(2.6)
         }
-        y += 7
+        wbRule(L, y, W)
+        y += mm(0.25)
 
-        // Recipient and QR
+        // Recipient (right) and QR (left)
         do {
-            let qrLabel = wt("امسح للتتبّع", 6, .regular, WC.muted)
-            let qrLabelSize = qrLabel.size(maxWidth: W / 2)
-            let qrColW = max(74, qrLabelSize.width)
-            let leftW = max(W - 8 - qrColW, 1)
-            let kicker = Kicker("المستلم", "SHIP TO")
-            var info = GHPdfStack()
+            y += mm(3.4)
+            let qrSize = mm(27)
+            let whoW = W - qrSize - mm(4)
+            var who: [WBPiece] = []
+            let shipTo = wlab("المستلم", "SHIP TO")
+            who.append(WBPiece(height: shipTo.height + mm(1.2)) { t in shipTo.draw(right: R, top: t) })
             if gift != nil {
-                info.add(wt("هدية 🎁", 11, .bold))
+                let tag = GHPdfInline([wp("هدية", 3.2, .medium), wen("GIFT")], gap: mm(1.6))
+                who.append(WBPiece(height: mm(0.4) + tag.height + mm(0.8)) { t in
+                    tag.draw(right: R, top: t + mm(0.4))
+                })
             }
-            info.add(wt(recipientName, 15, .bold, maxLines: 2))
+            let name = wp(recipientName, 5.6, lh: 1.25, maxLines: 2)
+            who.append(WBPiece(height: name.height(width: whoW)) { t in name.draw(x: R - whoW, y: t, width: whoW) })
             if let phone = recipientPhone {
-                info.add(wt(phoneText(phone), 14, .medium, ltr: true))
+                let ph = wp(phoneText(phone), 5.2, .medium, kern: 0.15, ltr: true)
+                who.append(WBPiece(height: mm(0.4) + ph.lineBox) { t in
+                    ph.draw(x: R - whoW, y: t + mm(0.4), width: whoW)
+                })
             }
-            info.gap(3)
+            var place: GHPdfPara? = nil
             if let office {
-                info.add(wt("يستلم من مكتب جيناكم \(office)", 9, .bold, maxLines: 2))
+                place = wp("يستلم من مكتب جيناكم \(office)", 3.3, .medium, lh: 1.35, maxLines: 2)
             } else if let city = customer?.city {
-                info.add(wt(city, 10, .bold))
+                place = wp(city, 3.3, .medium, lh: 1.35)
+            }
+            if let place {
+                who.append(WBPiece(height: mm(2.4) + place.height(width: whoW)) { t in
+                    place.draw(x: R - whoW, y: t + mm(2.4), width: whoW)
+                })
             }
             if let address {
-                info.add(wt(address, 8.2, .regular, maxLines: 4))
+                let ad = wp(address, 2.85, lh: 1.55, maxLines: 4)
+                who.append(WBPiece(height: mm(0.6) + ad.height(width: whoW)) { t in
+                    ad.draw(x: R - whoW, y: t + mm(0.6), width: whoW)
+                })
             }
-            let infoH = info.height(width: leftW)
-            let leftH = kicker.height + 3 + infoH
-            let qrH = 74 + 3 + qrLabelSize.height
-            kicker.draw(right: R, y: y)
-            info.draw(x: R - leftW, y: y + kicker.height + 3, width: leftW)
-            let qrX = L + (qrColW - 74) / 2
-            ghPdfDrawQR(trackUrl, in: CGRect(x: qrX, y: y, width: 74, height: 74), color: WC.ink)
-            qrLabel.draw(in: CGRect(x: L + (qrColW - qrLabelSize.width) / 2, y: y + 77,
-                                    width: qrLabelSize.width, height: qrLabelSize.height))
-            y += max(leftH, qrH)
+            var wy = y
+            for piece in who {
+                piece.draw(wy)
+                wy += piece.height
+            }
+            ghPdfDrawQR(trackUrl, in: CGRect(x: L, y: y, width: qrSize, height: qrSize), color: WC.ink,
+                        correction: "M", snap: waybillDot)
+            let cap = wp("امسح للتتبّع", 2, align: .center)
+            cap.draw(x: L, y: y + qrSize + mm(1.4), width: qrSize)
+            let qrColH = qrSize + mm(1.4) + cap.lineBox
+            y += max(wy - y, qrColH) + mm(3.4)
         }
-        // rule()
-        y += 5
-        ghPdfFill(CGRect(x: L, y: y, width: W, height: 0.6), WC.ink)
-        y += 0.6 + 5
 
-        // Cash to collect / prepaid
+        // Cash to collect / prepaid: a solid black block, white text
         do {
-            let inner = W - 16
-            var col = GHPdfStack()
-            col.add(wt(collect ? "حصّل عند التسليم" : "مدفوع · لا تحصّل شيء", 10.5, .bold,
-                       collect ? WC.white : WC.ink))
-            col.add(wt(collect ? "CASH ON DELIVERY" : "PREPAID", 5.8, .regular,
-                       collect ? WC.white : WC.muted, kern: 1.4))
-            let amount = wt(omrLatin(o.toCollect), 16, .bold, WC.white, ltr: true)
-            let aSize = collect ? amount.size(maxWidth: inner / 2) : CGSize.zero
-            let colW = col.width(maxWidth: max(inner - aSize.width, 1))
-            let colH = col.height(width: colW)
-            let rowH = max(colH, aSize.height)
-            let box = CGRect(x: L, y: y, width: W, height: rowH + 12)
-            if collect { ghPdfFill(box, WC.ink) }
-            ghPdfStroke(box, WC.ink, width: 1)
-            col.draw(x: R - 8 - colW, y: y + 6 + (rowH - colH) / 2, width: colW)
+            y += mm(0.4)
+            let ar = wp(collect ? "حصّل عند التسليم" : "مدفوع", 4.4, .medium, WC.paper, lh: 1.2)
+            let en = wen(collect ? "CASH ON DELIVERY" : "PREPAID", kern: 0.6, color: WC.paper)
+            let colW = max(ar.width(), en.width())
+            let rightH = ar.lineBox + mm(0.8) + en.lineBox
+            let amount = wp(plainOmr(o.toCollect), 7.4, .medium, WC.paper, kern: 0.1, lh: 1, align: .left, ltr: true)
+            let unit = wp("OMR", 2, .medium, WC.paper, kern: 0.5, align: .left, ltr: true)
+            let sub = wp("لا تحصّل أي مبلغ", 2.6, .regular, WC.paper)
+            let leftH = collect ? amount.lineBox : sub.lineBox
+            let innerH = max(rightH, leftH)
+            let boxH = mm(3.4) + innerH + mm(3.6)
+            ghPdfFill(CGRect(x: L, y: y, width: W, height: boxH), WC.ink)
+            let inTop = y + mm(3.4)
+            let rTop = inTop + (innerH - rightH) / 2
+            ar.drawLine(right: R - mm(4.5), baseline: rTop + ar.firstBaseline)
+            en.drawLine(left: R - mm(4.5) - colW, baseline: rTop + ar.lineBox + mm(0.8) + en.firstBaseline)
+            let lTop = inTop + (innerH - leftH) / 2
             if collect {
-                amount.draw(in: CGRect(x: L + 8, y: y + 6 + (rowH - aSize.height) / 2,
-                                       width: aSize.width, height: aSize.height))
+                let base = lTop + amount.firstBaseline
+                amount.drawLine(left: L + mm(4.5), baseline: base)
+                unit.drawLine(left: L + mm(4.5) + amount.width() + mm(1.2), baseline: base)
+            } else {
+                sub.drawLine(left: L + mm(4.5), baseline: lTop + sub.firstBaseline)
             }
-            y += box.height
+            y += boxH
         }
-        y += 7
 
         // Order facts
         do {
-            let third = W / 3
-            let facts: [(Kicker, GHPdfText)] = [
-                (Kicker("الفاتورة", "INVOICE"), wt(o.invoiceNo, 9, .medium, ltr: true)),
-                (Kicker("القطع", "PIECES"), wt("\(pieces)", 9, .medium)),
-                (Kicker("التاريخ", "DATE"), wt(dateStr(o.createdAt), 9, .medium)),
+            y += mm(3.2)
+            let facts: [(GHPdfInline, GHPdfPara)] = [
+                (wlab("الفاتورة", "INVOICE"), wp(o.invoiceNo, 3, .medium, ltr: true)),
+                (wlab("القطع", "PIECES"), wp("\(pieces)", 3, .medium, ltr: true)),
+                (wlab("التاريخ", "DATE"), wp(dateStr(o.createdAt), 3, .medium, ltr: true)),
             ]
+            let fr: [CGFloat] = [1.25, 0.6, 1]
+            let gap = mm(3)
+            let free = W - 2 * gap
+            var right = R
             var rowH: CGFloat = 0
             for (i, f) in facts.enumerated() {
-                let right = R - CGFloat(i) * third
-                f.0.draw(right: right, y: y)
-                let s = f.1.draw(right: right, y: y + f.0.height, maxWidth: third)
-                rowH = max(rowH, f.0.height + s.height)
+                let w = free * fr[i] / 2.85
+                f.0.draw(right: right, top: y)
+                let vTop = y + f.0.height + mm(1.2)
+                f.1.draw(x: right - w, y: vTop, width: w)
+                rowH = max(rowH, f.0.height + mm(1.2) + f.1.height(width: w))
+                right -= w + gap
             }
             y += rowH
         }
         if let tracking = o.carrierTracking, !o.carrierIsLink {
-            y += 5
-            let kicker = Kicker("رقم الشحنة", "SHIPMENT")
-            let t = wt(tracking, 9.5, .bold, ltr: true)
-            let ts = t.size(maxWidth: max(W - kicker.width, 1))
-            let rowH = max(kicker.height, ts.height)
-            kicker.draw(right: R, y: y + (rowH - kicker.height) / 2)
-            t.draw(in: CGRect(x: L, y: y + (rowH - ts.height) / 2, width: ts.width, height: ts.height))
-            y += rowH
+            y += mm(2.6)
+            let k = wlab("رقم الشحنة", "SHIPMENT")
+            let v = wp(tracking, 3.3, .medium, align: .left, ltr: true)
+            let above = max(k.above, v.firstBaseline)
+            let below = max(k.below + mm(1.2), v.lineBox - v.firstBaseline)
+            k.draw(right: R, baseline: y + above)
+            v.drawLine(left: L, baseline: y + above)
+            y += above + below
         }
         if driverName != nil || o.driverNote != nil {
-            y += 5
+            y += mm(2.6)
+            let bold = ghPdfPlex(2.65, .medium)
+            let plain = ghPdfPlex(2.65, .regular)
             if let driverName {
-                let s = wt("المندوب: \(driverName)", 8, .medium).draw(right: R, y: y, maxWidth: W)
-                y += s.height
+                let t = GHPdfPara(runs: [GHPdfRun("المندوب:", bold, WC.ink), GHPdfRun(" \(driverName)", plain, WC.ink)],
+                                  lh: 1.6)
+                t.draw(x: L, y: y, width: W)
+                y += t.height(width: W)
             }
             if let note = o.driverNote {
-                let s = wt("ملاحظة: \(note)", 8, .medium, maxLines: 2).draw(right: R, y: y, maxWidth: W)
-                y += s.height
+                let t = GHPdfPara(runs: [GHPdfRun("ملاحظة:", bold, WC.ink), GHPdfRun(" \(note)", plain, WC.ink)],
+                                  lh: 1.6, maxLines: 2)
+                t.draw(x: L, y: y, width: W)
+                y += t.height(width: W)
             }
         }
 
-        // pw.Spacer(): the rest sits at the bottom of the label.
+        // The rest sits at the bottom of the label (the spacer).
         // Sender
-        let fromKicker = Kicker("المرسل", "FROM")
+        let fromLab = wlab("المرسل", "FROM")
         var senderParts: [String] = [biz.companyName ?? "GH Shopper"]
-        if let p = biz.phone { senderParts.append(p) }
-        if let i = biz.instagram { senderParts.append(i) }
-        let senderW = max(W - fromKicker.width - 6, 1)
-        let sender = wt(senderParts.joined(separator: "  ·  "), 7.5, .medium, maxLines: 1)
-        let senderSize = sender.size(maxWidth: senderW)
-        let senderH = max(fromKicker.height, senderSize.height)
-        let senderTop = bottom - senderH
-        fromKicker.draw(right: R, y: senderTop + (senderH - fromKicker.height) / 2)
-        sender.draw(in: CGRect(x: R - fromKicker.width - 6 - senderSize.width,
-                               y: senderTop + (senderH - senderSize.height) / 2,
-                               width: senderSize.width, height: senderSize.height))
-        // rule(t: 1.2)
-        let ruleTop = senderTop - 5 - 1.2
-        ghPdfFill(CGRect(x: L, y: ruleTop, width: W, height: 1.2), WC.ink)
+        if let p = biz.phone { senderParts.append(ghPdfLTR(p)) }
+        if let i = biz.instagram { senderParts.append(ghPdfLTR(i)) }
+        let sender = wp(senderParts.joined(separator: "  ·  "), 2.45, maxLines: 1)
+        let senderW = max(W - fromLab.width - mm(2.4), 1)
+        let fromAbove = max(fromLab.above, sender.firstBaseline)
+        let fromBelow = max(fromLab.below + mm(1.2), sender.lineBox - sender.firstBaseline)
+        let fromTop = bottom - (mm(2.2) + fromAbove + fromBelow)
+        let fromBase = fromTop + mm(2.2) + fromAbove
+        fromLab.draw(right: R, baseline: fromBase)
+        sender.draw(x: R - fromLab.width - mm(2.4) - senderW, y: fromBase - sender.firstBaseline, width: senderW)
+        let ruleTop = fromTop - mm(0.25)
+        wbRule(L, ruleTop, W)
         // Waybill number
-        let number = wt(waybill, 13, .bold, kern: 2, ltr: true)
-        let numberSize = number.size(maxWidth: W)
-        let numberTop = ruleTop - 5 - numberSize.height
-        number.draw(in: CGRect(x: L + (W - numberSize.width) / 2, y: numberTop,
-                               width: numberSize.width, height: numberSize.height))
-        // Waybill barcode
-        let barTop = numberTop - 2 - 36
-        ghPdfDrawCode128(waybill, in: CGRect(x: L, y: barTop, width: W, height: 36), color: WC.ink)
+        let number = wp(waybill, 4.4, .medium, kern: 1.4, align: .center, ltr: true)
+        let numberTop = ruleTop - mm(2.6) - number.lineBox
+        number.draw(x: L, y: numberTop, width: W)
+        // Waybill barcode (72 × 14 mm, quiet zone on both sides)
+        let barTop = numberTop - mm(1.8) - mm(14)
+        ghPdfDrawCode128(waybill, in: CGRect(x: L + (W - mm(72)) / 2, y: barTop, width: mm(72), height: mm(14)),
+                         color: WC.ink, snap: waybillDot)
     }
 }
 
@@ -367,4 +401,21 @@ func printWaybill(_ o: Order, customer: Customer?, biz: BusinessSettings, driver
         if !shown { finish() }
     }
     if controller.delegate === delegate { controller.delegate = nil }
+}
+
+/// Builds the waybill and opens the iOS share sheet, so the PDF (exact
+/// 100 × 150 mm page) can go to a label printer's own app (e.g. Phomemo's
+/// Labelife, which has no AirPrint) or to Files.
+@MainActor
+func shareWaybill(_ o: Order, customer: Customer?, biz: BusinessSettings, driverName: String? = nil) async {
+    let data = buildWaybillPdf(o, customer: customer, biz: biz, driverName: driverName)
+    let name = "Waybill-\(o.waybillNo)".replacingOccurrences(of: "/", with: "-")
+    let url = FileManager.default.temporaryDirectory.appendingPathComponent("\(name).pdf")
+    do {
+        try data.write(to: url, options: .atomic)
+    } catch {
+        toastError(error)
+        return
+    }
+    share([url])
 }

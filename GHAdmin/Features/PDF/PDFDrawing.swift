@@ -459,13 +459,31 @@ private func ghPdfModules(_ image: CIImage?) -> GHPdfModules? {
 }
 
 /// QR code (pw.Barcode.qrCode(), correction level L by default) filling `rect`.
-func ghPdfDrawQR(_ text: String, in rect: CGRect, color: UIColor = .black, correction: String = "L") {
+/// With `snap` > 0 (a printer dot, in points) every module is a whole number
+/// of dots and starts on a dot edge, centred in `rect`, drawn without
+/// anti-aliasing, so a thermal printer prints it with clean edges.
+func ghPdfDrawQR(_ text: String, in rect: CGRect, color: UIColor = .black, correction: String = "L",
+                 snap: CGFloat = 0) {
     guard let filter = CIFilter(name: "CIQRCodeGenerator") else { return }
     filter.setValue(Data(text.utf8), forKey: "inputMessage")
     filter.setValue(correction, forKey: "inputCorrectionLevel")
     guard let m = ghPdfModules(filter.outputImage) else { return }
-    let cw = rect.width / CGFloat(m.cols)
-    let ch = rect.height / CGFloat(m.rows)
+    var cw = rect.width / CGFloat(m.cols)
+    var ch = rect.height / CGFloat(m.rows)
+    var ox = rect.minX
+    var oy = rect.minY
+    var overlap: CGFloat = 0.05
+    if snap > 0 {
+        let unit = max(floor(min(cw, ch) / snap), 1) * snap
+        cw = unit
+        ch = unit
+        ox = ((rect.midX - unit * CGFloat(m.cols) / 2) / snap).rounded() * snap
+        oy = ((rect.midY - unit * CGFloat(m.rows) / 2) / snap).rounded() * snap
+        overlap = 0
+    }
+    let cg = UIGraphicsGetCurrentContext()
+    cg?.saveGState()
+    if snap > 0 { cg?.setShouldAntialias(false) }
     color.setFill()
     for y in 0..<m.rows {
         var x = 0
@@ -473,33 +491,44 @@ func ghPdfDrawQR(_ text: String, in rect: CGRect, color: UIColor = .black, corre
             if m.isDark(x, y) {
                 var end = x
                 while end + 1 < m.cols && m.isDark(end + 1, y) { end += 1 }
-                let r = CGRect(x: rect.minX + CGFloat(x) * cw, y: rect.minY + CGFloat(y) * ch,
+                let r = CGRect(x: ox + CGFloat(x) * cw, y: oy + CGFloat(y) * ch,
                                width: CGFloat(end - x + 1) * cw, height: ch)
-                UIBezierPath(rect: r.insetBy(dx: 0, dy: -0.05)).fill()
+                UIBezierPath(rect: r.insetBy(dx: 0, dy: -overlap)).fill()
                 x = end + 1
             } else {
                 x += 1
             }
         }
     }
+    cg?.restoreGState()
 }
 
 /// Code 128 bars (pw.Barcode.code128(), drawText: false) filling `rect`.
-func ghPdfDrawCode128(_ text: String, in rect: CGRect, color: UIColor = .black) {
+/// With `snap` > 0 (a printer dot, in points) every module is a whole number
+/// of dots, the bars start on dot edges, centred in `rect`, without anti-aliasing.
+func ghPdfDrawCode128(_ text: String, in rect: CGRect, color: UIColor = .black, snap: CGFloat = 0) {
     guard let filter = CIFilter(name: "CICode128BarcodeGenerator") else { return }
     guard let data = text.data(using: .ascii) else { return }
     filter.setValue(data, forKey: "inputMessage")
     filter.setValue(NSNumber(value: 0), forKey: "inputQuietSpace")
     guard let m = ghPdfModules(filter.outputImage) else { return }
     let y = m.rows / 2
-    let cw = rect.width / CGFloat(m.cols)
+    var cw = rect.width / CGFloat(m.cols)
+    var ox = rect.minX
+    if snap > 0 {
+        cw = max(floor(cw / snap), 1) * snap
+        ox = ((rect.midX - cw * CGFloat(m.cols) / 2) / snap).rounded() * snap
+    }
+    let cg = UIGraphicsGetCurrentContext()
+    cg?.saveGState()
+    if snap > 0 { cg?.setShouldAntialias(false) }
     color.setFill()
     var x = 0
     while x < m.cols {
         if m.isDark(x, y) {
             var end = x
             while end + 1 < m.cols && m.isDark(end + 1, y) { end += 1 }
-            let r = CGRect(x: rect.minX + CGFloat(x) * cw, y: rect.minY,
+            let r = CGRect(x: ox + CGFloat(x) * cw, y: rect.minY,
                            width: CGFloat(end - x + 1) * cw, height: rect.height)
             UIBezierPath(rect: r).fill()
             x = end + 1
@@ -507,4 +536,5 @@ func ghPdfDrawCode128(_ text: String, in rect: CGRect, color: UIColor = .black) 
             x += 1
         }
     }
+    cg?.restoreGState()
 }

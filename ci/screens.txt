@@ -26,3 +26,6 @@ driver:failed
 driver:money
 driver:route
 dark:driver:order
+invoicepdf
+waybillpdf
+giftinvoicepdf

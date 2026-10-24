@@ -28,6 +28,15 @@ enum DemoScreens {
         case "chat": tab.wrappedValue = 4; pushPage(ChatThreadPage(threadId: "1", title: "مريم البلوشية"))
         case "features": tab.wrappedValue = 4; pushPage(FeaturesPage())
         case "reviews": tab.wrappedValue = 4; pushPage(ReviewsPage())
+        case "invoicepdf", "waybillpdf", "giftinvoicepdf":
+            let pick: Order? = key == "giftinvoicepdf" ? (store.orders.first { $0.gift != nil } ?? order) : order
+            if let o = pick {
+                let c = store.customer(o.customerId)
+                let data = key == "waybillpdf"
+                    ? buildWaybillPdf(o, customer: c, biz: store.settings, driverName: store.driver(o.driverId)?.name)
+                    : buildInvoicePdf(o, customer: c, biz: store.settings)
+                presentForm(DemoPdfPreview(data: data))
+            }
         default: break
         }
     }
@@ -52,4 +61,21 @@ enum DemoScreens {
         default: break
         }
     }
+}
+
+
+import PDFKit
+
+/// Screenshot helper: shows a generated PDF's first page full screen.
+struct DemoPdfPreview: UIViewRepresentable {
+    let data: Data
+    func makeUIView(context: Context) -> PDFView {
+        let v = PDFView()
+        v.document = PDFDocument(data: data)
+        v.autoScales = true
+        v.displayMode = .singlePage
+        v.backgroundColor = .darkGray
+        return v
+    }
+    func updateUIView(_ uiView: PDFView, context: Context) {}
 }

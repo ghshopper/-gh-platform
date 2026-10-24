@@ -22,13 +22,24 @@ fileprivate func odPickTrip(current: String?) async -> String? {
     await pickTrip(current: current)
 }
 
-/// Prints the shipping label for an order and records it on the server.
+/// Prints the shipping label for an order (AirPrint, or the PDF shared to a
+/// label printer's own app) and records it on the server.
 @MainActor
 func printOrderWaybill(_ o: Order) async {
     let s = Store.shared
+    let how: String? = await pickAction(title: "طباعة البوليصة", actions: [
+        SheetAction("اطبع (AirPrint)", "print"),
+        SheetAction("شارك PDF (لتطبيق الطابعة)", "share"),
+    ])
+    guard let how else { return }
+    let customer = s.customer(o.customerId)
+    let driverName = s.driver(o.driverId)?.name
     do {
-        try await printWaybill(o, customer: s.customer(o.customerId), biz: s.settings,
-                               driverName: s.driver(o.driverId)?.name)
+        if how == "share" {
+            await shareWaybill(o, customer: customer, biz: s.settings, driverName: driverName)
+        } else {
+            await printWaybill(o, customer: customer, biz: s.settings, driverName: driverName)
+        }
         try await s.markLabelPrinted(o.id)
     } catch {
         toastError(error)
