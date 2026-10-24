@@ -24,6 +24,10 @@ enum DemoScreens {
         case "purchases": tab.wrappedValue = 4; pushPage(PurchaseInvoicesPage())
         case "neworder": presentForm(OrderFormPage())
         case "search": pushPage(SearchPage())
+        case "chats": tab.wrappedValue = 4; pushPage(ChatsPage())
+        case "chat": tab.wrappedValue = 4; pushPage(ChatThreadPage(threadId: "1", title: "مريم البلوشية"))
+        case "features": tab.wrappedValue = 4; pushPage(FeaturesPage())
+        case "reviews": tab.wrappedValue = 4; pushPage(ReviewsPage())
         default: break
         }
     }

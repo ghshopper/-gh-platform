@@ -25,6 +25,7 @@ struct MorePage: View {
     var body: some View {
         GHPage("المزيد") {
             storeSection
+            customersSection
             mainSection
             settingsSection
             logoutSection
@@ -49,6 +50,24 @@ struct MorePage: View {
     }
 
     private var openRequests: Int { store.requests.filter { $0.isOpen }.count }
+
+    private var customersSection: some View {
+        let unread = store.chatsUnread
+        return GHSection("العملاء") {
+            Tile("المحادثات", subtitle: "رسائل العملاء من التطبيق والموقع",
+                 action: { pushPage(ChatsPage()) },
+                 leading: { IconBox("bubble.left.and.bubble.right.fill", color: GH.purple) },
+                 trailing: { MoreUnreadBadge(count: unread) })
+            Tile("التقييمات", subtitle: "تقييمات القطع والخدمة قبل ما تنتشر",
+                 action: { pushPage(ReviewsPage()) },
+                 leading: { IconBox("star.fill", color: GH.amber) })
+            if canManageFeatures() {
+                Tile("المميزات", subtitle: "شغّل أو وقّف مميزات التطبيق والموقع",
+                     action: { pushPage(FeaturesPage()) },
+                     leading: { IconBox("switch.2", color: GH.teal) })
+            }
+        }
+    }
 
     private var mainSection: some View {
         GHSection {
@@ -521,6 +540,20 @@ struct SettingsPage: View {
         } catch {
             saving = false
             toastError(error)
+        }
+    }
+}
+
+/// Red count bubble on a row (unread chats).
+fileprivate struct MoreUnreadBadge: View {
+    let count: Int
+
+    var body: some View {
+        if count > 0 {
+            Text(count > 99 ? "99+" : "\(count)")
+                .font(.gh(12, .semibold)).foregroundStyle(.white)
+                .padding(.horizontal, 7).padding(.vertical, 2)
+                .background(Capsule().fill(GH.red))
         }
     }
 }

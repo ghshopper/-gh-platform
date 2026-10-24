@@ -45,7 +45,19 @@ struct RequestTile: View {
                     subtitle: [r.customerName, dateStr(r.createdAt)].joined(separator: " · "),
                     action: { pushPage(RequestDetailPage(id: id)) },
                     leading: { RequestPhoto(url: r.imageUrl, size: 44) },
-                    trailing: { Badge(r.statusLabel, color: r.statusColor) })
+                    trailing: { RequestTileBadge(r: r) })
+    }
+}
+
+fileprivate struct RequestTileBadge: View {
+    let r: PieceRequest
+
+    var body: some View {
+        if let q = r.quote, r.isOpen {
+            Badge(q.statusLabel, color: q.statusColor)
+        } else {
+            Badge(r.statusLabel, color: r.statusColor)
+        }
     }
 }
 
@@ -158,6 +170,9 @@ fileprivate struct RequestDetailContent: View {
                 Pad(top: 8) { bigPhoto(img) }
             }
             pieceSection
+            if let q = req.quote {
+                RequestQuoteSection(req: req, quote: q)
+            }
             customerSection
             if req.isOpen {
                 statusSection
@@ -217,7 +232,12 @@ fileprivate struct RequestDetailContent: View {
 
     private var statusSection: some View {
         let r = req
+        let quoteTitle = r.quote == nil ? "أرسل عرض سعر" : "أرسل عرض جديد"
         return GHSection("الحالة") {
+            Tile(quoteTitle, subtitle: "السعر يوصل للعميل في التطبيق، يقبله ويدفع",
+                 titleColor: GH.burgundy,
+                 action: { sendQuote(r) },
+                 leading: { IconBox("tag.fill", color: GH.gold) })
             if r.status == "pending" {
                 Tile("أبحث عنها", action: { setStatus(r, "reviewing") },
                      leading: { IconBox("magnifyingglass", color: GH.amber) })
@@ -230,6 +250,195 @@ fileprivate struct RequestDetailContent: View {
     private func setStatus(_ r: PieceRequest, _ s: String) {
         Task {
             await attempt { try await Store.shared.setRequestStatus(r.id, s) }
+        }
+    }
+
+    private func sendQuote(_ r: PieceRequest) {
+        Task {
+            let sent: Bool? = await Nav.shared.presentForResult { d in QuoteRequestPage(request: r, done: d) }
+            if sent == true { toast("انرسل العرض للعميل ✓") }
+        }
+    }
+}
+
+// ───────────────────────── Quote ─────────────────────────
+
+/// The offer sent to the customer: its status, amounts and expiry, and withdraw.
+fileprivate struct RequestQuoteSection: View {
+    let req: PieceRequest
+    let quote: PieceQuote
+
+    private var methodLabel: String? {
+        DeliveryMethod.from(quote.deliveryMethod)?.label
+    }
+
+    private var expiryText: String? {
+        guard let e = quote.expiresAt else { return nil }
+        return quote.expired ? "انتهى \(dateStr(e))" : "ينتهي \(dateTimeStr(e))"
+    }
+
+    private var canWithdraw: Bool { quote.status != "accepted" && req.status != "ordered" }
+
+    var body: some View {
+        GHSection("عرض السعر", footer: expiryText) {
+            Tile("الحالة", chevron: false, trailing: { Badge(quote.statusLabel, color: quote.statusColor) })
+            KV("سعر القطعة", omr(quote.price))
+            if let fee = quote.deliveryFee {
+                KV(methodLabel.map { "التوصيل · \($0)" } ?? "التوصيل", omr(fee))
+            }
+            KV("الإجمالي", omr(quote.total), strong: true, color: GH.burgundy)
+            if let dep = quote.deposit, dep > 0 {
+                KV("يدفع الحين", omr(dep))
+            }
+            if let note = quote.note {
+                Text(note).font(TS.sub).foregroundStyle(GH.secondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 16).padding(.vertical, 10)
+            }
+            if quote.status == "declined", let why = req.declineReason {
+                Tile("سبب الرفض", subtitle: why, chevron: false,
+                     leading: { IconBox("xmark.circle.fill", color: GH.red) })
+            }
+            if canWithdraw {
+                Tile("سحب العرض", titleColor: GH.red, chevron: false,
+                     action: { withdraw() },
+                     leading: { IconBox("arrow.uturn.backward", color: GH.red) })
+            }
+        }
+    }
+
+    private func withdraw() {
+        let id = req.id
+        Task {
+            guard await confirm("سحب العرض؟", message: "العميل ما يقدر يقبله بعدها، والطلب يرجع «قيد البحث».", ok: "سحب") else { return }
+            if await attempt({ try await Store.shared.withdrawQuote(id) }) {
+                toast("انسحب العرض")
+            }
+        }
+    }
+}
+
+/// «أرسل عرض سعر»: price, deposit, delivery, note and expiry → POST /ps/requests/{id}/quote.
+/// Gives back true when sent.
+struct QuoteRequestPage: View {
+    let request: PieceRequest
+    var done: ((Bool?) -> Void)?
+    @Environment(\.dismiss) private var dismiss
+
+    @State private var price = ""
+    @State private var deposit = ""
+    @State private var delivery = ""
+    @State private var method: DeliveryMethod = .home
+    @State private var note = ""
+    @State private var days = ""
+    @State private var saving = false
+    @State private var didInit = false
+
+    private static let methods: [DeliveryMethod] = [.home, .genacom, .genacomOffice]
+
+    init(request: PieceRequest, done: ((Bool?) -> Void)? = nil) {
+        self.request = request
+        self.done = done
+        let q = request.quote
+        _price = State(initialValue: amountText(q?.price))
+        _deposit = State(initialValue: amountText(q?.deposit))
+        let m = DeliveryMethod.from(q?.deliveryMethod) ?? .home
+        _method = State(initialValue: QuoteRequestPage.methods.contains(m) ? m : .home)
+        _delivery = State(initialValue: amountText(q?.deliveryFee))
+        _note = State(initialValue: q?.note ?? "")
+    }
+
+    private func close(_ v: Bool?) {
+        if let done { done(v) } else { dismiss() }
+    }
+
+    private func save() {
+        guard let p = parseAmount(price), p > 0 else {
+            toast("اكتب سعر القطعة", error: true)
+            return
+        }
+        var data: JSON = ["price": p, "delivery_method": method.key]
+        if let d = parseAmount(deposit), d > 0 { data["deposit"] = d }
+        if let f = parseAmount(delivery) { data["delivery_fee"] = f }
+        let n = note.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !n.isEmpty { data["note"] = n }
+        if let d = parseAmount(days), d >= 1 { data["expires_days"] = Int(d) }
+        saving = true
+        let id = request.id
+        Task {
+            do {
+                try await Store.shared.sendQuote(id, data)
+                close(true)
+            } catch {
+                saving = false
+                toastError(error)
+            }
+        }
+    }
+
+    var body: some View {
+        GHPage("عرض سعر", trailing: {
+            if saving {
+                ProgressView()
+            } else {
+                NavButton("إرسال", bold: true) { save() }
+            }
+        }, leading: {
+            NavButton("إلغاء") { close(nil) }
+        }) {
+            priceSection
+            deliverySection
+            noteSection
+            totalSection
+        }
+        .onAppear {
+            if !didInit {
+                didInit = true
+                if request.quote?.deliveryFee == nil {
+                    delivery = amountText(Store.shared.settings.feeFor(method))
+                }
+            }
+        }
+    }
+
+    private var priceSection: some View {
+        GHSection("\(request.name) · لـ \(request.customerName)") {
+            AmountRow("سعر القطعة", text: $price, autofocus: true)
+            AmountRow("العربون", text: $deposit)
+        }
+    }
+
+    private var deliverySection: some View {
+        GHSection("التوصيل") {
+            PickerRow("طريقة التوصيل", value: method.label) { pickMethod() }
+            AmountRow("رسوم التوصيل", text: $delivery)
+        }
+    }
+
+    private var noteSection: some View {
+        GHSection("ملاحظة للعميل", footer: "اترك المدة فاضية عشان تاخذ المدة من صفحة المميزات.") {
+            NotesRow(text: $note, placeholder: "مثلاً: الأصلي مع الكرتون والفاتورة")
+            FieldRow("مدة العرض", text: $days, placeholder: "3", keyboard: .number, suffix: "أيام", ltr: true)
+        }
+    }
+
+    private var totalSection: some View {
+        let p = parseAmount(price) ?? 0
+        let d = parseAmount(delivery) ?? 0
+        return GHSection(footer: "العميل يشوف العرض في «طلباتي الخاصة» ويوصله إشعار. العربون هو اللي يدفعه الحين.") {
+            KV("القطعة", omr(p))
+            KV("التوصيل", omr(d))
+            KV("الإجمالي", omr(p + d), strong: true, color: GH.burgundy)
+        }
+    }
+
+    private func pickMethod() {
+        Task {
+            let actions = QuoteRequestPage.methods.map { SheetAction($0.label, $0) }
+            if let m = await pickAction(title: "طريقة التوصيل", actions: actions) {
+                method = m
+                delivery = amountText(Store.shared.settings.feeFor(m))
+            }
         }
     }
 }

@@ -21,6 +21,8 @@ final class Store: ObservableObject {
     @Published var drivers: [Driver] = []
     @Published var requests: [PieceRequest] = []
     @Published var settings = BusinessSettings()
+    /// Customer chat messages staff have not read yet (المحادثات).
+    @Published var chatsUnread = 0
 
     @Published var ready = false
     @Published var syncing = false
@@ -78,6 +80,7 @@ final class Store: ObservableObject {
         drivers = jlist(raw["drivers"]).map(Driver.init)
         requests = jlist(raw["requests"]).map(PieceRequest.init)
         settings = (raw["settings"] as? JSON).map(BusinessSettings.init) ?? BusinessSettings()
+        chatsUnread = ji(raw["chats_unread"])
         customerById = Dictionary(customers.map { ($0.id, $0) }, uniquingKeysWith: { a, _ in a })
         tripById = Dictionary(trips.map { ($0.id, $0) }, uniquingKeysWith: { a, _ in a })
         orderById = Dictionary(orders.map { ($0.id, $0) }, uniquingKeysWith: { a, _ in a })
@@ -92,6 +95,7 @@ final class Store: ObservableObject {
     func clear() {
         orders = []; customers = []; trips = []; expenses = []; invoices = []; drivers = []; requests = []
         settings = BusinessSettings()
+        chatsUnread = 0
         customerById = [:]; tripById = [:]; orderById = [:]
         signed.removeAll()
         ready = false
@@ -170,6 +174,24 @@ final class Store: ObservableObject {
 
     func setRequestStatus(_ id: String, _ status: String) async throws {
         try await write { try await api.put("/ps/requests/\(id)", ["status": status]) }
+    }
+
+    /// Sends the customer a price offer (عرض سعر) for a piece request.
+    func sendQuote(_ id: String, _ data: JSON) async throws {
+        try await write { try await api.post("/ps/requests/\(id)/quote", data) }
+    }
+
+    /// Withdraws the offer (the request goes back to «قيد البحث»).
+    func withdrawQuote(_ id: String) async throws {
+        try await write { try await api.delete("/ps/requests/\(id)/quote") }
+    }
+
+    // chats
+
+    /// Re-reads the unread chats count only (cheaper than a full refresh).
+    func refreshChatsUnread() async {
+        guard let res = try? await api.get("/ps/chats/unread") as? JSON else { return }
+        chatsUnread = ji(res["count"])
     }
 
     // orders

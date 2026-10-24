@@ -216,6 +216,8 @@ fileprivate struct CustomerDetailContent: View {
                     TierCard(tier: customer.loyaltyTier, points: customer.loyaltyPoints)
                 }
             }
+            CustomerWalletSection(customerId: customer.id, name: customer.name,
+                                  initialBalance: customer.walletBalance)
             if !all.isEmpty {
                 recentSection(all)
             }
@@ -295,6 +297,8 @@ fileprivate struct CustomerInfoSection: View {
                 Tile("اتصال", action: { callPhone(phone) },
                      leading: { IconBox("phone.fill", color: GH.green) })
             }
+            Tile("محادثة في التطبيق", action: { Task { await openCustomerChat(customer) } },
+                 leading: { IconBox("bubble.left.and.bubble.right.fill", color: GH.purple) })
             Tile("النوع", value: customer.isMale ? "عميل" : "عميلة", chevron: false)
             if let city = customer.city {
                 Tile("المنطقة", value: city, chevron: false)
@@ -328,6 +332,20 @@ fileprivate struct CustomerPortalSection: View {
                  action: { Task { await copyPortal(c, reset: true) } },
                  leading: { IconBox("arrow.2.circlepath", color: GH.red) })
         }
+    }
+}
+
+/// Opens (or starts) the customer's chat thread (POST /ps/chats/start/{userId}).
+@MainActor
+fileprivate func openCustomerChat(_ c: Customer) async {
+    do {
+        let res = try await Api.shared.post("/ps/chats/start/\(c.id)") as? JSON ?? [:]
+        let t = (res["thread"] as? JSON) ?? res
+        let id = jstr(t["id"])
+        if id.isEmpty { return }
+        pushPage(ChatThreadPage(threadId: id, title: c.name))
+    } catch {
+        toastError(error)
     }
 }
 

@@ -23,6 +23,8 @@ struct Customer: Identifiable, Hashable {
     /// Points and tier from the customer app / website.
     var loyaltyPoints: Int = 0
     var loyaltyTier: String?
+    /// محفظة GH balance (the customer's account on the app / website).
+    var walletBalance: Double = 0
 
     var firstName: String {
         let n = name.trimmingCharacters(in: .whitespaces)
@@ -45,6 +47,7 @@ struct Customer: Identifiable, Hashable {
         isMale = js(m["gender"]) == "m"
         loyaltyPoints = ji(m["loyalty_points"])
         loyaltyTier = js(m["loyalty_tier"])
+        walletBalance = jd(m["wallet_balance"])
     }
 }
 
@@ -590,6 +593,8 @@ struct Order: Identifiable, Hashable {
     var storeSource: String?
     /// Paid online by card / Apple Pay (Amwal).
     var paidOnline: Bool = false
+    /// Sent as a gift (إرسال هدية): recipient, card message, wrapping, prices hidden.
+    var gift: OrderGift?
 
     var fromStore: Bool { storeOrderNumber != nil }
     var sourceLabel: String { storeSource == "app" ? "من التطبيق" : "من الموقع" }
@@ -668,6 +673,38 @@ struct Order: Identifiable, Hashable {
         storeSource = js(m["store_source"])
         paidOnline = jb(m["store_paid_online"])
         events = jlist(m["events"]).map(OrderEvent.init)
+        gift = OrderGift.from(m["gift"])
+    }
+}
+
+/// ps_orders.gift: {to, phone, message, wrap, hide_prices}.
+struct OrderGift: Hashable {
+    var to: String?
+    var phone: String?
+    var message: String?
+    var wrap: Bool = false
+    var hidePrices: Bool = false
+
+    init(to: String? = nil, phone: String? = nil, message: String? = nil, wrap: Bool = false, hidePrices: Bool = false) {
+        self.to = to; self.phone = phone; self.message = message; self.wrap = wrap; self.hidePrices = hidePrices
+    }
+
+    init(_ m: JSON) {
+        to = js(m["to"])
+        phone = js(m["phone"])
+        message = js(m["message"])
+        wrap = jb(m["wrap"])
+        hidePrices = jb(m["hide_prices"] ?? m["hideprices"])
+    }
+
+    /// nil for JSON null / a missing or empty object.
+    static func from(_ v: Any?) -> OrderGift? {
+        guard let m = v as? JSON, !m.isEmpty else { return nil }
+        return OrderGift(m)
+    }
+
+    var json: JSON {
+        ["to": nn(to), "phone": nn(phone), "message": nn(message), "wrap": wrap, "hide_prices": hidePrices]
     }
 }
 
@@ -794,6 +831,9 @@ struct PieceRequest: Identifiable, Hashable {
     var status: String
     var orderId: String?
     var createdAt: Date?
+    /// The price offer sent to the customer (عرض سعر), if any.
+    var quote: PieceQuote?
+    var declineReason: String?
 
     var isOpen: Bool { ["pending", "reviewing", "found"].contains(status) }
 
@@ -832,5 +872,61 @@ struct PieceRequest: Identifiable, Hashable {
         status = js(m["status"]) ?? "pending"
         orderId = js(m["order_id"])
         createdAt = jdate(m["created_at"])
+        quote = PieceQuote.from(m)
+        declineReason = js(m["decline_reason"])
+    }
+}
+
+/// A price offer on a piece request: quote_* columns (or a nested "quote" object).
+struct PieceQuote: Hashable {
+    var price: Double
+    var note: String?
+    var deposit: Double?
+    var deliveryFee: Double?
+    var deliveryMethod: String?
+    /// sent, accepted, declined, expired
+    var status: String
+    var quotedAt: Date?
+    var expiresAt: Date?
+
+    var expired: Bool {
+        if status == "expired" { return true }
+        guard status == "sent", let e = expiresAt else { return false }
+        return e < Date()
+    }
+
+    var total: Double { price + (deliveryFee ?? 0) }
+
+    var statusLabel: String {
+        if expired { return "انتهت صلاحيته" }
+        switch status {
+        case "sent": return "بانتظار العميل"
+        case "accepted": return "قبل العرض"
+        case "declined": return "رفض العرض"
+        default: return status
+        }
+    }
+
+    var statusColor: Color {
+        if expired { return GH.secondary }
+        switch status {
+        case "sent": return GH.amber
+        case "accepted": return GH.green
+        case "declined": return GH.red
+        default: return GH.secondary
+        }
+    }
+
+    static func from(_ m: JSON) -> PieceQuote? {
+        if let q = m["quote"] as? JSON, let price = jdn(q["price"]) {
+            return PieceQuote(price: price, note: js(q["note"]), deposit: jdn(q["deposit"]),
+                              deliveryFee: jdn(q["delivery_fee"]), deliveryMethod: js(q["delivery_method"]),
+                              status: js(q["status"]) ?? "sent", quotedAt: jdate(q["quoted_at"]),
+                              expiresAt: jdate(q["expires_at"]))
+        }
+        guard let price = jdn(m["quote_price"]), let st = js(m["quote_status"]) else { return nil }
+        return PieceQuote(price: price, note: js(m["quote_note"]), deposit: jdn(m["quote_deposit"]),
+                          deliveryFee: jdn(m["quote_delivery_fee"]), deliveryMethod: js(m["quote_delivery_method"]),
+                          status: st, quotedAt: jdate(m["quoted_at"]), expiresAt: jdate(m["quote_expires_at"]))
     }
 }

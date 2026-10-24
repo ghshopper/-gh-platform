@@ -140,6 +140,10 @@ func buildWaybillPdf(_ o: Order, customer: Customer?, biz: BusinessSettings, dri
     let address = cleanAddress(split.address, customer: customer)
     let r = route(o.deliveryMethod, office: office)
     let logo = GHImage.named("logo")
+    // A gift goes to its recipient: their name and phone on the label.
+    let gift = o.gift
+    let recipientName = gift?.to ?? customer?.name ?? "—"
+    let recipientPhone = gift?.phone ?? customer?.phone
 
     let format = UIGraphicsPDFRendererFormat()
     format.documentInfo = [kCGPDFContextTitle as String: "Waybill \(waybill)"]
@@ -194,8 +198,11 @@ func buildWaybillPdf(_ o: Order, customer: Customer?, biz: BusinessSettings, dri
             let leftW = max(W - 8 - qrColW, 1)
             let kicker = Kicker("المستلم", "SHIP TO")
             var info = GHPdfStack()
-            info.add(wt(customer?.name ?? "—", 15, .bold, maxLines: 2))
-            if let phone = customer?.phone {
+            if gift != nil {
+                info.add(wt("هدية 🎁", 11, .bold))
+            }
+            info.add(wt(recipientName, 15, .bold, maxLines: 2))
+            if let phone = recipientPhone {
                 info.add(wt(phoneText(phone), 14, .medium, ltr: true))
             }
             info.gap(3)

@@ -87,6 +87,9 @@ func buildInvoicePdf(_ o: Order, customer: Customer?, biz: BusinessSettings) -> 
     let contact = contactParts.joined(separator: "  ·  ")
     let items = o.activeItems
     let logo = GHImage.named("logo")
+    // A gift with hidden prices: the invoice goes in the parcel without any amounts.
+    let gift = o.gift
+    let hidePrices = gift?.hidePrices == true
 
     var blocks: [InvBlock] = []
 
@@ -127,6 +130,11 @@ func buildInvoicePdf(_ o: Order, customer: Customer?, biz: BusinessSettings) -> 
         rightCol.gap(3)
         rightCol.add(it(customer?.name ?? "—", 10.5, .bold))
         if let phone = customer?.phone { rightCol.add(it(phone, 8.5, .regular, IC.muted)) }
+        if let g = gift {
+            rightCol.gap(5)
+            rightCol.add(twoLang("هدية إلى 🎁", "Gift to", size: 8))
+            rightCol.add(it(g.to ?? "—", 10, .bold))
+        }
         let h = 20 + max(leftCol.height(width: leftW), rightCol.height(width: rightW))
         blocks.append(InvBlock(h) { y in
             ghPdfFill(CGRect(x: L, y: y, width: W, height: h), IC.tint, radius: 6)
@@ -141,11 +149,11 @@ func buildInvoicePdf(_ o: Order, customer: Customer?, biz: BusinessSettings) -> 
         let inner = W - 12
         let hash = it("#", 8, .regular, IC.muted)
         let price = twoLangStack("السعر", "Price (OMR)", strong: true, size: 8.5)
-        let priceW = price.width(maxWidth: inner / 2)
+        let priceW: CGFloat = hidePrices ? 0 : price.width(maxWidth: inner / 2)
         let midW = max(inner - 16 - priceW, 1)
         let item = twoLangStack("القطعة", "Item", strong: true, size: 8.5)
         let hashH = hash.size(maxWidth: 16).height
-        let priceH = price.height(width: priceW)
+        let priceH: CGFloat = hidePrices ? 0 : price.height(width: priceW)
         let itemH = item.height(width: midW)
         let rowH = max(hashH, max(priceH, itemH))
         let h = rowH + 10
@@ -153,7 +161,7 @@ func buildInvoicePdf(_ o: Order, customer: Customer?, biz: BusinessSettings) -> 
             let top = y + 5
             hash.draw(right: R - 6, y: top + (rowH - hashH) / 2, maxWidth: 16)
             item.draw(x: L + 6 + priceW, y: top + (rowH - itemH) / 2, width: midW)
-            price.draw(x: L + 6, y: top + (rowH - priceH) / 2, width: priceW)
+            if !hidePrices { price.draw(x: L + 6, y: top + (rowH - priceH) / 2, width: priceW) }
             ghPdfFill(CGRect(x: L, y: y + h - 0.9, width: W, height: 0.9), IC.burgundy)
         })
     }
@@ -161,7 +169,7 @@ func buildInvoicePdf(_ o: Order, customer: Customer?, biz: BusinessSettings) -> 
         let inner = W - 12
         let num = it("\(k + 1)", 8.5, .regular, IC.muted)
         let price = it(plainOmr(item.price), 10, .medium)
-        let priceSize = price.size(maxWidth: inner / 2)
+        let priceSize: CGSize = hidePrices ? .zero : price.size(maxWidth: inner / 2)
         let midW = max(inner - 16 - 10 - priceSize.width, 1)
         var mid = GHPdfStack()
         if let brand = item.brand { mid.add(it(brand.uppercased(), 7, .regular, IC.gold, kern: 1)) }
@@ -173,14 +181,31 @@ func buildInvoicePdf(_ o: Order, customer: Customer?, biz: BusinessSettings) -> 
             let top = y + 7
             num.draw(right: R - 6, y: top, maxWidth: 16)
             mid.draw(x: L + 6 + priceSize.width + 10, y: top, width: midW)
-            price.draw(in: CGRect(x: L + 6, y: top, width: priceSize.width, height: priceSize.height))
+            if !hidePrices {
+                price.draw(in: CGRect(x: L + 6, y: top, width: priceSize.width, height: priceSize.height))
+            }
             ghPdfFill(CGRect(x: L, y: y + h - 0.6, width: W, height: 0.6), IC.line)
         })
     }
     blocks.append(.gap(12))
 
+    // ── Gift card message
+    if let g = gift, let msg = g.message {
+        let card = twoLangStack("رسالة الهدية", "Gift message", strong: true, size: 8.5)
+        let cardH = card.height(width: W - 20)
+        let t = it(msg, 10, .medium)
+        let th = t.size(maxWidth: W - 20).height
+        let h = 20 + cardH + 4 + th
+        blocks.append(InvBlock(h) { y in
+            ghPdfFill(CGRect(x: L, y: y, width: W, height: h), IC.tint, radius: 6)
+            card.draw(x: L + 10, y: y + 10, width: W - 20)
+            t.draw(right: R - 10, y: y + 10 + cardH + 4, maxWidth: W - 20)
+        })
+        blocks.append(.gap(12))
+    }
+
     // ── Totals
-    do {
+    if !hidePrices {
         let colW: CGFloat = 170
         let colX = L
         var rows: [InvRow] = []
@@ -245,7 +270,7 @@ func buildInvoicePdf(_ o: Order, customer: Customer?, biz: BusinessSettings) -> 
         })
     }
 
-    if let bank = biz.bankDetails {
+    if let bank = biz.bankDetails, !hidePrices {
         blocks.append(.gap(16))
         let head = twoLangStack("بيانات التحويل", "Bank details", strong: true, size: 8.5)
         let headH = head.height(width: W)

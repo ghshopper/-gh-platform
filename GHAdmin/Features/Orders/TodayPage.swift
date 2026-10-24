@@ -208,7 +208,27 @@ struct TodayPage: View {
             header
             launcher
             quickActions
+            chatsBanner
             main
+        }
+    }
+
+    /// Unread customer chats (المحادثات), only when there are some.
+    @ViewBuilder private var chatsBanner: some View {
+        let unread = store.chatsUnread
+        if unread > 0 {
+            GHSection {
+                Tile("المحادثات", subtitle: unread == 1 ? "رسالة جديدة من عميل" : "\(unread) رسائل جديدة من العملاء",
+                     titleFont: .gh(16, .semibold),
+                     action: { pushPage(ChatsPage()) },
+                     leading: { IconBox("bubble.left.and.bubble.right.fill", color: GH.purple) },
+                     trailing: {
+                         Text("\(unread)")
+                             .font(.gh(12, .semibold)).foregroundStyle(.white)
+                             .padding(.horizontal, 7).padding(.vertical, 2)
+                             .background(Capsule().fill(GH.red))
+                     })
+            }
         }
     }
 

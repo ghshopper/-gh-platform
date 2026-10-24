@@ -163,6 +163,18 @@ struct Tabs: View {
         }
     }
 
+    /// Unread chats on the Today and More tabs.
+    @ViewBuilder private func tabBadge(_ i: Int) -> some View {
+        let n = store.chatsUnread
+        if n > 0 && (i == 0 || i == 4) {
+            Text(n > 99 ? "99+" : "\(n)")
+                .font(.gh(10, .semibold)).foregroundStyle(.white)
+                .padding(.horizontal, 5).frame(minWidth: 17, minHeight: 17)
+                .background(Capsule().fill(GH.red))
+                .offset(x: 14, y: -3)
+        }
+    }
+
     private var bar: some View {
         HStack(spacing: 0) {
             ForEach(items.indices, id: \.self) { i in
@@ -176,6 +188,7 @@ struct Tabs: View {
                             .foregroundStyle(i == index ? GH.burgundy : GH.secondary)
                             .frame(width: 56, height: 32)
                             .background(Capsule().fill(i == index ? GH.burgundy.opacity(0.086) : .clear))
+                            .overlay(alignment: .top) { tabBadge(i) }
                         Text(items[i].label)
                             .font(.gh(11, i == index ? .semibold : .medium))
                             .foregroundStyle(i == index ? GH.burgundy : GH.secondary)

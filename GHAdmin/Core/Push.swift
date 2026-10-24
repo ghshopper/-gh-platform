@@ -51,6 +51,8 @@ final class Push: NSObject, ObservableObject {
         switch type {
         case "payment": return "creditcard.fill"
         case "product_request": return "sparkles"
+        case "chat": return "bubble.left.and.bubble.right.fill"
+        case "review", "review_service": return "star.fill"
         default: return "bell.fill"
         }
     }
@@ -59,6 +61,16 @@ final class Push: NSObject, ObservableObject {
     func open(_ data: [AnyHashable: Any]) async {
         guard Api.shared.session != nil else { pending = data; return }
         let type = data["type"] as? String
+        if type == "chat" {
+            let threadId = (data["thread_id"] as? String) ?? (data["thread_id"] as? NSNumber)?.stringValue
+            Task { await Store.shared.refreshChatsUnread() }
+            if let threadId, !threadId.isEmpty {
+                pushPage(ChatThreadPage(threadId: threadId))
+            } else {
+                pushPage(ChatsPage())
+            }
+            return
+        }
         let orderId = (data["ps_order_id"] as? String) ?? (data["ps_order_id"] as? NSNumber)?.stringValue
         if type == "product_request" || (orderId ?? "").isEmpty {
             if type == "product_request" {

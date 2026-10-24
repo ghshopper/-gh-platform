@@ -77,6 +77,9 @@ struct OrderDetailPage: View {
             quickBar(o)
             itemsSection(o)
             shippedSection(o)
+            if let g = o.gift {
+                ODGiftSection(gift: g)
+            }
             deliverySection(o)
             eventsSection(o)
             paymentsSection(o)
@@ -623,6 +626,48 @@ struct OrderDetailPage: View {
 }
 
 // MARK: - Item row
+
+/// إرسال هدية: who receives it, the card message, wrapping, prices hidden.
+fileprivate struct ODGiftSection: View {
+    let gift: OrderGift
+
+    var body: some View {
+        GHSection("هدية 🎁", footer: gift.hidePrices ? "الأسعار مخفية: الفاتورة تطلع بدون أسعار." : nil) {
+            Tile(gift.to ?? "—", subtitle: gift.phone, chevron: false,
+                 leading: { IconBox("gift.fill", color: GH.burgundy) },
+                 trailing: { phoneButtons })
+            if let msg = gift.message {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("رسالة البطاقة").font(TS.small).foregroundStyle(GH.secondary)
+                    Text(msg).font(TS.body).foregroundStyle(GH.label)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 16).padding(.vertical, 12)
+                .contextMenu {
+                    Button { copyText(msg, toastText: "نسخت الرسالة") } label: { Label("نسخ", systemImage: "doc.on.doc") }
+                }
+            }
+            Tile("تغليف هدية", value: gift.wrap ? "نعم" : "لا", valueColor: gift.wrap ? GH.green : GH.secondary, chevron: false)
+            Tile("إخفاء الأسعار", value: gift.hidePrices ? "نعم" : "لا",
+                 valueColor: gift.hidePrices ? GH.burgundy : GH.secondary, chevron: false)
+        }
+    }
+
+    @ViewBuilder private var phoneButtons: some View {
+        if let phone = gift.phone {
+            HStack(spacing: 14) {
+                Button { callPhone(phone) } label: {
+                    Image(systemName: "phone.fill").font(.system(size: 17)).foregroundStyle(GH.green)
+                }
+                .buttonStyle(.plain)
+                Button { openWhatsApp(phone: phone, text: "") } label: {
+                    Image(systemName: "bubble.left.fill").font(.system(size: 17)).foregroundStyle(Color(hex: 0xFF25D366))
+                }
+                .buttonStyle(.plain)
+            }
+        }
+    }
+}
 
 fileprivate struct ODItemRow: View {
     let item: OrderItem

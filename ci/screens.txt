@@ -14,6 +14,10 @@ products
 purchases
 neworder
 search
+chats
+chat
+features
+reviews
 dark:today
 dark:order
 driver:today
