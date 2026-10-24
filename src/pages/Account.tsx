@@ -10,7 +10,6 @@ import { Icon } from '../components/Icon';
 import { currentReferral } from '../lib/track';
 import { AskButton, useChat } from '../components/Chat';
 import { ServiceReviewPrompt } from '../components/ServiceReviews';
-import { VipCard } from '../components/VipCard';
 import { AlertPrefsCard, MyRequests, WalletSection } from './AccountFeatures';
 
 const STEPS: [string, string][] = [['استلمناه', 'Received'], ['اشتريناه', 'Bought'], ['وصل عُمان', 'In Oman'], ['في الطريق', 'On the way'], ['تم التسليم', 'Delivered']];
@@ -206,9 +205,13 @@ export default function Account() {
             <b>{user.name}</b>
             <span className="l small">{user.email}</span>
             <div className="member-pts"><span className="l">{num(bal?.balance ?? user.loyalty_points).toLocaleString('en-US')}</span><small>{tr('نقطة', 'points')}</small></div>
-            {!flags.vip_progress.on && bal?.next_tier_id ? <small>{tr(`باقي ${num(bal.to_next).toLocaleString('en-US')} نقطة لمستوى ${tierName(bal.next_tier_id)}`, `${num(bal.to_next).toLocaleString('en-US')} points to ${tierName(bal.next_tier_id)}`)}</small> : null}
+            {bal?.next_tier_id ? (
+              <div className="member-progress">
+                {flags.vip_progress.on && num(bal.to_next) > 0 ? <i><em style={{ width: `${Math.round(Math.min(1, Math.max(0, num(bal.tier_points) / (num(bal.tier_points) + num(bal.to_next)))) * 100)}%` }} /></i> : null}
+                <small>{tr(`باقي ${num(bal.to_next).toLocaleString('en-US')} نقطة لمستوى ${tierName(bal.next_tier_id)}`, `${num(bal.to_next).toLocaleString('en-US')} points to ${tierName(bal.next_tier_id)}`)}</small>
+              </div>
+            ) : null}
           </div>
-          <VipCard />
           <nav className="acc-links">
             <Link to="/wishlist"><Icon name="heart" />{tr('المفضلة', 'Wishlist')}</Link>
             {chat.enabled ? <button type="button" onClick={() => chat.open()}><Icon name="chat" />{tr('المحادثة المباشرة', 'Live chat')}{chat.unread ? <b className="acc-badge">{chat.unread}</b> : null}</button> : null}

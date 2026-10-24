@@ -6,7 +6,6 @@ import { useLoad, useTitle } from '../lib/hooks';
 import { usePrefs } from '../lib/prefs';
 import { useAuth, useData } from '../lib/store';
 import { WeeklyStories } from '../components/Stories';
-import { VipCard } from '../components/VipCard';
 import { CustomerReviews, ServiceReviewPrompt } from '../components/ServiceReviews';
 import type { HeroSlide, Product, SectionSetting } from '../lib/types';
 import { CategoryArt } from '../components/CategoryArt';
@@ -202,7 +201,6 @@ export default function Home() {
       <WeeklyStories />
       {user ? (
         <div className="container home-member">
-          <VipCard compact link />
           <ServiceReviewPrompt />
         </div>
       ) : null}

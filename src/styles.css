@@ -864,3 +864,8 @@ a:hover .cat-photo img { transform: scale(1.04); }
 .chat-preview .icon-btn { position: absolute; top: -8px; inset-inline-end: -8px; background: var(--bg); border: 1px solid var(--line-strong); border-radius: 50%; }
 .chat-signin { flex: 1; display: grid; justify-items: center; align-content: center; gap: 14px; text-align: center; padding: 28px; color: var(--muted); }
 .home-member:empty { display: none; }
+
+/* progress to the next tier, inside the member card */
+.member-progress { display: grid; gap: 8px; margin-top: 14px; }
+.member-progress i { display: block; height: 3px; background: rgba(127,127,127,.3); }
+.member-progress em { display: block; height: 3px; background: currentColor; opacity: .7; }
