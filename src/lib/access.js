@@ -3,7 +3,7 @@ const PAGE_AREA = {
   'app-orders': 'orders', 'past-orders': 'orders', 'store-orders': 'orders', 'product-requests': 'orders', 'abandoned-carts': 'orders',
   invoices: 'finance', payments: 'finance', reports: 'finance', trips: 'finance',
   products: 'products', 'import-items': 'products', 'import-review': 'products', 'source-watch': 'products', categories: 'products', brands: 'products', attributes: 'products', reviews: 'products',
-  customers: 'customers', chats: 'customers', loyalty: 'customers', coupons: 'customers', 'gift-cards': 'customers',
+  customers: 'customers', chats: 'customers', loyalty: 'customers', coupons: 'customers', 'gift-cards': ['customers', 'finance'], // finance issues / activates cards
   'customize-app': 'marketing', 'notify-users': 'marketing', faqs: 'marketing', offers: 'marketing', 'points-boosts': 'marketing', campaigns: 'marketing',
   shipping: 'shipping', 'gcc-shipping': 'shipping',
   users: 'settings', settings: 'settings', whatsapp: 'settings', messaging: 'settings', backups: 'settings', activity: 'settings', monitor: 'settings',
@@ -32,5 +32,5 @@ export function canOpen(path, user = currentUser()) {
   if (!page || page === 'dashboard' || page === 'profile') return true
   if (ADMIN_ONLY.includes(page)) return false
   const area = PAGE_AREA[page]
-  return !!area && areas.includes(area)
+  return !!area && [].concat(area).some((a) => areas.includes(a))
 }
