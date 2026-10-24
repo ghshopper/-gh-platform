@@ -1,9 +1,12 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { RiCloseLine, RiWhatsappLine, RiPhoneLine, RiMailLine, RiShoppingBag3Line } from 'react-icons/ri'
+import { RiCloseLine, RiWhatsappLine, RiPhoneLine, RiMailLine, RiShoppingBag3Line, RiChat3Line } from 'react-icons/ri'
 import toast from 'react-hot-toast'
 import api from '../services/api'
 import Empty from './Empty'
+import WalletCard from './WalletCard'
+import { useFeature } from '../lib/features'
+import { canOpen } from '../lib/access'
 
 const TIER_LOOK = {
   Beige: { bg: 'linear-gradient(135deg,#ECDFC9,#CDB794)', fg: '#5B4126' },
@@ -31,6 +34,8 @@ export default function CustomerProfile({ id, onClose }) {
   const [tags, setTags] = useState([])
   const [newTag, setNewTag] = useState('')
   const [saving, setSaving] = useState(false)
+  const walletOn = useFeature('wallet')
+  const chatOn = useFeature('chat')
 
   useEffect(() => {
     if (!id) return
@@ -81,6 +86,7 @@ export default function CustomerProfile({ id, onClose }) {
                   <div className="cp-actions">
                     {c.phone && <a className="btn btn-sm btn-ghost" href={`https://wa.me/${waPhone(c.phone)}`} target="_blank" rel="noreferrer"><RiWhatsappLine /> واتساب</a>}
                     {c.phone && <a className="btn btn-sm btn-ghost" href={`tel:${c.phone}`}><RiPhoneLine /> اتصال</a>}
+                    {chatOn && canOpen('/admin/chats') && <button className="btn btn-sm btn-ghost" onClick={() => { onClose(); nav('/admin/chats?user=' + c.id) }}><RiChat3Line /> محادثة</button>}
                     <button className="btn btn-sm btn-primary" onClick={() => { onClose(); nav('/admin/app-orders?q=' + encodeURIComponent(c.phone || c.name)) }}><RiShoppingBag3Line /> طلباته</button>
                   </div>
                 </div>
@@ -103,6 +109,8 @@ export default function CustomerProfile({ id, onClose }) {
               <span>آخر طلب: <b>{day(s.last_order)}</b></span>
               {Object.keys(s.top_brands || {}).length > 0 && <span>البراندات المفضلة: <b>{Object.keys(s.top_brands).join('، ')}</b></span>}
             </div>
+
+            {walletOn && <WalletCard customerId={c.id || id} />}
 
             <div className="cp-grid">
               <section>

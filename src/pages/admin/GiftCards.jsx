@@ -99,13 +99,15 @@ export default function GiftCards() {
               {shown.map((g) => {
                 const st = STATUS[g.status] || STATUS.pending
                 const used = Number(g.amount) - Number(g.balance)
+                // moved into a customer's محفظة GH = a use with no order
+                const toWallet = (g.uses || []).filter((u) => !u.order_id)
                 return (
                   <tr key={g.id} onClick={() => setOpen(open === g.id ? null : g.id)} className={open === g.id ? 'on' : ''}>
                     <td><button className="gc-code" onClick={(e) => { e.stopPropagation(); copy(g.code) }} title="نسخ">{g.code} <RiFileCopyLine /></button></td>
                     <td><b>{g.recipient_name || '—'}</b><small dir="ltr">{g.recipient_phone || g.recipient_email || ''}</small></td>
                     <td>{g.buyer_name || '—'}<small dir="ltr">{g.buyer_phone || ''}</small></td>
                     <td className="num">{omr(g.amount)}</td>
-                    <td className="num">{omr(g.balance)}{used > 0.0005 ? <small>استُخدم {omr(used)}</small> : null}</td>
+                    <td className="num">{omr(g.balance)}{used > 0.0005 ? <small>استُخدم {omr(used)}</small> : null}{toWallet.map((u, k) => <small key={k} style={{ color: '#15803D' }}>انتقلت للمحفظة {omr(u.amount)} · {day(String(u.created_at || '').replace(' ', 'T'))}</small>)}</td>
                     <td><span className="gc-pill" style={{ color: st.color, background: st.bg }}>{st.label}</span>{g.status === 'active' && !g.recipient_phone ? <small>ما في رقم للمستلم</small> : null}</td>
                     <td>{day(g.created_at)}{g.expires_at ? <small>تنتهي {day(g.expires_at)}</small> : null}</td>
                     <td className="gc-actions" onClick={(e) => e.stopPropagation()}>

@@ -16,6 +16,7 @@ import {
   RiLoader4Line,
 } from 'react-icons/ri'
 import toast from 'react-hot-toast'
+import { useFeatures } from '../../lib/features'
 
 const API = import.meta.env.VITE_API_URL
 
@@ -28,7 +29,33 @@ const STATUS_CONFIG = {
   cancelled:  { label: 'ملغي', color: '#6B7280', bg: '#F3F4F6' },
 }
 
+// Quote (عرض سعر) sent to the customer: fields come flat (quote_*) or nested (quote{}).
+const QUOTE_STATUS = {
+  sent: { label: 'بانتظار رد العميل', color: '#B45309', bg: '#FEF3C7' },
+  expired: { label: 'انتهت صلاحيته', color: '#6B7280', bg: '#F3F4F6' },
+  accepted: { label: 'قبل العرض', color: '#047857', bg: '#D1FAE5' },
+  declined: { label: 'رفض العرض', color: '#B91C1C', bg: '#FEE2E2' },
+}
+const DELIVERY = { home: 'مندوبنا · للبيت', genacom: 'جيناكم · للبيت', genacom_office: 'جيناكم · من الفرع' }
+const quoteOf = (r) => {
+  if (!r) return null
+  const q = r.quote || {}
+  const price = r.quote_price ?? q.price
+  const status = r.quote_status ?? q.status
+  if (price == null && !status) return null
+  const expires = r.quote_expires_at ?? q.expires_at
+  const ex = expires ? new Date(/[zZ]|[+-]\d\d:?\d\d$/.test(String(expires)) ? expires : String(expires).replace(' ', 'T') + 'Z') : null
+  const expired = status === 'sent' && (q.expired === true || (ex && !isNaN(ex) && ex < new Date()))
+  return {
+    price: Number(price || 0), note: r.quote_note ?? q.note, deposit: r.quote_deposit ?? q.deposit, delivery_fee: r.quote_delivery_fee ?? q.delivery_fee,
+    delivery_method: r.quote_delivery_method ?? q.delivery_method, status: expired ? 'expired' : status, expires: ex, decline_reason: r.decline_reason ?? q.decline_reason,
+  }
+}
+const omr3 = (v) => Number(v || 0).toFixed(3)
+
 export default function ProductRequests() {
+  const feats = useFeatures()
+  const quotesOn = !!feats?.quotes?.on
   const [requests, setRequests] = useState([])
   const [stats, setStats] = useState({})
   const [loading, setLoading] = useState(true)
@@ -105,7 +132,7 @@ export default function ProductRequests() {
   const [converted, setConverted] = useState(null)
 
   const openDetail = async (req) => {
-    setSelected(req); setIsDetailOpen(true); setConv(null); setConverted(null)
+    setSelected(req); setIsDetailOpen(true); setConv(null); setConverted(null); setQf(null)
     try {
       const r = await fetch(`${API}/admin/product-requests/${req.id}`, { headers })
       const j = await r.json()
@@ -135,6 +162,60 @@ export default function ProductRequests() {
     } finally {
       setConvBusy(false)
     }
+  }
+
+  // ── Quote: send the price to the customer (they accept → order + pay link) ──
+  const [qf, setQf] = useState(null)
+  const [qBusy, setQBusy] = useState(false)
+  const startQuote = () => {
+    const q = quoteOf(selected)
+    setQf({
+      price: q?.price ? String(q.price) : '', deposit: q?.deposit != null ? String(q.deposit) : '', delivery_fee: q?.delivery_fee != null ? String(q.delivery_fee) : '',
+      delivery_method: q?.delivery_method || '', note: q?.note || '', expires_days: String(feats?.quotes?.expires_days ?? 3),
+    })
+  }
+  const reloadSelected = async (id) => {
+    try {
+      const r = await fetch(`${API}/admin/product-requests/${id}`, { headers })
+      const j = await r.json()
+      if (j?.data) setSelected(j.data)
+    } catch { /* keep what we have */ }
+    fetchRequests()
+  }
+  const submitQuote = async () => {
+    const price = Number(qf.price)
+    if (!(price > 0)) { toast.error('اكتب سعر القطعة'); return }
+    const deposit = qf.deposit === '' ? null : Number(qf.deposit)
+    if (deposit != null && (!(deposit >= 0) || deposit > price + Number(qf.delivery_fee || 0))) { toast.error('العربون لازم يكون أقل من الإجمالي'); return }
+    const days = parseInt(qf.expires_days, 10)
+    setQBusy(true)
+    try {
+      const body = {
+        price, note: qf.note.trim() || null, deposit,
+        delivery_fee: qf.delivery_fee === '' ? null : Number(qf.delivery_fee),
+        delivery_method: qf.delivery_method || null,
+        expires_days: days > 0 ? days : null,
+      }
+      const r = await fetch(`${API}/admin/product-requests/${selected.id}/quote`, { method: 'POST', headers, body: JSON.stringify(body) })
+      const j = await r.json().catch(() => ({}))
+      if (!r.ok) throw new Error(j?.message || 'ما انرسل العرض')
+      toast.success('انرسل العرض للعميل ✨')
+      setQf(null)
+      if (j?.data?.id) setSelected(j.data)
+      reloadSelected(selected.id)
+    } catch (e) { toast.error(e.message) } finally { setQBusy(false) }
+  }
+  const withdrawQuote = async () => {
+    if (!confirm('تسحب العرض؟ يرجع الطلب «قيد المراجعة» وما يقدر العميل يقبله.')) return
+    setQBusy(true)
+    try {
+      let r = await fetch(`${API}/admin/product-requests/${selected.id}/quote`, { method: 'DELETE', headers })
+      if (r.status === 404 || r.status === 405) r = await fetch(`${API}/ps/requests/${selected.id}/quote`, { method: 'DELETE', headers })
+      const j = await r.json().catch(() => ({}))
+      if (!r.ok) throw new Error(j?.message || 'ما انسحب العرض')
+      toast.success('انسحب العرض')
+      reloadSelected(selected.id)
+    } catch (e) { toast.error(e.message) } finally { setQBusy(false) }
   }
 
   const sendPayLink = (msg) => {
@@ -227,7 +308,7 @@ export default function ProductRequests() {
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ backgroundColor: '#f8fafc', borderBottom: '1.5px solid #f1f5f9' }}>
-                {['المنتج المطلوب', 'العميل', 'الحالة', 'التاريخ', 'الإجراءات'].map(h => (
+                {['المنتج المطلوب', 'العميل', 'الحالة', ...(quotesOn ? ['العرض'] : []), 'التاريخ', 'الإجراءات'].map(h => (
                   <th key={h} style={{ padding: '14px 20px', fontSize: 12, fontWeight: 700, color: '#64748b', textAlign: 'right' }}>{h}</th>
                 ))}
               </tr>
@@ -256,6 +337,20 @@ export default function ProductRequests() {
                         {st.label}
                       </span>
                     </td>
+                    {quotesOn && (() => {
+                      const q = quoteOf(req)
+                      const qs = q && QUOTE_STATUS[q.status]
+                      return (
+                        <td style={{ padding: '16px 20px' }}>
+                          {q ? (
+                            <div>
+                              <div style={{ fontWeight: 700, fontSize: 13, color: '#1e293b' }} dir="ltr">{omr3(q.price)} ر.ع</div>
+                              {qs && <span style={{ display: 'inline-block', marginTop: 4, padding: '2px 8px', borderRadius: 20, fontSize: 11, fontWeight: 700, color: qs.color, backgroundColor: qs.bg }}>{qs.label}</span>}
+                            </div>
+                          ) : <span style={{ color: '#cbd5e1' }}>—</span>}
+                        </td>
+                      )
+                    })()}
                     <td style={{ padding: '16px 20px', fontSize: 12, color: '#94a3b8' }}>
                       {new Date(req.created_at).toLocaleDateString('ar-EG')}
                     </td>
@@ -387,6 +482,76 @@ export default function ProductRequests() {
                 <img src={selected.image_url} alt="product" style={{ width: '100%', borderRadius: 12, maxHeight: 200, objectFit: 'cover' }} />
               </div>
             )}
+
+            {/* Quote */}
+            {quotesOn && !selected.order_no && (() => {
+              const q = quoteOf(selected)
+              const qs = q && QUOTE_STATUS[q.status]
+              const total = q ? q.price + Number(q.delivery_fee || 0) : 0
+              const inp = { padding: '10px 12px', borderRadius: 10, border: '1.5px solid #e2e8f0', fontSize: 14, width: '100%', boxSizing: 'border-box', fontFamily: 'inherit' }
+              const lab = { display: 'grid', gap: 4, fontSize: 12.5, color: '#64748b' }
+              return (
+                <div style={{ background: '#F6F8FF', border: '1.5px solid #DCE4FB', borderRadius: 16, padding: 20, marginBottom: 20 }}>
+                  {qf ? (
+                    <div style={{ display: 'grid', gap: 12 }}>
+                      <div style={{ fontWeight: 800, color: '#1e3a8a' }}>{q ? 'تعديل العرض' : 'إرسال عرض سعر للعميل'}</div>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                        <label style={lab}>سعر القطعة (ر.ع) *<input autoFocus dir="ltr" inputMode="decimal" type="number" min="0" step="0.001" value={qf.price} onChange={(e) => setQf({ ...qf, price: e.target.value })} style={inp} /></label>
+                        <label style={lab}>العربون المطلوب الحين (ر.ع)<input dir="ltr" inputMode="decimal" type="number" min="0" step="0.001" value={qf.deposit} onChange={(e) => setQf({ ...qf, deposit: e.target.value })} placeholder="فاضي = يدفع الكل" style={inp} /></label>
+                        <label style={lab}>التوصيل (ر.ع)<input dir="ltr" inputMode="decimal" type="number" min="0" step="0.001" value={qf.delivery_fee} onChange={(e) => setQf({ ...qf, delivery_fee: e.target.value })} style={inp} /></label>
+                        <label style={lab}>طريقة التوصيل
+                          <select value={qf.delivery_method} onChange={(e) => setQf({ ...qf, delivery_method: e.target.value })} style={{ ...inp, backgroundColor: '#fff' }}>
+                            <option value="">—</option>
+                            {Object.entries(DELIVERY).map(([k, l]) => <option key={k} value={k}>{l}</option>)}
+                          </select>
+                        </label>
+                        <label style={{ ...lab, gridColumn: '1 / -1' }}>ملاحظة للعميل<input value={qf.note} maxLength={500} onChange={(e) => setQf({ ...qf, note: e.target.value })} placeholder="مثلاً: شامل التوصيل، يوصل خلال 10 أيام" style={inp} /></label>
+                        <label style={lab}>صلاحية العرض (أيام)<input dir="ltr" type="number" min="1" max="60" value={qf.expires_days} onChange={(e) => setQf({ ...qf, expires_days: e.target.value })} style={inp} /></label>
+                        <div style={{ alignSelf: 'end', fontSize: 13, color: '#1e3a8a', fontWeight: 700, paddingBottom: 10 }}>
+                          الإجمالي للعميل: <span dir="ltr">{omr3(Number(qf.price || 0) + Number(qf.delivery_fee || 0))}</span> ر.ع
+                        </div>
+                      </div>
+                      <div style={{ fontSize: 12, color: '#64748b' }}>يوصل العميل إشعار «سعر القطعة جاهز ✨»، ولما يقبل يتحوّل لطلب مع رابط دفع.</div>
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        <button onClick={submitQuote} disabled={qBusy} style={{ flex: 1, padding: 12, borderRadius: 12, background: '#1e3a8a', color: '#fff', border: 'none', fontWeight: 800, cursor: 'pointer' }}>{qBusy ? '...' : 'إرسال العرض'}</button>
+                        <button onClick={() => setQf(null)} style={{ padding: '12px 16px', borderRadius: 12, background: '#fff', border: '1.5px solid #e2e8f0', cursor: 'pointer' }}>إلغاء</button>
+                      </div>
+                    </div>
+                  ) : q ? (
+                    <div style={{ display: 'grid', gap: 8 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                        <div style={{ fontWeight: 800, color: '#1e3a8a' }}>عرض السعر</div>
+                        {qs && <span style={{ padding: '4px 12px', borderRadius: 20, fontSize: 12, fontWeight: 700, color: qs.color, backgroundColor: qs.bg }}>{qs.label}</span>}
+                      </div>
+                      <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', fontSize: 13.5, color: '#1e293b' }}>
+                        <span>القطعة: <b dir="ltr">{omr3(q.price)}</b></span>
+                        {Number(q.delivery_fee) > 0 && <span>التوصيل: <b dir="ltr">{omr3(q.delivery_fee)}</b></span>}
+                        <span>الإجمالي: <b dir="ltr">{omr3(total)}</b> ر.ع</span>
+                        {q.deposit != null && Number(q.deposit) > 0 && <span>العربون: <b dir="ltr">{omr3(q.deposit)}</b></span>}
+                        {q.delivery_method && <span>{DELIVERY[q.delivery_method] || q.delivery_method}</span>}
+                      </div>
+                      {q.note && <div style={{ fontSize: 13, color: '#475569' }}>📝 {q.note}</div>}
+                      {q.expires && <div style={{ fontSize: 12, color: '#64748b' }}>{q.status === 'expired' ? 'انتهى' : 'ينتهي'} {q.expires.toLocaleString('ar-OM', { timeZone: 'Asia/Muscat', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</div>}
+                      {q.status === 'declined' && q.decline_reason && <div style={{ fontSize: 13, color: '#B91C1C' }}>سبب الرفض: {q.decline_reason}</div>}
+                      {q.status !== 'accepted' && (
+                        <div style={{ display: 'flex', gap: 8, marginTop: 4, flexWrap: 'wrap' }}>
+                          <button onClick={startQuote} disabled={qBusy} style={{ padding: '9px 14px', borderRadius: 10, background: '#1e3a8a', color: '#fff', border: 'none', fontWeight: 700, cursor: 'pointer' }}>{q.status === 'sent' ? 'تعديل العرض' : 'عرض جديد'}</button>
+                          {q.status === 'sent' && <button onClick={withdrawQuote} disabled={qBusy} style={{ padding: '9px 14px', borderRadius: 10, background: '#fff', color: '#B91C1C', border: '1.5px solid #FECACA', fontWeight: 700, cursor: 'pointer' }}>سحب العرض</button>}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
+                      <div>
+                        <div style={{ fontWeight: 800, color: '#1e3a8a' }}>أرسل السعر للعميل</div>
+                        <div style={{ fontSize: 12.5, color: '#64748b' }}>يشوف العرض في التطبيق والموقع، يقبله ويدفع بضغطة، أو يرفضه.</div>
+                      </div>
+                      <button onClick={startQuote} style={{ padding: '10px 16px', borderRadius: 12, background: '#1e3a8a', color: '#fff', border: 'none', fontWeight: 800, cursor: 'pointer', whiteSpace: 'nowrap' }}>عرض سعر</button>
+                    </div>
+                  )}
+                </div>
+              )
+            })()}
 
             {/* Turn into an order */}
             <div style={{ background: '#FBF7F0', border: '1.5px solid #E9DCC4', borderRadius: 16, padding: 20, marginBottom: 20 }}>

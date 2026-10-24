@@ -42,6 +42,8 @@ import GccShipping from './pages/admin/GccShipping'
 import Monitor from './pages/admin/Monitor'
 import Campaigns from './pages/admin/Campaigns'
 import Trips from './pages/admin/Trips'
+import Features from './pages/admin/Features'
+import Chats from './pages/admin/Chats'
 import './index.css'
 
 import LandingPage from './pages/website/LandingPage'
@@ -111,6 +113,8 @@ export default function App() {
           <Route path="monitor" element={<Monitor />} />
           <Route path="campaigns" element={<Campaigns />} />
           <Route path="trips" element={<Trips />} />
+          <Route path="features" element={<Features />} />
+          <Route path="chats" element={<Chats />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

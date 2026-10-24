@@ -239,7 +239,7 @@ export default function AppOrders() {
                     <tr key={o.id} onClick={() => setOpenId(o.id)} style={{ borderTop: '1px solid #f4efe9', cursor: 'pointer' }}
                       onMouseEnter={(e) => (e.currentTarget.style.background = '#fffaf6')}
                       onMouseLeave={(e) => (e.currentTarget.style.background = '')}>
-                      <td style={td}><div style={{ fontWeight: 800, fontSize: 15, direction: 'ltr', textAlign: 'right' }}>#{refOf(o)}</div>{o.source === 'store' && <div style={{ fontSize: 11, fontWeight: 700, color: '#2F7CF6' }}>🌐 من الموقع / التطبيق</div>}<div style={{ color: '#94a3b8', fontSize: 12 }}>{dateStr(o.created_at)}</div></td>
+                      <td style={td}><div style={{ fontWeight: 800, fontSize: 15, direction: 'ltr', textAlign: 'right' }}>#{refOf(o)}</div>{o.source === 'store' && <div style={{ fontSize: 11, fontWeight: 700, color: '#2F7CF6' }}>🌐 من الموقع / التطبيق</div>}{giftOf(o) && <div style={{ fontSize: 11, fontWeight: 700, color: '#A8833F' }}>🎁 هدية{giftOf(o).to ? ' لـ ' + giftOf(o).to : ''}</div>}<div style={{ color: '#94a3b8', fontSize: 12 }}>{dateStr(o.created_at)}</div></td>
                       <td style={td}><div style={{ fontWeight: 600 }}>{c?.name || '—'}</div><div style={{ color: '#94a3b8', fontSize: 12, direction: 'ltr', textAlign: 'right' }}>{c?.phone || ''}</div></td>
                       <td style={td}>{o.items.filter((i) => i.status !== 'cancelled').length}</td>
                       <td style={{ ...td, fontWeight: 700 }}>{omr(t.total)}</td>
@@ -417,6 +417,8 @@ function OrderDetail({ o, c, driver, busy, onStatus, onPrint, onReload, headers 
         </Card>
       )}
 
+      {giftOf(o) && <GiftCard g={giftOf(o)} />}
+
       <Card title="القطع" icon={<RiShoppingBag3Line />} action={active.length > 1 && nextFor(overall(o)) && (
         <button disabled={busy} onClick={() => onStatus(active.filter((i) => i.status === overall(o)).map((i) => i.id), nextFor(overall(o)))} style={btn('#f8fafc', '#334155', true)}>
           الكل ← {ITEM_STATUS[nextFor(overall(o))].label}
@@ -511,6 +513,29 @@ function OrderDetail({ o, c, driver, busy, onStatus, onPrint, onReload, headers 
 
 // ───────────── small pieces ─────────────
 
+/** Gift details: ps_orders.gift {to, phone, message, wrap, hide_prices} (null = not a gift). */
+const truthy = (v) => v === true || v === 1 || v === '1' || v === 'true'
+function giftOf(o) {
+  let g = o?.gift
+  if (typeof g === 'string') { try { g = JSON.parse(g) } catch { g = null } }
+  if (!g || typeof g !== 'object') return null
+  if (!g.to && !g.phone && !g.message && !truthy(g.wrap) && !truthy(g.hide_prices)) return null
+  return g
+}
+function GiftCard({ g }) {
+  const ph = String(g.phone || '').replace(/\D/g, '')
+  return (
+    <div style={{ background: '#FBF5EA', border: '1.5px solid #EAD9B8', borderRadius: 16, padding: '14px 16px', marginBottom: 14 }}>
+      <div style={{ fontWeight: 800, color: '#7A5A22', marginBottom: 6 }}>🎁 هدية</div>
+      {g.to && <Row k="إلى" v={g.to} />}
+      {g.phone && <Row k="جوال المستلم" v={<a href={`https://wa.me/${ph.length === 8 ? '968' + ph : ph}`} target="_blank" rel="noreferrer" dir="ltr" style={{ color: '#7A5A22' }}>{g.phone}</a>} />}
+      <Row k="تغليف هدية" v={truthy(g.wrap) ? 'نعم ✓' : 'لا'} color={truthy(g.wrap) ? '#16804A' : undefined} />
+      <Row k="إخفاء الأسعار" v={truthy(g.hide_prices) ? 'نعم: لا تحط فاتورة بالأسعار' : 'لا'} color={truthy(g.hide_prices) ? '#B45309' : undefined} />
+      {g.message && <div style={{ marginTop: 6, background: '#fff', borderRadius: 10, padding: '10px 12px', fontSize: 14, color: '#334155', whiteSpace: 'pre-wrap', border: '1px dashed #EAD9B8' }}>«{g.message}»</div>}
+    </div>
+  )
+}
+
 const td = { padding: '14px 16px', verticalAlign: 'middle' }
 const iconBtn = { border: '1.5px solid #eadfd3', background: '#fff', borderRadius: 10, padding: 7, cursor: 'pointer', color: '#4A0D17', display: 'inline-flex' }
 const btn = (bg, color, outline) => ({
@@ -587,6 +612,7 @@ async function printLabel(o, c, biz, driverName) {
   const collect = codAmount > 0
   const pieces = o.items.filter((i) => i.status !== 'cancelled').length
   const address = o.delivery_address || c?.address || ''
+  const gift = giftOf(o)
   const html = `<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>${esc(o.waybill_no)}</title>
 <style>
 @page { size: 100mm 150mm; margin: 4mm; }
@@ -607,6 +633,7 @@ async function printLabel(o, c, biz, driverName) {
     <div style="font-size:8pt">${esc(address)}</div></div>
   <div style="text-align:center"><img src="${qr}" style="width:27mm;height:27mm"><div class="en">امسح للتتبّع</div></div>
 </div>
+${gift ? `<div class="box row" style="border-width:2px"><div class="sp"><div style="font-size:11pt;font-weight:800">هدية 🎁 <span class="en">GIFT</span></div>${gift.to || gift.phone ? `<div style="font-size:9.5pt;font-weight:700">المستلم: ${esc(gift.to || '')} <span class="num">${esc(gift.phone || '')}</span></div>` : ''}${truthy(gift.wrap) ? '<div style="font-size:8pt;font-weight:600">مع تغليف هدية</div>' : ''}${truthy(gift.hide_prices) ? '<div style="font-size:8pt;font-weight:600">بدون أسعار</div>' : ''}</div></div>` : ''}
 <div class="box row ${collect ? 'cod' : ''}"><div><div style="font-size:10pt;font-weight:800">${collect ? 'حصّل عند التسليم' : 'التوصيل مدفوع'}</div><div class="en" style="${collect ? 'color:#fff' : ''}">${collect ? 'CASH ON DELIVERY' : 'PREPAID'}</div></div><div class="sp"></div>${collect ? `<div class="big num">${Number(codAmount).toFixed(3)} OMR</div>` : ''}</div>
 ${o.delivery_method ? `<div class="box row"><div class="sp" style="font-size:10pt;font-weight:800">التوصيل: ${METHOD[o.delivery_method]}</div>${o.carrier_tracking && !/^https?:/.test(o.carrier_tracking) ? `<div class="num" style="font-size:9pt;font-weight:600">${esc(o.carrier_tracking)}</div>` : ''}</div>` : ''}
 <div class="box"><div class="row"><div class="sp lbl">الفاتورة <span class="en num">${esc(invoiceNo(o))}</span></div><div style="font-size:8pt;font-weight:600">${pieces} قطعة</div></div>

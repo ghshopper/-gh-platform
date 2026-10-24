@@ -27,6 +27,7 @@ import GHPagination from '../../components/GHPagination'
 import CustomerProfile from '../../components/CustomerProfile'
 import { EmptyRow } from '../../components/Empty'
 import { useSearchParams } from 'react-router-dom'
+import { useFeature } from '../../lib/features'
 
 // The three loyalty tiers: Beige (0–20k points), Burgundy (20k–50k), Black (50k+).
 const TIER_LOOKS = [
@@ -53,6 +54,8 @@ export default function Customers() {
   const [customers, setCustomers] = useState([])
   const [summary, setSummary] = useState({ total: 0, active: 0, tiers: [] })
   const [loading, setLoading] = useState(true)
+  const walletOn = useFeature('wallet')
+  const cols = walletOn ? 9 : 8
   const [currentPage, setCurrentPage] = useState(1)
   const [lastPage, setLastPage] = useState(1)
   const [totalItems, setTotalItems] = useState(0)
@@ -353,6 +356,7 @@ export default function Customers() {
                 <th style={{ textAlign: 'center' }}>عدد الطلبات</th>
                 <th>إجمالي المشتريات</th>
                 <th>نقاط الولاء</th>
+                {walletOn && <th>المحفظة</th>}
                 <th>المستوى</th>
                 <th>الحالة</th>
                 <th style={{ textAlign: 'center' }}>الإجراءات</th>
@@ -360,9 +364,9 @@ export default function Customers() {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan="8" style={{ textAlign: 'center', padding: '32px', color: 'var(--text-light)' }}>جاري التحميل...</td></tr>
+                <tr><td colSpan={cols} style={{ textAlign: 'center', padding: '32px', color: 'var(--text-light)' }}>جاري التحميل...</td></tr>
               ) : customers.length === 0 ? (
-                <EmptyRow cols={8} icon={RiGroupLine} title={search || selectedTier !== 'all' || selectedStatus !== 'all' ? 'ما فيه عملاء بهذا البحث' : 'ما فيه عملاء للحين'} hint={search ? 'جرّب الاسم أو آخر 4 أرقام من الهاتف' : 'العملاء يظهرون هنا أول ما يسجلون من التطبيق أو الموقع'} />
+                <EmptyRow cols={cols} icon={RiGroupLine} title={search || selectedTier !== 'all' || selectedStatus !== 'all' ? 'ما فيه عملاء بهذا البحث' : 'ما فيه عملاء للحين'} hint={search ? 'جرّب الاسم أو آخر 4 أرقام من الهاتف' : 'العملاء يظهرون هنا أول ما يسجلون من التطبيق أو الموقع'} />
               ) : (
                 customers.map((customer) => {
                   const tier = tierStyle(tiers, customer.loyalty_tier)
@@ -403,6 +407,17 @@ export default function Customers() {
                           <RiCopperCoinLine /> {customer.loyalty_points || 0} نقطة
                         </span>
                       </td>
+
+                      {walletOn && (
+                        <td>
+                          {Number(customer.wallet_balance) > 0 ? (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontWeight: 700, color: 'var(--text-primary)' }}>
+                              <span className="font-mono">{parseFloat(customer.wallet_balance).toFixed(3)}</span>
+                              <OmrSymbol size={11} primaryColor="var(--text-primary)" secondaryColor="var(--color-gold)" />
+                            </div>
+                          ) : <span style={{ color: 'var(--text-light)' }}>—</span>}
+                        </td>
+                      )}
 
                       <td>
                         <span className="badge" style={{ backgroundColor: tier.bg, color: tier.text, border: `1px solid ${tier.border}40` }}>

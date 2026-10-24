@@ -47,7 +47,8 @@ import {
   RiDatabase2Line,
   RiRadarLine,
   RiMoonLine,
-  RiSunLine, RiHandCoinLine } from 'react-icons/ri'
+  RiSunLine, RiHandCoinLine, RiChat3Line, RiToggleLine } from 'react-icons/ri'
+import { useFeature } from '../lib/features'
 import { setThemeChoice } from '../lib/theme'
 
 // Sidebar, grouped the way the work flows: sell → products → customers → store.
@@ -73,6 +74,7 @@ const navSections = [
   ] },
   { title: 'العملاء', items: [
     { label: 'العملاء', icon: RiGroupLine, path: '/admin/customers' },
+    { label: 'المحادثات', icon: RiChat3Line, path: '/admin/chats', badge: 'chats' },
     { label: 'نظام الولاء', icon: RiStarSmileLine, path: '/admin/loyalty' },
     { label: 'كوبونات الخصم', icon: RiCoupon3Line, path: '/admin/coupons' },
     { label: 'بطاقات الهدايا', icon: RiGiftLine, path: '/admin/gift-cards' },
@@ -94,6 +96,7 @@ const navSections = [
     { label: 'النسخ الاحتياطية', icon: RiDatabase2Line, path: '/admin/backups' },
     { label: 'المستخدمون', icon: RiUserSettingsLine, path: '/admin/users' },
     { label: 'سجل النشاط', icon: RiHistoryLine, path: '/admin/activity' },
+    { label: 'المميزات', icon: RiToggleLine, path: '/admin/features' },
     { label: 'الإعدادات', icon: RiSettings4Line, path: '/admin/settings' },
   ] },
 ]
@@ -149,6 +152,20 @@ export default function AdminLayout() {
     const t = setInterval(load, 30000)
     return () => clearInterval(t)
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // unread customer chats (badge on المحادثات); the chats page also pushes fresh counts
+  const chatOn = useFeature('chat')
+  const [chatsUnread, setChatsUnread] = useState(0)
+  useEffect(() => {
+    if (!chatOn || !canOpen('/admin/chats', user)) { setChatsUnread(0); return }
+    const load = () => api.get('/ps/chats/unread').then((r) => setChatsUnread(Number(r.data?.count) || 0)).catch(() => {})
+    load()
+    const t = setInterval(load, 20000)
+    const onPush = (e) => (typeof e.detail === 'number' ? setChatsUnread(e.detail) : load())
+    window.addEventListener('gh:chats-unread', onPush)
+    return () => { clearInterval(t); window.removeEventListener('gh:chats-unread', onPush) }
+  }, [chatOn]) // eslint-disable-line react-hooks/exhaustive-deps
+  const badgeFor = (item) => (item.badge === 'chats' ? chatsUnread : 0)
 
   const handleLogout = () => {
     localStorage.removeItem('token')
@@ -394,15 +411,20 @@ export default function AdminLayout() {
               {sec.title && !isCollapsed ? <div className="nav-section-title">{sec.title}</div> : null}
               {sec.items.map((item) => {
                 const Icon = item.icon
+                const n = badgeFor(item)
                 return (
                   <NavLink
                     key={item.path}
                     to={item.path}
                     className={({ isActive }) => `nav-item-dark ${isActive ? 'active' : ''}`}
                     title={isCollapsed ? item.label : ''}
+                    style={n > 0 ? { position: 'relative' } : undefined}
                   >
                     <Icon className="nav-icon" size={18} />
                     {!isCollapsed && <span className="nav-label">{item.label}</span>}
+                    {n > 0 && (isCollapsed
+                      ? <span style={{ position: 'absolute', top: 8, left: 10, width: 8, height: 8, borderRadius: 8, background: '#DC2626' }} />
+                      : <span style={{ marginRight: 'auto', minWidth: 20, height: 20, padding: '0 6px', borderRadius: 999, background: '#DC2626', color: '#fff', fontSize: 11, fontWeight: 700, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>{n > 99 ? '99+' : n}</span>)}
                   </NavLink>
                 )
               })}

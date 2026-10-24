@@ -3,11 +3,14 @@ const PAGE_AREA = {
   'app-orders': 'orders', 'past-orders': 'orders', 'store-orders': 'orders', 'product-requests': 'orders', 'abandoned-carts': 'orders',
   invoices: 'finance', payments: 'finance', reports: 'finance', trips: 'finance',
   products: 'products', 'import-items': 'products', 'import-review': 'products', 'source-watch': 'products', categories: 'products', brands: 'products', attributes: 'products', reviews: 'products',
-  customers: 'customers', loyalty: 'customers', coupons: 'customers', 'gift-cards': 'customers',
+  customers: 'customers', chats: 'customers', loyalty: 'customers', coupons: 'customers', 'gift-cards': 'customers',
   'customize-app': 'marketing', 'notify-users': 'marketing', faqs: 'marketing', offers: 'marketing', 'points-boosts': 'marketing', campaigns: 'marketing',
   shipping: 'shipping', 'gcc-shipping': 'shipping',
   users: 'settings', settings: 'settings', whatsapp: 'settings', messaging: 'settings', backups: 'settings', activity: 'settings', monitor: 'settings',
 }
+
+// Pages only full admins open (the server agrees: /admin/features is admins only).
+const ADMIN_ONLY = ['features']
 
 export const STAFF_ROLES = ['super_admin', 'admin', 'manager', 'sales_manager', 'product_editor', 'shipping_manager', 'accountant', 'support']
 
@@ -27,6 +30,7 @@ export function canOpen(path, user = currentUser()) {
   if (areas === null) return true
   const page = String(path).replace(/^.*\/admin\/?/, '').split(/[/?#]/)[0]
   if (!page || page === 'dashboard' || page === 'profile') return true
+  if (ADMIN_ONLY.includes(page)) return false
   const area = PAGE_AREA[page]
   return !!area && areas.includes(area)
 }
