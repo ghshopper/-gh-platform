@@ -5,7 +5,8 @@ import { SafeImg } from './SafeImg';
 import { originOf } from '../lib/eta';
 import { inStock, isOnOrder, mustChoose, needsChoice, num, omr, optionsExtra, withSingles, productAttributes, productImages, productPrice, productWasPrice } from '../lib/format';
 import { usePrefs } from '../lib/prefs';
-import { useCart, useToast, useWishlist } from '../lib/store';
+import { useCart, useFeature, useToast, useWishlist } from '../lib/store';
+import { productRating, Stars } from './Stars';
 import type { Product } from '../lib/types';
 import { Icon } from './Icon';
 
@@ -173,6 +174,8 @@ export function ProductCard({ product }: { product: Product }) {
   const was = productWasPrice(product);
   const off = was && was > price ? Math.round((1 - price / was) * 100) : 0;
   const saved = wish.has(product.id);
+  const reviewsOn = !!useFeature('reviews');
+  const rating = productRating(product);
 
   return (
     <article className="pcard">
@@ -206,6 +209,7 @@ export function ProductCard({ product }: { product: Product }) {
         {brandOf(product) ? <div className="brand">{brandOf(product).toUpperCase()}</div> : null}
         <div className="pcard-name">{pick(product, 'name')}</div>
         <Price p={product} />
+        {reviewsOn && rating.avg > 0 && rating.count > 0 ? <Stars value={rating.avg} size={11} count={rating.count} /> : null}
         {!out ? <div className={`avail${isOnOrder(product) ? ' order' : ''}`}><i />{isOnOrder(product) ? tr('بالطلب', 'On order') : tr('تسليم فوري', 'Ready to deliver')}</div> : null}
       </div>
     </article>

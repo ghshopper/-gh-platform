@@ -1,7 +1,8 @@
 export type IconName =
   | 'search' | 'bag' | 'bagAdd' | 'heart' | 'heartFill' | 'user' | 'close' | 'menu' | 'plus' | 'minus' | 'trash'
   | 'forward' | 'back' | 'down' | 'check' | 'filter' | 'globe' | 'moon' | 'sun' | 'whatsapp' | 'instagram' | 'tag'
-  | 'truck' | 'shield' | 'lock' | 'gift' | 'camera' | 'crown' | 'pin' | 'doc' | 'box' | 'star' | 'info';
+  | 'truck' | 'shield' | 'lock' | 'gift' | 'camera' | 'crown' | 'pin' | 'doc' | 'box' | 'star' | 'info'
+  | 'chat' | 'wallet' | 'bell' | 'image' | 'send' | 'starFill';
 
 export function Icon({ name, size = 20, stroke = 1.4, className, fill }: { name: IconName; size?: number; stroke?: number; className?: string; fill?: string }) {
   const p = { stroke: 'currentColor', strokeWidth: stroke, fill: 'none', strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
@@ -39,6 +40,12 @@ export function Icon({ name, size = 20, stroke = 1.4, className, fill }: { name:
       {name === 'doc' && <path d="M6 3h9l4 4v14H6zM15 3v4h4M9 12h7M9 16h7" {...p} />}
       {name === 'box' && <path d="M4 8l8-4 8 4v9l-8 4-8-4zM4 8l8 4 8-4M12 12v9" {...p} />}
       {name === 'star' && <path d="M12 4l2.4 5 5.6.6-4.2 3.8 1.2 5.6L12 16.2 7 19l1.2-5.6L4 9.6 9.6 9z" {...p} />}
+      {name === 'starFill' && <path d="M12 4l2.4 5 5.6.6-4.2 3.8 1.2 5.6L12 16.2 7 19l1.2-5.6L4 9.6 9.6 9z" {...p} fill={fill ?? 'currentColor'} />}
+      {name === 'chat' && (<><path d="M4 5h16v11H9l-5 4z" {...p} /><path d="M8 9.5h8M8 12.5h5" {...p} /></>)}
+      {name === 'wallet' && (<><path d="M4 7h15v13H4zM4 7l11-3v3" {...p} /><path d="M15 12.5h4v3h-4z" {...p} /></>)}
+      {name === 'bell' && (<><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z" {...p} /><path d="M10 20.5a2 2 0 0 0 4 0" {...p} /></>)}
+      {name === 'image' && (<><rect x={4} y={5} width={16} height={14} {...p} /><circle cx={9} cy={10} r={1.6} {...p} /><path d="M4 17l5-4.5 4 3.5 3-2.5 4 3.5" {...p} /></>)}
+      {name === 'send' && <path d="M4 12l16-7-6 16-3-6.5zM11 14.5L20 5" {...p} />}
       {name === 'info' && (<><circle cx={12} cy={12} r={9} {...p} /><path d="M12 11v5M12 8v.5" {...p} /></>)}
     </svg>
   );

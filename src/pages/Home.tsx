@@ -4,7 +4,10 @@ import { api, asset, imageUrl, listOf } from '../lib/api';
 import { num } from '../lib/format';
 import { useLoad, useTitle } from '../lib/hooks';
 import { usePrefs } from '../lib/prefs';
-import { useData } from '../lib/store';
+import { useAuth, useData } from '../lib/store';
+import { WeeklyStories } from '../components/Stories';
+import { VipCard } from '../components/VipCard';
+import { CustomerReviews, ServiceReviewPrompt } from '../components/ServiceReviews';
 import type { HeroSlide, Product, SectionSetting } from '../lib/types';
 import { CategoryArt } from '../components/CategoryArt';
 import { Icon } from '../components/Icon';
@@ -92,6 +95,7 @@ export default function Home() {
   const { tr, pick, gender } = usePrefs();
   useTitle('');
   const { home, categories, brands } = useData();
+  const { user } = useAuth();
   const sections = home?.sections ?? {};
   const g = gender || undefined;
   const featured = useLoad(async () => listOf<Product>(await api.get<unknown>('/customer/products/featured', { gender: g })), [gender]);
@@ -195,7 +199,15 @@ export default function Home() {
     <>
       <Hero slides={home?.hero_slides ?? []} />
       <div className="container only-mobile g-home"><GenderSwitch /></div>
+      <WeeklyStories />
+      {user ? (
+        <div className="container home-member">
+          <VipCard compact link />
+          <ServiceReviewPrompt />
+        </div>
+      ) : null}
       {order.map((k) => block(k))}
+      <CustomerReviews />
     </>
   );
 }

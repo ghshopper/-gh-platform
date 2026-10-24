@@ -4,10 +4,14 @@ import { api } from '../lib/api';
 import { dateText, num, omrReal } from '../lib/format';
 import { useLoad, useTitle } from '../lib/hooks';
 import { usePrefs } from '../lib/prefs';
-import { useAuth } from '../lib/store';
+import { useAuth, useFeature, useFeatures } from '../lib/store';
 import type { MyOrder, MyOrdersResponse } from '../lib/types';
 import { Icon } from '../components/Icon';
 import { currentReferral } from '../lib/track';
+import { AskButton, useChat } from '../components/Chat';
+import { ServiceReviewPrompt } from '../components/ServiceReviews';
+import { VipCard } from '../components/VipCard';
+import { AlertPrefsCard, MyRequests, WalletSection } from './AccountFeatures';
 
 const STEPS: [string, string][] = [['استلمناه', 'Received'], ['اشتريناه', 'Bought'], ['وصل عُمان', 'In Oman'], ['في الطريق', 'On the way'], ['تم التسليم', 'Delivered']];
 const FLOW = ['requested', 'purchased', 'arrived', 'out_for_delivery', 'delivered'];
@@ -97,7 +101,9 @@ function SignIn() {
 
 function OrderCard({ o }: { o: MyOrder }) {
   const { tr, isAr } = usePrefs();
+  const photosOn = !!useFeature('purchase_photos');
   const [open, setOpen] = useState(false);
+  const [zoom, setZoom] = useState<string | null>(null);
   const step = FLOW.indexOf(o.status);
   return (
     <article className="ord">
@@ -117,8 +123,16 @@ function OrderCard({ o }: { o: MyOrder }) {
         <div className="ord-body">
           {o.items.map((it, i) => (
             <div key={i} className="ord-item">
-              <div className="co-img">{it.photo_url ? <img src={it.photo_url} alt="" /> : null}</div>
-              <div>{it.brand ? <div className="brand">{it.brand.toUpperCase()}</div> : null}<div className="small">{it.name}</div>{it.details ? <div className="small muted">{it.details}</div> : null}</div>
+              <div className="co-img">{photosOn && it.photo_url ? <button type="button" className="ord-shot" onClick={() => setZoom(it.photo_url!)}><img src={it.photo_url} alt="" /></button> : null}</div>
+              <div>
+                {it.brand ? <div className="brand">{it.brand.toUpperCase()}</div> : null}<div className="small">{it.name}</div>{it.details ? <div className="small muted">{it.details}</div> : null}
+                {photosOn && (it.photo_url || it.receipt_url) ? (
+                  <div className="ord-proofs">
+                    {it.photo_url ? <button type="button" className="link small" onClick={() => setZoom(it.photo_url!)}><Icon name="camera" size={14} /> {tr('صورة القطعة من المحل', 'Photo from the boutique')}</button> : null}
+                    {it.receipt_url ? <button type="button" className="link small" onClick={() => setZoom(it.receipt_url!)}><Icon name="doc" size={14} /> {tr('إيصال الشراء', 'Purchase receipt')}</button> : null}
+                  </div>
+                ) : null}
+              </div>
               <span className="num">{omrReal(it.price)}</span>
             </div>
           ))}
@@ -129,16 +143,41 @@ function OrderCard({ o }: { o: MyOrder }) {
             {o.remaining > 0.0005 ? <div className="red"><span>{tr('المتبقي', 'Balance due')}</span><span className="num">{omrReal(o.remaining)}</span></div> : <div className="green"><span>{tr('مدفوع', 'Paid')}</span><span /></div>}
             {o.pay_url && o.remaining > 0.0005 ? <a className="btn wide" href={o.pay_url}>{tr('ادفع الآن', 'Pay now')} · <span className="num">{omrReal(o.remaining)}</span></a> : null}
           </div>
-          {o.tracking_token ? <a className="link small" href={`/track/?t=${o.tracking_token}`}>{tr('صفحة تتبع الطلب', 'Tracking page')}</a> : null}
+          {o.gift ? (
+            <div className="ord-gift">
+              <Icon name="gift" size={16} />
+              <span>{tr('هدية', 'Gift')}{o.gift.to ? tr(` إلى ${o.gift.to}`, ` to ${o.gift.to}`) : ''}{o.gift.wrap ? tr(' · مغلّفة', ' · wrapped') : ''}{o.gift.hide_prices ? tr(' · بدون أسعار', ' · prices hidden') : ''}</span>
+              {o.gift.message ? <em>“{o.gift.message}”</em> : null}
+            </div>
+          ) : null}
+          <div className="ord-links">
+            {o.tracking_token ? <a className="link small" href={`/track/?t=${o.tracking_token}`}>{tr('صفحة تتبع الطلب', 'Tracking page')}</a> : null}
+            <AskButton className="link small ask-link" ctx={{ psOrderId: o.id, invoiceNo: o.invoice_no }} label={tr('اسأل عن طلبك', 'Ask about your order')} />
+          </div>
         </div>
       ) : null}
+      {zoom ? <div className="lightbox" onClick={() => setZoom(null)}><img src={zoom} alt="" /><button className="icon-btn" aria-label={tr('إغلاق', 'Close')}><Icon name="close" /></button></div> : null}
     </article>
   );
 }
 
+type Tab = 'orders' | 'requests' | 'wallet' | 'alerts';
+
 export default function Account() {
   const { tr, pick } = usePrefs();
   const { user, logout, ready } = useAuth();
+  const flags = useFeatures();
+  const chat = useChat();
+  const [sp, setSp] = useSearchParams();
+  const tabs: { k: Tab; ar: string; en: string; on: boolean }[] = [
+    { k: 'orders', ar: 'طلباتي', en: 'My orders', on: true },
+    { k: 'requests', ar: 'طلباتي الخاصة', en: 'My requests', on: flags.quotes.on },
+    { k: 'wallet', ar: 'رصيدك', en: 'Balance', on: flags.wallet.on },
+    { k: 'alerts', ar: 'التنبيهات', en: 'Alerts', on: flags.wishlist_alerts.on },
+  ];
+  const visible = tabs.filter((t) => t.on);
+  const tab: Tab = visible.find((t) => t.k === sp.get('tab'))?.k ?? 'orders';
+  const pickTab = (k: Tab) => setSp(k === 'orders' ? {} : { tab: k }, { replace: true });
   useTitle(user ? tr('حسابي', 'My account') : tr('تسجيل الدخول', 'Sign in'));
   const orders = useLoad(async () => (user ? await api.get<MyOrdersResponse>('/ps/my-orders') : null), [user?.id]);
   const loyalty = useLoad(async () => (user ? await api.get<{ balance?: number; conversion_rate?: number; tier_points?: number; to_next?: number; next_tier_id?: number | null; tier_id?: number | null }>('/customer/loyalty/balance') : null), [user?.id]);
@@ -167,10 +206,12 @@ export default function Account() {
             <b>{user.name}</b>
             <span className="l small">{user.email}</span>
             <div className="member-pts"><span className="l">{num(bal?.balance ?? user.loyalty_points).toLocaleString('en-US')}</span><small>{tr('نقطة', 'points')}</small></div>
-            {bal?.next_tier_id ? <small>{tr(`باقي ${num(bal.to_next).toLocaleString('en-US')} نقطة لمستوى ${tierName(bal.next_tier_id)}`, `${num(bal.to_next).toLocaleString('en-US')} points to ${tierName(bal.next_tier_id)}`)}</small> : null}
+            {!flags.vip_progress.on && bal?.next_tier_id ? <small>{tr(`باقي ${num(bal.to_next).toLocaleString('en-US')} نقطة لمستوى ${tierName(bal.next_tier_id)}`, `${num(bal.to_next).toLocaleString('en-US')} points to ${tierName(bal.next_tier_id)}`)}</small> : null}
           </div>
+          <VipCard />
           <nav className="acc-links">
             <Link to="/wishlist"><Icon name="heart" />{tr('المفضلة', 'Wishlist')}</Link>
+            {chat.enabled ? <button type="button" onClick={() => chat.open()}><Icon name="chat" />{tr('المحادثة المباشرة', 'Live chat')}{chat.unread ? <b className="acc-badge">{chat.unread}</b> : null}</button> : null}
             <Link to="/request"><Icon name="camera" />{tr('اطلب قطعة', 'Request a piece')}</Link>
             {orders.data?.portal_url ? <a href={orders.data.portal_url}><Icon name="doc" />{tr('فواتيري وإيصالاتي', 'Invoices & receipts')}</a> : null}
             <a href="https://wa.me/96877246972" target="_blank" rel="noreferrer"><Icon name="whatsapp" />{tr('تواصل معنا', 'Contact us')}</a>
@@ -179,12 +220,24 @@ export default function Account() {
           <Birthday />
         </aside>
         <section>
-          <h2>{tr('طلباتي', 'My orders')}</h2>
-          {orders.loading ? <div className="skeleton" /> : (orders.data?.orders ?? []).length ? (
-            <div className="ord-list">{(orders.data?.orders ?? []).map((o) => <OrderCard key={o.id} o={o} />)}</div>
-          ) : (
-            <div className="empty"><Icon name="box" size={34} stroke={1.1} /><p>{tr('ما عندك طلبات للحين', 'No orders yet')}</p><Link to="/shop" className="btn outline">{tr('تسوّق الآن', 'Shop now')}</Link></div>
-          )}
+          {visible.length > 1 ? (
+            <div className="acc-tabs" role="tablist">
+              {visible.map((t) => <button key={t.k} role="tab" aria-selected={tab === t.k} className={tab === t.k ? 'on' : ''} onClick={() => pickTab(t.k)}>{tr(t.ar, t.en)}</button>)}
+            </div>
+          ) : <h2>{tr('طلباتي', 'My orders')}</h2>}
+          {tab === 'orders' ? (
+            <>
+              <ServiceReviewPrompt />
+              {orders.loading ? <div className="skeleton" /> : (orders.data?.orders ?? []).length ? (
+                <div className="ord-list">{(orders.data?.orders ?? []).map((o) => <OrderCard key={o.id} o={o} />)}</div>
+              ) : (
+                <div className="empty"><Icon name="box" size={34} stroke={1.1} /><p>{tr('ما عندك طلبات للحين', 'No orders yet')}</p><Link to="/shop" className="btn outline">{tr('تسوّق الآن', 'Shop now')}</Link></div>
+              )}
+            </>
+          ) : null}
+          {tab === 'requests' ? <MyRequests /> : null}
+          {tab === 'wallet' ? <WalletSection onPoints={loyalty.reload} /> : null}
+          {tab === 'alerts' ? <AlertPrefsCard /> : null}
         </section>
       </div>
     </div>

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { api } from '../lib/api';
 import { useTitle } from '../lib/hooks';
 import { usePrefs } from '../lib/prefs';
-import { useAuth, useData, useWishlist } from '../lib/store';
+import { useAuth, useData, useFeature, useWishlist } from '../lib/store';
 import { Icon } from '../components/Icon';
 import { ProductCard } from '../components/ProductCard';
 
@@ -12,9 +12,10 @@ export function Wishlist() {
   useTitle(tr('المفضلة', 'Wishlist'));
   const { user } = useAuth();
   const wish = useWishlist();
+  const alertsOn = !!useFeature('wishlist_alerts');
   return (
     <div className="container page">
-      <header className="page-head center"><span className="kicker">WISHLIST</span><h1>{tr('المفضلة', 'Wishlist')}</h1>{user ? <p className="muted small">{tr('بنعلمك على إيميلك إذا نزل سعر قطعة هنا أو رجعت متوفرة', "We'll email you if a piece here drops in price or is back in stock")}</p> : null}</header>
+      <header className="page-head center"><span className="kicker">WISHLIST</span><h1>{tr('المفضلة', 'Wishlist')}</h1>{user && alertsOn ? <p className="muted small">{tr('بنعلمك إذا نزل سعر قطعة هنا أو رجعت متوفرة', "We'll let you know if a piece here drops in price or is back in stock")} · <Link className="link" to="/account?tab=alerts">{tr('إعدادات التنبيهات', 'Alert settings')}</Link></p> : null}</header>
       {!user ? (
         <div className="empty"><Icon name="heart" size={34} stroke={1.1} /><p>{tr('سجّل دخولك لحفظ القطع', 'Sign in to save pieces')}</p><Link to="/account?next=/wishlist" className="btn">{tr('تسجيل الدخول', 'Sign in')}</Link></div>
       ) : wish.products.length ? (
@@ -31,6 +32,7 @@ export function Request() {
   useTitle(tr('اطلب قطعة', 'Request a piece'));
   const { user } = useAuth();
   const { categories } = useData();
+  const quotesOn = !!useFeature('quotes');
   const [name, setName] = useState(user?.name ?? '');
   const [phone, setPhone] = useState(user?.phone ?? '');
   const [desc, setDesc] = useState('');
@@ -46,7 +48,11 @@ export function Request() {
         <div className="done-mark"><Icon name="check" size={34} /></div>
         <h1>{tr('وصلنا طلبك', 'We have your request')}</h1>
         <p className="muted">{tr('بنبحث عن القطعة ونرد عليك بالسعر قريب.', 'We will find the piece and get back to you with a price soon.')}</p>
-        <Link to="/shop" className="btn outline">{tr('متابعة التسوق', 'Continue shopping')}</Link>
+        {user && quotesOn ? <p className="muted small">{tr('أول ما يجهز السعر يوصلك إشعار، وتقدر تأكد وتدفع من «طلباتي الخاصة».', 'When the price is ready you get a notification — accept and pay from "My requests".')}</p> : null}
+        <div className="done-actions">
+          {user && quotesOn ? <Link to="/account?tab=requests" className="btn">{tr('طلباتي الخاصة', 'My requests')}</Link> : null}
+          <Link to="/shop" className="btn outline">{tr('متابعة التسوق', 'Continue shopping')}</Link>
+        </div>
       </div>
     );
   }

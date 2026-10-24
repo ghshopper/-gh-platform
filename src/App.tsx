@@ -5,7 +5,8 @@ import { setTrackedCart, trackPage } from './lib/track';
 import { Layout } from './components/Layout';
 import { QuickAddProvider } from './components/ProductCard';
 import { PrefsProvider } from './lib/prefs';
-import { AuthProvider, CartProvider, DataProvider, ToastProvider, useCart, WishlistProvider } from './lib/store';
+import { AuthProvider, CartProvider, DataProvider, FeaturesProvider, ToastProvider, useCart, WishlistProvider } from './lib/store';
+import { ChatProvider } from './components/Chat';
 import Account from './pages/Account';
 import Brands from './pages/Brands';
 import Categories from './pages/Categories';
@@ -29,6 +30,7 @@ export default function App() {
   return (
     <PrefsProvider>
       <DataProvider>
+        <FeaturesProvider>
         <AuthProvider>
           <WishlistProvider>
             <CartProvider>
@@ -36,6 +38,7 @@ export default function App() {
                 <BrowserRouter>
                   <QuickAddProvider>
                     <Tracker />
+                    <ChatProvider>
                     <Layout>
                       <Routes>
                         <Route path="/" element={<Home />} />
@@ -58,12 +61,14 @@ export default function App() {
                         <Route path="*" element={<NotFound />} />
                       </Routes>
                     </Layout>
+                    </ChatProvider>
                   </QuickAddProvider>
                 </BrowserRouter>
               </ToastProvider>
             </CartProvider>
           </WishlistProvider>
         </AuthProvider>
+        </FeaturesProvider>
       </DataProvider>
     </PrefsProvider>
   );

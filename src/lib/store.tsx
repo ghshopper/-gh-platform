@@ -4,7 +4,7 @@ import { GENACOM_BRANCHES, type GenacomBranch } from './genacom';
 import { api, ApiError, hasToken, listOf, setToken, setUnauthorizedHandler } from './api';
 import { num } from './format';
 import { setGccConfig, type GccConfig } from './region';
-import type { Brand, CartItem, Category, DeliveryOptions, FooterSettings, HomeConfig, Policy, Product, User } from './types';
+import type { Brand, CartItem, Category, DeliveryOptions, FeatureFlags, FeatureKey, FooterSettings, HomeConfig, Policy, Product, User } from './types';
 
 /* ------------------------------- App data ------------------------------- */
 
@@ -92,6 +92,90 @@ export function useData(): AppData {
   const v = useContext(DataCtx);
   if (!v) throw new Error('useData outside provider');
   return v;
+}
+
+/* ------------------------------- Features ------------------------------- */
+/* The owner switches customer features on/off (dashboard → المميزات).
+   GET /app/features at start and whenever the tab comes back; every UI piece
+   of a feature that is off stays hidden. Until the server answers we use the
+   contract's defaults (existing features on, new ones off). */
+
+export const FEATURE_DEFAULTS: FeatureFlags = {
+  wishlist_alerts: { on: true },
+  quotes: { on: false, expires_days: 3 },
+  smart_push: { on: true },
+  wallet: { on: false, points_convert: true, topup: true, topup_min: 5, topup_max: 1000 },
+  gifts: { on: true, wrap: true, wrap_fee: 2 },
+  vip_progress: { on: true },
+  purchase_photos: { on: true },
+  reviews: { on: true, service: true },
+  chat: { on: false },
+  weekly_new: { on: false, days: 7, max: 20, title_ar: 'جديدنا هذا الأسبوع', title_en: 'New this week', product_ids: [] },
+};
+
+function mergeFeatures(raw: unknown): FeatureFlags {
+  const out = { ...FEATURE_DEFAULTS } as Record<string, Record<string, unknown>>;
+  if (raw && typeof raw === 'object') {
+    const r = ((raw as { data?: unknown }).data && typeof (raw as { data?: unknown }).data === 'object' ? (raw as { data: unknown }).data : raw) as Record<string, unknown>;
+    for (const k of Object.keys(FEATURE_DEFAULTS)) {
+      const v = r[k];
+      if (v && typeof v === 'object') out[k] = { ...out[k], ...(v as Record<string, unknown>), on: !!(v as { on?: unknown }).on };
+    }
+  }
+  return out as unknown as FeatureFlags;
+}
+
+interface FeaturesCtxValue {
+  flags: FeatureFlags;
+  reload: () => void;
+}
+const FeaturesCtx = createContext<FeaturesCtxValue | null>(null);
+
+export function FeaturesProvider({ children }: { children: ReactNode }) {
+  const [flags, setFlags] = useState<FeatureFlags>(() => {
+    try {
+      const raw = sessionStorage.getItem('gh_features');
+      if (raw) return mergeFeatures(JSON.parse(raw));
+    } catch {
+      // ignore
+    }
+    return FEATURE_DEFAULTS;
+  });
+  const last = useRef(0);
+  const reload = useCallback(() => {
+    last.current = Date.now();
+    api.get<unknown>('/app/features').then((r) => {
+      const f = mergeFeatures(r);
+      setFlags(f);
+      try {
+        sessionStorage.setItem('gh_features', JSON.stringify(f));
+      } catch {
+        // ignore
+      }
+    }).catch(() => undefined);
+  }, []);
+  useEffect(() => {
+    reload();
+    const on = () => {
+      if (document.visibilityState === 'visible' && Date.now() - last.current > 60000) reload();
+    };
+    document.addEventListener('visibilitychange', on);
+    return () => document.removeEventListener('visibilitychange', on);
+  }, [reload]);
+  const value = useMemo(() => ({ flags, reload }), [flags, reload]);
+  return <FeaturesCtx.Provider value={value}>{children}</FeaturesCtx.Provider>;
+}
+
+/** All feature switches with their settings. */
+export function useFeatures(): FeatureFlags {
+  const v = useContext(FeaturesCtx);
+  return v ? v.flags : FEATURE_DEFAULTS;
+}
+
+/** One feature: its settings, or null when switched off. */
+export function useFeature<K extends FeatureKey>(key: K): FeatureFlags[K] | null {
+  const f = useFeatures()[key];
+  return f && f.on ? f : null;
 }
 
 /* --------------------------------- Auth --------------------------------- */

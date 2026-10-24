@@ -4,12 +4,14 @@ import { api, imageUrl, listOf } from '../lib/api';
 import { inStock, isOnOrder, mustChoose, num, optionsExtra, productAttributes, productImages } from '../lib/format';
 import { useLoad, useTitle } from '../lib/hooks';
 import { usePrefs } from '../lib/prefs';
-import { useAuth, useData, useToast, useWishlist } from '../lib/store';
+import { useAuth, useData, useFeature, useToast, useWishlist } from '../lib/store';
 import { etaDates, etaDuration, ORIGIN_LABEL, productEta, withGulf } from '../lib/eta';
 import { gccCountry, gulfEta } from '../lib/region';
 import type { Product } from '../lib/types';
 import { Icon } from '../components/Icon';
 import { SafeImg } from '../components/SafeImg';
+import { AskButton } from '../components/Chat';
+import { productRating, Stars } from '../components/Stars';
 import { brandOf, OptionPicker, Price, ProductCard, useAddToBag } from '../components/ProductCard';
 
 const WA = '96877246972';
@@ -30,9 +32,13 @@ export default function ProductPage() {
   const wish = useWishlist();
   const { show } = useToast();
   const add = useAddToBag();
+  const reviewsOn = !!useFeature('reviews');
+  const alertsOn = !!useFeature('wishlist_alerts');
+  const [watching, setWatching] = useState<boolean | null>(null);
+  const [watchBusy, setWatchBusy] = useState(false);
   const product = useLoad(async () => (await api.get<{ data?: Product } & Product>(`/customer/products/${id}`)).data ?? null, [id]);
   const p = product.data;
-  const reviews = useLoad(async () => listOf<Review>(await api.get<unknown>(`/customer/products/${id}/reviews`)), [id]);
+  const reviews = useLoad(async () => (reviewsOn ? listOf<Review>(await api.get<unknown>(`/customer/products/${id}/reviews`)) : []), [id, reviewsOn]);
   const related = useLoad(async () => {
     if (!p?.category_id) return [] as Product[];
     return listOf<Product>(await api.get<unknown>('/customer/products', { category_id: p.category_id, per_page: 9, gender: gender || undefined })).filter((x) => x.id !== p.id).slice(0, 8);
@@ -59,6 +65,7 @@ export default function ProductPage() {
     setImg(0);
     setBadImgs([]);
     setChosen({});
+    setWatching(null);
   }, [id]);
 
   if (product.loading && !p) return <div className="container page"><div className="pdp"><div className="skeleton tall" /><div className="skeleton" /></div></div>;
@@ -72,7 +79,25 @@ export default function ProductPage() {
   const saved = wish.has(p.id);
   const name = pick(p, 'name');
   const desc = pick(p, 'description');
-  const avg = num(p.reviews_avg_rating);
+  const { avg, count: ratingCount } = productRating(p);
+  const isWatching = watching ?? !!p.watching;
+  const notifyMe = async () => {
+    if (!user) {
+      show(tr('سجّل دخولك عشان ننبهك', 'Sign in so we can notify you'), { label: tr('تسجيل الدخول', 'Sign in'), to: `/account?next=${encodeURIComponent(`/product/${p.id}`)}` });
+      return;
+    }
+    setWatchBusy(true);
+    try {
+      const r = await api.post<{ watching?: boolean }>(`/customer/products/${p.id}/notify-me`);
+      const on = !!r?.watching;
+      setWatching(on);
+      show(on ? tr('تمام 🤍 بنعلمك أول ما تتوفر', "Done 🤍 We'll tell you when it's back") : tr('ألغينا التنبيه', 'Alert removed'));
+    } catch (x) {
+      show(x instanceof Error ? x.message : tr('تعذّر الحفظ', 'Could not save'));
+    } finally {
+      setWatchBusy(false);
+    }
+  };
 
   const addToBag = () => {
     const need = selectable.filter(mustChoose).find((a) => !(chosen[pick(a, 'name')] ?? '').trim());
@@ -103,12 +128,12 @@ export default function ProductPage() {
         <div className="info">
           {p.brand_id ? <Link to={`/brand/${p.brand_id}`} className="brand big">{brandOf(p).toUpperCase()}</Link> : null}
           <h1 className="pdp-name">{name}</h1>
+          {reviewsOn && avg > 0 ? <a href="#reviews" className="pdp-rating" onClick={() => { const d = document.getElementById('reviews') as HTMLDetailsElement | null; if (d) d.open = true; }}><Stars value={avg} size={15} count={ratingCount} /></a> : null}
           <Price p={p} big extra={optionsExtra(p, chosen, pick)} />
           <div className="pdp-tags">
             <span className={`avail${!available ? ' out' : isOnOrder(p) ? ' order' : ''}`}><i />{!available ? tr('نفدت الكمية', 'Sold out') : isOnOrder(p) ? tr('بالطلب · نجيبها لك بعد الطلب', 'On order · we source it for you') : tr('تسليم فوري', 'Ready to deliver')}</span>
             <span className="tag">{tr('أصلية ١٠٠٪', '100% authentic')}</span>
             {p.points_boost ? <span className="tag boost">⚡ {tr(`نقاط ×${p.points_boost} على هالقطعة`, `${p.points_boost}× points on this piece`)}{p.points_boost_ends_at ? tr(` لين ${new Date(p.points_boost_ends_at).toLocaleDateString('ar-OM', { day: 'numeric', month: 'long' })}`, ` until ${new Date(p.points_boost_ends_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long' })}`) : ''}</span> : null}
-            {avg > 0 ? <span className="tag"><Icon name="star" size={14} /> {avg.toFixed(1)} ({num(p.reviews_count)})</span> : null}
           </div>
           {available ? (() => {
             const e = withGulf(productEta(p, delivery.eta), gulfEta());
@@ -154,6 +179,12 @@ export default function ProductPage() {
               <Icon name={saved ? 'heartFill' : 'heart'} />
             </button>
           </div>
+          {!available && alertsOn ? (
+            <button className={`btn${isWatching ? ' outline' : ''} notify-btn`} disabled={watchBusy} onClick={notifyMe} aria-pressed={isWatching}>
+              <Icon name="bell" /> {isWatching ? tr('بننبهك إذا توفرت ✓', "We'll notify you ✓") : tr('نبّهني إذا توفرت', 'Notify me when available')}
+            </button>
+          ) : null}
+          <AskButton ctx={{ product: { id: p.id, name: `${brandOf(p)} ${name}`.trim(), image: images[0] ?? null } }} label={tr('اسأل عن القطعة', 'Ask about this piece')} />
           <a className="btn ghost" href={ask} target="_blank" rel="noreferrer"><Icon name="whatsapp" /> {tr('اسأل عن القطعة على واتساب', 'Ask about it on WhatsApp')}</a>
           <ul className="perks">
             <li><Icon name="shield" size={18} />{tr('من البوتيك مباشرة، مع الفاتورة الأصلية', 'Straight from the boutique, with the original receipt')}</li>
@@ -167,7 +198,7 @@ export default function ProductPage() {
               <dl className="specs">{specs.map((a, i) => <div key={i}><dt>{pick(a, 'name')}</dt><dd>{(a.values ?? []).map((v) => pick(v, 'value')).join('، ')}</dd></div>)}</dl>
             </details>
           ) : null}
-          <details id="reviews" open={askReview || undefined}>
+          {reviewsOn ? <details id="reviews" open={askReview || undefined}>
             <summary>{tr('التقييمات', 'Reviews')} ({(reviews.data ?? []).length})</summary>
             {askReview && !user ? <p className="small"><Link to={`/account?next=${encodeURIComponent(`/product/${p.id}?review=1`)}`} className="link">{tr('سجّل دخولك عشان تقيّم القطعة', 'Sign in to review this piece')}</Link></p> : null}
             {(reviews.data ?? []).slice(0, 10).map((r) => (
@@ -196,7 +227,7 @@ export default function ProductPage() {
                 <button className="btn outline">{tr('أرسل التقييم', 'Send review')}</button>
               </form>
             ) : null}
-          </details>
+          </details> : null}
         </div>
       </div>
 

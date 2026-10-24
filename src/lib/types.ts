@@ -60,6 +60,11 @@ export interface Product {
   variant_en?: string | null;
   /** Same piece in other colours, each its own product (product page only). */
   variants?: ProductVariant[];
+  /** Approved reviews (computed by the server). */
+  rating_avg?: number | string | null;
+  rating_count?: number | string | null;
+  /** Signed-in customer asked "notify me when available". */
+  watching?: boolean;
 }
 
 export interface ProductVariant {
@@ -128,6 +133,8 @@ export interface HomeConfig {
   section_order?: string[];
   /** The bar above the header; null = switched off. */
   announcement?: { text_ar?: string | null; text_en?: string | null; link?: string | null } | null;
+  /** Same object as GET /app/features. */
+  features?: Partial<FeatureFlags> | null;
 }
 
 export interface FooterSettings {
@@ -248,6 +255,8 @@ export interface MyOrder {
     photo_url?: string | null;
     receipt_url?: string | null;
   }[];
+  /** Gift details, when the order was sent as a gift. */
+  gift?: { to?: string | null; phone?: string | null; message?: string | null; wrap?: boolean; hide_prices?: boolean } | null;
   items_total: number;
   delivery_fee: number;
   total: number;
@@ -299,4 +308,139 @@ export interface Policy {
   title_en?: string | null;
   content_ar?: string | null;
   content_en?: string | null;
+}
+
+/* ---------------- Owner-switchable customer features (GET /app/features) ---------------- */
+
+export interface FeatureFlags {
+  wishlist_alerts: { on: boolean };
+  quotes: { on: boolean; expires_days?: number };
+  smart_push: { on: boolean };
+  wallet: { on: boolean; points_convert?: boolean; topup?: boolean; topup_min?: number; topup_max?: number };
+  gifts: { on: boolean; wrap?: boolean; wrap_fee?: number };
+  vip_progress: { on: boolean };
+  purchase_photos: { on: boolean };
+  reviews: { on: boolean; service?: boolean };
+  chat: { on: boolean; welcome_ar?: string; welcome_en?: string; hours_ar?: string; hours_en?: string };
+  weekly_new: { on: boolean; days?: number; max?: number; title_ar?: string; title_en?: string; product_ids?: number[] };
+}
+export type FeatureKey = keyof FeatureFlags;
+
+export interface AlertPrefs {
+  price_drop: boolean;
+  back_in_stock: boolean;
+  brand_new: boolean;
+}
+
+export interface Quote {
+  price: number;
+  note?: string | null;
+  deposit?: number | null;
+  delivery_fee?: number | null;
+  delivery_method?: string | null;
+  total: number;
+  status: 'sent' | 'accepted' | 'declined' | 'expired' | string;
+  expires_at?: string | null;
+  expired: boolean;
+}
+
+export interface PieceRequest {
+  id: number;
+  product_name?: string | null;
+  brand?: string | null;
+  details?: string | null;
+  image_url?: string | null;
+  product_url?: string | null;
+  status: string;
+  status_label_ar?: string | null;
+  created_at?: string | null;
+  quote: Quote | null;
+  order: { id: string; pay_token?: string | null; pay_url?: string | null; invoice_no?: string | null; paid: boolean; total?: number } | null;
+}
+
+export interface WalletTx {
+  id: number;
+  type: string;
+  type_label_ar?: string | null;
+  amount: number;
+  balance_after: number;
+  note?: string | null;
+  order_number?: string | null;
+  created_at?: string | null;
+}
+
+export interface WalletInfo {
+  balance: number;
+  transactions: WalletTx[];
+  points: number;
+  point_value: number;
+  points_convert: boolean;
+  topup: boolean;
+  topup_min: number;
+  topup_max: number;
+}
+
+export interface TierInfo {
+  id: number;
+  name?: string | null;
+  name_ar?: string | null;
+  color?: string | null;
+  benefits_ar?: string | null;
+  benefits_en?: string | null;
+  min_points: number | string;
+}
+
+export interface LoyaltyBalance {
+  balance?: number;
+  conversion_rate?: number;
+  tier_points?: number;
+  tier_id?: number | null;
+  next_tier_id?: number | null;
+  to_next?: number;
+  tier?: TierInfo | null;
+  next_tier?: TierInfo | null;
+  progress?: number;
+}
+
+export interface ChatMessage {
+  id: number;
+  from: 'customer' | 'staff';
+  body?: string | null;
+  image_url?: string | null;
+  ps_order?: { id: string; invoice_no?: string | null } | null;
+  product?: { id: number; name?: string | null; image?: string | null } | null;
+  created_at?: string | null;
+  staff_name?: string | null;
+}
+
+export interface ChatResponse {
+  thread?: { id: number; unread_customer?: number } | null;
+  welcome?: string | null;
+  hours?: string | null;
+  messages: ChatMessage[];
+}
+
+export interface WeeklyProduct {
+  id: number;
+  name_ar?: string | null;
+  name_en?: string | null;
+  brand?: string | null;
+  price: number | string;
+  compare_price?: number | string | null;
+  sale_price?: number | string | null;
+  image?: string | null;
+  images?: string[];
+}
+
+export interface ServiceReviewPending {
+  ps_order_id?: string | null;
+  order_id?: number | null;
+  invoice_no?: string | null;
+  delivered_at?: string | null;
+}
+
+export interface PublicServiceReviews {
+  avg: number;
+  count: number;
+  data: { first_name?: string | null; rating: number; comment?: string | null; created_at?: string | null }[];
 }

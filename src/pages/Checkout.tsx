@@ -11,9 +11,10 @@ import { useTitle } from '../lib/hooks';
 import { deliveryKey, GOVERNORATES, type Carrier } from '../lib/oman';
 import { GENACOM_BRANCHES } from '../lib/genacom';
 import { usePrefs } from '../lib/prefs';
-import { useAuth, useCart, useData } from '../lib/store';
+import { useAuth, useCart, useData, useFeature } from '../lib/store';
 import type { Address } from '../lib/types';
 import { Icon } from '../components/Icon';
+import { RedeemGift } from './AccountFeatures';
 
 function CouponBox() {
   const { tr } = usePrefs();
@@ -93,6 +94,14 @@ export default function Checkout() {
   const [giftName, setGiftName] = useState('');
   const [giftPhone, setGiftPhone] = useState('');
   const [giftMessage, setGiftMessage] = useState('');
+  const [giftWrap, setGiftWrap] = useState(false);
+  const [giftHide, setGiftHide] = useState(false);
+  const gifts = useFeature('gifts');
+  const walletFlag = useFeature('wallet');
+  // "رصيدك": the GH wallet balance; the server charges total − wallet_amount
+  const [walletBalance, setWalletBalance] = useState(0);
+  const [useWallet, setUseWallet] = useState(false);
+  const [redeemOpen, setRedeemOpen] = useState(false);
   const [notes, setNotes] = useState('');
   const [loyalty, setLoyalty] = useState({ balance: 0, rate: 0.01 });
   const [useLoyalty, setUseLoyalty] = useState(false);
@@ -113,6 +122,14 @@ export default function Checkout() {
     api.get<{ balance?: number | string; conversion_rate?: number | string }>('/customer/loyalty/balance')
       .then((r) => setLoyalty({ balance: num(r?.balance), rate: num(r?.conversion_rate, 0.01) })).catch(() => undefined);
   }, [user]);
+  useEffect(() => {
+    if (!user || !walletFlag) {
+      setWalletBalance(0);
+      return;
+    }
+    api.get<{ balance?: number | string; data?: { balance?: number | string } }>('/customer/wallet')
+      .then((r) => setWalletBalance(num(r?.data?.balance ?? r?.balance))).catch(() => undefined);
+  }, [user, !!walletFlag]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!cart.items.length) {
     return (
@@ -144,11 +161,17 @@ export default function Checkout() {
   };
   const service = app.serviceFee;
   const tax = (cart.subtotal * app.taxPercent) / 100;
-  const gross = cart.subtotal + fee + service + tax;
+  const giftOn = !!gifts && gift;
+  const wrapFee = giftOn && giftWrap && gifts?.wrap !== false ? num(gifts?.wrap_fee, 0) : 0;
+  const gross = cart.subtotal + fee + service + tax + wrapFee;
   const couponValue = cart.coupon ? Math.min(cart.coupon.discount, gross) : 0;
   const before = gross - couponValue;
   const loyaltyValue = useLoyalty ? Math.min(loyalty.balance * loyalty.rate, before) : 0;
   const total = Math.max(0, before - loyaltyValue);
+  const walletUsable = !!walletFlag && !!user && walletBalance > 0.0005;
+  const walletUse = walletUsable && useWallet ? Math.round(Math.min(walletBalance, total) * 1000) / 1000 : 0;
+  const due = Math.max(0, Math.round((total - walletUse) * 1000) / 1000);
+  const coveredByWallet = walletUse > 0 && due <= 0.0005;
   const allBranches = app.delivery.branches?.length ? app.delivery.branches : GENACOM_BRANCHES;
   const branches = allBranches.filter((b) => (zone === 'local' ? b.local : !b.local));
   const pickedBranch = branch ? allBranches.find((b) => b.id === branchId) ?? null : null;
@@ -163,8 +186,8 @@ export default function Checkout() {
         country: abroad.name_ar,
         country_code: abroad.code,
         display_currency: abroad.currency,
-        recipient_name: gift ? giftName.trim() : name.trim(),
-        phone: fullPhone(gift && giftPhone.trim() ? giftPhone : phone),
+        recipient_name: giftOn ? giftName.trim() : name.trim(),
+        phone: fullPhone(giftOn && giftPhone.trim() ? giftPhone : phone),
         area: gov.trim(),
         city: city.trim(),
         street: street.trim(),
@@ -180,8 +203,8 @@ export default function Checkout() {
       delivery_method: deliveryKey(carrier, branch),
       pickup_branch: pickedBranch?.id ?? null,
       delivery_label: methodText,
-      recipient_name: gift ? giftName.trim() : chosen?.recipient_name ?? name.trim(),
-      phone: gift && giftPhone.trim() ? giftPhone.trim() : chosen?.phone ?? phone.trim(),
+      recipient_name: giftOn ? giftName.trim() : chosen?.recipient_name ?? name.trim(),
+      phone: giftOn && giftPhone.trim() ? giftPhone.trim() : chosen?.phone ?? phone.trim(),
       country: 'عُمان',
       area: pickedBranch ? pickedBranch.gov : chosen?.governorate ?? gov,
       city: pickedBranch ? pickedBranch.name : chosen?.city ?? city.trim(),
@@ -203,7 +226,7 @@ export default function Checkout() {
       setError(tr('أكمل المنطقة والشارع عشان شركة الشحن توصلك', 'Please add your area and street for the courier'));
       return;
     }
-    if (!name.trim() || phone.replace(/\D/g, '').length < minDigits || (needAddress && !city.trim()) || (gift && !giftName.trim())) {
+    if (!name.trim() || phone.replace(/\D/g, '').length < minDigits || (needAddress && !city.trim()) || (giftOn && !giftName.trim())) {
       setError(tr('أكمل الاسم ورقم الهاتف والعنوان', 'Please complete your name, phone and address'));
       return;
     }
@@ -216,13 +239,17 @@ export default function Checkout() {
           return;
         }
       }
-      const res = await api.post<{ data?: { order_number: string; guest_token?: string } }>('/customer/orders', {
+      const res = await api.post<{ data?: { order_number: string; guest_token?: string; amount_due?: number | string; payment_status?: string }; amount_due?: number | string }>('/customer/orders', {
         customer_name: name.trim(),
         customer_phone: fullPhone(phone),
         customer_email: email.trim() || null,
-        is_gift: gift,
-        gift_recipient_name: gift ? giftName.trim() : null,
-        gift_message: gift ? [giftMessage.trim(), giftPhone.trim() ? `هاتف المستلم: ${giftPhone.trim()}` : ''].filter(Boolean).join('\n') || null : null,
+        is_gift: giftOn,
+        gift_recipient_name: giftOn ? giftName.trim() : null,
+        gift_message: giftOn ? giftMessage.trim() || null : null,
+        gift_recipient_phone: giftOn && giftPhone.trim() ? giftPhone.trim() : null,
+        gift_wrap: giftOn && wrapFee > 0,
+        gift_hide_prices: giftOn && giftHide,
+        wallet_amount: walletUse > 0 ? walletUse : undefined,
         payment_method: method === 'bank' ? 'bank_transfer' : 'amwalpay',
         source: 'web',
         campaign: currentCampaign(),
@@ -251,6 +278,12 @@ export default function Checkout() {
         // ignore
       }
       cart.clear();
+      const serverDue = res?.data?.amount_due ?? res?.amount_due;
+      const left = serverDue !== undefined && serverDue !== null ? num(serverDue) : due;
+      if (left <= 0.0005 && (walletUse > 0 || res?.data?.payment_status === 'paid')) {
+        navigate(`/order/${encodeURIComponent(order.order_number)}?pay=paid`);
+        return;
+      }
       if (method === 'bank') {
         navigate(`/order/${encodeURIComponent(order.order_number)}?pay=bank`);
         return;
@@ -385,20 +418,54 @@ export default function Checkout() {
             )}
           </section>
 
+          {gifts ? (
           <section className="co-sec">
             <h3><b>03</b>{tr('هدية؟', 'A gift?')}</h3>
             <label className="check"><input type="checkbox" checked={gift} onChange={(e) => setGift(e.target.checked)} /> {tr('أرسلها هدية مع رسالة باسمك', 'Send it as a gift with your message')}</label>
             {gift ? (
-              <div className="fields">
-                {field(tr('اسم المستلم', 'Recipient name'), giftName, setGiftName)}
-                {field(tr('هاتف المستلم (اختياري)', 'Recipient phone (optional)'), giftPhone, setGiftPhone, { type: 'tel', dir: 'ltr' })}
-                <label className="field wide"><span>{tr('رسالة الإهداء', 'Gift message')}</span><textarea rows={3} value={giftMessage} onChange={(e) => setGiftMessage(e.target.value)} /></label>
-              </div>
+              <>
+                <div className="fields">
+                  {field(tr('اسم المستلم', 'Recipient name'), giftName, setGiftName)}
+                  {field(tr('هاتف المستلم (اختياري)', 'Recipient phone (optional)'), giftPhone, setGiftPhone, { type: 'tel', dir: 'ltr' })}
+                  <label className="field wide"><span>{tr('رسالة الإهداء', 'Gift message')}</span><textarea rows={3} value={giftMessage} onChange={(e) => setGiftMessage(e.target.value)} maxLength={500} /></label>
+                </div>
+                <div className="gift-opts">
+                  {gifts.wrap !== false ? (
+                    <label className={`gift-opt${giftWrap ? ' on' : ''}`}>
+                      <input type="checkbox" checked={giftWrap} onChange={(e) => setGiftWrap(e.target.checked)} />
+                      <Icon name="gift" size={20} />
+                      <div><b>{tr('تغليف هدية فاخر', 'Luxury gift wrap')}</b><span>{tr('علبة GH مع شريطة وبطاقة برسالتك', 'A GH box with ribbon and your message card')}</span></div>
+                      <span className="num">{num(gifts.wrap_fee) > 0 ? `+${omr(num(gifts.wrap_fee))}` : tr('مجاناً', 'Free')}</span>
+                    </label>
+                  ) : null}
+                  <label className={`gift-opt${giftHide ? ' on' : ''}`}>
+                    <input type="checkbox" checked={giftHide} onChange={(e) => setGiftHide(e.target.checked)} />
+                    <Icon name="tag" size={20} />
+                    <div><b>{tr('إخفاء الأسعار', 'Hide prices')}</b><span>{tr('ما نحط فاتورة بالأسعار داخل الهدية', 'No priced invoice inside the gift')}</span></div>
+                  </label>
+                </div>
+              </>
             ) : null}
           </section>
+          ) : null}
 
           <section className="co-sec">
-            <h3><b>04</b>{tr('الدفع', 'Payment')}</h3>
+            <h3><b>{gifts ? '04' : '03'}</b>{tr('الدفع', 'Payment')}</h3>
+            {walletFlag && user ? (
+              <div className={`wallet-row${useWallet && walletUsable ? ' on' : ''}`}>
+                <label className="wallet-row-main">
+                  <Icon name="wallet" size={20} />
+                  <div>
+                    <b>{tr('رصيدك', 'Your balance')} <span className="num">{omrReal(walletBalance)}</span></b>
+                    <span>{walletUsable ? (useWallet ? tr(`ينخصم ${omrReal(walletUse)} · الباقي للدفع ${omrReal(due)}`, `${omrReal(walletUse)} taken · ${omrReal(due)} left to pay`) : tr('استخدم رصيدك', 'Use your balance')) : tr('ما عندك رصيد للحين', 'No balance yet')}</span>
+                  </div>
+                  {walletUsable ? <input type="checkbox" className="switch" checked={useWallet} onChange={(e) => setUseWallet(e.target.checked)} aria-label={tr('استخدم رصيدك', 'Use your balance')} /> : null}
+                </label>
+                <button type="button" className="link small" onClick={() => setRedeemOpen(!redeemOpen)}>{tr('عندك بطاقة هدية؟ حوّلها لرصيدك', 'Have a gift card? Add it to your balance')}</button>
+                {redeemOpen ? <RedeemGift compact onDone={(bal) => { setWalletBalance(bal); setUseWallet(true); setRedeemOpen(false); }} /> : null}
+              </div>
+            ) : null}
+            {coveredByWallet ? <p className="small green"><Icon name="check" size={15} /> {tr('رصيدك يغطي كامل الطلب، ما تحتاج بطاقة', 'Your balance covers the whole order — no card needed')}</p> : (<>
             <button type="button" className={`pay-card${method === 'card' ? ' on' : ''}`} onClick={() => setMethod('card')}>
               <Icon name="lock" size={20} />
               <div><b>{tr('بطاقة بنكية أو Apple Pay', 'Card or Apple Pay')}</b><span>{tr('Visa · Mastercard · Apple Pay — دفع آمن عبر أموال', 'Visa · Mastercard · Apple Pay — secured by Amwal')}</span></div>
@@ -409,6 +476,7 @@ export default function Checkout() {
                 <div><b>{tr('تحويل بنكي', 'Bank transfer')}</b><span>{tr('حوّل المبلغ لحسابنا وأرسل لنا الإيصال بالواتساب', 'Transfer to our account and send us the receipt on WhatsApp')}</span></div>
               </button>
             ) : null}
+            </>)}
             {user && loyalty.balance > 0 ? (
               <label className="check"><input type="checkbox" checked={useLoyalty} onChange={(e) => setUseLoyalty(e.target.checked)} /> {tr(`استخدم نقاطي (${loyalty.balance} نقطة = ${omrReal(loyalty.balance * loyalty.rate)})`, `Use my points (${loyalty.balance} = ${omrReal(loyalty.balance * loyalty.rate)})`)}</label>
             ) : null}
@@ -432,13 +500,16 @@ export default function Checkout() {
             <div><span>{tr('المجموع', 'Subtotal')}</span><span className="num">{omr(cart.subtotal)}</span></div>
             <div><span>{tr('التوصيل', 'Delivery')}</span><span className="num">{omr(fee)}</span></div>
             {service > 0 ? <div><span>{tr('الخدمة وتغليف الهدايا', 'Service & gift wrap')}</span><span className="num">{omr(service)}</span></div> : null}
+            {wrapFee > 0 ? <div><span>{tr('تغليف الهدية', 'Gift wrap')}</span><span className="num">{omr(wrapFee)}</span></div> : null}
             {tax > 0 ? <div><span>{tr('الضريبة', 'Tax')}</span><span className="num">{omr(tax)}</span></div> : null}
             {couponValue > 0 ? <div className="green"><span>{tr('كود الخصم', 'Discount')} ({cart.coupon?.code})</span><span className="num">-{omr(couponValue)}</span></div> : null}
             {loyaltyValue > 0 ? <div className="green"><span>{tr('خصم النقاط', 'Points')}</span><span className="num">-{omr(loyaltyValue)}</span></div> : null}
             <div className="total"><span>{tr('الإجمالي', 'Total')}</span><span className="num">{omr(total)}</span></div>
+            {walletUse > 0 ? <div className="green"><span>{tr('من رصيدك', 'From your balance')}</span><span className="num">-{omrReal(walletUse)}</span></div> : null}
+            {walletUse > 0 ? <div className="total"><span>{tr('الباقي للدفع', 'Left to pay')}</span><span className="num">{omrReal(due)}</span></div> : null}
           </div>
           {showingOtherCurrency() ? (
-            <p className="charge-line">{tr('المبلغ يُخصم بالريال العماني: ', 'You will be charged in Omani rials: ')}<b>{omrReal(total)}</b><br />{tr('الأسعار بعملتك تقريبية حسب سعر الصرف، وبنكك قد يحوّلها.', 'Prices in your currency are approximate; your bank converts the charge.')}</p>
+            <p className="charge-line">{tr('المبلغ يُخصم بالريال العماني: ', 'You will be charged in Omani rials: ')}<b>{omrReal(due)}</b><br />{tr('الأسعار بعملتك تقريبية حسب سعر الصرف، وبنكك قد يحوّلها.', 'Prices in your currency are approximate; your bank converts the charge.')}</p>
           ) : null}
           {(() => {
             const base = etaForMany(cart.items.map((i) => (i.origin ?? "europe") as Origin), app.delivery.eta);
@@ -446,7 +517,7 @@ export default function Checkout() {
             return e ? <p className="eta-line"><Icon name="truck" size={16} />{tr('يوصلك تقريباً ', 'Arrives around ')}{etaDates(e, isAr)}</p> : null;
           })()}
           {error ? <p className="err">{error}</p> : null}
-          <button className="btn wide" onClick={place} disabled={busy}>{busy ? tr('لحظات…', 'One moment…') : tr(`ادفع ${omrReal(total)}`, `Pay ${omrReal(total)}`)}</button>
+          <button className="btn wide" onClick={place} disabled={busy}>{busy ? tr('لحظات…', 'One moment…') : coveredByWallet ? tr(`ادفع ${omrReal(walletUse)} من رصيدك`, `Pay ${omrReal(walletUse)} from your balance`) : tr(`ادفع ${omrReal(due)}`, `Pay ${omrReal(due)}`)}</button>
           <p className="small muted center"><Icon name="lock" size={13} /> {tr('بياناتك وبطاقتك محمية', 'Your details and card are protected')}</p>
         </aside>
       </div>
