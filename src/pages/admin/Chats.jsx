@@ -4,6 +4,7 @@ import toast from 'react-hot-toast'
 import {
   RiChat3Line, RiSearchLine, RiSendPlane2Fill, RiImageAddLine, RiCloseLine, RiWhatsappLine, RiUserLine,
   RiArrowRightLine, RiLoader4Line, RiShoppingBag3Line, RiPriceTag3Line, RiCheckDoubleLine,
+  RiChatQuoteLine, RiArrowUpLine, RiArrowDownLine, RiDeleteBinLine, RiAddLine, RiPencilLine,
 } from 'react-icons/ri'
 import api, { getImageUrl } from '../../services/api'
 import { useFeature } from '../../lib/features'
@@ -15,8 +16,31 @@ import Empty from '../../components/Empty'
  * المحادثات: the customers' live chat inbox.
  * GET /ps/chats (threads) · GET /ps/chats/{id}?after_id= (messages) · POST /ps/chats/{id} (text / image)
  * POST /ps/chats/{id}/read · POST /ps/chats/start/{userId}. Polls every 4 s while open.
+ * الردود الجاهزة: GET /ps/chat-replies → {data:[{title,text}]} · PUT /ps/chat-replies {replies:[…]}
  */
 const POLL = 4000
+
+// Ready replies: fetched once per page visit, shared by every open conversation.
+let repliesCache = null
+const cleanReplies = (xs) => listOf(xs)
+  .filter((x) => x && (x.title || x.text))
+  .map((x) => ({ title: String(x.title || ''), text: String(x.text || '') }))
+const loadReplies = () => {
+  if (!repliesCache) {
+    repliesCache = api.get('/ps/chat-replies').then((r) => cleanReplies(r.data))
+    repliesCache.catch(() => { repliesCache = null })
+  }
+  return repliesCache
+}
+// {name} = customer's first name, {order} = order the chat is about. A missing value is dropped
+// together with a leading "#" / "رقم" and any doubled spaces it leaves behind.
+const fillReply = (text, vars) => String(text || '')
+  .replace(/\{(name|order)\}/g, (_, k) => (vars[k] ? String(vars[k]) : '\u0000'))
+  .replace(/[ \t]*(?:رقم[ \t]*)?#?[ \t]*\u0000/g, '')
+  .replace(/[ \t]{2,}/g, ' ')
+  .replace(/[ \t]+([،,.!?؟:؛])/g, '$1')
+  .split('\n').map((l) => l.trim()).join('\n')
+  .trim()
 
 // The server keeps times in UTC.
 const toDate = (v) => {
@@ -164,6 +188,9 @@ function Conversation({ id, summary, onBack, onRead, onSent, onOff }) {
   const [preview, setPreview] = useState('')
   const [sending, setSending] = useState(false)
   const [profile, setProfile] = useState(false)
+  const [replies, setReplies] = useState(null)
+  const [rpOpen, setRpOpen] = useState(false)
+  const [rpEdit, setRpEdit] = useState(false)
   const lastId = useRef(0)
   const scroller = useRef(null)
   const atBottom = useRef(true)
@@ -259,6 +286,23 @@ function Conversation({ id, summary, onBack, onRead, onSent, onOff }) {
   const phone = c.phone || summary?.phone || ''
   const customerId = c.id || summary?.user_id
 
+  useEffect(() => {
+    let alive = true
+    loadReplies().then((xs) => { if (alive) setReplies(xs) }).catch(() => { if (alive) setReplies([]) })
+    return () => { alive = false }
+  }, [])
+
+  const pickReply = (r) => {
+    const lastOrder = [...(msgs || [])].reverse().find((m) => m.ps_order?.invoice_no)?.ps_order?.invoice_no
+    const filled = fillReply(r.text, { name: String(name || '').trim().split(/\s+/)[0], order: lastOrder })
+    setText((t) => (t.trim() ? t.replace(/\s+$/, '') + '\n' + filled : filled))
+    setRpOpen(false)
+    requestAnimationFrame(() => {
+      const el = taRef.current
+      if (el) { el.focus(); el.setSelectionRange(el.value.length, el.value.length) }
+    })
+  }
+
   return (
     <div className="ch-conv-in"
       onDragOver={(e) => { e.preventDefault() }}
@@ -315,6 +359,10 @@ function Conversation({ id, summary, onBack, onRead, onSent, onOff }) {
       </div>
 
       <footer className="ch-compose">
+        {rpOpen && (
+          <ReplyPicker replies={replies} onPick={pickReply} onClose={() => setRpOpen(false)}
+            onEdit={() => { setRpOpen(false); setRpEdit(true) }} />
+        )}
         {preview && (
           <div className="ch-preview">
             <img src={preview} alt="" />
@@ -324,6 +372,7 @@ function Conversation({ id, summary, onBack, onRead, onSent, onOff }) {
         <div className="ch-compose-row">
           <input ref={fileRef} type="file" accept="image/*" hidden onChange={(e) => pickFile(e.target.files?.[0])} />
           <button className="icon-btn" onClick={() => fileRef.current?.click()} title="إرسال صورة" disabled={sending}><RiImageAddLine size={21} /></button>
+          <button className={`icon-btn ${rpOpen ? 'ch-rp-on' : ''}`} onClick={() => setRpOpen((v) => !v)} title="ردود جاهزة" aria-expanded={rpOpen}><RiChatQuoteLine size={21} /></button>
           <textarea
             ref={taRef} rows={1} value={text} maxLength={2000}
             onChange={(e) => setText(e.target.value)}
@@ -337,6 +386,118 @@ function Conversation({ id, summary, onBack, onRead, onSent, onOff }) {
         </div>
       </footer>
       {profile && customerId && <CustomerProfile id={customerId} onClose={() => setProfile(false)} />}
+      {rpEdit && (
+        <ReplyEditor initial={replies || []} onClose={() => setRpEdit(false)}
+          onSaved={(xs) => { repliesCache = Promise.resolve(xs); setReplies(xs); setRpEdit(false) }} />
+      )}
+    </div>
+  )
+}
+
+/** Searchable list of ready replies, opened from the composer. */
+function ReplyPicker({ replies, onPick, onClose, onEdit }) {
+  const [s, setS] = useState('')
+  const list = useMemo(() => {
+    const k = s.trim().toLowerCase()
+    const xs = replies || []
+    return k ? xs.filter((r) => (r.title + ' ' + r.text).toLowerCase().includes(k)) : xs
+  }, [replies, s])
+  useEffect(() => {
+    const esc = (e) => { if (e.key === 'Escape') onClose() }
+    window.addEventListener('keydown', esc)
+    return () => window.removeEventListener('keydown', esc)
+  }, [onClose])
+  return (
+    <>
+      <div className="ch-rp-veil" onMouseDown={onClose} />
+      <div className="ch-rp" role="dialog" aria-label="ردود جاهزة">
+        <div className="ch-rp-top">
+          <div className="ch-search" style={{ margin: 0, flex: 1 }}>
+            <RiSearchLine />
+            <input autoFocus value={s} onChange={(e) => setS(e.target.value)} placeholder="دوّر في الردود…"
+              onKeyDown={(e) => { if (e.key === 'Enter' && list[0]) { e.preventDefault(); onPick(list[0]) } }} />
+          </div>
+          <button className="btn btn-sm btn-ghost" onClick={onEdit}><RiPencilLine /> تعديل الردود</button>
+        </div>
+        <div className="ch-rp-list">
+          {replies === null ? (
+            <div style={{ display: 'flex', justifyContent: 'center', padding: 20, color: 'var(--text-secondary)' }}><RiLoader4Line className="spin" size={22} /></div>
+          ) : list.length === 0 ? (
+            <div className="ch-rp-empty">{s ? 'ما فيه رد بهذا البحث' : 'ما فيه ردود جاهزة للحين. اضغط «تعديل الردود» وأضف أول رد.'}</div>
+          ) : list.map((r, i) => (
+            <button key={i} className="ch-rp-item" onClick={() => onPick(r)}>
+              <b>{r.title || 'بدون عنوان'}</b>
+              <span>{r.text}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+    </>
+  )
+}
+
+/** Add / edit / delete / reorder the team's ready replies, saved with PUT. */
+function ReplyEditor({ initial, onClose, onSaved }) {
+  const [rows, setRows] = useState(() => (initial.length ? initial : [{ title: '', text: '' }]).map((r, i) => ({ ...r, k: i })))
+  const [saving, setSaving] = useState(false)
+  const nextK = useRef(rows.length)
+  const set = (i, patch) => setRows((xs) => xs.map((x, j) => (j === i ? { ...x, ...patch } : x)))
+  const move = (i, d) => setRows((xs) => {
+    const j = i + d
+    if (j < 0 || j >= xs.length) return xs
+    const n = [...xs]; [n[i], n[j]] = [n[j], n[i]]; return n
+  })
+  const add = () => setRows((xs) => [...xs, { title: '', text: '', k: nextK.current++ }])
+  const remove = (i) => setRows((xs) => xs.filter((_, j) => j !== i))
+
+  const save = async (e) => {
+    e.preventDefault()
+    const out = rows
+      .map((r) => ({ title: r.title.trim(), text: r.text.trim() }))
+      .filter((r) => r.title || r.text)
+    if (out.some((r) => !r.text)) return toast.error('فيه رد بدون نص. اكتب النص أو احذفه.')
+    const replies = out.map((r) => ({ title: r.title || r.text.split('\n')[0].slice(0, 40), text: r.text }))
+    setSaving(true)
+    try {
+      const r = await api.put('/ps/chat-replies', { replies })
+      const saved = cleanReplies(r.data)
+      toast.success('انحفظت الردود')
+      onSaved(saved.length || !replies.length ? saved : replies)
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'ما انحفظت الردود')
+    } finally { setSaving(false) }
+  }
+
+  return (
+    <div className="modal-backdrop" onMouseDown={onClose}>
+      <form className="modal-content" style={{ maxWidth: 620, width: '100%' }} onMouseDown={(e) => e.stopPropagation()} onSubmit={save}>
+        <div className="modal-header">
+          <h3 className="modal-title">تعديل الردود الجاهزة</h3>
+          <button type="button" className="close-btn" onClick={onClose}><RiCloseLine size={24} /></button>
+        </div>
+        <div className="modal-body ch-rpe">
+          <p className="ch-rpe-note">تقدر تستخدم <code>{'{name}'}</code> لاسم العميل الأول و <code>{'{order}'}</code> لرقم الطلب اللي تخص المحادثة (لو ما فيه طلب ينشال تلقائياً).</p>
+          {rows.length === 0 && <div className="ch-rp-empty">ما فيه ردود. أضف رد جديد.</div>}
+          {rows.map((r, i) => (
+            <div key={r.k} className="ch-rpe-row">
+              <div className="ch-rpe-fields">
+                <input className="input" value={r.title} maxLength={80} onChange={(e) => set(i, { title: e.target.value })} placeholder="العنوان (مثلاً: ترحيب)" />
+                <textarea className="input" rows={3} value={r.text} maxLength={2000} onChange={(e) => set(i, { text: e.target.value })} placeholder="هلا {name}، شكراً لتواصلك…" />
+              </div>
+              <div className="ch-rpe-acts">
+                <button type="button" className="btn btn-ghost" title="فوق" onClick={() => move(i, -1)} disabled={i === 0} style={{ padding: 6 }}><RiArrowUpLine /></button>
+                <button type="button" className="btn btn-ghost" title="تحت" onClick={() => move(i, 1)} disabled={i === rows.length - 1} style={{ padding: 6 }}><RiArrowDownLine /></button>
+                <button type="button" className="btn btn-ghost" title="حذف" onClick={() => remove(i)} style={{ padding: 6, color: '#B42318' }}><RiDeleteBinLine /></button>
+              </div>
+            </div>
+          ))}
+          <button type="button" className="btn btn-ghost" onClick={add} style={{ alignSelf: 'flex-start' }}><RiAddLine /> رد جديد</button>
+          <div style={{ display: 'flex', gap: 10 }}>
+            <button type="button" className="btn btn-ghost" style={{ flex: 1 }} onClick={onClose}>إلغاء</button>
+            <button className="btn btn-primary" style={{ flex: 2 }} disabled={saving}>{saving ? <RiLoader4Line className="spin" /> : null} حفظ الردود</button>
+          </div>
+        </div>
+      </form>
     </div>
   )
 }
@@ -391,7 +552,26 @@ html[data-theme="dark"] .ch-row.mine .ch-bubble{background:#7A1F2B;border-color:
 .ch-ref{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;border-radius:8px;padding:4px 8px;background:var(--bg-body);color:var(--text-primary);text-decoration:none;border:1px solid var(--border)}
 .ch-ref img{width:22px;height:22px;border-radius:5px;object-fit:cover}
 .ch-row.mine .ch-ref{background:rgba(255,255,255,.14);color:#fff;border-color:rgba(255,255,255,.2)}
-.ch-compose{border-top:1px solid var(--border);padding:10px 12px;background:var(--bg-card)}
+.ch-compose{border-top:1px solid var(--border);padding:10px 12px;background:var(--bg-card);position:relative}
+.ch-rp-on{color:var(--accent,#A8833F)}
+.ch-rp-veil{position:fixed;inset:0;z-index:40}
+.ch-rp{position:absolute;bottom:calc(100% + 6px);inset-inline:12px;z-index:41;background:var(--bg-card);border:1px solid var(--border);border-radius:14px;box-shadow:0 12px 32px rgba(0,0,0,.14);display:flex;flex-direction:column;max-height:min(360px,55dvh);overflow:hidden}
+.ch-rp-top{display:flex;gap:8px;align-items:center;padding:10px;border-bottom:1px solid var(--border)}
+.ch-rp-list{overflow-y:auto;min-height:0}
+.ch-rp-item{display:flex;flex-direction:column;gap:2px;width:100%;border:0;background:transparent;padding:9px 14px;cursor:pointer;text-align:start;font-family:inherit;color:inherit;border-bottom:1px solid var(--divider)}
+.ch-rp-item:hover{background:var(--bg-hover,#F9F7F5)}
+.ch-rp-item b{font-size:13.5px;font-weight:700}
+.ch-rp-item span{font-size:12.5px;color:var(--text-secondary);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;white-space:pre-line}
+.ch-rp-empty{padding:18px 14px;text-align:center;font-size:13px;color:var(--text-secondary)}
+.ch-rpe{display:flex;flex-direction:column;gap:12px}
+.ch-rpe-note{font-size:12px;color:var(--text-secondary);background:var(--bg-body);border-radius:10px;padding:10px 12px;margin:0;line-height:1.7}
+.ch-rpe-note code{direction:ltr;unicode-bidi:isolate;font-size:11.5px;background:var(--bg-card);border:1px solid var(--border);border-radius:5px;padding:0 4px}
+.ch-rpe-row{display:flex;gap:8px;align-items:flex-start;border:1px solid var(--border);border-radius:12px;padding:10px}
+.ch-rpe-fields{flex:1;min-width:0;display:flex;flex-direction:column;gap:8px}
+.ch-rpe-fields .input{width:100%;padding:8px 12px;font-family:inherit;font-size:13.5px;color:var(--text-primary)}
+.ch-rpe-fields input.input{height:40px}
+.ch-rpe-fields textarea.input{resize:vertical;min-height:72px;line-height:1.6}
+.ch-rpe-acts{display:flex;flex-direction:column;gap:2px}
 .ch-compose-row{display:flex;align-items:flex-end;gap:8px}
 .ch-compose textarea{flex:1;resize:none;border:1px solid var(--border);border-radius:12px;padding:10px 12px;font-family:inherit;font-size:14px;line-height:1.5;max-height:140px;min-height:42px;outline:none;background:var(--bg-body);color:var(--text-primary);field-sizing:content}
 .ch-send{width:42px;height:42px;border-radius:50%;border:0;background:#5C0B16;color:#fff;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
