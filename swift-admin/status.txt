@@ -1,1 +1,1 @@
-success 5f3c8f5997c3e83e7d18ad9e88cf9c2701206560 swift-admin 11
+success cd336efc70937810febeff347e03d98704ec815b swift-admin 12
