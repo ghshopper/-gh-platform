@@ -758,7 +758,9 @@ class Order {
       activeItems.fold<double>(0, (sum, i) => sum + (i.costOmr ?? 0));
 
   /// What the customer transferred minus what you paid for her items.
-  double get customerBalance => paid - costOmr;
+  /// A delivered order (past orders included) holds nothing for the customer.
+  bool get allDelivered => activeItems.isNotEmpty && activeItems.every((i) => i.status == ItemStatus.delivered);
+  double get customerBalance => allDelivered ? 0 : paid - costOmr;
 
   /// Tax-free still to collect, grouped by currency.
   Map<String, double> get taxFreePending {
