@@ -68,7 +68,6 @@ function QuoteCard({ r, onChanged, onDecline }: { r: PieceRequest; onChanged: ()
   const price = num(q.price);
   const fee = num(q.delivery_fee);
   const total = num(q.total, price + fee);
-  const deposit = num(q.deposit);
   const expired = !!q.expired || q.status === 'expired';
   const open = q.status === 'sent' && !expired;
   const method = q.delivery_method ? METHOD[q.delivery_method] : undefined;
@@ -101,9 +100,6 @@ function QuoteCard({ r, onChanged, onDecline }: { r: PieceRequest; onChanged: ()
         <SummaryRow label={tr('سعر القطعة', 'Piece')} value={omrReal(price)} />
         {fee > 0 ? <SummaryRow label={method ? tr(`التوصيل · ${method[0]}`, `Delivery · ${method[1]}`) : tr('التوصيل', 'Delivery')} value={omrReal(fee)} /> : null}
         <SummaryRow label={tr('الإجمالي', 'Total')} value={omrReal(total)} strong />
-        {deposit > 0 && deposit < total ? (
-          <T size={12.5} color={C.sub}>{tr(`تدفع الحين ${omrReal(deposit)} عربون، والباقي ${omrReal(total - deposit)} قبل التسليم`, `Pay ${omrReal(deposit)} now as a deposit and ${omrReal(total - deposit)} before delivery`)}</T>
-        ) : null}
         {q.note ? <T size={13} color={C.ink} w="light">{q.note}</T> : null}
       </View>
       {open ? (
