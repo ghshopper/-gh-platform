@@ -28,6 +28,10 @@ enum DemoScreens {
         case "chat": tab.wrappedValue = 4; pushPage(ChatThreadPage(threadId: "1", title: "مريم البلوشية"))
         case "features": tab.wrappedValue = 4; pushPage(FeaturesPage())
         case "reviews": tab.wrappedValue = 4; pushPage(ReviewsPage())
+        case "giftcard":
+            if let o = store.orders.first(where: { $0.gift != nil }) ?? order {
+                presentForm(GiftCardPage(gift: o.gift))
+            }
         case "invoicepdf", "waybillpdf", "giftinvoicepdf":
             let pick: Order? = key == "giftinvoicepdf" ? (store.orders.first { $0.gift != nil } ?? order) : order
             if let o = pick {

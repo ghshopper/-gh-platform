@@ -510,6 +510,7 @@ struct OrderDetailPage: View {
         if o.hasBalance { actions.append(SheetAction("نسخ رابط الدفع", "paylink-copy")) }
         if o.trackingToken != nil { actions.append(SheetAction("نسخ رابط التتبّع", "track")) }
         if !o.activeItems.isEmpty { actions.append(SheetAction("إرجاع قطع…", "return")) }
+        actions.append(SheetAction("كرت إهداء", "giftcard"))
         actions.append(SheetAction("حذف الطلب", "delete", destructive: true))
         return actions
     }
@@ -520,6 +521,8 @@ struct OrderDetailPage: View {
         switch a {
         case "waybill":
             await printOrderWaybill(o)
+        case "giftcard":
+            presentForm(GiftCardPage(gift: o.gift))
         case "return":
             presentForm(ReturnPage(order: o))
         case "trip":
@@ -702,6 +705,8 @@ fileprivate struct ODGiftSection: View {
                     Button { copyText(msg, toastText: "نسخت الرسالة") } label: { Label("نسخ", systemImage: "doc.on.doc") }
                 }
             }
+            Tile("اطبع كرت الإهداء", chevron: true, action: { presentForm(GiftCardPage(gift: gift)) },
+                 leading: { IconBox("printer.fill", color: GH.gold) })
             Tile("تغليف هدية", value: gift.wrap ? "نعم" : "لا", valueColor: gift.wrap ? GH.green : GH.secondary, chevron: false)
             Tile("إخفاء الأسعار", value: gift.hidePrices ? "نعم" : "لا",
                  valueColor: gift.hidePrices ? GH.burgundy : GH.secondary, chevron: false)
