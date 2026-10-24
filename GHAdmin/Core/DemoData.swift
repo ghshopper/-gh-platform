@@ -157,8 +157,22 @@ enum DemoData {
         ]
     }
 
+    /// الردود الجاهزة for the chat composer ({name}, {order} are filled when picked).
+    private static var demoChatReplies: JSON {
+        let rows: [Any] = [
+            ["title": "ترحيب", "text": "هلا {name} 🤍 كيف نقدر نساعدك؟"] as JSON,
+            ["title": "نتابع الطلب", "text": "تمام {name}، نتابع لك طلبك رقم {order} ونرد عليك بأقرب وقت."] as JSON,
+            ["title": "وصل عُمان", "text": "بشارة {name}! طلبك {order} وصل عُمان بالسلامة ✨ بنتواصل معك لترتيب التوصيل."] as JSON,
+            ["title": "خرج للتوصيل", "text": "طلبك {order} طلع للتوصيل 🚗\nالمندوب بيتواصل معك قبل لا يوصل."] as JSON,
+            ["title": "تغليف هدية", "text": "أكيد نقدر نغلفها هدية 🎁 التغليف عليه ٢ ر.ع."] as JSON,
+            ["title": "شكر", "text": "شكراً لك {name} 🤍 نتشرف بخدمتك دايماً."] as JSON,
+        ]
+        return ["data": rows]
+    }
+
     /// Reads for the features above (nil: not one of them).
     private static func featureGet(_ path: String, _ p: String) -> Any? {
+        if p == "/ps/chat-replies" { return demoChatReplies }
         if p == "/ps/chats" { return demoThreads }
         if p == "/ps/chats/unread" { return ["count": 3] }
         if p.hasPrefix("/ps/chats/") {
@@ -186,6 +200,10 @@ enum DemoData {
             if p.hasPrefix("/admin/categories") { return extra["/api/admin/categories"] ?? [] }
             if p.hasPrefix("/admin/gcc-shipping") { return extra["/api/admin/gcc-shipping"] ?? ["data": [:]] }
             return [:]
+        }
+        if method == "PUT", p == "/ps/chat-replies" {
+            let saved: Any = body?["replies"] ?? ([] as [Any])
+            return ["data": saved]
         }
         if p.hasSuffix("/pay-link") || p.hasSuffix("/portal-link") { return ["url": "https://ghshopper.com/pay/demo"] }
         if p == "/ps/files/url" { return ["url": ""] }
