@@ -1,4 +1,6 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import giftCheetah from '../../assets/gift-cheetah.png'
+import giftCardFontUrl from '../../assets/IBMPlexSansArabic-Regular.ttf'
 import { useSearchParams } from 'react-router-dom'
 import {
   RiSearchLine, RiRefreshLine, RiPrinterLine, RiWhatsappLine, RiLinksLine,
@@ -280,6 +282,8 @@ function OrderDetail({ o, c, driver, busy, onStatus, onPrint, onReload, headers 
   const [payUrl, setPayUrl] = useState('')
   // return pieces: which ones, money back, why
   const [ret, setRet] = useState(null)
+  // gift message card (كرت الإهداء): null = closed
+  const [giftCard, setGiftCard] = useState(false)
   const paidSum = o.payments.reduce((a, p) => a + Number(p.amount || 0), 0)
   const openReturn = () => setRet({ ids: [], refund: '', reason: '', method: '' })
   const toggleRet = (i) => setRet((r) => {
@@ -372,6 +376,7 @@ function OrderDetail({ o, c, driver, busy, onStatus, onPrint, onReload, headers 
           {wa && <a href={wa} target="_blank" rel="noreferrer" style={btn('#25D366', '#fff')}><RiWhatsappLine /> واتساب</a>}
           {link && <button onClick={() => { navigator.clipboard.writeText(link); toast.success('نسخت رابط التتبّع') }} style={btn('rgba(255,255,255,.14)', '#fff')}><RiLinksLine /> رابط التتبّع</button>}
           {active.length > 0 && <button onClick={openReturn} style={btn('rgba(255,255,255,.14)', '#fff')}>↩ إرجاع قطع</button>}
+          {!giftOf(o) && <button onClick={() => setGiftCard(true)} style={btn('rgba(255,255,255,.14)', '#fff')}>🎁 كرت إهداء</button>}
         </div>
         {ret && (
           <div style={{ marginTop: 14, background: '#fff', color: '#111', borderRadius: 12, padding: 14, display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -423,7 +428,8 @@ function OrderDetail({ o, c, driver, busy, onStatus, onPrint, onReload, headers 
 
       {o.driver_status === 'failed' && <FailedCard o={o} driver={driver} />}
 
-      {giftOf(o) && <GiftCard g={giftOf(o)} />}
+      {giftOf(o) && <GiftCard g={giftOf(o)} onPrintCard={() => setGiftCard(true)} />}
+      {giftCard && <GiftCardModal g={giftOf(o)} onClose={() => setGiftCard(false)} />}
 
       <Card title="القطع" icon={<RiShoppingBag3Line />} action={active.length > 1 && nextFor(overall(o)) && (
         <button disabled={busy} onClick={() => onStatus(active.filter((i) => i.status === overall(o)).map((i) => i.id), nextFor(overall(o)))} style={btn('#f8fafc', '#334155', true)}>
@@ -542,7 +548,7 @@ function FailedCard({ o, driver }) {
     </div>
   )
 }
-function GiftCard({ g }) {
+function GiftCard({ g, onPrintCard }) {
   const ph = String(g.phone || '').replace(/\D/g, '')
   return (
     <div style={{ background: '#FBF5EA', border: '1.5px solid #EAD9B8', borderRadius: 16, padding: '14px 16px', marginBottom: 14 }}>
@@ -552,6 +558,7 @@ function GiftCard({ g }) {
       <Row k="تغليف هدية" v={truthy(g.wrap) ? 'نعم ✓' : 'لا'} color={truthy(g.wrap) ? '#16804A' : undefined} />
       <Row k="إخفاء الأسعار" v={truthy(g.hide_prices) ? 'نعم: لا تحط فاتورة بالأسعار' : 'لا'} color={truthy(g.hide_prices) ? '#B45309' : undefined} />
       {g.message && <div style={{ marginTop: 6, background: '#fff', borderRadius: 10, padding: '10px 12px', fontSize: 14, color: '#334155', whiteSpace: 'pre-wrap', border: '1px dashed #EAD9B8' }}>«{g.message}»</div>}
+      {onPrintCard && <button onClick={onPrintCard} style={{ ...btn('#350304', '#fff'), marginTop: 10 }}><RiPrinterLine /> اطبع كرت الإهداء</button>}
     </div>
   )
 }
@@ -665,4 +672,164 @@ ${o.driver_note ? `<div style="font-size:8pt;font-weight:600;margin-top:1mm">م�
   const w = window.open('', '_blank', 'width=420,height=640')
   if (!w) throw new Error('popup')
   w.document.open(); w.document.write(html); w.document.close()
+}
+
+// ───────────── gift message card (150 × 100 mm, text only) ─────────────
+// The shop pre-prints blank ivory cards (150 × 100 mm landscape, small gold
+// cheetah top centre); staff print only the message onto them on the office
+// Canon inkjet (front tray, 4×6" photo size, fed portrait, short edge first).
+// Layout = approved sample: message box left/right 20 mm, top 34 mm, bottom
+// 14 mm, centred both ways; IBM Plex Sans Arabic 400, 5.2 mm, line-height
+// 1.75, #350304, centred RTL; shrinks down to 3.6 mm when it doesn't fit.
+
+const GC_FONT_MAX = 5.2
+const GC_FONT_MIN = 3.6
+// The bundled IBM Plex Sans Arabic Regular TTF (the same file as the approved sample and the iOS app;
+// the Google Fonts build renders ~4% wider). Own family name so the Google copy never wins.
+const GC_FAMILY = 'GH Gift Plex'
+const gcFontFace = () => `@font-face{font-family:'${GC_FAMILY}';src:url('${new URL(giftCardFontUrl, window.location.href).href}') format('truetype');font-weight:400;font-style:normal;font-display:block}`
+const GC_MSG_CSS = "position:absolute;left:20mm;right:20mm;top:34mm;bottom:14mm;display:flex;align-items:center;justify-content:center;text-align:center;font-family:'GH Gift Plex',sans-serif;font-weight:400;line-height:1.75;color:#350304;direction:rtl;white-space:pre-line;overflow-wrap:break-word"
+
+const gcClean = (t) => String(t ?? '').replace(/\r\n?/g, '\n').trim()
+
+/** Editor start: the gift message, with "إلى {to}" first when it doesn't already start with إلى. */
+function giftCardInitial(g) {
+  if (!g) return ''
+  const msg = gcClean(g.message)
+  const to = String(g.to || '').trim()
+  if (!to || msg.startsWith('إلى') || msg.startsWith('الى')) return msg
+  return msg ? `إلى ${to}\n${msg}` : `إلى ${to}`
+}
+
+/** What gets printed: the message, then the signature ("— name") on the last line. */
+function giftCardText(message, signature) {
+  const body = gcClean(message)
+  let sig = String(signature || '').trim()
+  if (!sig) return body
+  if (!sig.startsWith('—')) sig = '— ' + sig
+  return body ? `${body}\n${sig}` : sig
+}
+
+/** Biggest size (5.2 → 3.6 mm, 0.1 mm steps) at which `inner` fits inside `box` (the print window runs the same loop). */
+function gcFit(box, inner) {
+  let size = GC_FONT_MAX
+  box.style.fontSize = size + 'mm'
+  while (inner.offsetHeight > box.clientHeight + 0.5 && size - 0.1 >= GC_FONT_MIN - 0.001) {
+    size = Math.round((size - 0.1) * 10) / 10
+    box.style.fontSize = size + 'mm'
+  }
+  return size
+}
+
+function printGiftCard(text) {
+  const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]))
+  const html = `<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>كرت الإهداء</title>
+<style>
+${gcFontFace()}
+@page { size: 150mm 100mm; margin: 0 }
+* { margin: 0; padding: 0; box-sizing: border-box }
+html, body { width: 150mm; height: 100mm; background: transparent }
+.p { width: 150mm; height: 100mm; position: relative; overflow: hidden }
+.msg { ${GC_MSG_CSS}; font-size: ${GC_FONT_MAX}mm }
+</style></head><body>
+<div class="p"><div class="msg" id="box"><div id="t">${esc(gcClean(text))}</div></div></div>
+<script>
+function fit(box, inner) {
+  var size = ${GC_FONT_MAX};
+  box.style.fontSize = size + 'mm';
+  while (inner.offsetHeight > box.clientHeight + 0.5 && size - 0.1 >= ${GC_FONT_MIN} - 0.001) {
+    size = Math.round((size - 0.1) * 10) / 10;
+    box.style.fontSize = size + 'mm';
+  }
+}
+var done = false;
+function go() { if (done) return; done = true; fit(document.getElementById('box'), document.getElementById('t')); setTimeout(function () { window.print() }, 150) }
+window.onload = function () {
+  if (!document.fonts || !document.fonts.load) { go(); return }
+  document.fonts.load("400 20px '${GC_FAMILY}'", 'إلى').then(function () { return document.fonts.ready }).then(go, go);
+  setTimeout(go, 8000);
+}
+</script>
+</body></html>`
+  const w = window.open('', '_blank', 'width=640,height=460')
+  if (!w) { toast.error('المتصفح منع نافذة الطباعة'); return }
+  w.document.open(); w.document.write(html); w.document.close()
+}
+
+/** "اطبع كرت الإهداء": edit the text, see it on the card, print. */
+function GiftCardModal({ g, onClose }) {
+  const [msg, setMsg] = useState(() => giftCardInitial(g))
+  const [sig, setSig] = useState('')
+  const [size, setSize] = useState(GC_FONT_MAX)
+  const [overflow, setOverflow] = useState(false)
+  const [fontsReady, setFontsReady] = useState(false)
+  const boxRef = useRef(null)
+  const innerRef = useRef(null)
+  const text = giftCardText(msg, sig)
+  const previewW = Math.min(460, (typeof window !== 'undefined' ? window.innerWidth : 500) - 72)
+  const scale = previewW / (150 * 96 / 25.4)
+
+  useEffect(() => {
+    let alive = true
+    const f = document.fonts?.load ? document.fonts.load(`400 20px '${GC_FAMILY}'`, 'إلى').then(() => document.fonts.ready) : Promise.resolve()
+    f.finally(() => { if (alive) setFontsReady(true) })
+    return () => { alive = false }
+  }, [])
+  useLayoutEffect(() => {
+    const box = boxRef.current, inner = innerRef.current
+    if (!box || !inner) return
+    setSize(gcFit(box, inner))
+    setOverflow(inner.offsetHeight > box.clientHeight + 0.5)
+  }, [text, fontsReady])
+  useEffect(() => {
+    const k = (e) => { if (e.key === 'Escape') { e.stopPropagation(); onClose() } }
+    window.addEventListener('keydown', k, true)
+    return () => window.removeEventListener('keydown', k, true)
+  }, [onClose])
+
+  return (
+    <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(15,10,10,.5)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
+      <div onClick={(e) => e.stopPropagation()} style={{ width: 'min(520px, 100%)', maxHeight: '100%', overflowY: 'auto', background: '#fff', borderRadius: 18, padding: 20, direction: 'rtl', boxShadow: '0 10px 40px rgba(0,0,0,.3)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', marginBottom: 12 }}>
+          <div style={{ fontWeight: 800, fontSize: 17, color: '#1e293b' }}>🎁 كرت الإهداء</div>
+          <button onClick={onClose} style={{ ...iconBtn, marginRight: 'auto' }}><RiCloseLine size={18} /></button>
+        </div>
+
+        <style>{gcFontFace()}</style>
+        {/* preview: the pre-printed card (ivory + cheetah) with the text to scale */}
+        <div style={{ width: previewW, height: previewW / 1.5, margin: '0 auto 14px', borderRadius: 6, overflow: 'hidden', boxShadow: '0 4px 16px rgba(53,3,4,.15)', border: '1px solid #eadfd3', direction: 'ltr' }}>
+          <div style={{ width: '150mm', height: '100mm', position: 'relative', background: '#F4EEE8', transform: `scale(${scale})`, transformOrigin: 'top left', direction: 'ltr' }}>
+            <img src={giftCheetah} alt="" style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', top: '10mm', width: '22mm' }} />
+            <div ref={boxRef} style={{ ...gcStyle(GC_MSG_CSS), fontSize: size + 'mm' }}><div ref={innerRef}>{text}</div></div>
+          </div>
+        </div>
+        <div style={{ fontSize: 12, color: '#64748b', marginBottom: 12, textAlign: 'center' }}>
+          يُطبع النص فقط على الكرت الجاهز · 150 × 100 مم · الدرج الأمامي (4×6) · حجم الخط {size.toFixed(1)} مم{overflow ? ' · ⚠️ النص أطول من الكرت' : ''}
+        </div>
+
+        <label style={{ display: 'block', fontSize: 12.5, fontWeight: 700, color: '#334155', marginBottom: 4 }}>الرسالة</label>
+        <textarea className="input" value={msg} onChange={(e) => setMsg(e.target.value)} rows={5} placeholder="اكتب رسالة الإهداء"
+          style={{ width: '100%', padding: '10px 12px', fontSize: 15, lineHeight: 1.7, textAlign: 'center', resize: 'vertical', fontFamily: `'${GC_FAMILY}', 'IBM Plex Sans Arabic', sans-serif` }} />
+        <label style={{ display: 'block', fontSize: 12.5, fontWeight: 700, color: '#334155', margin: '10px 0 4px' }}>التوقيع (اختياري، يطلع في آخر سطر: — الاسم)</label>
+        <input className="input" value={sig} onChange={(e) => setSig(e.target.value)} placeholder="الاسم" style={{ width: '100%', height: 40, padding: '0 12px' }} />
+
+        <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
+          <button className="btn btn-ghost btn-sm" onClick={onClose}>إلغاء</button>
+          <button className="btn btn-primary btn-sm" disabled={!text} onClick={() => printGiftCard(text)} style={{ marginRight: 'auto' }}><RiPrinterLine /> اطبع</button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/** "a:b;c:d" → React style object (so the preview and the print window share one CSS string). */
+function gcStyle(css) {
+  const out = {}
+  for (const part of css.split(';')) {
+    const i = part.indexOf(':')
+    if (i < 0) continue
+    const k = part.slice(0, i).trim().replace(/-([a-z])/g, (_, ch) => ch.toUpperCase())
+    out[k] = part.slice(i + 1).trim()
+  }
+  return out
 }
