@@ -393,6 +393,7 @@ export default function Checkout() {
         data?: { id: number; order_number: string; guest_token?: string; payment_status?: string };
         amount_due?: number | string;
         wallet_short?: boolean;
+        card_short?: boolean;
       }>('/customer/orders', {
         customer_name: name.trim(),
         customer_phone: fullPhone(phone),
@@ -440,7 +441,7 @@ export default function Checkout() {
         paid: serverPaid ? '1' : '',
         // card charged but not confirmed as fully paid: "we're checking" (+ what is still owed when the balance fell short)
         check: !serverPaid && charged ? '1' : '',
-        due: !serverPaid && charged && res?.wallet_short ? String(num(res?.amount_due)) : '',
+        due: !serverPaid && charged && (res?.wallet_short || res?.card_short) ? String(num(res?.amount_due)) : '',
         bank: realCode === 'bank_transfer' ? '1' : '',
       } });
     } catch (e) {

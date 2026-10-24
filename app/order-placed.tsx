@@ -60,7 +60,7 @@ export default function OrderPlaced() {
         <T size={14} color={C.sub} center>
           {paid ? tr('تم الدفع بنجاح. ', 'Payment received. ') : ''}
           {!paid && check ? tr('وصلتنا دفعتك وبنتأكد منها. ', 'We received your payment and are confirming it. ') : ''}
-          {!paid && check && Number(due) > 0 ? tr(`رصيدك ما كفى: باقي عليك ${Number(due).toFixed(3)} ر.ع وبنتواصل معك. `, `Your balance fell short: ${Number(due).toFixed(3)} OMR is still due; we'll contact you. `) : ''}
+          {!paid && check && Number(due) > 0 ? tr(`باقي عليك ${Number(due).toFixed(3)} ر.ع وبنتواصل معك. `, `${Number(due).toFixed(3)} OMR is still due; we'll contact you. `) : ''}
           {gift ? tr(`بنجهّز هديتك لـ ${gift} بتغليف فاخر.`, `We'll gift-wrap it for ${gift}.`) : tr('طلبك قيد التجهيز الآن، شكراً لثقتك.', "We're preparing your order. Thank you.")}
         </T>
       )}
