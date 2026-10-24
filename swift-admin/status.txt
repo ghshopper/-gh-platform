@@ -1,1 +1,1 @@
-success 378ace24fa2d7c2949c29ee8c5aeb83b18e1147a swift-admin 23
+success cf0a9ebab2ed013bdc7134bad366348cfc06d83a swift-admin 25
