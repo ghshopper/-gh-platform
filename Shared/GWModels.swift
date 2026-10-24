@@ -288,7 +288,7 @@ enum GWShared {
 
 enum GWFmt {
     /// Widgets show Arabic-Indic digits (٣ طلبات · ١٢٠ ر.ع). Set false for Latin digits like the app's lists.
-    static let arabicDigits = true
+    static let arabicDigits = false
 
     private static func formatter(_ fraction: Int) -> NumberFormatter {
         let f = NumberFormatter()
