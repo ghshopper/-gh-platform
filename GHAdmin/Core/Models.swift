@@ -666,7 +666,12 @@ struct Order: Identifiable, Hashable {
     var carrierIsLink: Bool { carrierTracking.map { $0.hasPrefix("http://") || $0.hasPrefix("https://") } ?? false }
 
     /// Shipping label number, e.g. GH-000123.
-    var waybillNo: String { "GH-\(String(format: "%06d", orderNo))" }
+    var waybillNo: String {
+        let inv = invoiceNo.trimmingCharacters(in: .whitespaces).uppercased()
+        return inv.hasPrefix("GH-") ? inv : "GH-\(inv)"
+    }
+    /// The old label number (GH-000123): labels printed before still scan.
+    var legacyWaybillNo: String { "GH-\(String(format: "%06d", orderNo))" }
     var invoiceNo: String { (refNo?.isEmpty == false) ? refNo! : invoiceNumber(orderNo, createdAt) }
 
     var activeItems: [OrderItem] { items.filter { $0.status != .cancelled } }

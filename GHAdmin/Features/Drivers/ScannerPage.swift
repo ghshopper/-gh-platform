@@ -264,7 +264,7 @@ func orderFromCode(_ code: String) -> Order? {
     let upper = c.uppercased()
     for o in store.orders {
         if (o.refNo ?? "").uppercased() == upper || o.invoiceNo.uppercased() == upper { return o }
-        if o.waybillNo == upper { return o }
+        if o.waybillNo == upper || o.legacyWaybillNo == upper { return o }
         if let s = o.storeOrderNumber, s.uppercased() == upper { return o }
     }
     let digits = scannerDigitRuns(c)

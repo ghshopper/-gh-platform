@@ -169,7 +169,7 @@ fileprivate func dhArea(_ o: DriverOrder) -> String {
 
 // MARK: - WhatsApp templates (to the person at the door)
 
-/// Ready-made messages: index 1 is "وصلت", 2 is "ما رد", 3 asks for the location.
+/// Ready-made messages: index 1 is "وصلت", 2 is "ما رد", 3 asks for the location (pin, house no., photo).
 @MainActor
 fileprivate func driverTemplates(_ o: DriverOrder) -> [(String, String)] {
     // A gift's recipient: gender unknown, the plain (masculine) wording.
@@ -177,21 +177,37 @@ fileprivate func driverTemplates(_ o: DriverOrder) -> [(String, String)] {
     func g(_ f: String, _ m: String) -> String { male ? m : f }
     let first = dhFirstName(o.recipientName)
     let me = Api.shared.session?.name ?? "المندوب"
-    let pay = o.toCollect > 0 ? "\nالمبلغ \(omr(o.toCollect)) يندفع عند الاستلام." : ""
-    let order = o.gift != nil ? "هديت\(g("كِ", "ك"))" : g("طلبكِ", "طلبك")
+    let pay = o.toCollect > 0 ? "\nالمبلغ \(omr(o.toCollect)) يندفع عند الاستلام (كاش أو تحويل)." : ""
+    let order = o.gift != nil ? "هديت\(g("كِ", "ك")) 🎁" : g("طلبكِ", "طلبك")
+    let you = g("كِ", "ك")
+    let isGift = o.gift != nil
+    let deliverIt = isGift ? "أوصلها" : "أوصله"
+    let likeIt = isGift ? g("تعجبكِ", "تعجبك") : g("يعجبكِ", "يعجبك")
     return [
-        ("أنا في الطريق 🚗",
-         "هلا \(first) 👋\nمعك \(me) مندوب GH Shopper.\n\(order) في الطريق \(g("إليكِ", "إليك"))، بوصل خلال حوالي ٢٠ دقيقة إن شاء الله.\(pay)"),
-        ("وصلت عند الموقع 📍",
-         "هلا \(first)، وصلت عند موقع\(g("كِ", "ك")) 📍\nأنا تحت مع \(order) من GH Shopper.\(pay)"),
+        // 0
+        ("في الطريق 🚗",
+         "هلا \(first) 👋\nمعك \(me) مندوب GH Shopper.\n\(order) معي وفي الطريق ل\(you).\(pay)"),
+        // 1 (used by "وصلت عند الباب")
+        ("وصلت 📍",
+         "هلا \(first)، وصلت عند موقع\(you) 📍\nأنا تحت مع \(order).\(pay)"),
+        // 2 (offered after "ما رد على الاتصال")
         ("ما رد على الاتصال 📞",
-         "هلا \(first)، حاولت أتصل \(g("فيكِ", "فيك")) بخصوص توصيل \(order) من GH Shopper.\nمتى يناسب\(g("كِ", "ك")) أوصله؟"),
-        ("أبي الموقع على الخريطة 🗺️",
-         "هلا \(first)، معك \(me) مندوب GH Shopper.\nممكن \(g("ترسلين", "ترسل")) لي موقع\(g("كِ", "ك")) على الخريطة عشان أوصل \(order)؟"),
-        ("نأجل التوصيل ⏰",
-         "هلا \(first)، معك \(me) من GH Shopper.\nبنأجل توصيل \(order) لوقت ثاني، \(g("تبين", "تبي")) اليوم ولا بكرة؟"),
-        ("تم التسليم ✨",
-         "شكراً \(first) 🤍\nتم تسليم \(order) من GH Shopper، إن شاء الله \(g("يعجبكِ", "يعجبك"))."),
+         "هلا \(first)، اتصلت علي\(you) وما حصلت\(you).\nمعي \(order) من GH Shopper، متى يناسب\(you) \(deliverIt)؟"),
+        // 3 (asking for the location)
+        ("أبي الموقع والعنوان 🏠",
+         "هلا \(first)، معك \(me) مندوب GH Shopper.\nعشان أوصل \(order) بسهولة، \(g("ممكن ترسلين", "ممكن ترسل")) لي:\n📍 الموقع على الخريطة (Location)\n🏠 رقم البيت أو الشقة\n📷 صورة للبيت أو المدخل"),
+        // 4
+        ("قربت أوصل ⏱️",
+         "هلا \(first)، قربت أوصل ل\(you) مع \(order).\n\(g("ممكن تكونين قريبة", "ممكن تكون قريب")) من الباب؟\(pay)"),
+        // 5
+        ("محد عند الباب 🚪",
+         "هلا \(first)، وصلت ومحد رد على الباب.\nأقدر أسلّم \(order) لأحد من أهل البيت؟ ولا \(g("تبين", "تبي")) أنتظر\(you)؟"),
+        // 6
+        ("نأجل التوصيل 🗓️",
+         "هلا \(first)، معك \(me) من GH Shopper.\nما قدرت أوصل \(order) اليوم، أي وقت يناسب\(you)؟"),
+        // 7
+        ("تم التسليم 🤍",
+         "شكراً \(first) 🤍\nتم تسليم \(order)، إن شاء الله \(likeIt).\nأي شي \(g("تحتاجينه", "تحتاجه")) احنا موجودين."),
     ]
 }
 
