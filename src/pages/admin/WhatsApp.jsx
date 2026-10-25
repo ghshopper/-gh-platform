@@ -45,6 +45,17 @@ export default function WhatsApp() {
   const [app, setApp] = useState({ app_id: '', app_secret: '', config_id: '' })
   const [busy, setBusy] = useState('')
   const [testPhone, setTestPhone] = useState('')
+  const [nums, setNums] = useState(null)
+  const [pin, setPin] = useState({})
+  const loadNums = () => run('nums', async () => { const r = await api.get('/admin/whatsapp/numbers'); setNums(r.data.data || []) })
+  const useNum = (n) => run('use-' + n.id, async () => {
+    const needPin = !n.current && !n.on_phone && n.status !== 'CONNECTED'
+    const p = (pin[n.id] || '').trim()
+    if (needPin && !/^\d{6}$/.test(p)) { toast.error('اكتب رمز PIN من 6 أرقام (تختاره أنت أول مرة)'); return }
+    await api.post('/admin/whatsapp/use-number', { phone_id: n.id, pin: needPin ? p : undefined })
+    toast.success('صارت الرسائل التلقائية من ' + n.number)
+    await load(); await loadNums()
+  })
 
   const load = async () => {
     try {
@@ -190,6 +201,40 @@ export default function WhatsApp() {
           Verify token: <code dir="ltr" style={{ userSelect: 'all' }}>{data.settings.verify_token}</code>
         </div>
       </div>
+
+      {data.connected ? (
+        <div style={box}>
+          <h3 style={{ marginTop: 0 }}>رقم الرسائل التلقائية</h3>
+          <p style={{ fontSize: 13.5, color: '#6B7280', margin: '0 0 12px', lineHeight: 1.8 }}>
+            لين يخلص ربط رقمك اللي في الجوال، تقدر ترسل الرسائل التلقائية من رقم ثاني جديد. أضف الرقم في WhatsApp Manager (Phone numbers ← Add phone number) وأكّده برمز SMS، وبعدين اختاره هنا مع رمز PIN من 6 أرقام. رقمك اللي في الجوال ما يتسجّل من هنا أبداً.
+          </p>
+          {nums === null ? (
+            <button type="button" className="btn btn-ghost" onClick={loadNums} disabled={!!busy}>{busy === 'nums' ? 'يجيب…' : 'اعرض الأرقام'}</button>
+          ) : nums.length === 0 ? <div style={{ fontSize: 13, color: '#6B7280' }}>ما في أرقام</div> : (
+            <div style={{ display: 'grid', gap: 8 }}>
+              {nums.map((n) => (
+                <div key={n.id} style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', padding: '10px 12px', border: '1px solid var(--border-color, #E5E7EB)', borderRadius: 10 }}>
+                  <div style={{ flex: 1, minWidth: 200 }}>
+                    <b dir="ltr">{n.number}</b> <span style={{ fontSize: 12.5, color: '#6B7280' }}>{n.name}</span>
+                    <div style={{ fontSize: 12, color: '#6B7280' }}>
+                      {n.current ? <span style={{ color: '#067647' }}>● يرسل الحين · </span> : null}
+                      {n.on_phone ? 'الرقم اللي في جوالك · ' : ''}{n.status || ''}{n.name_status && n.name_status !== 'APPROVED' ? ' · الاسم: ' + n.name_status : ''}
+                    </div>
+                  </div>
+                  {n.current ? null : (
+                    <>
+                      {!n.on_phone && n.status !== 'CONNECTED' ? (
+                        <input dir="ltr" inputMode="numeric" maxLength={6} placeholder="PIN ٦ أرقام" value={pin[n.id] || ''} onChange={(e) => setPin({ ...pin, [n.id]: e.target.value.replace(/\D/g, '') })} style={{ ...input, width: 120 }} />
+                      ) : null}
+                      <button type="button" className="btn btn-primary" onClick={() => useNum(n)} disabled={!!busy}>{busy === 'use-' + n.id ? '…' : 'استخدمه للرسائل'}</button>
+                    </>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      ) : null}
 
       {data.connected && !edit ? (
         <div style={{ ...box, display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
