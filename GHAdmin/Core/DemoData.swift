@@ -225,6 +225,100 @@ enum DemoData {
         ]
     }
 
+    /// "yyyy-MM" n months before this one.
+    private static func monthAgo(_ n: Int) -> String {
+        let d = Calendar(identifier: .gregorian).date(byAdding: .month, value: -n, to: Date()) ?? Date()
+        return String(dayString(d).prefix(7))
+    }
+
+    /// الاستثمار الداخلي: the pool, its safety and two investors.
+    private static var demoInvestments: JSON {
+        let safety: JSON = [
+            "status": "watch", "label": "انتبه", "message": "الربح يغطي أرباح المستثمرين بس بالكاد. انتبه للمبيعات.",
+            "monthly_obligation": 900, "avg_profit": 1180, "months_used": [monthAgo(1), monthAgo(2), monthAgo(3)] as [Any],
+            "basis": "last_months", "profit_used": 1180, "ratio": 1.31, "this_month_profit": 640, "this_month_ratio": 0.71,
+            "months_of_cover": 3.4,
+        ]
+        let pool: JSON = [
+            "capital": 8000, "in_stock_cost": 5280, "in_stock_qty": 14, "cash_available": 3060.5, "pending_profit": 900,
+            "cash_after_pending": 2160.5, "realized_profit": 3940.5, "profit_this_month": 640, "profit_last_month": 1210,
+            "stock_value_at_price": 7920, "expected_profit_in_stock": 2640, "unpriced_qty": 0, "pieces_count": 9,
+            "moves": [] as [Any], "safety": safety,
+        ]
+        let investors: [Any] = [
+            ["id": 1, "name": "خالد الهنائي", "phone": "+968 9123 4567", "monthly_pct": 10, "next_pct": 10, "base_pct": 10,
+             "status": "active", "capital": 5000, "pending": 500, "this_month": 500, "paid_out": 1500] as JSON,
+            ["id": 2, "name": "سالم البوسعيدي", "monthly_pct": 8, "next_pct": 8, "base_pct": 8,
+             "status": "active", "capital": 3000, "pending": 0, "this_month": 240, "paid_out": 720] as JSON,
+        ]
+        return ["investors": investors, "pool": pool,
+                "totals": ["capital": 8000, "pending": 500, "this_month": 740, "paid_out": 2220, "reinvested": 0] as JSON]
+    }
+
+    private static var demoInvestor: JSON {
+        let rates: [Any] = [["id": 1, "pct": 10, "from_month": monthAgo(2), "note": "اتفاق جديد"] as JSON]
+        let entries: [Any] = [
+            ["id": 9, "type": "profit", "amount": 500, "month": monthAgo(1), "status": "pending", "pct": 10, "base": 5000,
+             "effective_date": dayAgo(20)] as JSON,
+            ["id": 8, "type": "profit", "amount": 500, "month": monthAgo(2), "status": "paid", "pct": 10, "base": 5000,
+             "effective_date": dayAgo(50)] as JSON,
+            ["id": 7, "type": "profit", "amount": 400, "month": monthAgo(3), "status": "paid", "pct": 8, "base": 5000,
+             "effective_date": dayAgo(80)] as JSON,
+            ["id": 2, "type": "deposit", "amount": 2000, "effective_date": dayAgo(120), "note": "تحويل بنكي"] as JSON,
+            ["id": 1, "type": "deposit", "amount": 3000, "effective_date": dayAgo(150), "note": "أول مبلغ"] as JSON,
+        ]
+        let inv: JSON = [
+            "id": 1, "name": "خالد الهنائي", "phone": "+968 9123 4567", "monthly_pct": 10, "next_pct": 10, "base_pct": 8,
+            "rates": rates, "status": "active", "capital": 5000, "deposited": 5000, "withdrawn": 0, "paid_out": 900,
+            "reinvested": 0, "pending": 500, "this_month": 500, "next_month": 500,
+        ]
+        return ["investor": inv, "entries": entries, "can_change_rate_from": monthAgo(1)]
+    }
+
+    private static var demoPieces: JSON {
+        func piece(_ id: Int, _ brand: String, _ name: String, _ qty: Int, _ sold: Int, _ cost: Double, _ price: Double, _ status: String) -> JSON {
+            let left: Int = status == "in_stock" ? qty - sold : 0
+            let soldAmount: Double = Double(sold) * price
+            let profit: Double = Double(sold) * (price - cost)
+            let expected: Double = Double(left) * (price - cost)
+            var row: JSON = ["id": id, "product_id": id + 100, "brand": brand, "name": name, "qty": qty, "sold_qty": sold]
+            row["left"] = left
+            row["unit_cost"] = cost
+            row["price"] = price
+            row["sold_amount"] = soldAmount
+            row["profit"] = profit
+            row["expected_profit"] = expected
+            row["status"] = status
+            row["bought_on"] = dayAgo(40 + id)
+            row["manual_sales"] = [] as [Any]
+            return row
+        }
+        let rows: [Any] = [
+            piece(1, "Dior", "Lady Dior Mini", 2, 1, 1450, 1890, "in_stock"),
+            piece(2, "Chanel", "Chance Eau Tendre 100ml", 6, 4, 62, 89, "in_stock"),
+            piece(3, "Gucci", "Ophidia Card Case", 3, 3, 120, 165, "sold"),
+            piece(4, "YSL", "Rouge Pur Couture", 10, 7, 14, 22, "in_stock"),
+            piece(5, "Prada", "Re-Edition 2005", 1, 0, 980, 1290, "returned"),
+        ]
+        return ["pieces": rows]
+    }
+
+    private static var demoCandidates: JSON {
+        let rows: [Any] = [
+            ["id": 201, "brand": "Celine", "name": "Triomphe Belt", "price": 210, "cost_price": 150, "stock": 2, "status": "active"] as JSON,
+            ["id": 202, "brand": "On", "name": "Cloud 6 Geo WP", "price": 75, "cost_price": NSNull(), "stock": 4, "status": "active"] as JSON,
+        ]
+        return ["products": rows]
+    }
+
+    private static func demoInvestmentsGet(_ p: String) -> Any? {
+        if p == "/admin/investments" { return demoInvestments }
+        if p == "/admin/investments/pieces" { return demoPieces }
+        if p == "/admin/investments/candidates" { return demoCandidates }
+        if p.hasPrefix("/admin/investments/") { return demoInvestor }
+        return nil
+    }
+
     /// الردود الجاهزة for the chat composer ({name}, {order} are filled when picked).
     private static var demoChatReplies: JSON {
         let rows: [Any] = [
@@ -250,6 +344,7 @@ enum DemoData {
         if p == "/ps/features" { return demoFeatures }
         if p == "/ps/reviews" { return demoReviews }
         if p.hasPrefix("/ps/wallets/") { return demoWallet }
+        if p.hasPrefix("/admin/investments") { return demoInvestmentsGet(p) }
         return nil
     }
 

@@ -59,6 +59,7 @@ final class Push: NSObject, ObservableObject {
         case "driver_order": return "car.fill"
         case "driver_failed": return "exclamationmark.triangle.fill"
         case "driver_handover", "handover", "handover_confirmed", "handover_rejected": return "banknote.fill"
+        case "investments": return "shield.lefthalf.filled"
         default: return "bell.fill"
         }
     }
@@ -74,6 +75,10 @@ final class Push: NSObject, ObservableObject {
         if type == "driver_handover" || type == "handover" {
             Task { await Store.shared.refresh() }
             pushPage(DriversPage())
+            return
+        }
+        if type == "investments" {
+            pushPage(InvestmentsPage())
             return
         }
         if type == "chat" {

@@ -33,3 +33,6 @@ giftcard
 widgets
 dark:widgets
 liveactivity
+investments
+investor
+pieces

@@ -74,6 +74,12 @@ struct MorePage: View {
             Tile("الملخص والأرباح",
                  action: { pushPage(SummaryPage()) },
                  leading: { IconBox("chart.pie.fill", color: GH.burgundy) })
+            // full admins only (the server answers 403 to anyone else); the app's "admin" session is a full admin
+            if canManageFeatures() {
+                Tile("الاستثمار الداخلي", subtitle: "صندوق المستثمرين، القطع، والأمان",
+                     action: { pushPage(InvestmentsPage()) },
+                     leading: { IconBox("banknote.fill", color: GH.green) })
+            }
             Tile("طلبات القطع", value: openRequests == 0 ? nil : "\(openRequests)",
                  action: { pushPage(RequestsPage()) },
                  leading: { IconBox("sparkles", color: GH.burgundy) })

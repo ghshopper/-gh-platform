@@ -28,6 +28,9 @@ enum DemoScreens {
         case "chat": tab.wrappedValue = 4; pushPage(ChatThreadPage(threadId: "1", title: "مريم البلوشية"))
         case "features": tab.wrappedValue = 4; pushPage(FeaturesPage())
         case "reviews": tab.wrappedValue = 4; pushPage(ReviewsPage())
+        case "investments": tab.wrappedValue = 4; pushPage(InvestmentsPage())
+        case "investor": tab.wrappedValue = 4; pushPage(InvestorDetailPage(investorId: 1))
+        case "pieces": tab.wrappedValue = 4; pushPage(PiecesPage())
         case "widgets": tab.wrappedValue = 4; pushPage(WidgetGalleryPage())
         case "liveactivity": tab.wrappedValue = 4; pushPage(LiveActivityGalleryPage())
         case "giftcard":
