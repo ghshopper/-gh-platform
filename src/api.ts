@@ -43,9 +43,12 @@ export function setUnauthorizedHandler(fn: () => void): void {
 
 export class ApiError extends Error {
   status: number;
-  constructor(message: string, status: number) {
+  /** The server's whole answer (e.g. phone_registered on sign-up). */
+  body: Record<string, unknown> | null;
+  constructor(message: string, status: number, body: unknown = null) {
     super(message);
     this.status = status;
+    this.body = body && typeof body === 'object' ? (body as Record<string, unknown>) : null;
   }
 }
 
@@ -118,7 +121,7 @@ async function request<T>(
   }
   if (!res.ok) {
     if (res.status === 401 && token) onUnauthorized?.();
-    throw new ApiError(messageFrom(json, res.status), res.status);
+    throw new ApiError(messageFrom(json, res.status), res.status, json);
   }
   return json as T;
 }

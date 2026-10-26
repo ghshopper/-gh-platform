@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
+import { ApiError } from '@/api';
 import { useAuth } from '@/auth';
 import { useLang } from '@/lang';
 import { C } from '@/theme';
@@ -16,16 +17,22 @@ export default function Register() {
   const [refCode, setRefCode] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [known, setKnown] = useState(false);
 
   const submit = async () => {
     if (!name.trim() || !email.trim()) return setError(tr('الاسم والبريد مطلوبين', 'Name and email are required'));
     if (password.length < 6) return setError(tr('كلمة المرور ٦ أحرف على الأقل', 'Password must be at least 6 characters'));
     setBusy(true);
     setError(null);
+    setKnown(false);
     try {
       await register(name, email, phone, password, refCode);
       router.back();
     } catch (e) {
+      if (e instanceof ApiError && e.body?.phone_registered) {
+        setKnown(true);
+        return;
+      }
       setError(e instanceof Error ? e.message : tr('حدث خطأ أثناء إنشاء الحساب', 'Could not create the account'));
     } finally {
       setBusy(false);
@@ -47,6 +54,13 @@ export default function Register() {
           <Field label={tr('رقم الهاتف (اختياري)', 'Phone (optional)')} value={phone} onChangeText={setPhone} keyboardType="phone-pad" textContentType="telephoneNumber" ltr />
           <Field label={tr('كلمة المرور', 'Password')} value={password} onChangeText={setPassword} secureTextEntry textContentType="newPassword" />
           <Field label={tr('كود الدعوة من صديق (اختياري)', 'Invite code from a friend (optional)')} value={refCode} onChangeText={(v: string) => setRefCode(v.toUpperCase().replace(/[^A-Z0-9]/g, ''))} autoCapitalize="characters" ltr />
+          {known ? (
+            <View style={{ gap: 10, padding: 16, backgroundColor: C.surface }}>
+              <T size={14} w="medium">{tr('رقمك مسجّل عندنا', 'Your number is already with us')}</T>
+              <T size={13} color={C.sub}>{tr('نرسل لك رمز على رقمك وتكمّل على نفس حسابك، بطلباتك ورصيدك ونقاطك.', 'We send a code to your number and you continue on the same account.')}</T>
+              <Btn label={tr('أرسل لي الرمز', 'Send me the code')} onPress={() => router.replace({ pathname: '/phone-code', params: { phone } })} />
+            </View>
+          ) : null}
           {error ? <T size={13} color={C.red}>{error}</T> : null}
           <Btn label={tr('إنشاء الحساب', 'Create account')} loading={busy} onPress={submit} />
           <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 6 }}>

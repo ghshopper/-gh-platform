@@ -89,6 +89,7 @@ function Shell() {
         <Stack.Screen name="login" options={{ presentation: 'modal' }} />
         <Stack.Screen name="forgot-password" options={{ presentation: 'modal' }} />
         <Stack.Screen name="register" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="phone-code" options={{ presentation: 'modal' }} />
         <Stack.Screen name="service-review" options={{ presentation: 'modal' }} />
       </Stack>
       <QuickAddHost />

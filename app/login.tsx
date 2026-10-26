@@ -47,6 +47,7 @@ export default function Login() {
           {error ? <T size={13} color={C.red}>{error}</T> : null}
           <Btn label={tr('تسجيل الدخول', 'Sign in')} loading={busy} onPress={submit} />
           <Btn kind="link" label={tr('نسيت كلمة المرور؟', 'Forgot password?')} onPress={() => router.replace('/forgot-password')} style={{ alignSelf: 'center' }} />
+          <Btn kind="link" label={tr('سجّلناك عندنا برقمك؟ ادخل برمز على رقمك', 'Registered with us by phone? Sign in with a code')} onPress={() => router.replace('/phone-code')} style={{ alignSelf: 'center' }} />
           <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 6, marginTop: 10 }}>
             <T size={13.5} color={C.sub}>{tr('ما عندك حساب؟', 'No account?')}</T>
             <T size={13.5} w="medium" style={{ textDecorationLine: 'underline' }} onPress={() => router.replace('/register')}>{tr('إنشاء حساب', 'Create one')}</T>
