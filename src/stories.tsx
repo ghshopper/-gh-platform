@@ -24,6 +24,8 @@ interface WeeklyProduct {
   sale_price?: number | string | null;
   image?: string | null;
   images?: string[] | null;
+  badge?: string | null;
+  badge_en?: string | null;
 }
 
 interface Weekly { title_ar?: string | null; title_en?: string | null; products: WeeklyProduct[] }
@@ -227,6 +229,11 @@ function StoryViewer({ products, start, onClose, onSeen }: { products: WeeklyPro
             {/* bottom: brand, name, price, button */}
             <View pointerEvents="box-none" style={{ position: 'absolute', left: 0, right: 0, bottom: 0 }}>
               <View style={{ paddingHorizontal: 22, paddingTop: 60, paddingBottom: Math.max(insets.bottom, 18) + 6, gap: 6, backgroundColor: 'rgba(0,0,0,0.42)' }}>
+                {(isAr ? p.badge || p.badge_en : p.badge_en || p.badge) ? (
+                  <View style={{ alignSelf: 'flex-start', backgroundColor: '#fff', paddingHorizontal: 9, paddingVertical: 4, marginBottom: 4 }}>
+                    <T size={11.5} color="#111111">{isAr ? p.badge || p.badge_en : p.badge_en || p.badge}</T>
+                  </View>
+                ) : null}
                 {p.brand ? <T latin w="medium" size={13} spacing={2.4} color="#fff">{p.brand.toUpperCase()}</T> : null}
                 <T size={16} color="#fff" lines={2}>{pick(p, 'name')}</T>
                 <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 10 }}>
