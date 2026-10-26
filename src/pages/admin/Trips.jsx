@@ -14,6 +14,9 @@ export default function Trips() {
   const [tab, setTab] = useState('trips')
   const [tfFilter, setTfFilter] = useState('due')
   const [list, setList] = useState(null) // trip id, 'none' or 'all'
+  const [tfTrip, setTfTrip] = useState('all')
+  const [picked, setPicked] = useState([])
+  const [busy, setBusy] = useState(false)
   const load = () => api.get('/admin/trips-report').then((r) => setD(r.data)).catch(() => toast.error('تعذر التحميل'))
   useEffect(() => { load() }, [])
 
@@ -25,8 +28,26 @@ export default function Trips() {
     } catch { toast.error('تعذر') }
   }
 
+  // many at once: the ones ticked, or a whole trip
+  const markMany = async (ids, received = true) => {
+    if (!ids.length) return
+    setBusy(true)
+    try {
+      await api.post('/ps/items/tax-free', { ids, received })
+      toast.success(received ? `تم: استلمت التاكس فري لـ ${ids.length} قطعة` : 'رجعت «ما استلمته»')
+      setPicked([]); load()
+    } catch { toast.error('تعذر') } finally { setBusy(false) }
+  }
+  const tripDue = (r) => (d?.tax_free || []).filter((x) => !x.received && String(x.trip_id ?? 'none') === String(r.id ?? 'none'))
+  const receiveTrip = (r) => {
+    const rows = tripDue(r)
+    if (rows.length && window.confirm(`استلمت التاكس فري كله لرحلة «${r.name}»؟ (${rows.length} قطعة · ${money(rows.reduce((a, x) => a + x.omr, 0))} ر.ع)`)) markMany(rows.map((x) => x.item_id))
+  }
+
   if (!d) return <div className="page"><div className="gh-skel" style={{ height: 360 }} /></div>
-  const tf = d.tax_free.filter((r) => tfFilter === 'all' || (tfFilter === 'due' ? !r.received : r.received))
+  const tf = d.tax_free.filter((r) => (tfFilter === 'all' || (tfFilter === 'due' ? !r.received : r.received)) && (tfTrip === 'all' || String(r.trip_id ?? 'none') === tfTrip))
+  const tfTrips = [...new Map(d.tax_free.map((r) => [String(r.trip_id ?? 'none'), r.trip])).entries()]
+  const dueShown = tf.filter((r) => !r.received)
   const t = d.tax_free_totals
 
   return (
@@ -68,6 +89,12 @@ export default function Trips() {
                   <div><small>تاكس فري منتظر</small><b className="green">+ {money(r.tax_free_due)}</b></div>
                   <div><small>الربح مع التاكس فري</small><b>{money(r.profit_with_tax_free)}</b></div>
                 </div>
+                {r.tax_free_due > 0 && (
+                  <div className="tr-tfrow">
+                    <span>تاكس فري منتظر: {tripDue(r).length} قطعة · {money(r.tax_free_due)} ر.ع</span>
+                    <button className="btn btn-ghost btn-sm" disabled={busy} onClick={() => receiveTrip(r)}><RiCheckLine /> استلمت التاكس فري كله</button>
+                  </div>
+                )}
                 {(r.to_buy > 0 || r.unpriced > 0) && (
                   <div className="tr-warn">
                     {r.to_buy > 0 && <span>{r.to_buy} قطعة تنتظر الشراء</span>}
@@ -86,16 +113,25 @@ export default function Trips() {
             <div className="card"><small>استلمته</small><b>{money(t.received)} <i>ر.ع</i></b></div>
           </div>
           <div className="gh-seg" style={{ marginBottom: 12 }}>
-            {[['due', 'المنتظر'], ['got', 'المستلم'], ['all', 'الكل']].map(([k, l]) => <button key={k} className={tfFilter === k ? 'on' : ''} onClick={() => setTfFilter(k)}>{l}</button>)}
+            {[['due', 'المنتظر'], ['got', 'المستلم'], ['all', 'الكل']].map(([k, l]) => <button key={k} className={tfFilter === k ? 'on' : ''} onClick={() => { setTfFilter(k); setPicked([]) }}>{l}</button>)}
+          </div>
+          <div className="tr-bulk">
+            <select value={tfTrip} onChange={(e) => { setTfTrip(e.target.value); setPicked([]) }}>
+              <option value="all">كل الرحلات</option>
+              {tfTrips.map(([id, name]) => <option key={id} value={id}>{name}</option>)}
+            </select>
+            {dueShown.length > 0 && <button className="btn btn-ghost btn-sm" onClick={() => setPicked(picked.length === dueShown.length ? [] : dueShown.map((r) => r.item_id))}>{picked.length === dueShown.length ? 'إلغاء التحديد' : `اختر كل المنتظر (${dueShown.length})`}</button>}
+            {picked.length > 0 && <button className="btn btn-primary btn-sm" disabled={busy} onClick={() => markMany(picked)}><RiCheckLine /> استلمت المحدد ({picked.length} · {money(d.tax_free.filter((r) => picked.includes(r.item_id)).reduce((a, r) => a + r.omr, 0))} ر.ع)</button>}
           </div>
           {tf.length === 0 ? <div className="card"><Empty icon={RiRefund2Line} title={tfFilter === 'due' ? 'ما فيه تاكس فري منتظر 👌' : 'ما فيه شي هنا'} hint="القطع اللي تنشرى من بوتيكات أوروبا أو دبي تطلع هنا مع المبلغ المتوقع." /></div> : (
             <div className="card" style={{ padding: 0 }}>
               <div className="table-wrap" style={{ border: 'none' }}>
                 <table>
-                  <thead><tr><th>القطعة</th><th>الرحلة</th><th>المكان</th><th>المبلغ</th><th>بالريال</th><th></th></tr></thead>
+                  <thead><tr><th style={{ width: 34 }}></th><th>القطعة</th><th>الرحلة</th><th>المكان</th><th>المبلغ</th><th>بالريال</th><th></th></tr></thead>
                   <tbody>
                     {tf.map((r) => (
                       <tr key={r.item_id}>
+                        <td>{!r.received && <input type="checkbox" checked={picked.includes(r.item_id)} onChange={() => setPicked((a) => (a.includes(r.item_id) ? a.filter((x) => x !== r.item_id) : [...a, r.item_id]))} aria-label="اختر" />}</td>
                         <td><b>{r.piece}</b><div style={{ fontSize: 11.5, color: 'var(--text-light)' }}>#{r.ref}{r.customer ? ' · ' + r.customer : ''}{r.purchased_at ? ' · ' + day(r.purchased_at) : ''}</div></td>
                         <td>{r.trip}</td>
                         <td>{r.place} · {r.pct}%</td>
@@ -136,6 +172,9 @@ export default function Trips() {
 .tr-nums b{font-size:14px;white-space:nowrap;direction:ltr;unicode-bidi:isolate;text-align:right}
 .tr-profit b{direction:ltr;unicode-bidi:isolate}
 .tr-nums b.green{color:#047857}
+.tr-tfrow{margin-top:10px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;font-size:12.5px;color:#047857;background:#ECFDF3;border-radius:10px;padding:8px 12px}
+.tr-bulk{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.tr-bulk select{border:1px solid var(--border);border-radius:8px;padding:7px 10px;font-family:inherit;background:var(--bg-card,#fff);color:inherit}
 .tr-warn{margin-top:10px;display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:#B45309}
 .tr-est{color:var(--text-secondary)}.tr-est b{color:var(--text-primary,#111);direction:ltr;unicode-bidi:isolate}
 .tr-tf-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
