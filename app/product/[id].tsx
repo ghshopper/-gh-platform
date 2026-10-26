@@ -13,7 +13,7 @@ import { useLoad } from '@/hooks';
 import { knownProduct, rememberProduct } from '@/product-cache';
 import { Icon } from '@/icons';
 import { useLang } from '@/lang';
-import { askToSignIn, brandOf, ProductCard, showToast } from '@/product-card';
+import { askToSignIn, brandOf, ProductCard, productBadge, showToast } from '@/product-card';
 import { C, F, S } from '@/theme';
 import type { Product } from '@/types';
 import { BrandText, Btn, Divider, ErrorBox, Loader, Photo, Price, T } from '@/ui';
@@ -233,6 +233,11 @@ export default function ProductScreen() {
 
         {/* Info */}
         <View style={{ paddingHorizontal: 22, paddingTop: 20, gap: 6 }}>
+          {productBadge(p, isAr) ? (
+            <View style={{ alignSelf: 'flex-start', backgroundColor: C.ink, paddingHorizontal: 9, paddingVertical: 4, marginBottom: 4 }}>
+              <T size={11.5} color={C.white}>{productBadge(p, isAr)}</T>
+            </View>
+          ) : null}
           {brand ? (
             <Pressable onPress={() => p.brand_id && router.push({ pathname: '/brand/[id]', params: { id: String(p.brand_id) } })}>
               <BrandText size={14}>{brand}</BrandText>

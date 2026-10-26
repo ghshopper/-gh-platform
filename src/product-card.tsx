@@ -200,8 +200,15 @@ export function QuickAddHost() {
  * Listing card: photo with wishlist and a quick "add to bag" button, a
  * sale/sold-out label, then brand, name and price.
  */
+/** The shop's label for this product, in the reader's language (Arabic when no English one was written). */
+export function productBadge(p: Product, isAr: boolean): string | null {
+  const ar = (p.badge ?? '').trim();
+  const en = (p.badge_en ?? '').trim();
+  return (isAr ? ar || en : en || ar) || null;
+}
+
 export function ProductCard({ product, width, style }: { product: Product; width?: number; style?: StyleProp<ViewStyle> }) {
-  const { pick, tr } = useLang();
+  const { pick, tr, isAr } = useLang();
   const wish = useWishlist();
   const add = useAddToBag();
   const saved = wish.has(product.id);
@@ -211,6 +218,7 @@ export function ProductCard({ product, width, style }: { product: Product; width
   const price = productPrice(product);
   const was = productWasPrice(product);
   const off = was && was > price ? Math.round((1 - price / was) * 100) : 0;
+  const badge = productBadge(product, isAr);
 
   const onQuickAdd = () => {
     if (selectableOf(product).length) quickAdd(product);
@@ -284,7 +292,13 @@ export function ProductCard({ product, width, style }: { product: Product; width
         ) : null}
       </View>
 
-      <View style={{ paddingTop: 10, gap: 3 }}>
+      {badge ? (
+        <View style={{ alignSelf: 'flex-start', marginTop: -9, backgroundColor: C.ink, paddingHorizontal: 8, paddingVertical: 3, maxWidth: '100%' }}>
+          <T size={10.5} color={C.white} lines={1}>{badge}</T>
+        </View>
+      ) : null}
+
+      <View style={{ paddingTop: badge ? 7 : 10, gap: 3 }}>
         {brand ? <BrandText size={11}>{brand}</BrandText> : null}
         <T size={12.5} color={C.sub} w="light" lines={2} lh={18}>{pick(product, 'name')}</T>
         <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 7, flexWrap: 'wrap', marginTop: 2 }}>

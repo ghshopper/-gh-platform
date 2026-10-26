@@ -24,6 +24,9 @@ export interface ProductAttribute {
 export interface Product {
   /** New piece in the top tier's early-access window (only they see it). */
   vip_early?: boolean;
+  /** The shop's label on the product («حصرياً بسعر البوتيك»…). */
+  badge?: string | null;
+  badge_en?: string | null;
   /** ×N loyalty points on this piece for now (every customer). */
   points_boost?: number | null;
   points_boost_ends_at?: string | null;
