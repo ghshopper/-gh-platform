@@ -764,6 +764,11 @@ fileprivate struct ODItemRow: View {
             if let b = item.brand {
                 Text(b.uppercased()).font(.gh(11.5, .semibold)).tracking(0.8).foregroundStyle(GH.gold)
             }
+            if item.instant {
+                Label("تسليم فوري · من عندنا", systemImage: "bolt.fill")
+                    .font(.gh(11.5, .semibold)).foregroundStyle(GH.green)
+                    .padding(.vertical, 2)
+            }
             nameRow
             if let d = item.details {
                 Text(d).font(TS.sub).foregroundStyle(GH.secondary)

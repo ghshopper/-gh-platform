@@ -371,6 +371,8 @@ struct OrderItem: Identifiable, Hashable {
     var purchasePlace: PurchasePlace?
     var taxFreePct: Double?
     var taxFreeReceived: Bool = false
+    /// The piece was here when ordered (تسليم فوري): nothing to buy.
+    var instant: Bool = false
     /// Price as quoted to the customer in a foreign currency (private).
     var listPrice: Double?
     var listCurrency: String?
@@ -427,6 +429,7 @@ struct OrderItem: Identifiable, Hashable {
         purchasePlace = PurchasePlace.from(js(m["purchase_place"]))
         taxFreePct = jdn(m["tax_free_pct"])
         taxFreeReceived = jb(m["tax_free_received"])
+        instant = jb(m["instant"])
         listPrice = jdn(m["list_price"])
         listCurrency = js(m["list_currency"])
         planPlace = PurchasePlace.from(js(m["plan_place"]))
