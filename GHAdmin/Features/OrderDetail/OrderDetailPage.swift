@@ -92,7 +92,7 @@ struct OrderDetailPage: View {
             itemsSection(o)
             shippedSection(o)
             if let g = o.gift {
-                ODGiftSection(gift: g)
+                ODGiftSection(order: o, gift: g)
             }
             deliverySection(o)
             eventsSection(o)
@@ -510,6 +510,7 @@ struct OrderDetailPage: View {
         if o.hasBalance { actions.append(SheetAction("نسخ رابط الدفع", "paylink-copy")) }
         if o.trackingToken != nil { actions.append(SheetAction("نسخ رابط التتبّع", "track")) }
         if !o.activeItems.isEmpty { actions.append(SheetAction("إرجاع قطع…", "return")) }
+        actions.append(SheetAction(o.gift == nil ? "اجعل الطلب هدية 🎁" : "تعديل الهدية", "giftedit"))
         actions.append(SheetAction("كرت إهداء", "giftcard"))
         actions.append(SheetAction("حذف الطلب", "delete", destructive: true))
         return actions
@@ -521,6 +522,8 @@ struct OrderDetailPage: View {
         switch a {
         case "waybill":
             await printOrderWaybill(o)
+        case "giftedit":
+            presentForm(GiftEditPage(order: o))
         case "giftcard":
             presentForm(GiftCardPage(gift: o.gift))
         case "return":
@@ -687,6 +690,7 @@ fileprivate struct ODFailedBanner: View {
 }
 
 fileprivate struct ODGiftSection: View {
+    let order: Order
     let gift: OrderGift
 
     var body: some View {
@@ -705,6 +709,11 @@ fileprivate struct ODGiftSection: View {
                     Button { copyText(msg, toastText: "نسخت الرسالة") } label: { Label("نسخ", systemImage: "doc.on.doc") }
                 }
             }
+            Tile("أرسل رابط التتبّع للمُرسِل", subtitle: Store.shared.customer(order.customerId)?.name,
+                 chevron: true, action: { sendGiftTrackingToSender(order) },
+                 leading: { IconBox("location.fill", color: GH.green) })
+            Tile("تعديل الهدية", chevron: true, action: { presentForm(GiftEditPage(order: order)) },
+                 leading: { IconBox("pencil", color: GH.blue) })
             Tile("اطبع كرت الإهداء", chevron: true, action: { presentForm(GiftCardPage(gift: gift)) },
                  leading: { IconBox("printer.fill", color: GH.gold) })
             Tile("تغليف هدية", value: gift.wrap ? "نعم" : "لا", valueColor: gift.wrap ? GH.green : GH.secondary, chevron: false)
