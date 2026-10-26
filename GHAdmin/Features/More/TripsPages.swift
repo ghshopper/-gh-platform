@@ -36,6 +36,11 @@ fileprivate struct TripStats {
 
     var profit: Double { sales - cost - spent }
 
+    /// Every bought piece in the trip with a tax-free refund to follow.
+    var taxFreeEntries: [ShopEntry] {
+        orders.flatMap { o in o.activeItems.filter { $0.hasTaxFree }.map { ShopEntry(order: o, item: $0) } }
+    }
+
     @MainActor
     init(_ t: Trip) {
         let store = Store.shared
@@ -108,7 +113,7 @@ fileprivate struct TripListRow: View {
 
 // MARK: - Trip detail
 
-fileprivate enum TripView: Hashable { case shopping, orders, expenses }
+fileprivate enum TripView: Hashable { case shopping, orders, taxFree, expenses }
 
 @MainActor
 struct TripDetailPage: View {
@@ -144,23 +149,32 @@ struct TripDetailPage: View {
                 Segments(value: $tab, options: [
                     (TripView.shopping, "قائمة التسوّق"),
                     (TripView.orders, "الطلبات"),
+                    (TripView.taxFree, "التاكس فري"),
                     (TripView.expenses, "المصاريف"),
                 ])
             }
             switch tab {
             case .shopping: TripShoppingList(stats: s)
             case .orders: TripOrdersList(stats: s)
+            case .taxFree: TripTaxFreeList(stats: s)
             case .expenses: TripExpensesList(trip: t, stats: s)
             }
         }
     }
 
     private func menu(_ t: Trip) async {
-        let a: String? = await pickAction(actions: [
+        let pending = TripStats(t).taxFreeEntries.filter { !$0.item.taxFreeReceived }
+        var acts: [SheetAction] = []
+        if !pending.isEmpty { acts.append(SheetAction("استلمت التاكس فري كله (\(pending.count) قطعة)", "taxfree")) }
+        let a: String? = await pickAction(actions: acts + [
             SheetAction("تعديل الرحلة", "edit"),
             SheetAction("حذف الرحلة", "delete", destructive: true),
         ])
-        if a == "edit" {
+        if a == "taxfree" {
+            if await confirm("استلمت التاكس فري كله؟", message: "\(pending.count) قطعة في \(t.name) بتتعلّم «مستلم».", ok: "استلمته", destructive: false) {
+                _ = await attempt { try await Store.shared.setTaxFreeReceived(ids: pending.map { $0.item.id }, true) }
+            }
+        } else if a == "edit" {
             presentForm(TripFormPage(trip: t))
         } else if a == "delete" {
             if await confirm("حذف \(t.name)؟", message: "الطلبات تبقى، بس تنفك من الرحلة.") {
@@ -383,6 +397,86 @@ fileprivate struct TripOrdersList: View {
                 }
             }
         }
+    }
+}
+
+// MARK: Tax-free tab
+
+/// The trip's tax-free refunds: tick the ones that came back (or all), then one tap.
+@MainActor
+fileprivate struct TripTaxFreeList: View {
+    let stats: TripStats
+    @ObservedObject private var store = Store.shared
+    @State private var picked: Set<String> = []
+    @State private var busy = false
+
+    private func money(_ v: Double, _ c: String) -> String { String(format: "%.2f", v) + " " + c }
+
+    private func totals(_ list: [ShopEntry]) -> String {
+        var map: [String: Double] = [:]
+        for e in list { map[e.item.costCurrency ?? "EUR", default: 0] += e.item.taxFreeAmount }
+        return map.sorted { $0.key < $1.key }.map { money($0.value, $0.key) }.joined(separator: " · ")
+    }
+
+    var body: some View {
+        let all = stats.taxFreeEntries
+        let due = all.filter { !$0.item.taxFreeReceived }
+        let got = all.filter { $0.item.taxFreeReceived }
+        if all.isEmpty {
+            EmptyState(icon: "arrow.uturn.backward.circle", title: "ما في تاكس فري في الرحلة",
+                       message: "القطع اللي تنشرى من بوتيكات أوروبا أو دبي تطلع هنا")
+        } else {
+            GHSection("منتظر · \(totals(due))", trailing: {
+                if !due.isEmpty {
+                    HeaderButton(picked.count == due.count ? "إلغاء التحديد" : "اختر الكل") {
+                        picked = picked.count == due.count ? [] : Set(due.map { $0.item.id })
+                    }
+                }
+            }) {
+                if due.isEmpty { Tile("استلمت كل التاكس فري 👌") }
+                ForEach(due) { e in row(e, on: picked.contains(e.item.id)) {
+                    if picked.contains(e.item.id) { picked.remove(e.item.id) } else { picked.insert(e.item.id) }
+                } }
+            }
+            if !picked.isEmpty {
+                Pad(h: 16, top: 4) {
+                    PrimaryButton("استلمت المحدد (\(picked.count))", icon: "checkmark", busy: busy) {
+                        guard !busy else { return }
+                        busy = true
+                        Task {
+                            let ids = Array(picked)
+                            let ok = await attempt { try await Store.shared.setTaxFreeReceived(ids: ids, true) }
+                            if ok { picked = [] }
+                            busy = false
+                        }
+                    }
+                }
+            }
+            if !got.isEmpty {
+                GHSection("مستلم · \(totals(got))") {
+                    ForEach(got) { e in row(e, on: true, done: true) {
+                        Task {
+                            if await confirm("ترجّعها «ما استلمته»؟", ok: "رجّعها", destructive: false) {
+                                _ = await attempt { try await Store.shared.setTaxFreeReceived(e.item.id, false) }
+                            }
+                        }
+                    } }
+                }
+            }
+        }
+    }
+
+    private func row(_ e: ShopEntry, on: Bool, done: Bool = false, tap: @escaping () -> Void) -> some View {
+        let i = e.item
+        let who = store.customer(e.order.customerId)?.name
+        let title = [i.brand, i.name].compactMap { $0 }.filter { !$0.isEmpty }.joined(separator: " · ")
+        let sub = ["#" + (e.order.refNo ?? e.order.id), who].compactMap { $0 }.joined(separator: " · ")
+        return Tile(title, subtitle: sub, value: money(i.taxFreeAmount, i.costCurrency ?? "EUR"),
+                    valueColor: done ? GH.secondary : GH.green, action: tap, leading: {
+            Image(systemName: on ? "checkmark.circle.fill" : "circle")
+                .font(.system(size: 22))
+                .foregroundStyle(on ? (done ? GH.green : GH.burgundy) : GH.separator)
+        })
     }
 }
 

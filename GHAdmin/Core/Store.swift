@@ -290,6 +290,12 @@ final class Store: ObservableObject {
         try await write { try await api.put("/ps/items/\(itemId)/tax-free", ["received": received]) }
     }
 
+    /// Many items at once (a whole trip, or the ones picked).
+    func setTaxFreeReceived(ids: [String], _ received: Bool) async throws {
+        guard !ids.isEmpty else { return }
+        try await write { try await api.post("/ps/items/tax-free", ["ids": ids, "received": received]) }
+    }
+
     // photos
 
     private var signed: [String: String] = [:]
