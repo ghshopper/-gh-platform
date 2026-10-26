@@ -1,1 +1,1 @@
-success a30143bc182759f4d6c6d3ac9f38d9fe96da12de swift-admin 28
+success a30143bc182759f4d6c6d3ac9f38d9fe96da12de swift-admin-release 29
