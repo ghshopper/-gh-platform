@@ -11,6 +11,8 @@ fileprivate final class OrderItemDraft: ObservableObject, Identifiable {
     @Published var brand = ""
     @Published var name = ""
     @Published var details = ""
+    /// Picked from the instant-delivery stock (the store product).
+    @Published var productId: Int?
     let price = PriceDraft()
 }
 
@@ -26,6 +28,25 @@ fileprivate final class OrderItemsDraft: ObservableObject {
         let d = OrderItemDraft()
         subs[d.id] = d.price.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() }
         items.append(d)
+    }
+
+    /// A piece from the instant stock: fills the first empty piece, or adds one.
+    func addInstant(_ p: InstantPiece) {
+        let empty = items.first { $0.productId == nil && $0.name.trimmingCharacters(in: .whitespaces).isEmpty && $0.brand.trimmingCharacters(in: .whitespaces).isEmpty }
+        if empty == nil { add() }
+        guard let d = empty ?? items.last else { return }
+        d.brand = p.brand
+        d.name = p.name
+        d.productId = p.id
+        d.price.omrText = String(format: "%.3f", p.price)
+        objectWillChange.send()
+    }
+
+    /// Pieces already taken from each instant product.
+    var takenInstant: [Int: Int] {
+        var m: [Int: Int] = [:]
+        for d in items { if let id = d.productId { m[id, default: 0] += 1 } }
+        return m
     }
 
     func remove(_ d: OrderItemDraft) {
@@ -73,6 +94,7 @@ struct OrderFormPage: View {
     @State private var deliveryMethod: DeliveryMethod = .home
     @State private var saving = false
     @State private var started = false
+    @State private var instantPicker = false
 
     init(customer: Customer? = nil, tripId: String? = nil, done: ((String?) -> Void)? = nil) {
         self.customer = customer
@@ -94,6 +116,9 @@ struct OrderFormPage: View {
             totalsSection
         }
         .onAppear { start() }
+        .sheet(isPresented: $instantPicker) {
+            InstantPickerSheet(taken: draft.takenInstant) { p in draft.addInstant(p) }
+        }
     }
 
     // MARK: parts
@@ -122,7 +147,7 @@ struct OrderFormPage: View {
 
     private func itemSection(_ k: Int, _ d: OrderItemDraft) -> some View {
         let canRemove = draft.items.count > 1
-        return GHSection("القطعة \(k + 1)", trailing: {
+        return GHSection(d.productId != nil ? "القطعة \(k + 1) · تسليم فوري ⚡" : "القطعة \(k + 1)", trailing: {
             if canRemove {
                 HeaderButton("حذف") { draft.remove(d) }
             }
@@ -133,7 +158,10 @@ struct OrderFormPage: View {
 
     private var addItemButton: some View {
         Pad(top: 12) {
-            SecondaryButton("إضافة قطعة", icon: "plus") { draft.add() }
+            VStack(spacing: 10) {
+                SecondaryButton("من التسليم الفوري", icon: "bolt.fill") { instantPicker = true }
+                SecondaryButton("إضافة قطعة", icon: "plus") { draft.add() }
+            }
         }
     }
 
@@ -232,6 +260,7 @@ struct OrderFormPage: View {
                 "details": nn(details.isEmpty ? nil : details),
             ]
             for (k, v) in d.price.fields { m[k] = v }
+            if let pid = d.productId { m["product_id"] = pid }
             out.append(m)
         }
         return out
