@@ -86,11 +86,33 @@ export function readAmwalResponse(r: unknown): { verdict: 'ok' | 'fail' | 'cance
 
 export const AMWAL_CODES = ['amwalpay', 'card', 'amwal_apple', 'amwal_google'];
 
+/** One payment at a time: a second tap while the Amwal page is open is ignored. */
+let paying = false;
+
+/** The SDK sometimes reports that a first try to open the Apple Pay sheet failed,
+ *  then opens it anyway: that report is not the payment's answer. */
+const NOT_THE_ANSWER = /failed to present payment controller/i;
+
 /**
  * `start` lets another flow (the GH wallet top-up) get the same session from
  * its own endpoint; orders keep using /customer/amwal-session exactly as before.
  */
 export async function payWithAmwal(
+  amount: number,
+  wallet: boolean,
+  isAr: boolean,
+  start?: () => Promise<Session>,
+): Promise<PayResult> {
+  if (paying) return { ok: false, raw: 'busy', cancelled: true };
+  paying = true;
+  try {
+    return await runAmwal(amount, wallet, isAr, start);
+  } finally {
+    paying = false;
+  }
+}
+
+async function runAmwal(
   amount: number,
   wallet: boolean,
   isAr: boolean,
@@ -139,6 +161,8 @@ export async function payWithAmwal(
 
     const handle = (r: AmwalPayResponse) => {
       const raw = JSON.stringify(r ?? {});
+      // not the answer yet: keep waiting for the real one (paid, declined or closed)
+      if (NOT_THE_ANSWER.test(raw)) return;
       const { verdict, reference } = readAmwalResponse(r);
       if (verdict === 'ok') finish({ ok: true, transactionId, reference, raw });
       else if (verdict === 'unknown' && raw.length > 2) finish({ ok: 'unknown', transactionId, reference, raw });
