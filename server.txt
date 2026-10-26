@@ -1,0 +1,6 @@
+GET customer/products?per_page=1&gender=women → 200
+GET customer/products?per_page=1&gender=men → 200
+GET customer/settings/app → 404
+GET customer/brand-follows → 500
+POST auth/forgot-password → 200
+GET gift-cards/balance → 404
