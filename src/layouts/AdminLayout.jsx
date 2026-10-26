@@ -44,7 +44,7 @@ import {
   RiMegaphoneLine,
   RiFlashlightLine,
   RiMessage2Line,
-  RiDatabase2Line, RiFolder3Line,
+  RiDatabase2Line, RiFolder3Line, RiPriceTag3Line,
   RiRadarLine,
   RiMoonLine,
   RiSunLine, RiHandCoinLine, RiChat3Line, RiToggleLine } from 'react-icons/ri'
@@ -65,6 +65,7 @@ const navSections = [
   ] },
   { title: 'المنتجات', items: [
     { label: 'المنتجات', icon: RiShoppingBag3Line, path: '/admin/products' },
+    { label: 'الشارات', icon: RiPriceTag3Line, path: '/admin/badges' },
     { label: 'منتجات للإضافة', icon: RiSearchFill, path: '/admin/import-items' },
     { label: 'مراقبة البراندات', icon: RiRadarLine, path: '/admin/source-watch' },
     { label: 'التصنيفات', icon: RiBillLine, path: '/admin/categories' },

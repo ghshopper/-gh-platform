@@ -26,7 +26,7 @@ function EditNum({ value, onSave, placeholder, step = '0.001', children }) {
 }
 
 // Ready labels for a product (Arabic, English); any other text can be written by hand.
-const BADGES = [
+const DEFAULT_BADGES = [
   ['حصرياً بسعر البوتيك', 'Boutique price, exclusively'],
   ['الموسم الجديد', 'New season'],
   ['الأكثر طلباً', 'Most wanted'],
@@ -68,6 +68,8 @@ export default function Products() {
   const [lastPage, setLastPage] = useState(1)
   const [totalItems, setTotalItems] = useState(0)
   const [selected, setSelected] = useState([])
+  const [BADGES, setBadgeList] = useState(DEFAULT_BADGES)
+  useEffect(() => { api.get('/admin/badges').then(r => setBadgeList((r.data.badges || []).map(b => [b.ar, b.en || '']))).catch(() => {}) }, [])
   const [bulkBusy, setBulkBusy] = useState(false)
 
   const bulkSet = async (patch, label) => {

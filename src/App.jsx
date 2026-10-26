@@ -36,6 +36,7 @@ import ImportReview from './pages/admin/ImportReview'
 import Messaging from './pages/admin/Messaging'
 import Backups from './pages/admin/Backups'
 import Documents from './pages/admin/Documents'
+import Badges from './pages/admin/Badges'
 import SourceWatch from './pages/admin/SourceWatch'
 import Investments from './pages/admin/Investments'
 import Activity from './pages/admin/Activity'
@@ -106,6 +107,7 @@ export default function App() {
           <Route path="messaging" element={<Messaging />} />
           <Route path="backups" element={<Backups />} />
           <Route path="documents" element={<Documents />} />
+          <Route path="badges" element={<Badges />} />
           <Route path="investments" element={<Investments />} />
           <Route path="profile" element={<Profile />} />
           <Route path="offers" element={<Offers />} />
