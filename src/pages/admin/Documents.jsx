@@ -2,10 +2,11 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import toast from 'react-hot-toast'
 import {
   RiAddLine, RiCloseLine, RiDeleteBinLine, RiDownload2Line, RiEditLine, RiEyeLine, RiFileExcel2Line, RiFilePdf2Line,
-  RiFileTextLine, RiFileWord2Line, RiFolder3Line, RiImageLine, RiLoader4Line, RiSearchLine, RiUploadCloud2Line,
+  RiFileTextLine, RiFileWord2Line, RiFolder3Line, RiImageLine, RiLoader4Line, RiSearchLine, RiUploadCloud2Line, RiQuillPenLine, RiShieldStarLine,
 } from 'react-icons/ri'
 import api from '../../services/api'
 import Empty from '../../components/Empty'
+import DocSign, { BrandSheet } from './DocSign'
 
 const API = import.meta.env.VITE_API_URL
 const size = (b) => (b >= 1048576 ? (b / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(b / 1024)) + ' KB')
@@ -34,9 +35,30 @@ export default function Documents() {
   const [form, setForm] = useState(null)
   const [busy, setBusy] = useState(false)
   const fileRef = useRef(null)
+  const signRef = useRef(null)
+  const [brand, setBrand] = useState(null)
+  const [brandOpen, setBrandOpen] = useState(false)
+  const [signing, setSigning] = useState(null)
 
   const load = () => api.get('/admin/documents').then((r) => setData(r.data)).catch(() => toast.error('تعذر التحميل'))
   useEffect(() => { load() }, [])
+  const getBrand = async () => {
+    if (brand) return brand
+    const r = await api.get('/admin/documents/brand'); setBrand(r.data); return r.data
+  }
+  const openBrand = async () => { try { await getBrand(); setBrandOpen(true) } catch { toast.error('تعذر التحميل') } }
+  const signDoc = async (d) => {
+    try {
+      const b = await getBrand()
+      const r = await fetch(`${API}/admin/documents/${d.id}/file`, { headers: { Authorization: 'Bearer ' + localStorage.getItem('token') } })
+      if (!r.ok) throw new Error()
+      setSigning({ blob: await r.blob(), name: d.file_name, title: d.title, category: d.category, brand: b })
+    } catch { toast.error('ما قدرنا نفتح الملف') }
+  }
+  const signNew = async (e) => {
+    const f = e.target.files?.[0]; e.target.value = ''; if (!f) return
+    try { const b = await getBrand(); setSigning({ blob: f, name: f.name, category: 'other', brand: b }) } catch { toast.error('تعذر التحميل') }
+  }
 
   const fetchFile = async (d) => {
     const r = await fetch(`${API}/admin/documents/${d.id}/file${canView(d.file_name) ? '?inline=1' : ''}`, { headers: { Authorization: 'Bearer ' + localStorage.getItem('token') } })
@@ -101,7 +123,12 @@ export default function Documents() {
           <h1 className="page-title-main" style={{ margin: 0 }}>ملفات الشركة</h1>
           <p className="page-subtitle" style={{ margin: '4px 0 0' }}>السجل التجاري والتصاريح والبطاقة الضريبية وكل أوراق الشركة في مكان واحد، جاهزة وقت ما تحتاجها.</p>
         </div>
-        <button className="btn btn-primary" onClick={() => openNew()}><RiAddLine /> رفع ملف</button>
+        <div className="doc-head-btns">
+          <button className="btn btn-ghost" onClick={openBrand}><RiShieldStarLine /> التوقيع والختم</button>
+          <button className="btn btn-ghost" onClick={() => signRef.current?.click()}><RiQuillPenLine /> وقّع ملف من جهازك</button>
+          <input ref={signRef} type="file" hidden accept=".pdf,.jpg,.jpeg,.png,.webp" onChange={signNew} />
+          <button className="btn btn-primary" onClick={() => openNew()}><RiAddLine /> رفع ملف</button>
+        </div>
       </div>
 
       {soon.length > 0 && (
@@ -145,6 +172,7 @@ export default function Documents() {
                     <div className="doc-actions">
                       <button className="btn btn-ghost btn-sm" onClick={() => view(d)}><RiEyeLine /> {canView(d.file_name) ? 'عرض' : 'فتح'}</button>
                       <button className="btn btn-ghost btn-sm" onClick={() => download(d)}><RiDownload2Line /> تنزيل</button>
+                      {canView(d.file_name) && <button className="btn btn-ghost btn-sm" onClick={() => signDoc(d)} title="توقيع وختم"><RiQuillPenLine /> توقيع</button>}
                       <button className="btn btn-ghost btn-sm" onClick={() => openEdit(d)} aria-label="تعديل"><RiEditLine /></button>
                       <button className="btn btn-ghost btn-sm doc-del" onClick={() => remove(d)} aria-label="حذف"><RiDeleteBinLine /></button>
                     </div>
@@ -198,12 +226,15 @@ export default function Documents() {
           </form>
         </div>
       )}
+      {brandOpen && brand && <BrandSheet brand={brand} onClose={() => setBrandOpen(false)} onSaved={(b) => setBrand(b)} />}
+      {signing && <DocSign source={signing} brand={signing.brand} onClose={() => setSigning(null)} onSaved={load} />}
       <style>{CSS}</style>
     </div>
   )
 }
 
 const CSS = `
+.doc-head-btns{display:flex;gap:8px;flex-wrap:wrap}
 .doc-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:18px}
 .doc-alert{padding:12px 16px;margin:0 0 14px;border:1px solid #FDE68A;display:flex;flex-direction:column;gap:6px;font-size:13.5px}
 .doc-search{display:flex;align-items:center;gap:8px;border:1px solid var(--border);border-radius:10px;padding:0 12px;margin-bottom:16px;background:var(--bg-card,#fff);max-width:420px}
