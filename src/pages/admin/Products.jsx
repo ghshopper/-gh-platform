@@ -25,6 +25,18 @@ function EditNum({ value, onSave, placeholder, step = '0.001', children }) {
     onKeyDown={(e) => { if (e.key === 'Enter') done(true); if (e.key === 'Escape') done(false) }} />
 }
 
+// Ready labels for a product (Arabic, English); any other text can be written by hand.
+const BADGES = [
+  ['حصرياً بسعر البوتيك', 'Boutique price, exclusively'],
+  ['الموسم الجديد', 'New season'],
+  ['الأكثر طلباً', 'Most wanted'],
+  ['وصل حديثاً', 'Just in'],
+  ['إصدار محدود', 'Limited edition'],
+  ['قطعة نادرة', 'Rare piece'],
+  ['آخر قطعة', 'Last piece'],
+  ['حصري', 'Exclusive'],
+]
+
 export default function Products() {
   const [view, setView] = useState('list')
   const [products, setProducts] = useState([])
@@ -161,7 +173,9 @@ export default function Products() {
     delivery_badge: '',
     availability: 'instant',
     gender: '',
-    origin: ''
+    origin: '',
+    badge: '',
+    badge_en: ''
   }
   const [formData, setFormData] = useState(emptyForm)
   const [imgPreview, setImgPreview] = useState('')
@@ -391,6 +405,8 @@ export default function Products() {
       availability: product.availability || 'instant',
       gender: product.gender || '',
       origin: product.origin || '',
+      badge: product.badge || '',
+      badge_en: product.badge_en || '',
       discount_expires_at: product.discount_expires_at ? product.discount_expires_at.slice(0, 16) : ''
     })
     setImgPreview(getImageUrl(product.primary_image))
@@ -691,6 +707,25 @@ export default function Products() {
                     ))}
                   </div>
                   <p style={{ fontSize: 11.5, color: '#9CA3AF', margin: '6px 0 0' }}>إذا ما اخترت: تسليم فوري = عُمان، بالطلب = أوروبا.</p>
+                </div>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#6B7280', marginBottom: 8 }}>شارة المنتج (تظهر على صورة المنتج في التطبيق والموقع)</label>
+                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 8 }}>
+                  {BADGES.map(([ar, en]) => (
+                    <button type="button" key={ar} onClick={() => setFormData(f => f.badge === ar ? { ...f, badge: '', badge_en: '' } : { ...f, badge: ar, badge_en: en })}
+                      style={{ padding: '6px 12px', borderRadius: 99, fontSize: 13, fontFamily: 'inherit', cursor: 'pointer',
+                        border: formData.badge === ar ? '1.5px solid var(--color-primary)' : '1.5px solid #E5E7EB',
+                        background: formData.badge === ar ? 'rgba(74,13,23,0.06)' : '#fff', color: formData.badge === ar ? 'var(--color-primary)' : '#374151' }}>{ar}</button>
+                  ))}
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: 8, alignItems: 'center' }}>
+                  <input value={formData.badge} maxLength={40} placeholder="أو اكتب شارة بنفسك" onChange={e => setFormData(f => ({ ...f, badge: e.target.value }))}
+                    style={{ padding: '10px 14px', border: '1.5px solid #E5E7EB', borderRadius: 10, fontSize: 14, fontFamily: 'inherit', outline: 'none' }} />
+                  <input value={formData.badge_en} maxLength={40} dir="ltr" placeholder="English (optional)" onChange={e => setFormData(f => ({ ...f, badge_en: e.target.value }))}
+                    style={{ padding: '10px 14px', border: '1.5px solid #E5E7EB', borderRadius: 10, fontSize: 14, fontFamily: 'inherit', outline: 'none' }} />
+                  {formData.badge ? <span style={{ background: '#1A1A1A', color: '#fff', fontSize: 11.5, padding: '4px 10px', whiteSpace: 'nowrap' }}>{formData.badge}</span> : <span style={{ fontSize: 12, color: '#9CA3AF' }}>بدون شارة</span>}
                 </div>
               </div>
 
@@ -1057,6 +1092,18 @@ export default function Products() {
               ...categories.filter(c => c.parent_id === sec.id).map(c => <option key={c.id} value={c.id}>— {c.name_ar}</option>),
             ])}
           </select>
+          <span style={{ opacity: 0.6, fontSize: 13 }}>الشارة:</span>
+          <select disabled={bulkBusy} value="" onChange={e => {
+            const v = e.target.value; if (!v) return
+            if (v === '__none') return bulkSet({ badge: '', badge_en: '' }, 'شيلنا الشارة')
+            if (v === '__custom') { const t = (window.prompt('اكتب الشارة (40 حرف بالأكثر)') || '').trim(); if (t) bulkSet({ badge: t.slice(0, 40), badge_en: '' }, 'الشارة'); return }
+            const b = BADGES.find(x => x[0] === v); bulkSet({ badge: b[0], badge_en: b[1] }, 'الشارة')
+          }} style={{ borderRadius: 8, padding: '7px 10px', fontFamily: 'inherit', border: 'none', maxWidth: 190 }}>
+            <option value="">اختر…</option>
+            {BADGES.map(([ar]) => <option key={ar} value={ar}>{ar}</option>)}
+            <option value="__custom">نص ثاني…</option>
+            <option value="__none">بدون شارة</option>
+          </select>
           <span style={{ opacity: 0.6, fontSize: 13 }}>القسم:</span>
           <select disabled={bulkBusy} value="" onChange={e => e.target.value && bulkSet({ gender: e.target.value }, 'القسم')} style={{ borderRadius: 8, padding: '7px 10px', fontFamily: 'inherit', border: 'none' }}>
             <option value="">اختر…</option>
@@ -1120,7 +1167,7 @@ export default function Products() {
                         )}
                       </div>
                       <div>
-                        <p style={{ fontWeight: 700, fontSize: 14, color: 'var(--text-primary)', margin: 0 }}>{p.name_ar || '-'}</p>
+                        <p style={{ fontWeight: 700, fontSize: 14, color: 'var(--text-primary)', margin: 0 }}>{p.name_ar || '-'}{p.badge ? <span style={{ marginInlineStart: 8, background: '#1A1A1A', color: '#fff', fontSize: 10.5, fontWeight: 500, padding: '2px 8px', verticalAlign: 'middle' }}>{p.badge}</span> : null}</p>
                         <p style={{ fontSize: 11, color: '#9CA3AF', marginTop: 2, fontFamily: 'sans-serif' }}>{p.brand_name_en || p.brand_name_ar || p.sku || '-'}</p>
                       </div>
                     </div>
