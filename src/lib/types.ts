@@ -239,6 +239,8 @@ export interface MyOrder {
   invoice_no: string;
   created_at: string;
   status: 'requested' | 'purchased' | 'arrived' | 'out_for_delivery' | 'delivered';
+  /** Every piece was here when ordered (تسليم فوري). */
+  all_instant?: boolean;
   delivered_at?: string | null;
   delivery_method?: string | null;
   carrier_tracking?: string | null;

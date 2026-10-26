@@ -14,6 +14,9 @@ import { AlertPrefsCard, MyRequests, WalletSection } from './AccountFeatures';
 
 const STEPS: [string, string][] = [['استلمناه', 'Received'], ['اشتريناه', 'Bought'], ['وصل عُمان', 'In Oman'], ['في الطريق', 'On the way'], ['تم التسليم', 'Delivered']];
 const FLOW = ['requested', 'purchased', 'arrived', 'out_for_delivery', 'delivered'];
+// every piece was here when ordered (تسليم فوري): no buying, no shipping to Oman
+const QUICK: [string, string][] = [['استلمناه', 'Received'], ['جاهز', 'Ready'], ['في الطريق', 'On the way'], ['تم التسليم', 'Delivered']];
+const QUICK_AT: Record<string, number> = { requested: 0, purchased: 1, arrived: 1, out_for_delivery: 2, delivered: 3 };
 
 function SignIn() {
   const { tr } = usePrefs();
@@ -103,7 +106,8 @@ function OrderCard({ o }: { o: MyOrder }) {
   const photosOn = !!useFeature('purchase_photos');
   const [open, setOpen] = useState(false);
   const [zoom, setZoom] = useState<string | null>(null);
-  const step = FLOW.indexOf(o.status);
+  const steps = o.all_instant ? QUICK : STEPS;
+  const step = o.all_instant ? (QUICK_AT[o.status] ?? 0) : FLOW.indexOf(o.status);
   return (
     <article className="ord">
       <button className="ord-head" onClick={() => setOpen(!open)}>
@@ -113,11 +117,11 @@ function OrderCard({ o }: { o: MyOrder }) {
         </div>
         <div className="ord-right">
           <span className="num">{omrReal(o.total)}</span>
-          <span className={`pill${o.status === 'delivered' ? ' green' : ''}`}>{tr(STEPS[Math.max(0, step)][0], STEPS[Math.max(0, step)][1])}</span>
+          <span className={`pill${o.status === 'delivered' ? ' green' : ''}`}>{tr(steps[Math.max(0, step)][0], steps[Math.max(0, step)][1])}</span>
           <Icon name="down" size={18} />
         </div>
       </button>
-      <div className="steps">{STEPS.map((s, i) => <div key={i} className={i <= step ? 'on' : ''}><i /><span>{tr(s[0], s[1])}</span></div>)}</div>
+      <div className="steps" style={{ gridTemplateColumns: `repeat(${steps.length}, 1fr)` }}>{steps.map((s, i) => <div key={i} className={i <= step ? 'on' : ''}><i /><span>{tr(s[0], s[1])}</span></div>)}</div>
       {open ? (
         <div className="ord-body">
           {o.items.map((it, i) => (
