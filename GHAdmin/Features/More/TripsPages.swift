@@ -164,7 +164,7 @@ struct TripDetailPage: View {
 
     private func menu(_ t: Trip) async {
         let pending = TripStats(t).taxFreeEntries.filter { !$0.item.taxFreeReceived }
-        var acts: [SheetAction] = []
+        var acts: [SheetAction<String>] = []
         if !pending.isEmpty { acts.append(SheetAction("استلمت التاكس فري كله (\(pending.count) قطعة)", "taxfree")) }
         let a: String? = await pickAction(actions: acts + [
             SheetAction("تعديل الرحلة", "edit"),
