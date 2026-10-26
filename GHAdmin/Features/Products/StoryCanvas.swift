@@ -22,12 +22,23 @@ struct StoryData {
     /// Show the product name under the brand.
     var showName = true
 
-    init(brand: String, name: String, price: Double, was: Double? = nil, image: UIImage? = nil) {
+    /// The product's label («حصرياً بسعر البوتيك»…) and whether the story shows it.
+    var badge: String?
+    var showBadge = true
+
+    init(brand: String, name: String, price: Double, was: Double? = nil, image: UIImage? = nil, badge: String? = nil) {
         self.brand = brand
         self.name = name
         self.price = price
         self.was = was
         self.image = image
+        self.badge = badge
+    }
+
+    /// The label to draw, or nil.
+    var shownBadge: String? {
+        guard showBadge, let b = badge?.trimmingCharacters(in: .whitespacesAndNewlines), !b.isEmpty else { return nil }
+        return b
     }
 
     var offPercent: Int? {
@@ -38,7 +49,7 @@ struct StoryData {
 
 extension StoryProduct {
     /// The story's own copy of the product (the photo is loaded by the compose page).
-    var toData: StoryData { StoryData(brand: brand, name: name, price: price, was: was, image: nil) }
+    var toData: StoryData { StoryData(brand: brand, name: name, price: price, was: was, image: nil, badge: badge) }
 }
 
 /// The six approved story designs (1080 × 1920).
@@ -215,6 +226,17 @@ struct StoryCanvas: View {
         }
     }
 
+    /// The product's label: a small dark tab, as on the app's product cards. `top` = its top edge.
+    @ViewBuilder private func badgeTab(_ top: CGFloat, dark: Bool = false) -> some View {
+        if let b = data.shownBadge {
+            storyAr(b, 34, color: dark ? StoryPalette.maroon : StoryPalette.white, weight: .medium)
+                .lineLimit(1).fixedSize()
+                .padding(.horizontal, 30).padding(.vertical, 12)
+                .background(dark ? StoryPalette.goldLight : StoryPalette.ink)
+                .storyCentered(top)
+        }
+    }
+
     private func kicker(_ s: String, color: Color = StoryPalette.gold, size: CGFloat = 30) -> some View {
         storyLatin(s, size, color: color, spacing: size * 0.42).lineLimit(1).fixedSize()
     }
@@ -227,6 +249,7 @@ struct StoryCanvas: View {
             asset("story_logo", width: 170).storyCentered(250)
             kicker("NEW IN").storyCentered(470)
             photo().storyBox(530, 140, 800, 700)
+            badgeTab(1160)
             classicInfo.storyCentered(1250)
             if showCta {
                 storyAr("متوفر الحين في تطبيق GH Shopper", 32, color: StoryPalette.sub, weight: .medium)
@@ -252,6 +275,7 @@ struct StoryCanvas: View {
         ZStack(alignment: .topLeading) {
             storyBackground(StoryPalette.beige2)
             archWindow.offset(x: 130, y: 250)
+            badgeTab(1172)
             archInfo.offset(x: 130, y: 1250)
             asset("story_cheetah", width: 300).storyCentered(1648)
         }
@@ -303,6 +327,7 @@ struct StoryCanvas: View {
             storyBackground(StoryPalette.beige)
             tagHeader.storyCentered(260)
             photo().storyBox(470, 90, 760, 980)
+            badgeTab(1380)
             StoryStringShape().stroke(StoryPalette.gold, lineWidth: 2.5).storyBox(800, 690, 220, 160)
             priceTag
                 .frame(width: 300, height: 420)
@@ -356,6 +381,7 @@ struct StoryCanvas: View {
             storyBackground(StoryPalette.beige)
             editorialBrand.storyCentered(250)
             photo().storyBox(360, 120, 840, 980)
+            badgeTab(1262)
             editorialInfo.frame(width: 900).offset(x: 90, y: 1350)
             editorialFooter.frame(width: 900).offset(x: 90, y: 1560)
         }
@@ -438,6 +464,7 @@ struct StoryCanvas: View {
             offerRibbon.frame(width: Self.width, alignment: .trailing).offset(x: 20, y: 300)
             kicker("SPECIAL OFFER").offset(x: 130, y: 306)
             photo().storyBox(400, 170, 740, 760)
+            badgeTab(1090)
             offerInfo.storyCentered(1180)
             offerFooter.storyCentered(1668)
         }
@@ -485,6 +512,7 @@ struct StoryCanvas: View {
             storyBackground(StoryPalette.beige)
             asset("story_logo", width: 120).storyCentered(270)
             photo().storyBox(410, 110, 860, 850)
+            badgeTab(1190)
             cleanInfo.storyCentered(1290)
             asset("story_cheetah", width: 170).opacity(0.8).storyCentered(1640)
         }

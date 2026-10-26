@@ -31,6 +31,7 @@ enum DemoScreens {
         case "investments": tab.wrappedValue = 4; pushPage(InvestmentsPage())
         case "investor": tab.wrappedValue = 4; pushPage(InvestorDetailPage(investorId: 1))
         case "pieces": tab.wrappedValue = 4; pushPage(PiecesPage())
+        case "storybadges": presentForm(StoryBadgeDemo())
         case "widgets": tab.wrappedValue = 4; pushPage(WidgetGalleryPage())
         case "liveactivity": tab.wrappedValue = 4; pushPage(LiveActivityGalleryPage())
         case "giftcard":
@@ -87,4 +88,28 @@ struct DemoPdfPreview: UIViewRepresentable {
         return v
     }
     func updateUIView(_ uiView: PDFView, context: Context) {}
+}
+
+
+/// Screenshot check: the six story designs with a product label.
+struct StoryBadgeDemo: View {
+    private var sample: StoryData {
+        var d = StoryData(brand: "Jacquemus", name: "Le Grand Bambino", price: 430, was: 520,
+                          image: UIImage(systemName: "bag.fill")?.withTintColor(.black, renderingMode: .alwaysOriginal),
+                          badge: "حصرياً بسعر البوتيك")
+        d.showName = true
+        return d
+    }
+
+    var body: some View {
+        ScrollView {
+            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
+                ForEach(StoryTemplate.allCases) { t in
+                    StoryPreview(data: sample, template: t, width: 120)
+                        .frame(width: 120, height: 213)
+                }
+            }
+            .padding(12)
+        }
+    }
 }

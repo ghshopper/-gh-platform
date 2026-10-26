@@ -64,6 +64,7 @@ struct StoryComposePage: View {
     @State private var generation = 0
     @State private var originals: [Int: Data] = [:]
     @State private var names = true
+    @State private var badges = true
     @State private var shadow = true // take the soft shadow out too
     @State private var move = false // drag / pinch the photo instead of swiping
     @State private var started = false
@@ -251,6 +252,12 @@ struct StoryComposePage: View {
                 StoryOptionChip(label: "اسم المنتج", icon: "textformat", on: names) { v in
                     names = v
                     for i in data.indices { data[i].showName = v }
+                }
+                if data.contains(where: { $0.badge != nil }) {
+                    StoryOptionChip(label: "الشارة", icon: "tag", on: badges) { v in
+                        badges = v
+                        for i in data.indices { data[i].showBadge = v }
+                    }
                 }
                 StoryOptionChip(label: "«اطلب من التطبيق»", icon: "iphone", on: cta) { v in cta = v }
             }

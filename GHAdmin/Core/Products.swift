@@ -31,6 +31,7 @@ struct AdminProduct: Identifiable, Hashable {
     var featured: Bool { jb(raw["is_featured"]) }
     var categoryId: Int? { js(raw["category_id"]).flatMap { Int($0) } }
     var categoryName: String? { js(raw["category_name"]) }
+    var badge: String? { js(raw["badge"]).flatMap { $0.trimmingCharacters(in: .whitespaces).isEmpty ? nil : $0 } }
 
     /// The same product with fields the server sent back merged in.
     func merged(_ changes: JSON) -> AdminProduct {
@@ -56,9 +57,11 @@ struct StoryProduct: Identifiable, Hashable {
     var price: Double
     var was: Double?
     var image: String?
+    /// The shop's label on the product («حصرياً بسعر البوتيك»…), nil when none.
+    var badge: String?
 
-    init(id: Int, name: String, brand: String, price: Double, was: Double? = nil, image: String? = nil) {
-        self.id = id; self.name = name; self.brand = brand; self.price = price; self.was = was; self.image = image
+    init(id: Int, name: String, brand: String, price: Double, was: Double? = nil, image: String? = nil, badge: String? = nil) {
+        self.id = id; self.name = name; self.brand = brand; self.price = price; self.was = was; self.image = image; self.badge = badge
     }
 
     /// Same rule as the website: a discount counts while it is lower than the price and not expired.
@@ -75,5 +78,7 @@ struct StoryProduct: Identifiable, Hashable {
         self.price = onSale ? compare : price
         was = onSale ? price : nil
         image = img.isEmpty ? nil : storyImageUrl(img)
+        let b = jstr(j["badge"]).trimmingCharacters(in: .whitespacesAndNewlines)
+        badge = b.isEmpty ? nil : b
     }
 }
