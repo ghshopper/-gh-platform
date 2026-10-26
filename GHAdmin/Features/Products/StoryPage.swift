@@ -67,6 +67,8 @@ struct StoryComposePage: View {
     @State private var badges = true
     @State private var shadow = true // take the soft shadow out too
     @State private var move = false // drag / pinch the photo instead of swiping
+    @State private var moveBadge = false // drag the product label instead
+    @State private var baseBadge: CGSize = .zero
     @State private var started = false
 
     @State private var baseZoom: CGFloat = 1
@@ -137,7 +139,7 @@ struct StoryComposePage: View {
             .contentMargins(.horizontal, geo.size.width * 0.11, for: .scrollContent)
             .scrollTargetBehavior(.viewAligned)
             .scrollPosition(id: $scrolled)
-            .scrollDisabled(move)
+            .scrollDisabled(move || moveBadge)
         }
     }
 
@@ -162,6 +164,7 @@ struct StoryComposePage: View {
                     .shadow(color: Color.black.opacity(0.15), radius: 12, x: 0, y: 10))
             .contentShape(Rectangle())
             .gesture(moveGesture(i, boxWidth: width), including: move && i == page ? .all : .none)
+            .gesture(badgeGesture(i, boxWidth: width), including: moveBadge && i == page ? .all : .none)
     }
 
     private func moveGesture(_ i: Int, boxWidth: CGFloat) -> some Gesture {
@@ -190,14 +193,31 @@ struct StoryComposePage: View {
         return drag.simultaneously(with: pinch)
     }
 
+    /// Drags the product label anywhere on the story.
+    private func badgeGesture(_ i: Int, boxWidth: CGFloat) -> some Gesture {
+        let k = StoryCanvas.width / max(boxWidth, 1)
+        return DragGesture(minimumDistance: 0)
+            .onChanged { v in
+                guard data.indices.contains(i) else { return }
+                if !dragging {
+                    dragging = true
+                    baseBadge = CGSize(width: data[i].badgeShiftX, height: data[i].badgeShiftY)
+                }
+                data[i].badgeShiftX = min(max(baseBadge.width + v.translation.width * k, -520), 520)
+                data[i].badgeShiftY = min(max(baseBadge.height + v.translation.height * k, -1200), 700)
+            }
+            .onEnded { _ in dragging = false }
+    }
+
     // MARK: hint line
 
     private var hintText: String {
         var parts: [String] = []
         if move { parts.append("اسحب الصورة لتحريكها، وكبّرها بإصبعين") }
+        if moveBadge { parts.append("اسحب الشارة لأي مكان") }
         if cutting > 0 { parts.append("يشيل خلفية الصور…") }
         if cutting == 0 && cutFailed > 0 { parts.append("ما قدرت أجيب الصورة الأصلية لشيل الخلفية (\(cutFailed))") }
-        if many && !move { parts.append("\(page + 1) من \(data.count) · اسحب للمنتج الثاني") }
+        if many && !move && !moveBadge { parts.append("\(page + 1) من \(data.count) · اسحب للمنتج الثاني") }
         return parts.joined(separator: " · ")
     }
 
@@ -244,7 +264,7 @@ struct StoryComposePage: View {
     private var optionsBar: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
-                StoryOptionChip(label: "تحريك الصورة", icon: "hand.draw", on: move) { v in move = v }
+                StoryOptionChip(label: "تحريك الصورة", icon: "hand.draw", on: move) { v in move = v; if v { moveBadge = false } }
                 StoryOptionChip(label: "شيل الظل", icon: "sun.min", on: shadow) { v in
                     shadow = v
                     cutAll(removeShadow: v)
@@ -256,7 +276,14 @@ struct StoryComposePage: View {
                 if data.contains(where: { $0.badge != nil }) {
                     StoryOptionChip(label: "الشارة", icon: "tag", on: badges) { v in
                         badges = v
+                        if !v { moveBadge = false }
                         for i in data.indices { data[i].showBadge = v }
+                    }
+                    if badges {
+                        StoryOptionChip(label: "تحريك الشارة", icon: "arrow.up.and.down.and.arrow.left.and.right", on: moveBadge) { v in
+                            moveBadge = v
+                            if v { move = false }
+                        }
                     }
                 }
                 StoryOptionChip(label: "«اطلب من التطبيق»", icon: "iphone", on: cta) { v in cta = v }
@@ -305,6 +332,8 @@ struct StoryComposePage: View {
         data[i].zoom = 1
         data[i].shiftX = 0
         data[i].shiftY = 0
+        data[i].badgeShiftX = 0
+        data[i].badgeShiftY = 0
     }
 
     // MARK: save / share

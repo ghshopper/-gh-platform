@@ -25,6 +25,9 @@ struct StoryData {
     /// The product's label («حصرياً بسعر البوتيك»…) and whether the story shows it.
     var badge: String?
     var showBadge = true
+    /// How far the label was dragged from its place (story points).
+    var badgeShiftX: CGFloat = 0
+    var badgeShiftY: CGFloat = 0
 
     init(brand: String, name: String, price: Double, was: Double? = nil, image: UIImage? = nil, badge: String? = nil) {
         self.brand = brand
@@ -234,6 +237,7 @@ struct StoryCanvas: View {
                 .padding(.horizontal, 30).padding(.vertical, 12)
                 .background(dark ? StoryPalette.goldLight : StoryPalette.ink)
                 .storyCentered(top)
+                .offset(x: data.badgeShiftX, y: data.badgeShiftY)
         }
     }
 
