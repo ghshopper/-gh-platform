@@ -1,6 +1,6 @@
 import { type ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import { useGender } from './gender';
-import { ActivityIndicator, Dimensions, FlatList, Modal, Pressable, RefreshControl, ScrollView, TextInput, View } from 'react-native';
+import { ActivityIndicator, FlatList, Modal, Pressable, RefreshControl, ScrollView, TextInput, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { api, listOf } from './api';
 import { useAppData } from './appdata';
@@ -11,7 +11,6 @@ import { C, F, S, gridCardW, gridCols } from './theme';
 import type { Paginated, Product } from './types';
 import { Btn, Empty, ErrorBox, Loader, T } from './ui';
 
-const W = Dimensions.get('window').width;
 
 export interface BrowseFilters {
   search?: string;
@@ -158,6 +157,7 @@ export function ProductBrowser({ initial, header, showSearch = true, autoFocus, 
   /** Search text owned by the parent (the Search tab's own field). */
   search?: string;
 }) {
+  const { width: W } = useWindowDimensions();
   const { tr, dir } = useLang();
   const [filters, setFilters] = useState<BrowseFilters>(initial);
   const [query, setQuery] = useState(initial.search ?? '');
@@ -274,6 +274,7 @@ export function ProductBrowser({ initial, header, showSearch = true, autoFocus, 
         <ErrorBox message={error} onRetry={() => load(filters, 1)} />
       ) : (
         <FlatList
+          key={`cols-${gridCols(W)}`}
           data={items}
           keyExtractor={(p) => String(p.id)}
           numColumns={gridCols(W)}

@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Animated, Dimensions, Modal, PanResponder, Pressable, ScrollView, View } from 'react-native';
+import { Animated, Modal, PanResponder, Pressable, ScrollView, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { api, imageUrl } from './api';
 import { useFeature } from './features';
@@ -116,7 +116,7 @@ function StoryViewer({ products, start, onClose, onSeen }: { products: WeeklyPro
   const anim = useRef<Animated.CompositeAnimation | null>(null);
   const paused = useRef(false);
   const drag = useRef(new Animated.Value(0)).current;
-  const W = Dimensions.get('window').width;
+  const { width: W } = useWindowDimensions();
 
   const p = products[index];
 

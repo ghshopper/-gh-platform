@@ -2,7 +2,7 @@ import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, Dimensions, FlatList, Linking, Modal, Pressable, ScrollView, Share, TextInput, View } from 'react-native';
+import { Alert, FlatList, Linking, Modal, Pressable, ScrollView, Share, TextInput, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { api, imageUrl, listOf, SITE_BASE } from '@/api';
 import { useAuth } from '@/auth';
@@ -24,9 +24,8 @@ import { gccCountry, gulfEta } from '@/region';
 import { useFeatures } from '@/features';
 import { productRating, Stars } from '@/reviews';
 
-const W = Dimensions.get('window').width;
 // Photo height: tall on iPhone, not taller than the screen allows on iPad.
-const PH = W >= 700 ? Math.min(W * 0.95, 860) : 520;
+const photoH = (W: number) => (W >= 600 ? Math.min(W * 0.95, 860) : 520);
 const COMPANY_WA = '96877246972';
 
 interface Review { id: number; user_name: string; rating: number; comment?: string | null; date: string }
@@ -42,11 +41,15 @@ function RoundBtn({ icon, label, onPress, color = C.ink, fill }: { icon: 'back' 
 }
 
 function ProductVideo({ url }: { url: string }) {
+  const { width: W } = useWindowDimensions();
+  const PH = photoH(W);
   const player = useVideoPlayer(url, (p) => { p.muted = true; p.loop = true; });
   return <VideoView player={player} style={{ width: W, height: PH }} contentFit="cover" nativeControls />;
 }
 
 export default function ProductScreen() {
+  const { width: W } = useWindowDimensions();
+  const PH = photoH(W);
   const { id, review } = useLocalSearchParams<{ id: string; review?: string }>();
   const insets = useSafeAreaInsets();
   const { tr, pick, isAr } = useLang();

@@ -27,7 +27,14 @@ const config: ExpoConfig = {
       NSPhotoLibraryUsageDescription: 'لاختيار صورة القطعة اللي تبي نطلبها لك',
       NSLocationWhenInUseUsageDescription: 'لتحديد موقع التوصيل على الخريطة',
       UIBackgroundModes: ['remote-notification'],
-      UIRequiresFullScreen: true,
+      // No full-screen lock: the app resizes with its window (iPhone Duo open/closed, iPad split view).
+      // iPhone stays portrait; iPad and the open Duo may turn.
+      'UISupportedInterfaceOrientations~ipad': [
+        'UIInterfaceOrientationPortrait',
+        'UIInterfaceOrientationPortraitUpsideDown',
+        'UIInterfaceOrientationLandscapeLeft',
+        'UIInterfaceOrientationLandscapeRight',
+      ],
     },
     entitlements: {
       'aps-environment': 'production',

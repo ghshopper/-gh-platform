@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { Dimensions, Keyboard, Pressable, ScrollView, TextInput, View } from 'react-native';
+import { Keyboard, Pressable, ScrollView, TextInput, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppData } from '@/appdata';
 import { ProductBrowser } from '@/browse';
@@ -12,7 +12,6 @@ import type { Brand, Category } from '@/types';
 import { Kicker, T } from '@/ui';
 import { CategoryArt } from '@/category-art';
 
-const W = Dimensions.get('window').width;
 const RECENT = 'search_recent_v1';
 
 function brandName(b: Brand) {
@@ -29,6 +28,7 @@ function Tile({ c, index, width, height, onPress }: { c: Category; index: number
 }
 
 export default function SearchTab() {
+  const { width: W } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const { tr, pick } = useLang();
   const { categories, brands } = useAppData();

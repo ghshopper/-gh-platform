@@ -2,7 +2,7 @@ import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import { Fragment, type ReactNode, useMemo, useState } from 'react';
-import { Alert, Dimensions, FlatList, Pressable, RefreshControl, ScrollView, View } from 'react-native';
+import { Alert, FlatList, Pressable, RefreshControl, ScrollView, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { api, imageUrl, listOf } from '@/api';
 import { useAppData } from '@/appdata';
@@ -21,7 +21,6 @@ import { INSTANT_CATEGORY, INSTANT_ID, openInstant, useInstantCount } from '@/in
 import { CustomerReviews, ServiceReviewPrompt } from '@/reviews';
 import { WeeklyStories } from '@/stories';
 
-const W = Dimensions.get('window').width;
 const DEFAULT_ORDER = ['categories', 'brands', 'featured_products', 'features_banner', 'flash_sales', 'luxury_collections', 'personal_shopping', 'loyalty_program', 'customer_reviews'];
 
 function active(s?: SectionSetting): boolean {
@@ -39,6 +38,7 @@ function openSlide(slide: HeroSlide, tr: (a: string, e: string) => string) {
 }
 
 function Hero({ slides }: { slides: HeroSlide[] }) {
+  const { width: W } = useWindowDimensions();
   const { pick, tr } = useLang();
   const [index, setIndex] = useState(0);
   const list: (HeroSlide | null)[] = slides.length ? slides : [null];
@@ -59,7 +59,7 @@ function Hero({ slides }: { slides: HeroSlide[] }) {
             <Pressable onPress={() => item && openSlide(item, tr)} style={{ width: W }} accessibilityRole="button">
               <Image
                 source={item?.full_image_url ? { uri: imageUrl(item.full_image_url) } : require('../../assets/hero.jpg')}
-                style={{ width: W, height: W >= 700 ? Math.min(W * 0.62, 640) : 440 }}
+                style={{ width: W, height: W >= 600 ? Math.min(Math.max(W * 0.62, 440), 640) : 440 }}
                 contentFit="cover"
                 contentPosition={{ top: '30%' }}
                 transition={250}
@@ -108,6 +108,7 @@ function homeCategories(cats: Category[]): Category[] {
 }
 
 export default function Home() {
+  const { width: W } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const { isAr, tr, pick } = useLang();
   const { user, loggedIn } = useAuth();

@@ -79,9 +79,9 @@ export const F = {
 
 export const S = { gutter: 20, tabBar: 84 } as const;
 
-/** Product grid columns: 2 on iPhone, 3–4 on iPad (the app also runs on iPad). */
+/** Product grid columns: 2 on iPhone, 3 on the open iPhone Duo and iPad, 4 on big iPads. */
 export function gridCols(width: number): number {
-  return width >= 1000 ? 4 : width >= 700 ? 3 : 2;
+  return width >= 1000 ? 4 : width >= 600 ? 3 : 2;
 }
 
 /** Width of one card in a grid of [cols] with [gap] between, inside [outer] padding each side. */

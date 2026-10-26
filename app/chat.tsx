@@ -2,7 +2,7 @@ import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ActionSheetIOS, ActivityIndicator, Alert, AppState, Dimensions, FlatList, KeyboardAvoidingView, Modal, Platform, Pressable, TextInput, View } from 'react-native';
+import { ActionSheetIOS, ActivityIndicator, Alert, AppState, FlatList, KeyboardAvoidingView, Modal, Platform, Pressable, TextInput, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { api, imageUrl } from '@/api';
 import { useAuth } from '@/auth';
@@ -34,7 +34,6 @@ interface ChatResponse {
 }
 
 const POLL = 4000;
-const W = Dimensions.get('window').width;
 
 function timeOf(iso?: string | null, isAr = true): string {
   if (!iso) return '';
@@ -53,6 +52,7 @@ function timeOf(iso?: string | null, isAr = true): string {
  * Polls every 4 s while open, and refreshes at once when a chat push arrives.
  */
 export default function Chat() {
+  const { width: W } = useWindowDimensions();
   const params = useLocalSearchParams<{ ps_order_id?: string; invoice_no?: string; product_id?: string; product_name?: string; product_image?: string }>();
   const insets = useSafeAreaInsets();
   const { tr, isAr } = useLang();

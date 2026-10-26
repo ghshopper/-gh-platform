@@ -80,7 +80,8 @@ jobs:
             echo "POST auth/forgot-password → $(curl -s -o /dev/null -w '%{http_code}' -X POST -H 'Accept: application/json' -H 'Content-Type: application/json' -d '{"email":"nobody@example.com"}' https://ghshopper.com/api/auth/forgot-password)"
             echo "GET gift-cards/balance → $(curl -s -o /dev/null -w '%{http_code}' -H 'Accept: application/json' 'https://ghshopper.com/api/gift-cards/balance?code=TEST')"
           } > server.txt; cat server.txt
-          xcrun simctl list devicetypes
+          xcodebuild -version | tee shots-xcode.txt
+          xcrun simctl list devicetypes | tee devicetypes.txt
           mkdir -p shots
           shoot() { # device-type-pattern folder
             local TYPE=$(xcrun simctl list devicetypes | grep -E "$1" | tail -1 | sed -E 's/.*\((com\.apple[^)]*)\).*/\1/')
@@ -133,6 +134,9 @@ jobs:
           }
           shoot 'iPhone 1[0-9] Pro Max' iphone
           shoot 'iPad Pro 13' ipad
+          if grep -q 'iPhone Duo' devicetypes.txt; then shoot 'iPhone Duo' duo; else echo 'no iPhone Duo simulator in this Xcode' > shots/duo-missing.txt; fi
+          cp shots-xcode.txt devicetypes.txt shots/ || true
+          for d in shots/*/; do for p in "$d"*.png; do [ -f "$p" ] && echo "$p $(sips -g pixelWidth -g pixelHeight "$p" | awk '/pixel/{print $2}' | tr '\n' 'x')"; done; done > shots/sizes.txt || true
           java -version 2>&1 | head -2 > shots/java.txt || true
           ls -R shots
       - name: Publish screenshots

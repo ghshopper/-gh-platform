@@ -2,7 +2,7 @@ import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import { useState } from 'react';
-import { Dimensions, Linking, Modal, Pressable, ScrollView, View } from 'react-native';
+import { Linking, Modal, Pressable, ScrollView, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SITE_BASE } from '@/api';
 import { dateText, omrReal, waNumber } from '@/format';
@@ -16,7 +16,6 @@ import { useFeatures } from '@/features';
 import { useLoad } from '@/hooks';
 import { payPsOrder } from '@/wallet';
 
-const W = Dimensions.get('window').width;
 const STEPS = [
   { ar: 'استلمناه', en: 'Received' },
   { ar: 'اشتريناه', en: 'Bought' },
@@ -26,6 +25,7 @@ const STEPS = [
 ];
 
 export default function OrderDetail() {
+  const { width: W } = useWindowDimensions();
   const { id } = useLocalSearchParams<{ id: string }>();
   const insets = useSafeAreaInsets();
   const { tr, isAr } = useLang();

@@ -1,4 +1,4 @@
-import { Dimensions, ScrollView, View } from 'react-native';
+import { ScrollView, useWindowDimensions, View } from 'react-native';
 import { api, listOf } from '@/api';
 import { useAuth } from '@/auth';
 import { dateText, num, omrReal } from '@/format';
@@ -10,7 +10,6 @@ import type { LoyaltyTier } from '@/types';
 import { tierLook } from '@/tier-look';
 import { Header, Loader, T } from '@/ui';
 
-const W = Dimensions.get('window').width;
 
 interface Balance {
   balance?: number | string;
@@ -147,6 +146,7 @@ function History({ rows }: { rows: PointsRow[] }) {
 }
 
 export default function Loyalty() {
+  const { width: W } = useWindowDimensions();
   const { tr, isAr } = useLang();
   const { user } = useAuth();
   const q = useLoad(async () => {

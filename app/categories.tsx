@@ -1,7 +1,7 @@
 import { useGender } from '@/gender';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Dimensions, FlatList, Pressable, ScrollView, View } from 'react-native';
+import { ActivityIndicator, FlatList, Pressable, ScrollView, useWindowDimensions, View } from 'react-native';
 import { api, listOf } from '@/api';
 import { useAppData } from '@/appdata';
 import { Icon } from '@/icons';
@@ -13,7 +13,6 @@ import { Empty, Header, T } from '@/ui';
 import { BRAND, CategoryArt, CategoryIcon, kindOf } from '@/category-art';
 import { INSTANT_CATEGORY, INSTANT_ID, useInstantCount } from '@/instant';
 
-const W = Dimensions.get('window').width;
 const RAIL = 92;
 
 /**
@@ -21,6 +20,7 @@ const RAIL = 92;
  * side, and the chosen category's sub-categories and pieces next to it.
  */
 export default function Categories() {
+  const { width: W } = useWindowDimensions();
   const { tr, pick, isAr } = useLang();
   const { categories: storeCategories } = useAppData();
   const instantCount = useInstantCount();
@@ -87,6 +87,7 @@ export default function Categories() {
           {/* Content */}
           {current ? (
             <FlatList
+              key={`cols-${gridCols(contentW)}`}
               style={{ flex: 1 }}
               data={items}
               keyExtractor={(p) => String(p.id)}

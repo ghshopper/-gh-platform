@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { Dimensions, FlatList, RefreshControl, View } from 'react-native';
+import { FlatList, RefreshControl, useWindowDimensions, View } from 'react-native';
 import { useAuth } from '@/auth';
 import { useLang } from '@/lang';
 import { ProductCard } from '@/product-card';
@@ -7,9 +7,9 @@ import { C, S, gridCardW, gridCols } from '@/theme';
 import { Empty, Header } from '@/ui';
 import { useWishlist } from '@/wishlist';
 
-const W = Dimensions.get('window').width;
 
 export default function Wishlist() {
+  const { width: W } = useWindowDimensions();
   const { tr } = useLang();
   const { loggedIn } = useAuth();
   const wish = useWishlist();
@@ -21,6 +21,7 @@ export default function Wishlist() {
         <Empty icon="heart" title={tr('سجّل دخولك', 'Sign in')} text={tr('عشان تحفظ القطع اللي تعجبك', 'to save the pieces you love')} action={tr('تسجيل الدخول', 'Sign in')} onAction={() => router.push('/login')} />
       ) : (
         <FlatList
+          key={`cols-${gridCols(W)}`}
           data={wish.products}
           keyExtractor={(p) => String(p.id)}
           numColumns={gridCols(W)}
