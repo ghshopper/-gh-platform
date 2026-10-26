@@ -256,7 +256,7 @@ struct StoryCanvas: View {
             badgeTab(1160)
             classicInfo.storyCentered(1250)
             if showCta {
-                storyAr("متوفر الحين في تطبيق GH Shopper", 32, color: StoryPalette.sub, weight: .medium)
+                storyAr("متوفر الحين في التطبيق والموقع", 32, color: StoryPalette.sub, weight: .medium)
                     .lineLimit(1).fixedSize()
                     .storyCentered(1640)
             }
@@ -372,7 +372,7 @@ struct StoryCanvas: View {
     }
 
     private var tagCta: some View {
-        storyAr("اطلبه من التطبيق", 32, weight: .medium)
+        storyAr("اطلبه من التطبيق أو الموقع", 32, weight: .medium)
             .lineLimit(1).fixedSize()
             .padding(.horizontal, 48).padding(.vertical, 18)
             .overlay(Rectangle().strokeBorder(StoryPalette.ink, lineWidth: 1.5))
@@ -504,7 +504,7 @@ struct StoryCanvas: View {
         VStack(spacing: 0) {
             asset("story_cheetah_light", width: 250)
             gap(18)
-            storyAr(showCta ? "العرض لفترة محدودة · في التطبيق" : "العرض لفترة محدودة", 30, color: StoryPalette.goldLight)
+            storyAr(showCta ? "العرض لفترة محدودة · في التطبيق والموقع" : "العرض لفترة محدودة", 30, color: StoryPalette.goldLight)
                 .lineLimit(1).fixedSize()
         }
     }
