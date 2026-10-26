@@ -1,54 +1,54 @@
-    
-
-SwiftCompile normal x86_64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Core/Store.swift (in target 'GHAdmin' from project 'GHAdmin')
+SwiftCompile normal arm64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/LoginPage.swift (in target 'GHAdmin' from project 'GHAdmin')
     cd /Users/runner/work/-gh-platform/-gh-platform
     
 
-SwiftCompile normal x86_64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/Products/StoryCanvas.swift (in target 'GHAdmin' from project 'GHAdmin')
+SwiftCompile normal arm64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Core/Messages.swift (in target 'GHAdmin' from project 'GHAdmin')
     cd /Users/runner/work/-gh-platform/-gh-platform
     
 
-SwiftCompile normal x86_64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/Products/StoryPage.swift (in target 'GHAdmin' from project 'GHAdmin')
+SwiftCompile normal arm64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Core/Models.swift (in target 'GHAdmin' from project 'GHAdmin')
     cd /Users/runner/work/-gh-platform/-gh-platform
     
 
-SwiftCompile normal x86_64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/UI/Theme.swift (in target 'GHAdmin' from project 'GHAdmin')
+SwiftCompile normal arm64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/More/MorePages.swift (in target 'GHAdmin' from project 'GHAdmin')
     cd /Users/runner/work/-gh-platform/-gh-platform
     
 
-SwiftCompile normal x86_64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/Customers/Tiers.swift (in target 'GHAdmin' from project 'GHAdmin')
+SwiftCompile normal arm64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/UI/Nav.swift (in target 'GHAdmin' from project 'GHAdmin')
     cd /Users/runner/work/-gh-platform/-gh-platform
     
 
-SwiftCompile normal x86_64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/Orders/TodayPage.swift (in target 'GHAdmin' from project 'GHAdmin')
+SwiftCompile normal arm64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/OrderDetail/OrderDetailPage.swift (in target 'GHAdmin' from project 'GHAdmin')
     cd /Users/runner/work/-gh-platform/-gh-platform
     
 
-SwiftCompile normal x86_64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/More/TripsPages.swift (in target 'GHAdmin' from project 'GHAdmin')
+SwiftCompile normal arm64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/Orders/OrderFormPage.swift (in target 'GHAdmin' from project 'GHAdmin')
     cd /Users/runner/work/-gh-platform/-gh-platform
     
 
-SwiftCompile normal x86_64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/Customers/WalletSection.swift (in target 'GHAdmin' from project 'GHAdmin')
+SwiftCompile normal arm64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/OrderDetail/OrderPhotoPicker.swift (in target 'GHAdmin' from project 'GHAdmin')
     cd /Users/runner/work/-gh-platform/-gh-platform
     
 
-SwiftCompile normal x86_64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/PDF/WaybillPDF.swift (in target 'GHAdmin' from project 'GHAdmin')
+SwiftCompile normal arm64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/Orders/OrdersPage.swift (in target 'GHAdmin' from project 'GHAdmin')
     cd /Users/runner/work/-gh-platform/-gh-platform
     
 
-SwiftCompile normal x86_64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Core/WidgetBridge.swift (in target 'GHAdmin' from project 'GHAdmin')
+SwiftCompile normal arm64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/PDF/PDFDrawing.swift (in target 'GHAdmin' from project 'GHAdmin')
     cd /Users/runner/work/-gh-platform/-gh-platform
     
 
-SwiftCompile normal x86_64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/Widgets/WidgetGalleryPage.swift (in target 'GHAdmin' from project 'GHAdmin')
+SwiftCompile normal arm64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/UI/PriceEntry.swift (in target 'GHAdmin' from project 'GHAdmin')
     cd /Users/runner/work/-gh-platform/-gh-platform
     
 
-SwiftCompile normal x86_64 /Users/runner/work/-gh-platform/-gh-platform/build/Build/Intermediates.noindex/GHAdmin.build/Debug-iphonesimulator/GHAdmin.build/DerivedSources/GeneratedAssetSymbols.swift (in target 'GHAdmin' from project 'GHAdmin')
+SwiftCompile normal arm64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Core/Products.swift (in target 'GHAdmin' from project 'GHAdmin')
     cd /Users/runner/work/-gh-platform/-gh-platform
     
 
-SwiftDriverJobDiscovery normal arm64 Compiling API.swift, CategoryPickerPage.swift, ChatsPages.swift, CustomerFormPage.swift, CustomersPage.swift, Cutout.swift, DeliveryPicker.swift, DeliveryTimesPage.swift, DemoData.swift, DemoScreens.swift, Dialogs.swift, DriverHome.swift, DriverMoney.swift, DriversPages.swift, FeaturesPage.swift, Format.swift, GHAdminApp.swift, GWLiveAttributes.swift, GWLiveViews.swift, GWModels.swift, GWTheme.swift, GWViews.swift (in target 'GHAdmin' from project 'GHAdmin')
+SwiftCompile normal arm64 /Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/Products/ProductsPage.swift (in target 'GHAdmin' from project 'GHAdmin')
+    cd /Users/runner/work/-gh-platform/-gh-platform
+    
 
 ** BUILD FAILED **
 
