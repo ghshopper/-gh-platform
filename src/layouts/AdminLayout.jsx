@@ -44,7 +44,7 @@ import {
   RiMegaphoneLine,
   RiFlashlightLine,
   RiMessage2Line,
-  RiDatabase2Line,
+  RiDatabase2Line, RiFolder3Line,
   RiRadarLine,
   RiMoonLine,
   RiSunLine, RiHandCoinLine, RiChat3Line, RiToggleLine } from 'react-icons/ri'
@@ -93,6 +93,7 @@ const navSections = [
     { label: 'حالة النظام والزوار', icon: RiPulseLine, path: '/admin/monitor' },
     { label: 'واتساب', icon: RiWhatsappLine, path: '/admin/whatsapp' },
     { label: 'الرسائل النصية', icon: RiMessage2Line, path: '/admin/messaging' },
+    { label: 'ملفات الشركة', icon: RiFolder3Line, path: '/admin/documents' },
     { label: 'النسخ الاحتياطية', icon: RiDatabase2Line, path: '/admin/backups' },
     { label: 'المستخدمون', icon: RiUserSettingsLine, path: '/admin/users' },
     { label: 'سجل النشاط', icon: RiHistoryLine, path: '/admin/activity' },

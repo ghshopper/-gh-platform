@@ -6,7 +6,7 @@ const PAGE_AREA = {
   customers: 'customers', chats: 'customers', loyalty: 'customers', coupons: 'customers', 'gift-cards': ['customers', 'finance'], // finance issues / activates cards
   'customize-app': 'marketing', 'notify-users': 'marketing', faqs: 'marketing', offers: 'marketing', 'points-boosts': 'marketing', campaigns: 'marketing',
   shipping: 'shipping', 'gcc-shipping': 'shipping',
-  users: 'settings', settings: 'settings', whatsapp: 'settings', messaging: 'settings', backups: 'settings', activity: 'settings', monitor: 'settings',
+  users: 'settings', settings: 'settings', whatsapp: 'settings', messaging: 'settings', backups: 'settings', documents: 'settings', activity: 'settings', monitor: 'settings',
 }
 
 // Pages only full admins open (the server agrees: /admin/features is admins only).
