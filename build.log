@@ -1,0 +1,16 @@
+[36mvite v8.1.5 [32mbuilding client environment for production...[36m[39m
+[2Ktransforming...✓ 837 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                       0.83 kB │ gzip:   0.38 kB
+dist/assets/gh-logo-CvAP20dt.png                     35.07 kB
+dist/assets/gift-cheetah-DHlDjLvF.png                69.33 kB
+dist/assets/IBMPlexSansArabic-Regular-C22bXXS0.ttf  235.92 kB
+dist/assets/index-P7OOi3al.css                       49.16 kB │ gzip:   9.87 kB
+dist/assets/rolldown-runtime-QTnfLwEv.js              0.69 kB │ gzip:   0.42 kB
+dist/assets/vendor-charts-BXoT11eQ.js               238.09 kB │ gzip:  61.02 kB
+dist/assets/vendor-BKOyFsxE.js                      267.21 kB │ gzip:  82.99 kB
+dist/assets/vendor-react-FAXLcwYf.js                324.55 kB │ gzip: 102.28 kB
+dist/assets/index-DPXgWHjT.js                       878.19 kB │ gzip: 209.02 kB
+
+[32m✓ built in 439ms[39m
