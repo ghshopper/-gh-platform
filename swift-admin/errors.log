@@ -1,5 +1,0 @@
-/Users/runner/work/-gh-platform/-gh-platform/GHAdmin/Features/More/TripsPages.swift:167:35: error: generic parameter 'T' could not be inferred
-        var acts: [SheetAction] = []
-                                  ^
-/Users/runner/work/-gh-platform/-gh-platform/GHAdmin/UI/Dialogs.swift:40:20: note: 'T' declared as parameter to type 'SheetAction'
-struct SheetAction<T> {
