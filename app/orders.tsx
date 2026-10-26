@@ -6,7 +6,7 @@ import { dateText, omrReal } from '@/format';
 import { useLoad } from '@/hooks';
 import { Icon } from '@/icons';
 import { useLang } from '@/lang';
-import { fetchMyOrders, STATUS } from '@/orders';
+import { fetchMyOrders, orderStage } from '@/orders';
 import { C, S } from '@/theme';
 import type { MyOrder } from '@/types';
 import { BrandText, Empty, ErrorBox, Header, Loader, Photo, T } from '@/ui';
@@ -20,7 +20,7 @@ const FILTERS: { key: 'all' | 'open' | 'delivered' | 'due'; ar: string; en: stri
 
 function OrderRow({ o }: { o: MyOrder }) {
   const { tr, isAr } = useLang();
-  const st = STATUS[o.status];
+  const st = orderStage(o);
   const first = o.items[0];
   return (
     <Pressable onPress={() => router.push({ pathname: '/order/[id]', params: { id: o.id } })} accessibilityRole="button"

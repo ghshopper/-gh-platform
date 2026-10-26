@@ -8,7 +8,7 @@ import { SITE_BASE } from '@/api';
 import { dateText, omrReal, waNumber } from '@/format';
 import { Icon } from '@/icons';
 import { useLang } from '@/lang';
-import { CARRIER, cachedOrder, cachedOrders, fetchMyOrders, STATUS } from '@/orders';
+import { CARRIER, cachedOrder, cachedOrders, fetchMyOrders, orderStage, QUICK_STEPS } from '@/orders';
 import { C, S } from '@/theme';
 import { BrandText, Btn, Divider, Empty, Header, Loader, Photo, SummaryRow, T } from '@/ui';
 import { useAuth } from '@/auth';
@@ -63,7 +63,8 @@ export default function OrderDetail() {
     );
   }
 
-  const st = STATUS[o.status];
+  const st = orderStage(o);
+  const steps = st.quick ? QUICK_STEPS : STEPS;
   const carrier = o.delivery_method ? CARRIER[o.delivery_method] : undefined;
   const carrierName = carrier ? tr(carrier.ar, carrier.en) : '';
   const trackingUrl = /^https?:\/\//i.test(o.carrier_tracking ?? '') ? (o.carrier_tracking as string) : o.tracking_url || '';
@@ -80,6 +81,8 @@ export default function OrderDetail() {
         : tr('مندوبنا بيتواصل معك قبل لا يوصل', 'Our driver will call before arriving')
       : o.status === 'delivered'
         ? tr('وصلك طلبك. نتمنى تعجبك 🤍', 'Delivered. We hope you love it 🤍')
+        : st.quick
+          ? tr('قطعتك موجودة عندنا، ونجهّزها للتوصيل', 'Your piece is here with us, being prepared for delivery')
         : o.status === 'arrived'
           ? tr('قطعك وصلت عُمان، ونجهزها للتوصيل', 'Your pieces are in Oman and being prepared')
           : o.status === 'purchased'
@@ -95,10 +98,10 @@ export default function OrderDetail() {
           <T size={24} w="medium">{tr(st.ar, st.en)}</T>
           <T size={13.5} color={C.sub} w="light">{subtitle}</T>
           <View style={{ flexDirection: 'row', gap: 4, marginTop: 20 }}>
-            {STEPS.map((_, i) => <View key={i} style={{ flex: 1, height: 3, backgroundColor: i <= st.step ? C.ink : C.lineStrong }} />)}
+            {steps.map((_, i) => <View key={i} style={{ flex: 1, height: 3, backgroundColor: i <= st.step ? C.ink : C.lineStrong }} />)}
           </View>
           <View style={{ flexDirection: 'row', marginTop: 8 }}>
-            {STEPS.map((s, i) => (
+            {steps.map((s, i) => (
               <T key={i} size={10.5} center color={i === st.step ? C.ink : C.muted} w={i === st.step ? 'medium' : 'regular'} style={{ flex: 1 }}>{tr(s.ar, s.en)}</T>
             ))}
           </View>
