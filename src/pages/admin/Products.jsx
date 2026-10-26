@@ -92,9 +92,11 @@ export default function Products() {
     if (!selected.length) return
     setBulkBusy(true)
     try {
-      await api.post('/admin/products/bulk-availability', { ids: selected, availability })
-      setProducts(list => list.map(p => selected.includes(p.id) ? { ...p, availability } : p))
-      toast.success(`تم تحديث ${selected.length} منتج`)
+      const r = await api.post('/admin/products/bulk-availability', { ids: selected, availability })
+      // instant only for products with pieces; «بالطلب» clears the quantity
+      setProducts(list => list.map(p => !selected.includes(p.id) ? p : availability === 'on_order' ? { ...p, availability, stock_quantity: 0 } : (p.stock_quantity > 0 ? { ...p, availability } : p)))
+      if (r.data?.message) toast(r.data.message, { icon: 'ℹ️' })
+      if (r.data?.updated) toast.success(`تم تحديث ${r.data.updated} منتج`)
       setSelected([])
     } catch {
       toast.error('تعذّر التحديث')
@@ -366,6 +368,9 @@ export default function Products() {
   // inline edits from the table: saved at once, the row updates in place
   const quick = async (p, patch) => {
     const before = p
+    // a quantity makes it instant, none makes it «بالطلب»
+    if ('stock_quantity' in patch) patch = { ...patch, availability: patch.stock_quantity > 0 ? 'instant' : 'on_order' }
+    else if (patch.availability === 'on_order') patch = { ...patch, stock_quantity: 0 }
     setProducts((list) => list.map((x) => (x.id === p.id ? { ...x, ...patch, ...(patch.category_id ? { category_name: categories.find((c) => Number(c.id) === Number(patch.category_id))?.name_ar } : {}) } : x)))
     try {
       await api.patch(`/admin/products/${p.id}/quick`, patch)
@@ -677,10 +682,10 @@ export default function Products() {
                   </select>
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#6B7280', marginBottom: 8 }}>التوفر (يظهر في التطبيق)</label>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#6B7280', marginBottom: 8 }}>التوفر (يظهر في التطبيق) · الكمية بس للتسليم الفوري</label>
                   <div style={{ display: 'flex', gap: 8 }}>
                     {[['instant', '⚡ تسليم فوري'], ['on_order', '🕓 بالطلب']].map(([k, l]) => (
-                      <button type="button" key={k} onClick={() => setFormData(f => ({ ...f, availability: k }))}
+                      <button type="button" key={k} onClick={() => setFormData(f => ({ ...f, availability: k, quantity: k === 'on_order' ? 0 : (Number(f.quantity) > 0 ? f.quantity : 1) }))}
                         style={{ flex: 1, padding: '11px 10px', borderRadius: 10, fontSize: 14, fontFamily: 'inherit', cursor: 'pointer', fontWeight: 700,
                           border: formData.availability === k ? '1.5px solid var(--color-primary)' : '1.5px solid #E5E7EB',
                           background: formData.availability === k ? 'rgba(74,13,23,0.06)' : '#fff', color: formData.availability === k ? 'var(--color-primary)' : '#374151' }}>{l}</button>
@@ -735,11 +740,11 @@ export default function Products() {
                 {[
                   { key: 'price', label: 'السعر الأساسي (OMR) *', required: true, placeholder: '0.000' },
                   { key: 'discount_price', label: 'سعر التخفيض (OMR)', required: false, placeholder: '0.000' },
-                  { key: 'quantity', label: 'الكمية المتوفرة *', required: true, placeholder: '0' },
+                  ...(formData.availability === 'instant' ? [{ key: 'quantity', label: 'كم قطعة عندك الحين *', required: true, placeholder: '1' }] : []),
                 ].map(field => (
                   <div key={field.key}>
                     <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#6B7280', marginBottom: 8 }}>{field.label}</label>
-                    <input type="number" required={field.required} min="0" step="0.001"
+                    <input type="number" required={field.required} min={field.key === 'quantity' ? 1 : 0} step={field.key === 'quantity' ? 1 : 0.001}
                       value={formData[field.key]} onChange={e => setFormData(f => ({...f, [field.key]: e.target.value}))}
                       style={{ width: '100%', padding: '12px 16px', border: '1.5px solid #E5E7EB', borderRadius: 10, fontSize: 14, fontFamily: 'sans-serif', outline: 'none' }}
                       placeholder={field.placeholder}
