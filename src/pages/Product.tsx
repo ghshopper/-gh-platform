@@ -12,7 +12,7 @@ import { Icon } from '../components/Icon';
 import { SafeImg } from '../components/SafeImg';
 import { AskButton } from '../components/Chat';
 import { productRating, Stars } from '../components/Stars';
-import { brandOf, OptionPicker, Price, ProductCard, useAddToBag } from '../components/ProductCard';
+import { brandOf, OptionPicker, Price, ProductCard, productBadge, useAddToBag } from '../components/ProductCard';
 
 const WA = '96877246972';
 
@@ -126,6 +126,7 @@ export default function ProductPage() {
           {p.video_url ? <video className="pdp-video" src={imageUrl(p.video_url)} controls playsInline muted /> : null}
         </div>
         <div className="info">
+          {productBadge(p, isAr) ? <div><span className="pdp-tag">{productBadge(p, isAr)}</span></div> : null}
           {p.brand_id ? <Link to={`/brand/${p.brand_id}`} className="brand big">{brandOf(p).toUpperCase()}</Link> : null}
           <h1 className="pdp-name">{name}</h1>
           {reviewsOn && avg > 0 ? <a href="#reviews" className="pdp-rating" onClick={() => { const d = document.getElementById('reviews') as HTMLDetailsElement | null; if (d) d.open = true; }}><Stars value={avg} size={15} count={ratingCount} /></a> : null}

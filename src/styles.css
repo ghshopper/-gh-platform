@@ -249,6 +249,8 @@ p { margin: 0; }
 .pcard:hover .pcard-media img:not(.alt) { transform: scale(1.03); }
 .ph { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: var(--f-l); letter-spacing: 2px; font-size: 11px; color: var(--faint); }
 .badge { position: absolute; top: 10px; inset-inline-start: 10px; background: var(--ink); color: var(--on-ink); font: 500 10.5px/1 var(--f-l); letter-spacing: .6px; padding: 5px 7px; }
+.pcard-tag { position: absolute; bottom: 0; inset-inline-start: 0; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; background: var(--ink); color: var(--on-ink); font: 400 11px/1.2 var(--f-ar); padding: 5px 9px; }
+.pdp-tag { display: inline-block; align-self: flex-start; background: var(--ink); color: var(--on-ink); font: 400 12px/1.2 var(--f-ar); padding: 5px 10px; margin-bottom: 8px; }
 .badge.soft { background: var(--veil); color: var(--sub); font-family: var(--f-ar); }
 .pcard-heart { position: absolute; top: 4px; inset-inline-end: 4px; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; color: var(--ink); }
 .pcard-heart.on { color: var(--maroon); }

@@ -161,8 +161,16 @@ export function Price({ p, big, extra = 0 }: { p: Product; big?: boolean; extra?
   );
 }
 
+/** The shop's label for this product, in the reader's language (Arabic when no English one was written). */
+export function productBadge(p: Product, isAr: boolean): string | null {
+  const ar = (p.badge ?? '').trim();
+  const en = (p.badge_en ?? '').trim();
+  return (isAr ? ar || en : en || ar) || null;
+}
+
 export function ProductCard({ product }: { product: Product }) {
-  const { pick, tr } = usePrefs();
+  const { pick, tr, isAr } = usePrefs();
+  const tag = productBadge(product, isAr);
   const wish = useWishlist();
   const quick = useQuickAdd();
   const add = useAddToBag();
@@ -182,6 +190,7 @@ export function ProductCard({ product }: { product: Product }) {
       <Link to={`/product/${product.id}`} className="pcard-media" aria-label={`${brandOf(product)} ${pick(product, 'name')}`}>
         {imgs[0] ? <SafeImg src={imageUrl(imgs[0])} alt={`${brandOf(product)} ${pick(product, 'name')}`.trim()} loading="lazy" /> : <span className="ph">{brandOf(product).toUpperCase()}</span>}
         {imgs[1] ? <SafeImg src={imageUrl(imgs[1])} alt="" loading="lazy" className="alt" /> : null}
+        {tag ? <span className="pcard-tag">{tag}</span> : null}
         {out ? <span className="badge soft">{tr('نفدت الكمية', 'Sold out')}</span> : off >= 5 ? <span className="badge">-{off}%</span> : product.vip_early ? <span className="badge vip">{tr('🖤 لك قبل الكل', '🖤 Yours first')}</span> : product.points_boost ? <span className="badge boost">⚡ {tr(`نقاط ×${product.points_boost}`, `${product.points_boost}× points`)}</span> : null}
       </Link>
       <button
