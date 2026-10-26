@@ -49,10 +49,10 @@ node_modules/expo-router/assets/sitemap.png (465B)
 node_modules/expo-router/assets/unmatched.png (4.8KB)
 
 › android bundles (1):
-_expo/static/js/android/entry-8a4cee2569db7b5ee3cc4add05a344bf.hbc (3.5MB)
+_expo/static/js/android/entry-c1fcf87d067ab86c2c3bfd087e825cb7.hbc (3.5MB)
 
 › ios bundles (1):
-_expo/static/js/ios/entry-e2250db1feb54ac907554044ce7479dd.hbc (3.6MB)
+_expo/static/js/ios/entry-d1c0865f0bd178f5d310281469cbbf14.hbc (3.6MB)
 
 › Files (1):
 metadata.json (8.1KB)
