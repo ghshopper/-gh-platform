@@ -17,6 +17,7 @@ import type { Category, HeroSlide, Product, SectionSetting } from '@/types';
 import { GenderSwitch, useGender } from '@/gender';
 import { Btn, IconBtn, Kicker, Photo, SectionTitle, T } from '@/ui';
 import { CategoryArt } from '@/category-art';
+import { INSTANT_CATEGORY, INSTANT_ID, openInstant, useInstantCount } from '@/instant';
 import { CustomerReviews, ServiceReviewPrompt } from '@/reviews';
 import { WeeklyStories } from '@/stories';
 
@@ -146,6 +147,7 @@ export default function Home() {
   const sectionTitle = (s: SectionSetting | undefined, ar: string, en: string) => (s ? pick(s, 'title') : '') || tr(ar, en);
   const sectionAction = (s: SectionSetting | undefined) => (s ? pick(s, 'action_text') : '') || tr('عرض الكل', 'View all');
 
+  const instantCount = useInstantCount();
   const blocks: Record<string, ReactNode> = {
     categories: (
       active(sections.categories) && app.categories.length ? (
@@ -156,8 +158,8 @@ export default function Home() {
               onAction={() => router.push('/categories')}
             />
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: S.gutter, gap: 10 }}>
-              {homeCategories(app.categories).slice(0, num(sections.categories?.items_count, 12) || 12).map((c: Category, i: number) => (
-                <Pressable key={c.id} onPress={() => router.push({ pathname: '/products', params: { category_id: String(c.id), title: pick(c, 'name') } })} style={{ width: 124 }} accessibilityRole="button">
+              {[...(instantCount ? [INSTANT_CATEGORY] : []), ...homeCategories(app.categories).slice(0, num(sections.categories?.items_count, 12) || 12)].map((c: Category, i: number) => (
+                <Pressable key={c.id} onPress={() => (c.id === INSTANT_ID ? openInstant(router, pick(c, 'name')) : router.push({ pathname: '/products', params: { category_id: String(c.id), title: pick(c, 'name') } }))} style={{ width: 124 }} accessibilityRole="button">
                   <CategoryArt c={c} index={i} width={124} height={156} compact />
                 </Pressable>
               ))}

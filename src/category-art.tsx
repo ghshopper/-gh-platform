@@ -20,9 +20,10 @@ export const BRAND = {
   white: '#FFFFFF',
 };
 
-type Kind = 'bag' | 'shoe' | 'watch' | 'perfume' | 'jewel' | 'glasses' | 'clothes' | 'wallet' | 'beauty' | 'kids' | 'gift' | 'pen' | 'belt' | 'travel' | 'home' | 'other';
+type Kind = 'instant' | 'bag' | 'shoe' | 'watch' | 'perfume' | 'jewel' | 'glasses' | 'clothes' | 'wallet' | 'beauty' | 'kids' | 'gift' | 'pen' | 'belt' | 'travel' | 'home' | 'other';
 
 const WORDS: [Kind, RegExp][] = [
+  ['instant', /تسليم فوري|ready to deliver/i],
   ['home', /منزل|شمع|home|candle/i],
   ['gift', /هدي|هدايا|gift/i],
   ['travel', /سفر|travel|luggage/i],
@@ -51,6 +52,7 @@ export function CategoryIcon({ kind, size = 40, color = BRAND.gold, stroke = 1.1
   const p = { stroke: color, strokeWidth: stroke, fill: 'none', strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
   return (
     <Svg width={size} height={size} viewBox="0 0 48 48">
+      {kind === 'instant' && (<><Path d="M27 6L13 27h10l-3 15 15-22H25z" {...p} /></>)}
       {kind === 'bag' && (<><Path d="M10 18h28l-2.5 22h-23z" {...p} /><Path d="M17 18c0-6 2.8-9.5 7-9.5s7 3.5 7 9.5" {...p} /><Path d="M21 24h6" {...p} /></>)}
       {kind === 'shoe' && (<><Path d="M7 33c0-3 1-9 2-12l7 3c3 1.3 5 4 8 5.4l12 3.6c3 .9 5 2.6 5 4H7z" {...p} /><Path d="M7 36.5h35" {...p} /><Path d="M13 33v3.5" {...p} /></>)}
       {kind === 'watch' && (<><Circle cx={24} cy={24} r={9} {...p} /><Path d="M18 16.5l1.5-8h9l1.5 8M18 31.5l1.5 8h9l1.5-8" {...p} /><Path d="M24 19v5l3 2" {...p} /></>)}

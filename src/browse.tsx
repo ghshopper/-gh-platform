@@ -21,6 +21,8 @@ export interface BrowseFilters {
   min_price?: string;
   max_price?: string;
   sort?: 'new' | 'old' | 'price_asc' | 'price_desc';
+  /** '1' = only pieces ready to deliver now (in stock with us). */
+  instant?: string;
 }
 
 interface AttributeRow {
@@ -182,6 +184,7 @@ export function ProductBrowser({ initial, header, showSearch = true, autoFocus, 
         search: f.search,
         category_id: f.category_id,
         brand_id: f.brand_id,
+        instant: f.instant,
         attributes: f.attributes?.length ? f.attributes.join(',') : undefined,
         min_price: f.min_price,
         max_price: f.max_price,

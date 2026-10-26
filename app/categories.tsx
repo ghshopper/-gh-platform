@@ -11,6 +11,7 @@ import { C, gridCardW, gridCols } from '@/theme';
 import type { Category, Paginated, Product } from '@/types';
 import { Empty, Header, T } from '@/ui';
 import { BRAND, CategoryArt, CategoryIcon, kindOf } from '@/category-art';
+import { INSTANT_CATEGORY, INSTANT_ID, useInstantCount } from '@/instant';
 
 const W = Dimensions.get('window').width;
 const RAIL = 92;
@@ -21,7 +22,10 @@ const RAIL = 92;
  */
 export default function Categories() {
   const { tr, pick, isAr } = useLang();
-  const { categories } = useAppData();
+  const { categories: storeCategories } = useAppData();
+  const instantCount = useInstantCount();
+  // "Ready to deliver" comes first when there are pieces in stock with us
+  const categories = useMemo(() => (instantCount ? [INSTANT_CATEGORY, ...storeCategories] : storeCategories), [instantCount, storeCategories]);
   const params = useLocalSearchParams<{ id?: string }>();
   const [selected, setSelected] = useState<number | null>(params.id ? Number(params.id) : null);
   const [sub, setSub] = useState<number | null>(null);
@@ -37,7 +41,7 @@ export default function Categories() {
     let alive = true;
     setLoading(true);
     api
-      .get<Paginated<Product>>('/customer/products', { category_id: showId, per_page: 20 })
+      .get<Paginated<Product>>('/customer/products', showId === INSTANT_ID ? { instant: 1, per_page: 20 } : { category_id: showId, per_page: 20 })
       .then((r) => alive && setItems(listOf<Product>(r)))
       .catch(() => alive && setItems([]))
       .finally(() => alive && setLoading(false));
@@ -46,7 +50,7 @@ export default function Categories() {
     };
   }, [showId, gender]);
 
-  const openAll = (c: Category) => router.push({ pathname: '/products', params: { category_id: String(c.id), title: pick(c, 'name') } });
+  const openAll = (c: Category) => router.push({ pathname: '/products', params: c.id === INSTANT_ID ? { instant: '1', title: pick(c, 'name') } : { category_id: String(c.id), title: pick(c, 'name') } });
   const contentW = W - RAIL;
   const cardW = gridCardW(contentW, 16, 10);
   const children = current?.children ?? [];
