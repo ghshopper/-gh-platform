@@ -58,7 +58,7 @@ struct AuthGate: View {
                     if s.isDriver {
                         NavHost { DriverHome(name: s.name) }
                     } else {
-                        NavHost { Tabs() }
+                        AdminShell()
                     }
                 }
                 .id(s.token)
@@ -136,18 +136,18 @@ struct Tabs: View {
     @ObservedObject private var api = Api.shared
     @Environment(\.horizontalSizeClass) private var sizeClass
 
-    private let items: [(icon: String, selected: String, label: String)] = [
+    static let items: [(icon: String, selected: String, label: String)] = [
         ("sun.max", "sun.max.fill", "اليوم"),
         ("doc.text", "doc.text.fill", "الطلبات"),
         ("person.2", "person.2.fill", "العملاء"),
         ("airplane", "airplane", "الرحلات"),
         ("square.grid.2x2", "square.grid.2x2.fill", "المزيد"),
     ]
+    private var items: [(icon: String, selected: String, label: String)] { Tabs.items }
 
     /// The tabs this staff role may open (orders → today, orders, trips; customers → customers).
-    private var visible: [Int] {
-        let a = api.access
-        return items.indices.filter { i in
+    static func visible(_ a: StaffAccess) -> [Int] {
+        items.indices.filter { i in
             switch i {
             case 0, 1: return a.can("orders")
             case 2: return a.can("customers") || a.can("orders")
@@ -156,21 +156,15 @@ struct Tabs: View {
             }
         }
     }
+    private var visible: [Int] { Tabs.visible(api.access) }
 
     private var current: Int { visible.contains(index) ? index : (visible.first ?? 4) }
 
     var body: some View {
         Group {
             if sizeClass == .regular {
-                // iPad: a sidebar instead of the bottom bar
-                HStack(spacing: 0) {
-                    SideBar(items: items, visible: visible, current: current, badge: store.chatsUnread) { i in
-                        Haptic.select()
-                        index = i
-                    }
-                    Rectangle().fill(GH.separator).frame(width: 0.5).ignoresSafeArea()
-                    page.frame(maxWidth: .infinity)
-                }
+                // iPad: the side menu (AdminShell) replaces the bottom bar
+                page
             } else {
                 page.safeAreaInset(edge: .bottom, spacing: 0) { bar }
             }
@@ -248,6 +242,33 @@ struct Tabs: View {
     }
 }
 
+
+/// The signed-in staff app: on iPad the side menu stays beside every page (pushed pages open next to it).
+struct AdminShell: View {
+    @Environment(\.horizontalSizeClass) private var sizeClass
+    @AppStorage("gh_tab") private var index = 0
+    @ObservedObject private var api = Api.shared
+    @ObservedObject private var store = Store.shared
+
+    var body: some View {
+        if sizeClass == .regular {
+            let visible = Tabs.visible(api.access)
+            let current = visible.contains(index) ? index : (visible.first ?? 4)
+            HStack(spacing: 0) {
+                SideBar(items: Tabs.items, visible: visible, current: current, badge: store.chatsUnread) { i in
+                    Haptic.select()
+                    index = i
+                    Nav.shared.popToRoot()
+                }
+                Rectangle().fill(GH.separator).frame(width: 0.5).ignoresSafeArea()
+                NavHost { Tabs() }.frame(maxWidth: .infinity)
+            }
+            .background(GH.bg.ignoresSafeArea())
+        } else {
+            NavHost { Tabs() }
+        }
+    }
+}
 
 /// iPad: the main sections on the side, the brand on top.
 private struct SideBar: View {
