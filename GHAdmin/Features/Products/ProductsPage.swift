@@ -448,6 +448,13 @@ struct ProductsPage: View {
 
 // MARK: - Edit one product
 
+/// One of the shop's ready labels (from /admin/badges).
+fileprivate struct ProductBadgeChoice: Identifiable, Hashable {
+    let ar: String
+    let en: String
+    var id: String { ar }
+}
+
 struct ProductEditPage: View {
     let product: AdminProduct
     var done: ((AdminProduct?) -> Void)?
@@ -465,6 +472,8 @@ struct ProductEditPage: View {
     @State private var origin: String
     @State private var categoryId: Int?
     @State private var categoryPath: String?
+    @State private var badgeText: String
+    @State private var readyBadges: [ProductBadgeChoice] = []
     @State private var busy = false
 
     init(product: AdminProduct, done: ((AdminProduct?) -> Void)? = nil) {
@@ -474,7 +483,8 @@ struct ProductEditPage: View {
         _nameEn = State(initialValue: product.nameEn)
         _priceText = State(initialValue: String(format: "%.3f", product.price))
         _saleText = State(initialValue: product.onSale ? String(format: "%.3f", product.comparePrice ?? 0) : "")
-        _stockText = State(initialValue: "\(product.stock)")
+        _stockText = State(initialValue: product.stock > 0 ? "\(product.stock)" : "")
+        _badgeText = State(initialValue: product.badge ?? "")
         _onOrder = State(initialValue: product.onOrder)
         _active = State(initialValue: product.active)
         _featured = State(initialValue: product.featured)
@@ -493,11 +503,13 @@ struct ProductEditPage: View {
             nameSection
             priceSection
             availabilitySection
+            badgeSection
             categorySection
             genderSection
             originSection
             storySection
         }
+        .task { await loadBadges() }
     }
 
     private var photoBlock: some View {
@@ -536,12 +548,48 @@ struct ProductEditPage: View {
     private var availabilityOptions: [(Bool, String)] { [(false, "تسليم فوري"), (true, "بالطلب")] }
 
     private var availabilitySection: some View {
-        GHSection("التوفر") {
+        GHSection("التوفر", footer: "الكمية تخص التسليم الفوري: أي كمية أكثر من صفر تخلي المنتج «تسليم فوري»، وصفر يرجّعه «بالطلب».") {
             Segments(value: $onOrder, options: availabilityOptions)
-            FieldRow("الكمية", text: $stockText, keyboard: .number, ltr: true)
+            if !onOrder {
+                FieldRow("الكمية", text: $stockText, placeholder: "كم قطعة عندك", keyboard: .number, ltr: true)
+            }
             SwitchRow("ظاهر في المتجر", subtitle: active ? "العملاء يشوفونه" : "مخفي عن العملاء", isOn: $active)
             SwitchRow("منتج مميز", subtitle: "يطلع في «منتجات مميزة»", isOn: $featured)
         }
+    }
+
+    private var badgeClean: String { badgeText.trimmingCharacters(in: .whitespacesAndNewlines) }
+
+    private var badgeSection: some View {
+        GHSection("الشارة", footer: "الشريط الأسود اللي يطلع على صورة المنتج. اختر وحدة جاهزة أو اكتب شارة من عندك، وخلّها فاضية عشان تنشال.") {
+            FieldRow("الشارة", text: $badgeText, placeholder: "بدون شارة")
+            if !readyBadges.isEmpty {
+                ChipBar {
+                    ChipButton("بدون", selected: badgeClean.isEmpty) { badgeText = "" }
+                    ForEach(readyBadges) { b in
+                        ChipButton(b.ar, selected: badgeClean == b.ar) { badgeText = b.ar }
+                    }
+                }
+                .padding(.vertical, 6)
+            }
+            if !badgeClean.isEmpty {
+                HStack(spacing: 8) {
+                    Text("كذا بتطلع:").font(TS.sub).foregroundStyle(GH.secondary)
+                    MgBadgeTag(badgeClean)
+                    Spacer(minLength: 0)
+                }
+                .padding(.horizontal, 16).padding(.vertical, 12)
+            }
+        }
+    }
+
+    /// The shop's ready labels (GET /admin/badges), as chips.
+    private func loadBadges() async {
+        guard readyBadges.isEmpty else { return }
+        guard let res = try? await Api.shared.get("/admin/badges") as? JSON else { return }
+        readyBadges = jlist(res["badges"])
+            .map { ProductBadgeChoice(ar: jstr($0["ar"]), en: jstr($0["en"])) }
+            .filter { !$0.ar.isEmpty }
     }
 
     private var categorySection: some View {
@@ -604,10 +652,23 @@ struct ProductEditPage: View {
             toast("سعر الخصم لازم يكون أقل من السعر", error: true)
             return
         }
+        // a quantity makes it «تسليم فوري», none makes it «بالطلب» (the server applies the same rule)
+        let typedStock = Int(normalizeDigits(stockText)) ?? 0
+        if !onOrder && typedStock <= 0 {
+            toast("اكتب الكمية اللي عندك، أو اختر «بالطلب»", error: true)
+            return
+        }
+        let badgeNew = badgeClean
+        if badgeNew.count > 40 {
+            toast("الشارة طويلة، خلها ٤٠ حرف أو أقل", error: true)
+            return
+        }
         busy = true
         let p = product
         let ar = nameAr.trimmingCharacters(in: .whitespacesAndNewlines)
-        let stock = Int(normalizeDigits(stockText)) ?? p.stock
+        let stock = onOrder ? 0 : typedStock
+        let badgeOld = p.badge ?? ""
+        let badgeEn: String = readyBadges.first { $0.ar == badgeNew }?.en ?? ""
         let body: JSON = [
             "name_ar": ar.isEmpty ? p.name : ar,
             "name_en": nameEn.trimmingCharacters(in: .whitespacesAndNewlines),
@@ -633,6 +694,15 @@ struct ProductEditPage: View {
                     for (k, v) in back { merged[k] = v }
                     merged["category_id"] = cid
                     merged["category_name"] = nn(path?.components(separatedBy: " › ").last)
+                    data = merged
+                }
+                // the quick endpoint does not take the label: bulk-update with this one id
+                if badgeNew != badgeOld {
+                    let badgeBody: JSON = ["ids": [p.id], "badge": badgeNew, "badge_en": badgeEn]
+                    _ = try await Api.shared.post("/admin/products/bulk-update", badgeBody)
+                    var merged: JSON = data ?? p.raw
+                    merged["badge"] = nn(badgeNew.isEmpty ? nil : badgeNew)
+                    merged["badge_en"] = nn(badgeEn.isEmpty ? nil : badgeEn)
                     data = merged
                 }
                 toast("انحفظ ✓")
