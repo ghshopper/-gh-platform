@@ -265,12 +265,16 @@ struct ProductCard: View {
     var selected: Bool?
     let onTap: () -> Void
     var onPrice: (() -> Void)?
+    /// Kept apart so the card redraws when only the label changed
+    /// (AdminProduct's == does not look at it).
+    private let badgeText: String?
 
     init(_ p: AdminProduct, selected: Bool? = nil, onTap: @escaping () -> Void, onPrice: (() -> Void)? = nil) {
         self.p = p
         self.selected = selected
         self.onTap = onTap
         self.onPrice = onPrice
+        self.badgeText = p.badge
     }
 
     private var on: Bool { selected == true }
@@ -299,6 +303,7 @@ struct ProductCard: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(GH.imageBg)
             .overlay(alignment: .topLeading) { pills.padding(8) }
+            .overlay(alignment: .bottomLeading) { badgeTag }
             .overlay(alignment: .bottomTrailing) { priceButton }
             .overlay(alignment: .topTrailing) { selection }
             .clipped()
@@ -308,6 +313,14 @@ struct ProductCard: View {
         HStack(spacing: 4) {
             if !p.active { ProductPill(label: "مخفي", color: GH.secondary) }
             if p.onSale { ProductPill(label: "خصم", color: GH.burgundy) }
+        }
+    }
+
+    /// The shop's label, at the photo's bottom corner like on the website.
+    @ViewBuilder private var badgeTag: some View {
+        if let b = badgeText {
+            MgBadgeTag(b)
+                .padding(.trailing, onPrice == nil ? 8 : 44)
         }
     }
 

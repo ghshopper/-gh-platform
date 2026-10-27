@@ -65,6 +65,7 @@ fileprivate func gwDelta(_ now: Double, _ prev: Double) -> GwDelta? {
 }
 
 /// A number card (like StatCard) with an optional change pill and a note.
+@MainActor
 fileprivate struct GwKpiCard: View {
     let label: String
     let value: String
@@ -124,8 +125,10 @@ fileprivate struct GwKpiCard: View {
 }
 
 /// A white rounded card (not a section), for grids.
+@MainActor
 fileprivate struct GwCard<Content: View>: View {
-    @ViewBuilder let content: () -> Content
+    let content: () -> Content
+    init(@ViewBuilder content: @escaping () -> Content) { self.content = content }
     var body: some View {
         VStack(alignment: .leading, spacing: 0) { content() }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -143,12 +146,20 @@ fileprivate struct GwChoice: Identifiable, Hashable {
 }
 
 /// A searchable list that gives back one choice (pushed with pushForResult).
+@MainActor
 fileprivate struct GwChoicePage: View {
     let title: String
     let choices: [GwChoice]
     let selected: String?
     let done: (GwChoice?) -> Void
     @State private var q = ""
+
+    init(title: String, choices: [GwChoice], selected: String?, done: @escaping (GwChoice?) -> Void) {
+        self.title = title
+        self.choices = choices
+        self.selected = selected
+        self.done = done
+    }
 
     private var filtered: [GwChoice] {
         let s = normalizeDigits(q).lowercased()
@@ -192,6 +203,7 @@ fileprivate struct GwChoicePage: View {
 }
 
 /// The store's products to pick one (for a notification link).
+@MainActor
 fileprivate struct GwProductPickPage: View {
     let done: (AdminProduct?) -> Void
 
@@ -514,10 +526,16 @@ struct InsightsPage: View {
 }
 
 /// Bars of sales per day (or month); tap/drag to read one bar.
+@MainActor
 fileprivate struct GwSalesChart: View {
     let points: [GwPoint]
     let monthly: Bool
     @State private var picked: Date?
+
+    init(points: [GwPoint], monthly: Bool) {
+        self.points = points
+        self.monthly = monthly
+    }
 
     private var total: Double { points.reduce(0) { $0 + $1.sales } }
     private var average: Double { points.isEmpty ? 0 : total / Double(points.count) }
@@ -571,6 +589,7 @@ fileprivate struct GwSalesChart: View {
 }
 
 /// Horizontal bars for a ranking (brands).
+@MainActor
 fileprivate struct GwRankBars: View {
     let rows: [GwRank]
     let color: Color
@@ -596,6 +615,7 @@ fileprivate struct GwRankBars: View {
 }
 
 /// Share of sales per category, with a legend list.
+@MainActor
 fileprivate struct GwDonut: View {
     let rows: [GwRank]
 
@@ -822,7 +842,12 @@ struct AbandonedCartsPage: View {
             return
         }
         let first = c.name.split(separator: " ").first.map { String($0) } ?? ""
-        let list = c.items.prefix(3).map { i in "• " + (i.brand.isEmpty ? "" : i.brand + " ") + i.name }.joined(separator: "\n")
+        var lines: [String] = []
+        for i in c.items.prefix(3) {
+            let brand: String = i.brand.isEmpty ? "" : "\(i.brand) "
+            lines.append("• \(brand)\(i.name)")
+        }
+        let list = lines.joined(separator: "\n")
         let msg = "هلا \(first) 🤍\nشفنا قطعك في السلة بانتظارك:\n\(list)\n\nإذا عندك أي سؤال عن المقاس أو التوصيل احنا هنا، وتقدر تكمل طلبك من هنا: https://ghshopper.com/checkout"
         openURL("https://wa.me/\(phone)?text=\(gwEncode(msg))")
         rows = rows.map { r in
@@ -864,6 +889,7 @@ struct AbandonedCartsPage: View {
     }
 }
 
+@MainActor
 fileprivate struct GwCartCard: View {
     let cart: GwCart
     let busy: Bool
@@ -957,6 +983,7 @@ fileprivate struct GwCartCard: View {
     }
 }
 
+@MainActor
 fileprivate struct GwCartItemRow: View {
     let item: GwCartItem
 
@@ -981,6 +1008,7 @@ fileprivate struct GwCartItemRow: View {
     }
 }
 
+@MainActor
 fileprivate struct GwSmallButton: View {
     let label: String
     let icon: String
@@ -1224,7 +1252,7 @@ struct NotifyPage: View {
         }
     }
 
-    private var linkTypeLabel: String { gwLinkTypes.first { $0.0 == linkType }?.1 ?? "صفحة الإشعارات" }
+    private var linkTypeLabel: String { gwLinkTypes.first(where: { $0.0 == linkType })?.1 ?? "صفحة الإشعارات" }
 
     private var linkSection: some View {
         GHSection("لما يضغط على الإشعار يفتح") {
@@ -1333,7 +1361,7 @@ struct NotifyPage: View {
         if tiers.isEmpty {
             if let res = try? await Api.shared.get("/admin/loyalty-tiers") {
                 let rows = gwRows(res).sorted { ji($0["min_points"]) < ji($1["min_points"]) }
-                tiers = rows.compactMap { r in
+                tiers = rows.compactMap { (r: JSON) -> GwChoice? in
                     guard let n = js(r["name"]) else { return nil }
                     return GwChoice(id: "tier:\(n)", title: "مستوى \(js(r["name_ar"]) ?? n)", group: "مستوى الولاء")
                 }
@@ -1342,7 +1370,7 @@ struct NotifyPage: View {
         }
         if brands.isEmpty {
             if let res = try? await Api.shared.get("/admin/brands") {
-                let list: [GwChoice] = gwRows(res).compactMap { r in
+                let list: [GwChoice] = gwRows(res).compactMap { (r: JSON) -> GwChoice? in
                     guard let id = js(r["id"]) else { return nil }
                     let en = gwTrim(jstr(r["name_en"]))
                     let title = en.isEmpty ? jstr(r["name_ar"]) : en
@@ -1526,6 +1554,7 @@ struct NotifyPage: View {
     }
 }
 
+@MainActor
 fileprivate struct GwBroadcastRow: View {
     let item: GwBroadcast
     let busy: Bool
