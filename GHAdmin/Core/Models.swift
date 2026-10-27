@@ -690,9 +690,17 @@ struct Order: Identifiable, Hashable {
     var costOmr: Double { activeItems.reduce(0) { $0 + ($1.costOmr ?? 0) } }
     /// Every live piece is delivered (past orders included): nothing is held for her any more.
     var allDelivered: Bool { !activeItems.isEmpty && activeItems.allSatisfy { $0.status == .delivered } }
-    /// What the customer transferred minus what you paid for her items, while
-    /// the order is still open. A delivered order holds nothing (its money is sales).
-    var customerBalance: Double { allDelivered ? 0 : paid - costOmr }
+    /// The sale value (after the discount) of the pieces already bought: that money is
+    /// no longer the customer's balance — it became the sale (cost + profit).
+    var boughtValue: Double {
+        let bought = activeItems.filter { $0.status >= .purchased }.reduce(0) { $0 + $1.price }
+        let share = itemsTotal > 0.0005 ? max(0, netSales) / itemsTotal : 1
+        return bought * share
+    }
+    /// What the customer paid that is still waiting for pieces not bought yet.
+    /// Once a piece is bought its whole price leaves the balance (the profit isn't
+    /// shown here). Negative = she owes for pieces already bought. A delivered order holds nothing.
+    var customerBalance: Double { allDelivered ? 0 : paid - boughtValue }
 
     /// Tax-free still to collect, grouped by currency.
     var taxFreePending: [String: Double] {

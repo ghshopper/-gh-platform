@@ -338,10 +338,11 @@ struct OrderDetailPage: View {
     private func privateSection(_ o: Order) -> some View {
         GHSection("خاص بك (ما يطلع في الفاتورة)") {
             KV("حوّل لك العميل", omr(o.paid))
-            KV("دفعت عن قطعه", omr(o.costOmr))
+            KV("قيمة القطع اللي اشتريتها", omr(o.boughtValue))
             KV("رصيده الحالي عندك", omr(o.customerBalance), strong: true,
                color: o.customerBalance < -0.0005 ? GH.red : GH.green)
             if o.costOmr > 0 {
+                KV("دفعت عن قطعه", omr(o.costOmr))
                 KV("ربحك التقديري", omr(o.itemProfit), color: GH.burgundy)
             }
             ForEach(o.taxFreePending.keys.sorted(), id: \.self) { k in
