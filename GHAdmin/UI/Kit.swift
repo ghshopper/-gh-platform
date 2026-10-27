@@ -19,6 +19,9 @@ struct GHPage<Content: View, Trailing: View, Leading: View, Bottom: View>: View 
         let scroll = ScrollView {
             LazyVStack(alignment: .leading, spacing: 0) { content() }
                 .padding(.bottom, 40)
+                // iPad: a readable column in the middle of the wide screen
+                .frame(maxWidth: 880)
+                .frame(maxWidth: .infinity)
         }
         .scrollDismissesKeyboard(.interactively)
         .background(GH.bg.ignoresSafeArea())

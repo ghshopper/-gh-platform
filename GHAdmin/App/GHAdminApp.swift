@@ -133,6 +133,8 @@ struct Tabs: View {
     @AppStorage("gh_tab") private var index = 0
     @ObservedObject private var store = Store.shared
     @ObservedObject private var links = DeepLinks.shared
+    @ObservedObject private var api = Api.shared
+    @Environment(\.horizontalSizeClass) private var sizeClass
 
     private let items: [(icon: String, selected: String, label: String)] = [
         ("sun.max", "sun.max.fill", "اليوم"),
@@ -142,27 +144,56 @@ struct Tabs: View {
         ("square.grid.2x2", "square.grid.2x2.fill", "المزيد"),
     ]
 
+    /// The tabs this staff role may open (orders → today, orders, trips; customers → customers).
+    private var visible: [Int] {
+        let a = api.access
+        return items.indices.filter { i in
+            switch i {
+            case 0, 1: return a.can("orders")
+            case 2: return a.can("customers") || a.can("orders")
+            case 3: return a.full
+            default: return true
+            }
+        }
+    }
+
+    private var current: Int { visible.contains(index) ? index : (visible.first ?? 4) }
+
     var body: some View {
-        page
-            .safeAreaInset(edge: .bottom, spacing: 0) { bar }
-            .task {
-                if !DemoData.isOn {
-                    await store.start()
-                    await Push.shared.start()
-                } else {
-                    DemoScreens.openIfAsked(tab: $index)
+        Group {
+            if sizeClass == .regular {
+                // iPad: a sidebar instead of the bottom bar
+                HStack(spacing: 0) {
+                    SideBar(items: items, visible: visible, current: current, badge: store.chatsUnread) { i in
+                        Haptic.select()
+                        index = i
+                    }
+                    Rectangle().fill(GH.separator).frame(width: 0.5).ignoresSafeArea()
+                    page.frame(maxWidth: .infinity)
                 }
+            } else {
+                page.safeAreaInset(edge: .bottom, spacing: 0) { bar }
             }
-            .onChange(of: links.tab) { _, t in
-                if let t {
-                    index = t
-                    DeepLinks.shared.tab = nil
-                }
+        }
+        .task {
+            if !DemoData.isOn {
+                await api.refreshAccess()
+                if api.access.can("orders") { await store.start() }
+                await Push.shared.start()
+            } else {
+                DemoScreens.openIfAsked(tab: $index)
             }
+        }
+        .onChange(of: links.tab) { _, t in
+            if let t {
+                index = t
+                DeepLinks.shared.tab = nil
+            }
+        }
     }
 
     @ViewBuilder private var page: some View {
-        switch index {
+        switch current {
         case 0: TodayPage()
         case 1: OrdersPage()
         case 2: CustomersPage()
@@ -185,27 +216,27 @@ struct Tabs: View {
 
     private var bar: some View {
         HStack(spacing: 0) {
-            ForEach(items.indices, id: \.self) { i in
+            ForEach(visible, id: \.self) { i in
                 Button {
                     Haptic.select()
                     index = i
                 } label: {
                     VStack(spacing: 3) {
-                        Image(systemName: i == index ? items[i].selected : items[i].icon)
+                        Image(systemName: i == current ? items[i].selected : items[i].icon)
                             .font(.system(size: 19, weight: .regular))
-                            .foregroundStyle(i == index ? GH.burgundy : GH.secondary)
+                            .foregroundStyle(i == current ? GH.burgundy : GH.secondary)
                             .frame(width: 56, height: 32)
-                            .background(Capsule().fill(i == index ? GH.burgundy.opacity(0.086) : .clear))
+                            .background(Capsule().fill(i == current ? GH.burgundy.opacity(0.086) : .clear))
                             .overlay(alignment: .top) { tabBadge(i) }
                         Text(items[i].label)
-                            .font(.gh(11, i == index ? .semibold : .medium))
-                            .foregroundStyle(i == index ? GH.burgundy : GH.secondary)
+                            .font(.gh(11, i == current ? .semibold : .medium))
+                            .foregroundStyle(i == current ? GH.burgundy : GH.secondary)
                     }
                     .frame(maxWidth: .infinity)
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
-                .animation(.easeOut(duration: 0.18), value: index)
+                .animation(.easeOut(duration: 0.18), value: current)
             }
         }
         .padding(.horizontal, 8).padding(.top, 8).padding(.bottom, 4)
@@ -214,5 +245,54 @@ struct Tabs: View {
                 .fill(GH.tabBar)
                 .shadow(color: GH.barShadow, radius: 12, y: -6)
                 .ignoresSafeArea(edges: .bottom))
+    }
+}
+
+
+/// iPad: the main sections on the side, the brand on top.
+private struct SideBar: View {
+    let items: [(icon: String, selected: String, label: String)]
+    let visible: [Int]
+    let current: Int
+    let badge: Int
+    let pick: (Int) -> Void
+    @ObservedObject private var api = Api.shared
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text("GH SHOPPER").font(.gh(15, .semibold)).tracking(3).foregroundStyle(GH.gold)
+                Text(api.access.label ?? "لوحة الإدارة").font(.gh(13)).foregroundStyle(GH.secondary)
+            }
+            .padding(.horizontal, 14).padding(.top, 18).padding(.bottom, 14)
+            ForEach(visible, id: \.self) { i in
+                Button { pick(i) } label: {
+                    HStack(spacing: 12) {
+                        Image(systemName: i == current ? items[i].selected : items[i].icon)
+                            .font(.system(size: 18))
+                            .frame(width: 26)
+                        Text(items[i].label).font(.gh(16, i == current ? .semibold : .regular))
+                        Spacer(minLength: 0)
+                        if badge > 0 && (i == 0 || i == 4) {
+                            Text(badge > 99 ? "99+" : "\(badge)")
+                                .font(.gh(11, .semibold)).foregroundStyle(.white)
+                                .padding(.horizontal, 6).frame(minHeight: 18)
+                                .background(Capsule().fill(GH.red))
+                        }
+                    }
+                    .foregroundStyle(i == current ? GH.burgundy : GH.label)
+                    .padding(.horizontal, 14).padding(.vertical, 11)
+                    .background(RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .fill(i == current ? GH.burgundy.opacity(0.09) : Color.clear))
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+            }
+            Spacer(minLength: 0)
+        }
+        .padding(.horizontal, 10)
+        .frame(width: 250)
+        .frame(maxHeight: .infinity, alignment: .top)
+        .background(GH.tabBar.ignoresSafeArea())
     }
 }

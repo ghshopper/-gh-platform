@@ -26,6 +26,36 @@ struct Session: Equatable {
     var isDriver: Bool { role == "driver" }
 }
 
+/// What a staff account may open (from /ps/me): the full admin sees everything,
+/// other roles only their areas (orders, finance, products, customers, marketing, shipping, settings).
+struct StaffAccess: Equatable, Codable {
+    var areas: [String]
+    var full: Bool
+    var label: String?
+
+    func can(_ area: String) -> Bool { full || areas.contains(area) }
+
+    static let everything = StaffAccess(areas: ["orders", "finance", "products", "customers", "marketing", "shipping", "settings"], full: true, label: nil)
+
+    private static let key = "gh_staff_access"
+
+    static func load() -> StaffAccess {
+        guard let d = UserDefaults.standard.data(forKey: key), let a = try? JSONDecoder().decode(StaffAccess.self, from: d) else { return .everything }
+        return a
+    }
+
+    func save() {
+        if let d = try? JSONEncoder().encode(self) { UserDefaults.standard.set(d, forKey: StaffAccess.key) }
+    }
+
+    static func from(_ me: JSON) -> StaffAccess {
+        let acc = me["access"] as? JSON ?? [:]
+        let areas = (acc["areas"] as? [Any] ?? []).compactMap { $0 as? String }
+        let full = me["full"] == nil ? true : jb(me["full"])
+        return StaffAccess(areas: areas.isEmpty && full ? StaffAccess.everything.areas : areas, full: full, label: js(acc["label"]))
+    }
+}
+
 /// iPhone keychain (the login token never sits in plain storage).
 enum Keychain {
     private static let service = "app.ghshopper.admin"
@@ -62,6 +92,8 @@ final class Api: ObservableObject {
 
     @Published private(set) var session: Session?
     @Published private(set) var restored = false
+    /// What this staff account may open (refreshed from /ps/me on every start).
+    @Published private(set) var access = StaffAccess.load()
 
     var base: String { AppConfig.apiBaseUrl }
     /// A stable key for the on-phone cache of the current account.
@@ -78,6 +110,14 @@ final class Api: ObservableObject {
         restored = true
         WidgetBridge.sessionChanged(session)
         LiveActivities.endStale(session)
+    }
+
+    /// The role may have changed since the last start: ask the server again (quietly).
+    func refreshAccess() async {
+        guard let s = session, !s.isDriver, s.token != "demo" else { return }
+        guard let me = try? await send("GET", "/ps/me") as? JSON else { return }
+        let a = StaffAccess.from(me)
+        if a != access { access = a; a.save() }
     }
 
     /// Demo mode (screenshots): a fake signed-in owner, no network.
@@ -120,6 +160,8 @@ final class Api: ObservableObject {
             throw ApiError(message: "هذا الحساب ما له صلاحية على التطبيق")
         }
         let s = Session(token: token, role: role, name: jstr(me["name"]))
+        access = StaffAccess.from(me)
+        access.save()
         Keychain.set(token, for: kToken)
         Keychain.set(role, for: kRole)
         Keychain.set(s.name, for: kName)

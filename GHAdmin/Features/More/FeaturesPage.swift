@@ -80,7 +80,7 @@ func featureName(_ key: String) -> String {
 }
 
 /// Only full admins may change the features (the server checks too).
-@MainActor func canManageFeatures() -> Bool { Api.shared.session?.role == "admin" }
+@MainActor func canManageFeatures() -> Bool { Api.shared.session?.role == "admin" && Api.shared.access.full }
 
 /// Shown by a page whose feature is switched off (the server answered 403 feature_off).
 struct GHFeatureOffState: View {

@@ -17,6 +17,7 @@ fileprivate let monthNames = [
 @MainActor
 struct MorePage: View {
     @ObservedObject private var store = Store.shared
+    @ObservedObject private var api = Api.shared
     @State private var faceId = AppLock.isEnabled
     @State private var faceIdAvailable = false
 
@@ -25,9 +26,11 @@ struct MorePage: View {
     var body: some View {
         GHPage("المزيد") {
             storeSection
+            growthSection
             customersSection
-            mainSection
-            settingsSection
+            if api.access.can("orders") || api.access.full { mainSection }
+            if api.access.full { settingsSection }
+            if api.access.can("settings") { teamSection }
             logoutSection
             Text("GH Shopper · 1.1").font(TS.small).foregroundStyle(GH.secondary)
                 .frame(maxWidth: .infinity).padding(.top, 24)
@@ -38,22 +41,77 @@ struct MorePage: View {
         }
     }
 
-    private var storeSection: some View {
-        GHSection("المتجر") {
-            Tile("المنتجات", subtitle: "الأسعار، الخصم، الكمية، الظهور في المتجر",
-                 action: { pushPage(ProductsPage()) },
-                 leading: { IconBox("bag.fill", color: GH.burgundy) })
-            Tile("ستوري المنتجات", subtitle: "صورة إنستقرام جاهزة: المنتج والسعر بتصميم GH",
-                 action: { pushPage(StoryPickPage()) },
-                 leading: { IconBox("camera.on.rectangle.fill", color: GH.pink) })
+    @ViewBuilder private var storeSection: some View {
+        if api.access.can("products") {
+            GHSection("المتجر") {
+                Tile("المنتجات", subtitle: "الأسعار، الخصم، الكمية، الشارة، الظهور في المتجر",
+                     action: { pushPage(ProductsPage()) },
+                     leading: { IconBox("bag.fill", color: GH.burgundy) })
+                Tile("الشارات", subtitle: "«حصرياً بسعر البوتيك» وغيرها على صور المنتجات",
+                     action: { pushPage(BadgesPage()) },
+                     leading: { IconBox("tag.fill", color: GH.label) })
+                Tile("ستوري المنتجات", subtitle: "صورة إنستقرام جاهزة: المنتج والسعر بتصميم GH",
+                     action: { pushPage(StoryPickPage()) },
+                     leading: { IconBox("camera.on.rectangle.fill", color: GH.pink) })
+            }
+        }
+    }
+
+    /// Sales and marketing, like Shopify: reports, discount codes, gift cards, offers, notifications, carts.
+    @ViewBuilder private var growthSection: some View {
+        let a = api.access
+        if a.can("finance") || a.can("customers") || a.can("marketing") || a.can("orders") {
+            GHSection("المبيعات والتسويق") {
+                if a.can("finance") {
+                    Tile("التقارير", subtitle: "المبيعات، الطلبات، أكثر القطع والماركات",
+                         action: { pushPage(InsightsPage()) },
+                         leading: { IconBox("chart.xyaxis.line", color: GH.burgundy) })
+                }
+                if a.can("customers") {
+                    Tile("كوبونات الخصم", subtitle: "كود خصم بنسبة أو مبلغ، ومين استخدمه",
+                         action: { pushPage(CouponsPage()) },
+                         leading: { IconBox("ticket.fill", color: GH.gold) })
+                    Tile("بطاقات الهدايا", subtitle: "إصدار بطاقة ورصيدها",
+                         action: { pushPage(GiftCardsPage()) },
+                         leading: { IconBox("gift.fill", color: GH.pink) })
+                }
+                if a.can("marketing") {
+                    Tile("العروض التلقائية", subtitle: "خصم على ماركة أو قسم يطبق بروحه",
+                         action: { pushPage(OffersPage()) },
+                         leading: { IconBox("percent", color: GH.green) })
+                }
+                if a.full {
+                    Tile("إشعارات للعملاء", subtitle: "أرسل إشعار لكل العملاء أو لفئة منهم",
+                         action: { pushPage(NotifyPage()) },
+                         leading: { IconBox("bell.badge.fill", color: GH.red) })
+                }
+                if a.can("orders") {
+                    Tile("السلات المتروكة", subtitle: "ذكّر العميل بضغطة",
+                         action: { pushPage(AbandonedCartsPage()) },
+                         leading: { IconBox("cart.fill", color: GH.amber) })
+                }
+            }
+        }
+    }
+
+    /// The team and the company's papers.
+    private var teamSection: some View {
+        GHSection("الإدارة") {
+            Tile("الموظفين والصلاحيات", subtitle: "حسابات الفريق، وكل واحد يشوف قسمه بس",
+                 action: { pushPage(StaffPage()) },
+                 leading: { IconBox("person.badge.key.fill", color: GH.purple) })
+            Tile("ملفات الشركة", subtitle: "السجل التجاري، التراخيص، البطاقة الضريبية",
+                 action: { pushPage(CompanyDocumentsPage()) },
+                 leading: { IconBox("folder.fill", color: GH.teal) })
         }
     }
 
     private var openRequests: Int { store.requests.filter { $0.isOpen }.count }
 
-    private var customersSection: some View {
+    @ViewBuilder private var customersSection: some View {
         let unread = store.chatsUnread
-        return GHSection("العملاء") {
+        if api.access.can("customers") {
+        GHSection("العملاء") {
             Tile("المحادثات", subtitle: "رسائل العملاء من التطبيق والموقع",
                  action: { pushPage(ChatsPage()) },
                  leading: { IconBox("bubble.left.and.bubble.right.fill", color: GH.purple) },
@@ -66,6 +124,7 @@ struct MorePage: View {
                      action: { pushPage(FeaturesPage()) },
                      leading: { IconBox("switch.2", color: GH.teal) })
             }
+        }
         }
     }
 
