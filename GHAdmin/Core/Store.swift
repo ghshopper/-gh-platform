@@ -144,10 +144,10 @@ final class Store: ObservableObject {
 
     @discardableResult
     func saveCustomer(id: String? = nil, name: String, phone: String?, city: String?, address: String?,
-                      notes: String?, isMale: Bool = false) async throws -> Customer {
+                      notes: String?, isMale: Bool = false, english: Bool = false) async throws -> Customer {
         try await write {
             let data: JSON = ["name": name, "phone": nn(phone), "city": nn(city), "address": nn(address),
-                              "notes": nn(notes), "gender": isMale ? "m" : "f"]
+                              "notes": nn(notes), "gender": isMale ? "m" : "f", "lang": english ? "en" : "ar"]
             let res = id == nil ? try await api.post("/ps/customers", data) : try await api.put("/ps/customers/\(id!)", data)
             return Customer(((res as? JSON)?["customer"] as? JSON) ?? [:])
         }
@@ -159,7 +159,8 @@ final class Store: ObservableObject {
         let value: String? = (clean?.isEmpty ?? true) ? nil : clean
         try await write {
             let data: JSON = ["name": c.name, "phone": nn(c.phone), "city": nn(c.city), "address": nn(c.address),
-                              "notes": nn(c.notes), "gender": c.isMale ? "m" : "f", "delivery_note": nn(value)]
+                              "notes": nn(c.notes), "gender": c.isMale ? "m" : "f", "lang": c.isEnglish ? "en" : "ar",
+                              "delivery_note": nn(value)]
             _ = try await api.put("/ps/customers/\(c.id)", data)
         }
     }

@@ -406,7 +406,9 @@ fileprivate func sendPortal(_ c: Customer) async {
         .components(separatedBy: .whitespacesAndNewlines)
         .filter { !$0.isEmpty }
     let first = parts.first ?? ""
-    let msg = "مرحبا \(first) 🤍\n"
+    let msg = c.isEnglish
+        ? "Hello \(first) 🤍\nThis is your private GH Shopper page, with all your orders, invoices and purchase receipts:\n\(url)\nThis link is just for you, please don't share it."
+        : "مرحبا \(first) 🤍\n"
         + "هذي صفحتك الخاصة في GH Shopper، فيها كل طلباتك والفواتير وإيصالات الشراء:\n"
         + "\(url)\n"
         + "الرابط خاص فيك، لا تشاركه مع أحد."

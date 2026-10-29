@@ -27,6 +27,8 @@ struct Customer: Identifiable, Hashable {
     var walletBalance: Double = 0
     /// Saved by the driver for next time ("البيت الأبيض جنب المسجد").
     var deliveryNote: String?
+    /// Messages to this customer in English (chosen when adding her).
+    var isEnglish: Bool = false
 
     var firstName: String {
         let n = name.trimmingCharacters(in: .whitespaces)
@@ -51,6 +53,7 @@ struct Customer: Identifiable, Hashable {
         loyaltyTier = js(m["loyalty_tier"])
         walletBalance = jd(m["wallet_balance"])
         deliveryNote = js(m["delivery_note"])
+        isEnglish = js(m["lang"]) == "en"
     }
 }
 

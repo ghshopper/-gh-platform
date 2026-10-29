@@ -12,6 +12,7 @@ struct CustomerFormPage: View {
     @State private var address: String
     @State private var notes: String
     @State private var male: Bool
+    @State private var english: Bool
     @State private var saving = false
 
     init(customer: Customer? = nil, done: ((Customer?) -> Void)? = nil) {
@@ -23,6 +24,7 @@ struct CustomerFormPage: View {
         _address = State(initialValue: customer?.address ?? "")
         _notes = State(initialValue: customer?.notes ?? "")
         _male = State(initialValue: customer?.isMale ?? false)
+        _english = State(initialValue: customer?.isEnglish ?? false)
     }
 
     private func clean(_ s: String) -> String? {
@@ -44,10 +46,11 @@ struct CustomerFormPage: View {
         let id = customer?.id
         let p = clean(phone), ci = clean(city), a = clean(address), no = clean(notes)
         let isMale = male
+        let isEnglish = english
         Task {
             do {
                 let c = try await Store.shared.saveCustomer(id: id, name: n, phone: p, city: ci, address: a,
-                                                            notes: no, isMale: isMale)
+                                                            notes: no, isMale: isMale, english: isEnglish)
                 close(c)
             } catch {
                 saving = false
@@ -67,6 +70,9 @@ struct CustomerFormPage: View {
             NavButton("إلغاء") { close(nil) }
         }) {
             mainSection
+            GHSection("لغة الرسائل", footer: "رسائل الواتساب الجاهزة والرسائل التلقائية تروح للعميل بهاللغة.") {
+                Segments(value: $english, options: [(false, "عربي"), (true, "English")])
+            }
             GHSection("ملاحظات") {
                 NotesRow(text: $notes, placeholder: "المقاسات، الذوق، البراندات المفضلة…")
             }
