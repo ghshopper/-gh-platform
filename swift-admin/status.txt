@@ -1,1 +1,1 @@
-success c2b642a5c2faaa98bd1ea7ecef5aad9135bbfe59 swift-admin-release 55
+success c2b642a5c2faaa98bd1ea7ecef5aad9135bbfe59 swift-admin 54
