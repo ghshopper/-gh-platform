@@ -263,6 +263,7 @@ struct OrderRow: View {
     private var metaLine: String {
         var parts: [String] = []
         if order.fromStore { parts.append(order.sourceLabel) }
+        if let cl = order.clientName { parts.append("لـ \(cl)") }
         if showCustomer { parts.append(order.invoiceNo) }
         parts.append(dateStr(order.createdAt))
         parts.append("\(order.activeItems.count) قطعة")

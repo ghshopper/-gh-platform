@@ -29,6 +29,10 @@ struct Customer: Identifiable, Hashable {
     var deliveryNote: String?
     /// Messages to this customer in English (chosen when adding her).
     var isEnglish: Bool = false
+    /// A personal shopper who orders from us for her own clients.
+    var isPartner: Bool = false
+    /// Percent off the store price on the partner page.
+    var partnerDiscount: Double?
 
     var firstName: String {
         let n = name.trimmingCharacters(in: .whitespaces)
@@ -54,6 +58,8 @@ struct Customer: Identifiable, Hashable {
         walletBalance = jd(m["wallet_balance"])
         deliveryNote = js(m["delivery_note"])
         isEnglish = js(m["lang"]) == "en"
+        isPartner = jb(m["is_partner"])
+        partnerDiscount = jdn(m["partner_discount"])
     }
 }
 
@@ -658,6 +664,8 @@ struct Order: Identifiable, Hashable {
     var tax: Double = 0
     /// "app" or "web" for online orders.
     var storeSource: String?
+    /// A partner's order: the partner's own client it is for.
+    var clientName: String?
     /// Paid online by card / Apple Pay (Amwal).
     var paidOnline: Bool = false
     /// Sent as a gift (إرسال هدية): recipient, card message, wrapping, prices hidden.
@@ -759,6 +767,7 @@ struct Order: Identifiable, Hashable {
         discountLabel = js(m["discount_label"])
         tax = jd(m["tax"])
         storeSource = js(m["store_source"])
+        clientName = js(m["client_name"])
         paidOnline = jb(m["store_paid_online"])
         events = jlist(m["events"]).map(OrderEvent.init)
         gift = OrderGift.from(m["gift"])

@@ -258,6 +258,7 @@ fileprivate struct CustomerDetailContent: View {
                 recentSection(all)
             }
             CustomerInfoSection(customer: customer, balance: all.reduce(0) { $0 + $1.customerBalance })
+            CustomerPartnerSection(customer: customer)
             CustomerPortalSection(customer: customer)
             CustomerDeliveryNoteSection(customer: customer)
             if let notes = customer.notes {
@@ -347,6 +348,55 @@ fileprivate struct CustomerInfoSection: View {
                  valueColor: balance < -0.0005 ? GH.red : GH.green,
                  valueFont: .gh(16), chevron: false)
         }
+    }
+}
+
+/// A personal shopper who orders from us for her clients: her own page with her account,
+/// her orders' journey and the products at her price.
+fileprivate struct CustomerPartnerSection: View {
+    let customer: Customer
+
+    init(customer: Customer) { self.customer = customer }
+
+    var body: some View {
+        let c = customer
+        return GHSection("شريك (بيرسونال شوبر)",
+                         footer: c.isPartner
+                            ? "صفحتها الخاصة فيها حسابها، وين وصلت قطع عملائها، والمنتجات بسعر الشريك وتطلب منها مباشرة. الرابط من «صفحة العميل» تحت."
+                            : "للبيرسونال شوبر اللي تطلب منك لعملائها: صفحة خاصة فيها حسابها وطلباتها والمنتجات بسعرها.") {
+            Tile("شريك", value: c.isPartner ? "نعم" : "لا", chevron: false,
+                 action: { Task { await toggle(c) } },
+                 leading: { IconBox("person.2.badge.gearshape.fill", color: GH.burgundy) })
+            if c.isPartner {
+                Tile("خصم الشريك", value: c.partnerDiscount.map { "\(Int($0))٪ من سعر المتجر" } ?? "بدون خصم",
+                     action: { Task { await setDiscount(c) } },
+                     leading: { IconBox("percent", color: GH.green) })
+            }
+        }
+    }
+
+    private func toggle(_ c: Customer) async {
+        if c.isPartner {
+            guard await confirm("إلغاء الشراكة مع \(c.name)؟", message: "رابط صفحة الشريك يرجع صفحة عميل عادية.", ok: "إلغاء الشراكة") else { return }
+        }
+        do {
+            try await Store.shared.setPartner(c.id, on: !c.isPartner, discount: c.partnerDiscount)
+            await Store.shared.refresh()
+            toast(c.isPartner ? "صار عميل عادي" : "صار شريك، حدد خصمه")
+        } catch { toastError(error) }
+    }
+
+    private func setDiscount(_ c: Customer) async {
+        let initial = c.partnerDiscount.map { String(Int($0)) } ?? ""
+        guard let t = await promptText("خصم الشريك ٪", message: "كم بالمية أقل من سعر المتجر يشوف الأسعار؟",
+                                       placeholder: "مثلاً 10", initial: initial, ok: "حفظ", keyboard: .numberPad) else { return }
+        let v = parseAmount(t)
+        if let v, v < 0 || v > 90 { toast("من 0 إلى 90", error: true); return }
+        do {
+            try await Store.shared.setPartner(c.id, on: true, discount: v)
+            await Store.shared.refresh()
+            toast("تم")
+        } catch { toastError(error) }
     }
 }
 

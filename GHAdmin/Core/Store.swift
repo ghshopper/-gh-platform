@@ -165,6 +165,15 @@ final class Store: ObservableObject {
         }
     }
 
+    /// Makes a customer a partner (a personal shopper ordering for her clients), or not.
+    @discardableResult
+    func setPartner(_ id: String, on: Bool, discount: Double?) async throws -> Customer {
+        try await write {
+            let res = try await api.put("/ps/customers/\(id)/partner", ["is_partner": on, "discount": nn(discount)])
+            return Customer(((res as? JSON)?["customer"] as? JSON) ?? [:])
+        }
+    }
+
     func deleteCustomer(_ id: String) async throws { try await write { try await api.delete("/ps/customers/\(id)") } }
 
     /// The customer's private page listing all of their orders and invoices.
@@ -214,12 +223,13 @@ final class Store: ObservableObject {
     // orders
 
     func createOrder(customerId: String, tripId: String?, deliveryFee: Double = 0, deliveryMethod: String?,
-                     notes: String?, items: [JSON], deposit: Double = 0, depositMethod: String?) async throws -> String {
+                     notes: String?, items: [JSON], deposit: Double = 0, depositMethod: String?,
+                     clientName: String? = nil) async throws -> String {
         try await write {
             let res = try await api.post("/ps/orders", [
                 "customer_id": customerId, "trip_id": nn(tripId), "delivery_fee": deliveryFee,
                 "delivery_method": nn(deliveryMethod), "notes": nn(notes), "items": items,
-                "deposit": deposit, "deposit_method": nn(depositMethod),
+                "deposit": deposit, "deposit_method": nn(depositMethod), "client_name": nn(clientName),
             ]) as? JSON ?? [:]
             return jstr(res["id"])
         }

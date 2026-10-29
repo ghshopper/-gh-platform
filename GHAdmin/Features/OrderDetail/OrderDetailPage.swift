@@ -145,6 +145,7 @@ struct OrderDetailPage: View {
 
     private func summaryLine(_ o: Order) -> String {
         var parts: [String] = [dateStr(o.createdAt)]
+        if let cl = o.clientName { parts.append("لعميلتها \(cl)") }
         if o.fromStore { parts.append(o.sourceLabel) }
         if o.paidOnline { parts.append("مدفوع أونلاين") }
         if let t = store.trip(o.tripId) {

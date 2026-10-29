@@ -95,6 +95,7 @@ struct OrderFormPage: View {
     @State private var saving = false
     @State private var started = false
     @State private var instantPicker = false
+    @State private var clientName = ""
 
     init(customer: Customer? = nil, tripId: String? = nil, done: ((String?) -> Void)? = nil) {
         self.customer = customer
@@ -136,6 +137,9 @@ struct OrderFormPage: View {
         GHSection {
             PickerRow("العميل", value: chosenCustomer?.name, placeholder: "اختر") { pickCustomer() }
             PickerRow("الرحلة", value: store.trip(chosenTrip)?.name, placeholder: "بدون رحلة") { pickTrip() }
+            if chosenCustomer?.isPartner == true {
+                FieldRow("عميل الشريك", text: $clientName, placeholder: "اسم عميلها (اختياري)")
+            }
         }
     }
 
@@ -284,11 +288,13 @@ struct OrderFormPage: View {
         let dep = parseAmount(deposit) ?? 0
         let depMethod = method
         let drafts = draft.items
+        let client = c.isPartner ? trimmed(clientName) : ""
         Task { @MainActor in
             do {
                 let id = try await Store.shared.createOrder(
                     customerId: c.id, tripId: trip, deliveryFee: fee, deliveryMethod: methodKey,
-                    notes: n.isEmpty ? nil : n, items: items, deposit: dep, depositMethod: depMethod)
+                    notes: n.isEmpty ? nil : n, items: items, deposit: dep, depositMethod: depMethod,
+                    clientName: client.isEmpty ? nil : client)
                 for d in drafts { d.price.remember() }
                 if let done {
                     done(id)

@@ -116,6 +116,9 @@ struct MorePage: View {
                  action: { pushPage(ChatsPage()) },
                  leading: { IconBox("bubble.left.and.bubble.right.fill", color: GH.purple) },
                  trailing: { MoreUnreadBadge(count: unread) })
+            Tile("الشركاء", subtitle: "البيرسونال شوبر اللي يطلبون منك لعملائهم: حساباتهم وقطعهم",
+                 action: { pushPage(PartnersPage()) },
+                 leading: { IconBox("person.2.badge.gearshape.fill", color: GH.burgundy) })
             Tile("التقييمات", subtitle: "تقييمات القطع والخدمة قبل ما تنتشر",
                  action: { pushPage(ReviewsPage()) },
                  leading: { IconBox("star.fill", color: GH.amber) })
