@@ -1,1 +1,1 @@
-success 3723e5677f7f53ed72d295f4cc5c22345d86dfad swift-admin 58
+success fb2dd8268762461451c8f4a1aa519e5fb9e96691 swift-admin 60
