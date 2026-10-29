@@ -43,7 +43,7 @@ targets:
     info:
       path: GHAdmin/Info.plist
       properties:
-        CFBundleDisplayName: GH Shopper
+        CFBundleDisplayName: GH ADMIN
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         CFBundleDevelopmentRegion: ar
