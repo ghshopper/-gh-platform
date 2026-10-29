@@ -1,1 +1,1 @@
-success 55a66a681e96c027c4194164c950bf288b4c6149 swift-admin-release 53
+success 55a66a681e96c027c4194164c950bf288b4c6149 swift-admin 52
