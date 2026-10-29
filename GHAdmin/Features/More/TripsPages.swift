@@ -33,8 +33,17 @@ fileprivate struct TripStats {
     let cost: Double
     let spent: Double
     let toBuy: Int
+    /// What the pieces already bought (with a purchase price) sell for.
+    let boughtSales: Double
+    /// Sale value of the pieces not bought yet (not profit until they are bought).
+    let toBuySales: Double
+    /// Tax-free refund in OMR: received, and still to come.
+    let taxFreeGot: Double
+    let taxFreeDue: Double
 
-    var profit: Double { sales - cost - spent }
+    /// Only the bought pieces count: sale − purchase − trip expenses (tax-free aside).
+    var profit: Double { boughtSales - cost - spent }
+    var taxFree: Double { taxFreeGot + taxFreeDue }
 
     /// Every bought piece in the trip with a tax-free refund to follow.
     var taxFreeEntries: [ShopEntry] {
@@ -52,10 +61,24 @@ fileprivate struct TripStats {
         cost = os.reduce(0) { $0 + $1.costOmr }
         spent = ex.reduce(0) { $0 + $1.omr }
         var n = 0
+        var bought = 0.0, waiting = 0.0, got = 0.0, due = 0.0
         for o in os {
-            for i in o.activeItems where i.status == .requested { n += 1 }
+            // the order's discount, shared over its pieces
+            let share = o.itemsTotal > 0.0005 ? max(0, o.netSales) / o.itemsTotal : 1
+            for i in o.activeItems {
+                if i.status == .requested { n += 1; waiting += i.price * share }
+                if i.costOmr != nil { bought += i.price * share }
+                if i.hasTaxFree, let r = i.costRate {
+                    let omr = i.taxFreeAmount * r
+                    if i.taxFreeReceived { got += omr } else { due += omr }
+                }
+            }
         }
         toBuy = n
+        boughtSales = bought
+        toBuySales = waiting
+        taxFreeGot = got
+        taxFreeDue = due
     }
 }
 
@@ -198,6 +221,22 @@ fileprivate struct TripStatGrid: View {
                 StatCard(label: "مصاريف الرحلة", value: omr(stats.spent), icon: "airplane", color: GH.blue)
                 StatCard(label: "صافي الربح", value: omr(stats.profit), color: stats.profit < 0 ? GH.red : GH.green)
             }
+            HStack(spacing: 10) {
+                StatCard(label: "التاكس فري", value: omr(stats.taxFree), icon: "arrow.triangle.2.circlepath", color: GH.purple)
+                StatCard(label: "الربح مع التاكس فري", value: omr(stats.profit + stats.taxFree),
+                         color: stats.profit + stats.taxFree < 0 ? GH.red : GH.green)
+            }
+            VStack(spacing: 0) {
+                KV("مبيعات القطع المشتراة", omr(stats.boughtSales))
+                if stats.toBuySales > 0.0005 {
+                    KV("قطع باقي تشتريها (\(stats.toBuy))", omr(stats.toBuySales), color: GH.secondary)
+                }
+                if stats.taxFree > 0.0005 {
+                    KV("تاكس فري استلمته", omr(stats.taxFreeGot), color: GH.green)
+                    KV("تاكس فري باقي", omr(stats.taxFreeDue), color: GH.amber)
+                }
+            }
+            .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(GH.card))
         }
         .padding(.horizontal, 16).padding(.top, 4)
     }
