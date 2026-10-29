@@ -1,11 +1,14 @@
 import SwiftUI
 
 fileprivate enum OrderFilter: CaseIterable, Hashable {
-    case all, requested, purchased, arrived, outForDelivery, delivered, balance, website, gulf
+    case all, airport, europe, dubai, requested, purchased, arrived, outForDelivery, delivered, balance, website, gulf
 
     var label: String {
         switch self {
         case .all: return "الكل"
+        case .airport: return "المطار"
+        case .europe: return "أوروبا"
+        case .dubai: return "دبي"
         case .requested: return "بانتظار الشراء"
         case .purchased: return "تم الشراء"
         case .arrived: return "وصلت"
@@ -20,6 +23,9 @@ fileprivate enum OrderFilter: CaseIterable, Hashable {
     func matches(_ o: Order) -> Bool {
         switch self {
         case .all: return true
+        case .airport: return Self.has(o, .airport)
+        case .europe: return Self.has(o, .boutiqueEu)
+        case .dubai: return Self.has(o, .dubai)
         case .requested: return o.overallStatus == .requested
         case .purchased: return o.overallStatus == .purchased
         case .arrived: return o.overallStatus == .arrived
@@ -32,6 +38,20 @@ fileprivate enum OrderFilter: CaseIterable, Hashable {
             let st = o.overallStatus
             return gulf && st != .delivered && st != .cancelled
         }
+    }
+
+    var place: PurchasePlace? {
+        switch self {
+        case .airport: return .airport
+        case .europe: return .boutiqueEu
+        case .dubai: return .dubai
+        default: return nil
+        }
+    }
+
+    /// A live piece bought there (or planned to be bought there).
+    static func has(_ o: Order, _ p: PurchasePlace) -> Bool {
+        o.activeItems.contains { ($0.purchasePlace ?? $0.planPlace) == p }
     }
 }
 
@@ -91,7 +111,8 @@ struct OrdersPage: View {
 
     private var visibleFilters: [OrderFilter] {
         let hasGulf = store.orders.contains { $0.deliveryMethod?.isGulf == true }
-        return OrderFilter.allCases.filter { $0 != .gulf || hasGulf }
+        let hasDubai = store.orders.contains { OrderFilter.has($0, .dubai) }
+        return OrderFilter.allCases.filter { ($0 != .gulf || hasGulf) && ($0 != .dubai || hasDubai) }
     }
 
     private var filterBar: some View {
@@ -128,11 +149,30 @@ struct OrdersPage: View {
         if shown.isEmpty {
             EmptyState(icon: "magnifyingglass", title: "ما في نتائج")
         } else {
-            GHSection("\(shown.count) طلب") {
+            if let place = filter.place {
+                placeTotals(shown, place)
+            }
+            GHSection("\(shown.count) طلب · \(omr(shown.reduce(0) { $0 + $1.total }))") {
                 ForEach(shown) { o in
                     OrderRow(order: o, onTap: { pushPage(OrderDetailPage(orderId: o.id)) })
                 }
             }
+        }
+    }
+
+    /// The pieces from that place in the shown orders: how many, what they sell for, what they cost.
+    private func placeTotals(_ orders: [Order], _ place: PurchasePlace) -> some View {
+        let items = orders.flatMap { $0.activeItems.filter { ($0.purchasePlace ?? $0.planPlace) == place } }
+        let sales = items.reduce(0) { $0 + $1.price }
+        let bought = items.filter { $0.status >= .purchased }
+        let cost = items.reduce(0) { $0 + ($1.costOmr ?? 0) }
+        let waiting = items.filter { $0.status == .requested }
+        return GHSection("مجموع \(filter.label)") {
+            KV("عدد القطع", "\(items.count)")
+            KV("قيمتها (سعر البيع)", omr(sales), strong: true)
+            if !bought.isEmpty { KV("اشتريت منها", "\(bought.count) · \(omr(bought.reduce(0) { $0 + $1.price }))") }
+            if !waiting.isEmpty { KV("باقي تشتريها", "\(waiting.count) · \(omr(waiting.reduce(0) { $0 + $1.price }))") }
+            if cost > 0 && Api.shared.access.can("finance") { KV("دفعت في شرائها", omr(cost)) }
         }
     }
 
