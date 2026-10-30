@@ -82,9 +82,9 @@ enum WidgetBridge {
                 s.lastMonthSales += o.netSales
             }
             for p in o.payments where isToday(p.paidOn) { s.todayCollected += p.amount }
-            if o.remaining > 0 { s.toCollect += o.remaining }
+            s.toCollect += o.dueNow
             if o.customerBalance > 0 { s.heldBalance += o.customerBalance }
-            if o.hasBalance { s.unpaidOrders += 1 }
+            if o.owesNow { s.unpaidOrders += 1 }
             if o.driverStatus == .failed { s.failedDeliveries += 1 }
         }
         let spent = store.expenses.filter { sameMonth($0.spentOn, now) }.reduce(0.0) { $0 + $1.omr }

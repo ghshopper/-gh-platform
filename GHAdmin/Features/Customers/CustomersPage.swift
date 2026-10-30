@@ -11,7 +11,7 @@ fileprivate func customerMatches(_ c: Customer, _ query: String) -> Bool {
 
 /// What the customer still owes over all of their orders.
 fileprivate func owedOf(_ orders: [Order]) -> Double {
-    orders.reduce(0) { $0 + ($1.remaining > 0 ? $1.remaining : 0) }
+    orders.reduce(0) { $0 + $1.dueNow }
 }
 
 /// Newest first (orders without a date go last).

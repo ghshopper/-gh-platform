@@ -698,6 +698,10 @@ struct Order: Identifiable, Hashable {
     var paid: Double { payments.reduce(0) { $0 + $1.amount } }
     var remaining: Double { total - paid }
     var hasBalance: Bool { remaining > 0.0005 }
+    /// What the customer owes now: the delivery fee only falls due once the order is delivered
+    /// (the driver collects it at the door), so a paid order isn't listed for its 2 rials.
+    var dueNow: Double { allDelivered ? max(0, remaining) : max(0, remaining - deliveryFee) }
+    var owesNow: Bool { dueNow > 0.0005 }
     var costOmr: Double { activeItems.reduce(0) { $0 + ($1.costOmr ?? 0) } }
     /// Every live piece is delivered (past orders included): nothing is held for her any more.
     var allDelivered: Bool { !activeItems.isEmpty && activeItems.allSatisfy { $0.status == .delivered } }

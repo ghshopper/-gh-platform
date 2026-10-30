@@ -31,7 +31,7 @@ fileprivate enum OrderFilter: CaseIterable, Hashable {
         case .arrived: return o.overallStatus == .arrived
         case .outForDelivery: return o.overallStatus == .outForDelivery
         case .delivered: return o.overallStatus == .delivered
-        case .balance: return o.hasBalance
+        case .balance: return o.owesNow
         case .website: return o.fromStore
         case .gulf:
             let gulf = o.deliveryMethod?.isGulf == true

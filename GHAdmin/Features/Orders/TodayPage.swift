@@ -62,14 +62,14 @@ fileprivate struct TodayData {
 
         let orders = store.orders
         sales = orders.filter { inThisMonth($0.createdAt) }.reduce(0) { $0 + $1.netSales }
-        owed = orders.reduce(0) { $0 + ($1.remaining > 0 ? $1.remaining : 0) }
+        owed = orders.reduce(0) { $0 + $1.dueNow }
         held = orders.reduce(0) { $0 + ($1.customerBalance > 0 ? $1.customerBalance : 0) }
 
         let items = store.allItems.map { TodayItem(order: $0.order, item: $0.item) }
         toBuy = items.filter { $0.item.status == .requested }
         toDeliver = items.filter { $0.item.status == .arrived }
         outForDelivery = items.filter { $0.item.status == .outForDelivery }
-        unpaid = orders.filter { $0.hasBalance }
+        unpaid = orders.filter { $0.owesNow }
         newRequests = store.requests.filter { $0.status == "pending" }
         // Online orders (app / website) not bought yet: new work to look at.
         newOnline = orders.filter { $0.fromStore && $0.overallStatus == .requested }
@@ -564,7 +564,7 @@ fileprivate struct TodayContent: View {
     private func unpaidTile(_ o: Order) -> some View {
         let name = store.customerName(o)
         let id = o.id
-        return Tile(name, subtitle: o.invoiceNo, value: omr(o.remaining), valueColor: GH.red, valueFont: .gh(15),
+        return Tile(name, subtitle: o.invoiceNo, value: omr(o.dueNow), valueColor: GH.red, valueFont: .gh(15),
                     action: { openOrder(id) },
                     leading: { Avatar(name, size: 32) })
     }
