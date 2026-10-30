@@ -61,6 +61,29 @@ struct MorePage: View {
     @ViewBuilder private var growthSection: some View {
         let a = api.access
         if a.can("finance") || a.can("customers") || a.can("marketing") || a.can("orders") {
+            GHSection("أدوات") {
+                if a.can("orders") {
+                    Tile("وضع التسوق", subtitle: "في البوتيك: القطع وسجّل الشراء بضغطة، حتى بدون نت",
+                         action: { pushPage(ShoppingModePage()) },
+                         leading: { IconBox("bag.fill", color: GH.burgundy) })
+                    Tile("حاسبة عرض السعر", subtitle: "سعر البوتيك ← سعرها بالريال وربحك، وأرسل العرض",
+                         action: { pushPage(QuoteCalculatorPage()) },
+                         leading: { IconBox("function", color: GH.blue) })
+                }
+                if a.can("finance") {
+                    Tile("تسجيل التحويلات", subtitle: "الصق رسالة البنك أو صورتها ويطابقها بالطلب",
+                         action: { pushPage(TransferPastePage()) },
+                         leading: { IconBox("arrow.down.doc.fill", color: GH.green) })
+                    Tile("سيولة الرحلة", subtitle: "كم بتدفع في الرحلة، وكم معك من العرابين",
+                         action: { pushPage(TripCashPage(tripId: nil)) },
+                         leading: { IconBox("banknote.fill", color: GH.amber) })
+                }
+                if a.can("customers") {
+                    Tile("قطع تناسب عملائك", subtitle: "حسب ذوق كل عميلة: البراندات والمقاسات",
+                         action: { pushPage(StyleMatchesPage()) },
+                         leading: { IconBox("sparkles", color: GH.pink) })
+                }
+            }
             GHSection("المبيعات والتسويق") {
                 if a.can("finance") {
                     Tile("التقارير", subtitle: "المبيعات، الطلبات، أكثر القطع والماركات",

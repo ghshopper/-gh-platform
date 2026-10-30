@@ -155,7 +155,7 @@ func topViewController() -> UIViewController? {
 
 /// WhatsApp chat with a ready message.
 @MainActor func openWhatsApp(phone: String?, text: String) {
-    let t = text.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+    let t = text.addingPercentEncoding(withAllowedCharacters: .alphanumerics) ?? "" // & + # ? all encoded
     if let p = waPhone(phone) { openURL("https://wa.me/\(p)?text=\(t)") } else { openURL("https://wa.me/?text=\(t)") }
 }
 

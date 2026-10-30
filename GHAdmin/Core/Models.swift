@@ -33,6 +33,8 @@ struct Customer: Identifiable, Hashable {
     var isPartner: Bool = false
     /// Percent off the store price on the partner page.
     var partnerDiscount: Double?
+    /// ذوق العميلة: her sizes, favourite brands, colours, budget (nil when nothing is saved).
+    var style: CustomerStyle?
 
     var firstName: String {
         let n = name.trimmingCharacters(in: .whitespaces)
@@ -60,6 +62,7 @@ struct Customer: Identifiable, Hashable {
         isEnglish = js(m["lang"]) == "en"
         isPartner = jb(m["is_partner"])
         partnerDiscount = jdn(m["partner_discount"])
+        style = CustomerStyle(m["style"])
     }
 }
 

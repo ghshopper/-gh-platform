@@ -182,6 +182,27 @@ final class Store: ObservableObject {
         return jstr(res?["url"])
     }
 
+    /// ذوق العميلة: saves her sizes, brands, colours, budget and notes (nil or empty clears it).
+    /// Re-sends her other details like saveDeliveryNote (the server needs the name).
+    func saveStyle(_ customerId: String, _ style: CustomerStyle?) async throws {
+        guard let c = customer(customerId) else { throw ApiError(message: "العميل غير موجود") }
+        let value: Any = (style?.isEmpty ?? true) ? NSNull() : style!.json
+        try await write {
+            let data: JSON = ["name": c.name, "phone": nn(c.phone), "city": nn(c.city), "address": nn(c.address),
+                              "notes": nn(c.notes), "gender": c.isMale ? "m" : "f", "lang": c.isEnglish ? "en" : "ar",
+                              "style": value]
+            _ = try await api.put("/ps/customers/\(c.id)", data)
+        }
+    }
+
+    /// Store pieces that suit her taste (GET /ps/customers/{id}/style-matches);
+    /// without an id, every customer's matches (GET /ps/style-matches).
+    func styleMatches(customerId: String? = nil) async throws -> [StyleMatch] {
+        let path = customerId.map { "/ps/customers/\($0)/style-matches" } ?? "/ps/style-matches"
+        let res = try await api.get(path) as? JSON
+        return jlist(res?["matches"]).map(StyleMatch.init)
+    }
+
     /// The order's payment link (card / Apple Pay with Amwal).
     func orderPayLink(_ id: String, reset: Bool = false) async throws -> String {
         let res = try await api.post("/ps/orders/\(id)/pay-link\(reset ? "?reset=1" : "")") as? JSON

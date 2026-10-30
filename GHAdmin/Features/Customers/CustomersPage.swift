@@ -261,6 +261,7 @@ fileprivate struct CustomerDetailContent: View {
             CustomerPartnerSection(customer: customer)
             CustomerPortalSection(customer: customer)
             CustomerDeliveryNoteSection(customer: customer)
+            CustomerTasteSection(customer: customer)
             if let notes = customer.notes {
                 GHSection("ملاحظات") {
                     Text(notes).font(TS.body).foregroundStyle(GH.label)

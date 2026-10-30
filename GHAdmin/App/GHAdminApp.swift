@@ -172,7 +172,10 @@ struct Tabs: View {
         .task {
             if !DemoData.isOn {
                 await api.refreshAccess()
-                if api.access.can("orders") { await store.start() }
+                if api.access.can("orders") {
+                    await store.start()
+                    ShoppingQueue.shared.start() // purchases saved offline in the boutique
+                }
                 await Push.shared.start()
             } else {
                 DemoScreens.openIfAsked(tab: $index)

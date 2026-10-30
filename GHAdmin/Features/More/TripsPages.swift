@@ -168,6 +168,16 @@ struct TripDetailPage: View {
         }) {
             TripStatGrid(stats: s)
             TripLiveRow(trip: t)
+            GHSection {
+                Tile("وضع التسوق", subtitle: "قطع كل بوتيك، وسجّل الشراء بضغطة حتى بدون نت",
+                     action: { pushPage(ShoppingModePage(tripId: t.id)) },
+                     leading: { IconBox("bag.fill", color: GH.burgundy) })
+                if Api.shared.access.can("finance") {
+                    Tile("سيولة الرحلة", subtitle: "كم بتدفع، وكم معك من عرابين العملاء",
+                         action: { pushPage(TripCashPage(tripId: t.id)) },
+                         leading: { IconBox("banknote.fill", color: GH.green) })
+                }
+            }
             Pad(h: 6, top: 6) {
                 Segments(value: $tab, options: [
                     (TripView.shopping, "قائمة التسوّق"),
