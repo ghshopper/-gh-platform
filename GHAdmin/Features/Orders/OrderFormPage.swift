@@ -68,7 +68,7 @@ fileprivate struct OrderItemRows: View {
     @ObservedObject var item: OrderItemDraft
 
     var body: some View {
-        FieldRow("البراند", text: $item.brand, placeholder: "Cartier")
+        BrandField(text: $item.brand, placeholder: "Cartier")
         FieldRow("القطعة", text: $item.name, placeholder: "Love Bracelet")
         FieldRow("التفاصيل", text: $item.details, placeholder: "المقاس، اللون…")
         PriceRows(draft: item.price)

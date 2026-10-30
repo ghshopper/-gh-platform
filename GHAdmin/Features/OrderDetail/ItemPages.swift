@@ -59,7 +59,7 @@ struct ItemFormPage: View {
             NavButton("إلغاء", action: { dismiss() })
         }) {
             GHSection {
-                FieldRow("البراند", text: $brand, placeholder: "Dior")
+                BrandField(text: $brand, placeholder: "Dior")
                 FieldRow("القطعة", text: $name, placeholder: "Lady Dior", autofocus: item == nil)
                 FieldRow("التفاصيل", text: $details, placeholder: "اختياري")
             }

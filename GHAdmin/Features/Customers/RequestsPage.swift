@@ -535,7 +535,7 @@ struct ConvertRequestPage: View {
 
     private var pieceSection: some View {
         GHSection("القطعة · لـ \(request.customerName)") {
-            FieldRow("البراند", text: $brand, placeholder: "Chanel")
+            BrandField(text: $brand, placeholder: "Chanel")
             FieldRow("القطعة", text: $name)
             FieldRow("التفاصيل", text: $details, placeholder: "المقاس، اللون…")
             AmountRow("السعر للعميل", text: $price)
