@@ -34,48 +34,220 @@ final class Store: ObservableObject {
     private var tripById: [String: Trip] = [:]
     private var orderById: [String: Order] = [:]
 
-    private static let cacheName = "gh_cache_v3"
+    // MARK: disk cache + incremental refresh
+    //
+    // The last bootstrap is saved on the phone (Application Support, one file per signed-in
+    // account, wiped on logout) and shown at launch before the network answers. After that,
+    // refreshes ask only for what changed: GET /ps/bootstrap?since=<server_time> returns the
+    // orders changed since then + deleted_order_ids, and everything else (customers, trips,
+    // expenses, settings…) in full. The delta is merged into the orders already in memory, so
+    // every screen still sees ALL orders. A full load happens every 24 h, when the server's
+    // schema changes, and whenever a merge looks wrong (order count differs from the server's).
 
-    // MARK: loading
+    /// Bump when the file layout changes (old files are then ignored and deleted).
+    private nonisolated static let cacheVersion = 4
+    private nonisolated static let cachePrefix = "gh_cache_"
+    private static let fullEvery: TimeInterval = 24 * 3600
+    /// Disk work (read / write / wipe), one at a time and in order.
+    private nonisolated static let io = DispatchQueue(label: "app.ghshopper.store.cache", qos: .utility)
 
-    private var cacheURL: URL {
+    /// The server's JSON of every order (by id), kept so the merged snapshot can be saved.
+    private var rawOrders: [String: JSON] = [:]
+    /// The rest of the last answer (customers, trips, settings…).
+    private var rawRest: JSON = [:]
+    /// The server_time of the last answer applied: the next `since`.
+    private var syncedAt: String?
+    /// When the last full (not incremental) load was applied.
+    private var fullAt: Date?
+    /// The server's bootstrap schema the cached data was built with.
+    private var schema = 0
+    /// Serialises refreshes: a delta must never be merged over a newer answer.
+    private var refreshChain: Task<Void, Never>?
+
+    /// Disk cache only for a real staff session (never demo mode or a driver).
+    private var cacheAllowed: Bool {
+        guard let s = api.session, !s.isDriver, s.token != "demo", !DemoData.isOn else { return false }
+        return true
+    }
+
+    private nonisolated static var cacheDir: URL {
         let dir = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
-        let safe = api.cacheKey.addingPercentEncoding(withAllowedCharacters: .alphanumerics) ?? "x"
-        return dir.appendingPathComponent("\(Store.cacheName)_\(safe).json")
+        return dir
+    }
+
+    private var cacheURL: URL? {
+        guard cacheAllowed else { return nil }
+        let safe = api.storeCacheKey.addingPercentEncoding(withAllowedCharacters: .alphanumerics) ?? "x"
+        return Store.cacheDir.appendingPathComponent("\(Store.cachePrefix)v\(Store.cacheVersion)_\(safe).json")
     }
 
     /// Shows the cached snapshot immediately, then refreshes from the server.
     func start() async {
-        if !ready, let data = try? Data(contentsOf: cacheURL),
-           let raw = try? JSONSerialization.jsonObject(with: data) as? JSON {
-            apply(raw)
-            ready = true
-        }
+        await loadCache()
         await refresh()
     }
 
-    func refresh() async {
+    /// Puts the saved snapshot on screen (read and parsed off the main thread). Safe to call
+    /// more than once: does nothing once data is showing.
+    func loadCache() async {
+        guard !ready, let url = cacheURL else { return }
+        let key = api.storeCacheKey
+        let box: JSONBox = await withCheckedContinuation { (c: CheckedContinuation<JSONBox, Never>) in
+            Store.io.async {
+                Store.removeOldCacheFiles()
+                var obj: Any?
+                if let d = try? Data(contentsOf: url) { obj = try? JSONSerialization.jsonObject(with: d) }
+                c.resume(returning: JSONBox(obj))
+            }
+        }
+        // a refresh may have finished first, or the account changed while reading
+        guard !ready, cacheAllowed, api.storeCacheKey == key,
+              let file = box.value as? JSON, ji(file["cache"]) == Store.cacheVersion,
+              let raw = file["data"] as? JSON else { return }
+        apply(raw)
+        schema = ji(file["schema"])
+        syncedAt = js(file["server_time"])
+        let f = jd(file["full_at"])
+        fullAt = f > 0 ? Date(timeIntervalSince1970: f) : nil
+        ready = true
+    }
+
+    /// Re-reads from the server: only what changed when possible, everything when `full`.
+    func refresh(full: Bool = false) async {
+        let previous = refreshChain
+        let task = Task { @MainActor in
+            await previous?.value
+            await self.runRefresh(full: full)
+        }
+        refreshChain = task
+        await task.value
+    }
+
+    private var canDelta: Bool {
+        guard cacheAllowed, syncedAt != nil, schema > 0, !orderById.isEmpty || !rawRest.isEmpty,
+              let fullAt, Date().timeIntervalSince(fullAt) < Store.fullEvery, fullAt <= Date() else { return false }
+        return true
+    }
+
+    private func runRefresh(full: Bool) async {
         syncing = true
         defer { syncing = false }
+        let delta = !full && canDelta
+        let key = api.storeCacheKey
+        var path = "/ps/bootstrap"
+        if delta, let since = syncedAt?.addingPercentEncoding(withAllowedCharacters: .alphanumerics) {
+            path += "?since=\(since)"
+        }
         do {
-            let raw = try await api.get("/ps/bootstrap") as? JSON ?? [:]
-            apply(raw)
+            let raw = try await api.get(path) as? JSON ?? [:]
+            guard api.storeCacheKey == key else { return } // signed out / another account meanwhile
+            if delta && jb(raw["delta"]) {
+                // anything unexpected → load everything again
+                guard ji(raw["schema"]) == schema, raw["orders"] is [Any], js(raw["server_time"]) != nil,
+                      merge(raw) else {
+                    await runRefresh(full: true)
+                    return
+                }
+            } else {
+                apply(raw)
+                schema = ji(raw["schema"])
+                fullAt = Date()
+            }
+            syncedAt = js(raw["server_time"])
             lastError = nil
             ready = true
             WidgetBridge.storeRefreshed()
-            if let data = try? JSONSerialization.data(withJSONObject: raw) {
-                let url = cacheURL
-                Task.detached { try? data.write(to: url, options: .atomic) }
-            }
+            saveCache()
         } catch {
             lastError = error
             ready = true
         }
     }
 
+    /// Merges an incremental answer into the orders in memory. false = the result does not
+    /// match the server (then a full load follows).
+    private func merge(_ raw: JSON) -> Bool {
+        let changed = jlist(raw["orders"])
+        let deleted = (raw["deleted_order_ids"] as? [Any] ?? []).compactMap { js($0) }
+        if !changed.isEmpty || !deleted.isEmpty {
+            var byId = orderById
+            for id in deleted {
+                byId[id] = nil
+                rawOrders[id] = nil
+            }
+            for m in changed {
+                let o = Order(m)
+                guard !o.id.isEmpty else { return false }
+                byId[o.id] = o
+                rawOrders[o.id] = m
+            }
+            let old = Date(timeIntervalSince1970: 0)
+            orders = byId.values.sorted {
+                let a = $0.createdAt ?? old, b = $1.createdAt ?? old
+                return a != b ? a > b : $0.orderNo > $1.orderNo
+            }
+            orderById = byId
+        }
+        applyRest(raw)
+        if raw["order_count"] != nil && ji(raw["order_count"]) != orders.count { return false }
+        return rawOrders.count == orders.count
+    }
+
+    /// Saves the current snapshot (serialised and written off the main thread).
+    private func saveCache() {
+        guard let url = cacheURL else { return }
+        var data = rawRest
+        data["orders"] = orders.compactMap { rawOrders[$0.id] }
+        let file: JSON = [
+            "cache": Store.cacheVersion, "schema": schema, "server_time": syncedAt ?? NSNull(),
+            "full_at": fullAt?.timeIntervalSince1970 ?? 0, "data": data,
+        ]
+        let box = JSONBox(file)
+        Store.io.async {
+            guard let v = box.value, JSONSerialization.isValidJSONObject(v),
+                  let d = try? JSONSerialization.data(withJSONObject: v) else { return }
+            try? d.write(to: url, options: [.atomic, .completeFileProtectionUntilFirstUserAuthentication])
+            var u = url
+            var rv = URLResourceValues()
+            rv.isExcludedFromBackup = true
+            try? u.setResourceValues(rv)
+        }
+    }
+
+    /// Deletes every saved snapshot on the phone (logout).
+    func wipeCache() {
+        refreshChain = nil
+        syncedAt = nil; fullAt = nil; schema = 0
+        Store.io.async {
+            let dir = Store.cacheDir
+            let files = (try? FileManager.default.contentsOfDirectory(atPath: dir.path)) ?? []
+            for f in files where f.hasPrefix(Store.cachePrefix) {
+                try? FileManager.default.removeItem(at: dir.appendingPathComponent(f))
+            }
+        }
+    }
+
+    /// Files from older app versions (gh_cache_v3_…): no longer read.
+    private nonisolated static func removeOldCacheFiles() {
+        let dir = cacheDir
+        let files = (try? FileManager.default.contentsOfDirectory(atPath: dir.path)) ?? []
+        for f in files where f.hasPrefix("gh_cache_v") && !f.hasPrefix("gh_cache_v\(cacheVersion)_") {
+            try? FileManager.default.removeItem(at: dir.appendingPathComponent(f))
+        }
+    }
+
+    /// A full answer: replaces everything.
     private func apply(_ raw: JSON) {
-        orders = jlist(raw["orders"]).map(Order.init)
+        let list = jlist(raw["orders"])
+        orders = list.map(Order.init)
+        orderById = Dictionary(orders.map { ($0.id, $0) }, uniquingKeysWith: { a, _ in a })
+        rawOrders = Dictionary(list.map { (jstr($0["id"]), $0) }, uniquingKeysWith: { a, _ in a })
+        applyRest(raw)
+    }
+
+    /// Everything but the orders (sent in full in both kinds of answer).
+    private func applyRest(_ raw: JSON) {
         customers = jlist(raw["customers"]).map(Customer.init)
         trips = jlist(raw["trips"]).map(Trip.init)
         expenses = jlist(raw["expenses"]).map(TripExpense.init)
@@ -87,7 +259,9 @@ final class Store: ObservableObject {
         driverHandoversPending = ji(raw["driver_handovers_pending"])
         customerById = Dictionary(customers.map { ($0.id, $0) }, uniquingKeysWith: { a, _ in a })
         tripById = Dictionary(trips.map { ($0.id, $0) }, uniquingKeysWith: { a, _ in a })
-        orderById = Dictionary(orders.map { ($0.id, $0) }, uniquingKeysWith: { a, _ in a })
+        var rest = raw
+        for k in ["orders", "deleted_order_ids", "delta"] { rest[k] = nil }
+        rawRest = rest
     }
 
     /// Loads a bootstrap snapshot directly (demo / screenshots).
@@ -102,6 +276,9 @@ final class Store: ObservableObject {
         chatsUnread = 0
         driverHandoversPending = 0
         customerById = [:]; tripById = [:]; orderById = [:]
+        rawOrders = [:]; rawRest = [:]
+        syncedAt = nil; fullAt = nil; schema = 0
+        refreshChain = nil
         signed.removeAll()
         ready = false
     }
@@ -444,4 +621,10 @@ final class Store: ObservableObject {
     // settings
 
     func saveSettings(_ data: JSON) async throws { try await write { try await api.put("/ps/settings", data) } }
+}
+
+/// Hands a parsed JSON value between the main actor and the disk queue (read-only once made).
+private final class JSONBox: @unchecked Sendable {
+    let value: Any?
+    init(_ value: Any?) { self.value = value }
 }

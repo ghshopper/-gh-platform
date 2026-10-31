@@ -99,13 +99,21 @@ final class Api: ObservableObject {
     /// A stable key for the on-phone cache of the current account.
     var cacheKey: String { "\(session?.role ?? ""):\(session?.name ?? "")" }
 
-    private let kToken = "gh_api_token", kRole = "gh_api_role", kName = "gh_api_name"
+    /// The signed-in account's id on the server (from /ps/me); nil for accounts signed in before it was saved.
+    @Published private(set) var userId: String?
+
+    /// The key of the saved data snapshot (Store's disk cache): the account id, or the old
+    /// role:name key until /ps/me has told us the id.
+    var storeCacheKey: String { userId.map { "u\($0)" } ?? "n\(cacheKey)" }
+
+    private let kToken = "gh_api_token", kRole = "gh_api_role", kName = "gh_api_name", kUserId = "gh_api_uid"
 
     // MARK: session
 
     func restore() {
         if let t = Keychain.get(kToken), let r = Keychain.get(kRole) {
             session = Session(token: t, role: r, name: Keychain.get(kName) ?? "")
+            userId = Keychain.get(kUserId)
         }
         restored = true
         WidgetBridge.sessionChanged(session)
@@ -116,6 +124,10 @@ final class Api: ObservableObject {
     func refreshAccess() async {
         guard let s = session, !s.isDriver, s.token != "demo" else { return }
         guard let me = try? await send("GET", "/ps/me") as? JSON else { return }
+        if let id = js(me["id"]), id != userId {
+            userId = id
+            Keychain.set(id, for: kUserId)
+        }
         let a = StaffAccess.from(me)
         if a != access { access = a; a.save() }
     }
@@ -165,6 +177,8 @@ final class Api: ObservableObject {
         Keychain.set(token, for: kToken)
         Keychain.set(role, for: kRole)
         Keychain.set(s.name, for: kName)
+        userId = js(me["id"])
+        Keychain.set(userId, for: kUserId)
         session = s
         WidgetBridge.sessionChanged(s)
     }
@@ -172,9 +186,13 @@ final class Api: ObservableObject {
     func logout() {
         let token = session?.token
         session = nil
+        userId = nil
         Keychain.set(nil, for: kToken)
         Keychain.set(nil, for: kRole)
         Keychain.set(nil, for: kName)
+        Keychain.set(nil, for: kUserId)
+        // the saved orders / customers snapshot never outlives the account on this phone
+        Store.shared.wipeCache()
         WidgetBridge.sessionChanged(nil)
         LiveActivities.endAll()
         if let token, token != "demo" {

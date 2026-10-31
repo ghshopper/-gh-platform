@@ -537,6 +537,11 @@ fileprivate struct SMStorePage: View {
     @ViewBuilder
     private func content(_ list: [ShoppingEntry]) -> some View {
         SMQueueBanner()
+        // دليل البوتيكات: this store's associate, hours and tax-free (or add it)
+        if !groupId.hasPrefix("n:") {
+            BoutiqueLinkRow(storeName: title,
+                            brand: groupId.hasPrefix("b:") ? title : list.compactMap { smClean($0.item.brand) }.first)
+        }
         if list.isEmpty {
             EmptyState(icon: "checkmark.seal", title: "خلصت هذا المحل", message: "ما في قطع باقية هنا.")
         } else {
