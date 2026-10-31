@@ -71,6 +71,20 @@ targets:
         CFBundleURLTypes:
           - CFBundleURLName: app.ghshopper.com
             CFBundleURLSchemes: [ghadmin]
+        # Home-screen quick actions (long-press the icon); handled by QuickActions in GHAdminApp.swift
+        UIApplicationShortcutItems:
+          - UIApplicationShortcutItemType: app.ghshopper.new-order
+            UIApplicationShortcutItemTitle: طلب جديد
+            UIApplicationShortcutItemIconSymbolName: plus.circle
+          - UIApplicationShortcutItemType: app.ghshopper.transfer
+            UIApplicationShortcutItemTitle: سجّل تحويل
+            UIApplicationShortcutItemIconSymbolName: arrow.down.doc
+          - UIApplicationShortcutItemType: app.ghshopper.shopping
+            UIApplicationShortcutItemTitle: وضع التسوق
+            UIApplicationShortcutItemIconSymbolName: bag
+          - UIApplicationShortcutItemType: app.ghshopper.search
+            UIApplicationShortcutItemTitle: بحث
+            UIApplicationShortcutItemIconSymbolName: magnifyingglass
         NSSupportsLiveActivities: true
         GHKeychainGroup: $(AppIdentifierPrefix)app.ghshopper.shared
     settings:

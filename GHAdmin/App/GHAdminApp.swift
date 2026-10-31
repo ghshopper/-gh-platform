@@ -171,6 +171,8 @@ struct Tabs: View {
         }
         .task {
             if !DemoData.isOn {
+                // the saved snapshot goes on screen first (no wait for the network)
+                if api.access.can("orders") { await store.loadCache() }
                 await api.refreshAccess()
                 if api.access.can("orders") {
                     await store.start()
@@ -318,5 +320,83 @@ private struct SideBar: View {
         .frame(width: 250)
         .frame(maxHeight: .infinity, alignment: .top)
         .background(GH.tabBar.ignoresSafeArea())
+    }
+}
+
+// MARK: - home-screen quick actions (long-press the app icon)
+
+/// The four quick actions listed in Info.plist (project.yml → UIApplicationShortcutItems).
+/// Opened only for a signed-in staff account allowed that part of the app; otherwise ignored.
+@MainActor
+final class QuickActions {
+    static let shared = QuickActions()
+    private init() {}
+
+    static let newOrder = "app.ghshopper.new-order"
+    static let transfer = "app.ghshopper.transfer"
+    static let shopping = "app.ghshopper.shopping"
+    static let search = "app.ghshopper.search"
+
+    /// true when the action is one of ours (it is then opened as soon as the app is ready).
+    @discardableResult
+    func handle(_ type: String) -> Bool {
+        guard [QuickActions.newOrder, QuickActions.transfer, QuickActions.shopping, QuickActions.search].contains(type) else { return false }
+        Task { await open(type) }
+        return true
+    }
+
+    private func open(_ type: String) async {
+        // cold start: wait for the account and the first screen (like DeepLinks)
+        var waited = 0
+        while (!Api.shared.restored || Api.shared.session == nil) && waited < 60 {
+            try? await Task.sleep(nanoseconds: 100_000_000)
+            waited += 1
+        }
+        guard let s = Api.shared.session, !s.isDriver else { return }
+        try? await Task.sleep(nanoseconds: 350_000_000)
+        let access = Api.shared.access
+        let area = type == QuickActions.transfer ? "finance" : "orders"
+        guard access.can(area) else { return }
+        // the pages read the orders: give the saved snapshot / first load a moment
+        waited = 0
+        while !Store.shared.ready && waited < 30 {
+            try? await Task.sleep(nanoseconds: 100_000_000)
+            waited += 1
+        }
+        // back to the tabs, but never throw away a form being filled in
+        if Nav.shared.modals.isEmpty { Nav.shared.popToRoot() }
+        switch type {
+        case QuickActions.newOrder: presentForm(OrderFormPage())
+        case QuickActions.transfer: pushPage(TransferPastePage())
+        case QuickActions.shopping: pushPage(ShoppingModePage())
+        case QuickActions.search: pushPage(SearchPage())
+        default: break
+        }
+    }
+}
+
+/// SwiftUI apps get quick actions through the scene: this delegate is plugged in by
+/// AppDelegate below (SwiftUI keeps managing the window).
+final class GHSceneDelegate: NSObject, UIWindowSceneDelegate {
+    /// Cold launch from a quick action.
+    func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
+        guard let item = connectionOptions.shortcutItem else { return }
+        MainActor.assumeIsolated { _ = QuickActions.shared.handle(item.type) }
+    }
+
+    /// The app was already running (in the background).
+    func windowScene(_ windowScene: UIWindowScene, performActionFor shortcutItem: UIApplicationShortcutItem,
+                     completionHandler: @escaping (Bool) -> Void) {
+        let handled = MainActor.assumeIsolated { QuickActions.shared.handle(shortcutItem.type) }
+        completionHandler(handled)
+    }
+}
+
+extension AppDelegate {
+    func application(_ application: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession,
+                     options: UIScene.ConnectionOptions) -> UISceneConfiguration {
+        let config = UISceneConfiguration(name: nil, sessionRole: connectingSceneSession.role)
+        config.delegateClass = GHSceneDelegate.self
+        return config
     }
 }

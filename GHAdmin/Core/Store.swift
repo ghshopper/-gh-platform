@@ -146,6 +146,7 @@ final class Store: ObservableObject {
                 // anything unexpected → load everything again
                 guard ji(raw["schema"]) == schema, raw["orders"] is [Any], js(raw["server_time"]) != nil,
                       merge(raw) else {
+                    fullAt = nil // until a full load succeeds, never merge again
                     await runRefresh(full: true)
                     return
                 }

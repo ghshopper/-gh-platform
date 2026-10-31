@@ -401,6 +401,16 @@ struct OrderItem: Identifiable, Hashable {
     var arrivedAt: Date?
     var deliveredAt: Date?
     var createdAt: Date?
+    /// The store product it was picked from (instant stock), if any.
+    var productId: Int?
+    /// الإرجاع والاستبدال: a returned piece is cancelled and keeps why / how (Features/Returns).
+    var returnedAt: Date?
+    /// return | exchange
+    var returnKind: String?
+    /// size | defect | changed_mind | other
+    var returnReason: String?
+    var returnNote: String?
+    var returnedToBoutique: Bool = false
 
     var title: String { brand == nil ? name : "\(brand!) · \(name)" }
 
@@ -456,6 +466,12 @@ struct OrderItem: Identifiable, Hashable {
         arrivedAt = jdate(m["arrived_at"])
         deliveredAt = jdate(m["delivered_at"])
         createdAt = jdate(m["created_at"])
+        productId = jdn(m["product_id"]).map { Int($0) }
+        returnedAt = jdate(m["returned_at"])
+        returnKind = js(m["return_kind"])
+        returnReason = js(m["return_reason"])
+        returnNote = js(m["return_note"])
+        returnedToBoutique = jb(m["returned_to_boutique"])
     }
 }
 
