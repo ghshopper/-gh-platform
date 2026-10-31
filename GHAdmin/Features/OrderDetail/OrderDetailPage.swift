@@ -98,6 +98,9 @@ struct OrderDetailPage: View {
             eventsSection(o)
             paymentsSection(o)
             privateSection(o)
+            if Api.shared.access.full {
+                activitySection(o)
+            }
         }
     }
 
@@ -352,6 +355,14 @@ struct OrderDetailPage: View {
         }
     }
 
+    /// سجل النشاط on this order: who changed what (full admins only).
+    private func activitySection(_ o: Order) -> some View {
+        GHSection(footer: "كل تعديل على الطلب: مين سوّاه ومتى (أسعار، دفعات، حالات، إرجاع).") {
+            Tile("سجل الطلب", subtitle: "مين سوّى إيش", action: { pushPage(ActivityPage(orderId: o.id)) },
+                 leading: { IconBox("clock.arrow.circlepath", color: GH.burgundy) })
+        }
+    }
+
     // MARK: - Actions
 
     private func run(done: String? = nil, _ action: () async throws -> Void) async {
@@ -409,6 +420,9 @@ struct OrderDetailPage: View {
         actions.append(SheetAction(item.receiptPath == nil ? "إضافة صورة الإيصال" : "عرض صورة الإيصال", "receipt"))
         actions.append(SheetAction("تعديل القطعة", "edit"))
         actions.append(SheetAction("تغيير الحالة…", "status"))
+        if item.status != .cancelled {
+            actions.append(SheetAction("إرجاع أو استبدال", "return"))
+        }
         actions.append(SheetAction("حذف القطعة", "delete", destructive: true))
         return actions
     }
@@ -429,6 +443,8 @@ struct OrderDetailPage: View {
             await photoActions(item, a)
         case "edit":
             presentForm(ItemFormPage(orderId: o.id, item: item))
+        case "return":
+            presentForm(ReturnItemPage(order: o, item: item))
         case "status":
             let choices: [SheetAction<ItemStatus>] = ItemStatus.allCases
                 .filter { $0 != item.status }
@@ -775,6 +791,11 @@ fileprivate struct ODItemRow: View {
             if let d = item.details {
                 Text(d).font(TS.sub).foregroundStyle(GH.secondary)
             }
+            if let r = item.returnLine {
+                Label(r, systemImage: "arrow.uturn.left")
+                    .font(.gh(12.5, .medium)).foregroundStyle(GH.amber)
+                    .padding(.top, 2)
+            }
             if let t = listText {
                 Text(t).font(TS.small).foregroundStyle(GH.blue).padding(.top, 2)
             }
@@ -835,7 +856,11 @@ fileprivate struct ODItemRow: View {
 
     private var statusRow: some View {
         HStack(spacing: 0) {
-            Badge(item.status.label, color: item.status.color)
+            if item.isReturned {
+                Badge(item.returnBadge, color: GH.amber)
+            } else {
+                Badge(item.status.label, color: item.status.color)
+            }
             if !cancelled {
                 StepDots(item.status.index).padding(.leading, 10)
             }

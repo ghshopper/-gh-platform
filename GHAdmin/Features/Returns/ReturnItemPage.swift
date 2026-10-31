@@ -6,7 +6,8 @@ import SwiftUI
 
 extension OrderItem {
     /// Came back from the customer (it stays on the order, cancelled, with the reason).
-    var isReturned: Bool { returnedAt != nil }
+    /// (Only while it is still cancelled: moving it back to a live status brings it back to the order.)
+    var isReturned: Bool { returnedAt != nil && status == .cancelled }
     var isExchange: Bool { returnKind == "exchange" }
 
     /// «مرجّعة» / «استبدال» badge text.

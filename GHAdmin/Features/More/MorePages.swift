@@ -66,6 +66,9 @@ struct MorePage: View {
                     Tile("وضع التسوق", subtitle: "في البوتيك: القطع وسجّل الشراء بضغطة، حتى بدون نت",
                          action: { pushPage(ShoppingModePage()) },
                          leading: { IconBox("bag.fill", color: GH.burgundy) })
+                    Tile("دليل البوتيكات", subtitle: "الموظفة ورقمها، الدوام، التاكس فري وملاحظاتك",
+                         action: { pushPage(BoutiquesPage()) },
+                         leading: { IconBox("building.2.fill", color: GH.label) })
                     Tile("حاسبة عرض السعر", subtitle: "سعر البوتيك ← سعرها بالريال وربحك، وأرسل العرض",
                          action: { pushPage(QuoteCalculatorPage()) },
                          leading: { IconBox("function", color: GH.blue) })
@@ -126,6 +129,11 @@ struct MorePage: View {
             Tile("ملفات الشركة", subtitle: "السجل التجاري، التراخيص، البطاقة الضريبية",
                  action: { pushPage(CompanyDocumentsPage()) },
                  leading: { IconBox("folder.fill", color: GH.teal) })
+            if api.access.full {
+                Tile("سجل النشاط", subtitle: "مين سوّى إيش: الأسعار، الدفعات، الحذف، الإرجاع",
+                     action: { pushPage(ActivityPage()) },
+                     leading: { IconBox("clock.arrow.circlepath", color: GH.secondary) })
+            }
         }
     }
 
