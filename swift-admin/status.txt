@@ -1,1 +1,1 @@
-success bc3560f7d55d27403fbf4b0aa6d57d2631a6571b swift-admin-release 74
+success bc3560f7d55d27403fbf4b0aa6d57d2631a6571b swift-admin 73
