@@ -465,6 +465,8 @@ struct PlanPage: View {
 
 struct PaymentFormPage: View {
     let order: Order
+    /// The piece this payment is for (nil = the whole order).
+    @State private var item: OrderItem?
     @State private var amount: String
     @State private var note = ""
     @State private var method: String = itemPaymentMethods[0]
@@ -472,9 +474,11 @@ struct PaymentFormPage: View {
     @State private var saving = false
     @Environment(\.dismiss) private var dismiss
 
-    init(order: Order) {
+    init(order: Order, item: OrderItem? = nil) {
         self.order = order
-        _amount = State(initialValue: order.hasBalance ? plainOmr(order.remaining).replacingOccurrences(of: ",", with: "") : "")
+        _item = State(initialValue: item)
+        let start: Double = item.map { max(0, $0.price - order.paidFor($0.id)) } ?? (order.hasBalance ? order.remaining : 0)
+        _amount = State(initialValue: start > 0.0005 ? plainOmr(start).replacingOccurrences(of: ",", with: "") : "")
     }
 
     var body: some View {
@@ -489,12 +493,19 @@ struct PaymentFormPage: View {
         }) {
             GHSection {
                 AmountRow("المبلغ", text: $amount, autofocus: true)
+                if order.activeItems.count > 1 || item != nil {
+                    PickerRow("عن", value: item?.title ?? "الطلب كامل", action: { Task { await pickItem() } })
+                }
                 PickerRow("الطريقة", value: method, action: { Task { await pickMethod() } })
                 PickerRow("التاريخ", value: dateStr(date), action: { Task { await chooseDate() } })
                 FieldRow("ملاحظة", text: $note, placeholder: "اختياري")
             }
             Pad(h: 32, top: 8) {
-                Text("المتبقي حالياً: \(omr(order.remaining))").font(TS.small).foregroundStyle(GH.secondary)
+                if let i = item {
+                    Text("سعر القطعة \(omr(i.price)) · دفعت عنها \(omr(order.paidFor(i.id)))").font(TS.small).foregroundStyle(GH.secondary)
+                } else {
+                    Text("المتبقي حالياً: \(omr(order.remaining))").font(TS.small).foregroundStyle(GH.secondary)
+                }
             }
         }
     }
@@ -502,6 +513,16 @@ struct PaymentFormPage: View {
     private func pickMethod() async {
         let actions: [SheetAction<String>] = itemPaymentMethods.map { SheetAction($0, $0) }
         if let m = await pickAction(actions: actions) { method = m }
+    }
+
+    private func pickItem() async {
+        var actions: [SheetAction<String>] = [SheetAction("الطلب كامل", "")]
+        actions += order.activeItems.map { SheetAction("\($0.title) · \(omr($0.price))", $0.id) }
+        guard let id = await pickAction(title: "الدفعة عن", actions: actions) else { return }
+        let picked = order.activeItems.first { $0.id == id }
+        item = picked
+        let start: Double = picked.map { max(0, $0.price - order.paidFor($0.id)) } ?? max(0, order.remaining)
+        amount = start > 0.0005 ? plainOmr(start).replacingOccurrences(of: ",", with: "") : ""
     }
 
     private func chooseDate() async {
@@ -516,7 +537,8 @@ struct PaymentFormPage: View {
         }
         saving = true
         do {
-            try await Store.shared.addPayment(order.id, amount: v, method: method, paidOn: date, note: ipClean(note))
+            try await Store.shared.addPayment(order.id, amount: v, method: method, paidOn: date, note: ipClean(note),
+                                              itemId: item?.id)
             dismiss()
         } catch {
             saving = false

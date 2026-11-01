@@ -480,6 +480,8 @@ struct OrderItem: Identifiable, Hashable {
 struct Payment: Identifiable, Hashable {
     let id: String
     var orderId: String
+    /// The piece it was paid for (nil = the whole order).
+    var itemId: String?
     var amount: Double
     var method: String?
     var paidOn: Date?
@@ -488,6 +490,7 @@ struct Payment: Identifiable, Hashable {
     init(_ m: JSON) {
         id = jstr(m["id"])
         orderId = jstr(m["order_id"])
+        itemId = js(m["item_id"])
         amount = jd(m["amount"])
         method = js(m["method"])
         paidOn = jdate(m["paid_on"])
@@ -716,6 +719,8 @@ struct Order: Identifiable, Hashable {
     var itemProfit: Double { netSales - costOmr }
     var paid: Double { payments.reduce(0) { $0 + $1.amount } }
     var remaining: Double { total - paid }
+    /// What was paid for this piece on its own (payments recorded for it).
+    func paidFor(_ itemId: String) -> Double { payments.filter { $0.itemId == itemId }.reduce(0) { $0 + $1.amount } }
     var hasBalance: Bool { remaining > 0.0005 }
     /// What the customer owes now: the delivery fee only falls due once the order is delivered
     /// (the driver collects it at the door), so a paid order isn't listed for its 2 rials.

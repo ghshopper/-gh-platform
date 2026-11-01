@@ -561,11 +561,12 @@ final class Store: ObservableObject {
 
     // payments
 
-    func addPayment(_ orderId: String, amount: Double, method: String?, paidOn: Date? = nil, note: String? = nil) async throws {
+    func addPayment(_ orderId: String, amount: Double, method: String?, paidOn: Date? = nil, note: String? = nil,
+                    itemId: String? = nil) async throws {
         try await write {
             try await api.post("/ps/payments", [
                 "order_id": orderId, "amount": amount, "method": nn(method),
-                "paid_on": dayString(paidOn ?? Date()), "note": nn(note),
+                "paid_on": dayString(paidOn ?? Date()), "note": nn(note), "item_id": nn(itemId),
             ])
         }
     }

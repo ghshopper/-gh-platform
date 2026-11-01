@@ -223,7 +223,7 @@ struct OrderDetailPage: View {
     }
 
     private func itemRow(_ o: Order, _ i: OrderItem) -> some View {
-        ODItemRow(item: i, busy: busy,
+        ODItemRow(item: i, paid: o.paidFor(i.id), busy: busy,
                   onTap: { Task { await itemActions(o, i) } },
                   onAdvance: { s in Task { await advance(i, s) } },
                   onTaxFree: { toggleTaxFree(i) })
@@ -332,6 +332,7 @@ struct OrderDetailPage: View {
         var parts: [String] = [dateStr(p.paidOn)]
         if let m = p.method { parts.append(m) }
         if let n = p.note { parts.append(n) }
+        if let iid = p.itemId, let it = Store.shared.order(p.orderId)?.items.first(where: { $0.id == iid }) { parts.append("عن \(it.title)") }
         return Tile(refund ? "استرجاع \(omr(-p.amount))" : omr(p.amount),
                     subtitle: parts.joined(separator: " · "),
                     chevron: false,
@@ -422,6 +423,7 @@ struct OrderDetailPage: View {
         actions.append(SheetAction("تغيير الحالة…", "status"))
         if item.status != .cancelled {
             actions.append(SheetAction("إرجاع أو استبدال", "return"))
+            actions.append(SheetAction("دفعة لهالقطعة", "pay"))
             actions.append(SheetAction("انقلها لرحلة ثانية", "move"))
         }
         actions.append(SheetAction("حذف القطعة", "delete", destructive: true))
@@ -448,6 +450,8 @@ struct OrderDetailPage: View {
             presentForm(ReturnItemPage(order: o, item: item))
         case "move":
             await moveToTrip(o, item)
+        case "pay":
+            presentForm(PaymentFormPage(order: o, item: item))
         case "status":
             let choices: [SheetAction<ItemStatus>] = ItemStatus.allCases
                 .filter { $0 != item.status }
@@ -789,6 +793,8 @@ fileprivate struct ODGiftSection: View {
 
 fileprivate struct ODItemRow: View {
     let item: OrderItem
+    /// Paid for this piece on its own.
+    var paid: Double = 0
     let busy: Bool
     let onTap: () -> Void
     let onAdvance: (ItemStatus) -> Void
@@ -821,6 +827,13 @@ fileprivate struct ODItemRow: View {
             nameRow
             if let d = item.details {
                 Text(d).font(TS.sub).foregroundStyle(GH.secondary)
+            }
+            if paid > 0.0005 && !cancelled {
+                let left = item.price - paid
+                Label(left <= 0.0005 ? "مدفوعة" : "دفعت \(omr(paid)) · باقي \(omr(left))",
+                      systemImage: left <= 0.0005 ? "checkmark.circle.fill" : "circle.lefthalf.filled")
+                    .font(.gh(12.5, .medium)).foregroundStyle(left <= 0.0005 ? GH.green : GH.blue)
+                    .padding(.top, 2)
             }
             if let r = item.returnLine {
                 Label(r, systemImage: "arrow.uturn.left")

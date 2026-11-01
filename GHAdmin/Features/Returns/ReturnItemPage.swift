@@ -88,6 +88,8 @@ struct ReturnItemPage: View {
     /// What the customer paid for this piece: its price after its share of the discount, never more than what was paid.
     static func defaultRefund(_ o: Order, _ i: OrderItem) -> Double {
         let share = o.itemsTotal > 0.0005 ? max(0, o.netSales) / o.itemsTotal : 1
+        let own = o.paidFor(i.id)
+        if own > 0.0005 { return max(0, min(o.paid, own)) } // paid for this piece on its own
         return max(0, min(o.paid, i.price * share))
     }
 
