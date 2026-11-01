@@ -39,6 +39,7 @@ enum DemoScreens {
         case "tripcash": tab.wrappedValue = 4; pushPage(TripCashPage(tripId: nil))
         case "matches": tab.wrappedValue = 4; pushPage(StyleMatchesPage())
         case "partners": tab.wrappedValue = 4; pushPage(PartnersPage())
+        case "balances": tab.wrappedValue = 0; pushPage(BalancesPage())
         case "boutiques": tab.wrappedValue = 4; pushPage(BoutiquesPage())
         case "activity": tab.wrappedValue = 4; pushPage(ActivityPage())
         case "giftcards": tab.wrappedValue = 4; pushPage(GiftCardsPage())

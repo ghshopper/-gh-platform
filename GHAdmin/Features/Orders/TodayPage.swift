@@ -366,7 +366,8 @@ fileprivate struct TodayContent: View {
                 StatCard(label: "عند العملاء", value: omr(data.owed), icon: "exclamationmark.circle.fill", color: GH.red)
             }
             HStack(spacing: 10) {
-                StatCard(label: "أرصدة العملاء عندك", value: omr(data.held), icon: "creditcard.fill", color: GH.green)
+                StatCard(label: "أرصدة العملاء عندك", value: omr(data.held), icon: "creditcard.fill", color: GH.green,
+                         action: { pushPage(BalancesPage()) })
                 StatCard(label: "تاكس فري باقي", value: data.taxFreeText, icon: "arrow.2.circlepath", color: GH.purple)
             }
         }

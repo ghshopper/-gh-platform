@@ -478,7 +478,8 @@ fileprivate struct SummaryWorkSection: View {
                      leading: { Circle().fill(s.color).frame(width: 10, height: 10) })
             }
             KV("مبالغ متبقية عند العملاء", omr(n.owed), strong: true, color: n.owed > 0.0005 ? GH.red : GH.green)
-            KV("أرصدة العملاء عندك", omr(n.held), color: GH.green)
+            Tile("أرصدة العملاء عندك", value: omr(n.held), valueColor: GH.green,
+                 action: { pushPage(BalancesPage()) })
             KV("تاكس فري باقي تستلمه", n.taxFreeText, color: GH.purple)
         }
     }
