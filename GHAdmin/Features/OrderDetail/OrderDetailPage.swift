@@ -422,6 +422,7 @@ struct OrderDetailPage: View {
         actions.append(SheetAction("تغيير الحالة…", "status"))
         if item.status != .cancelled {
             actions.append(SheetAction("إرجاع أو استبدال", "return"))
+            actions.append(SheetAction("انقلها لرحلة ثانية", "move"))
         }
         actions.append(SheetAction("حذف القطعة", "delete", destructive: true))
         return actions
@@ -445,6 +446,8 @@ struct OrderDetailPage: View {
             presentForm(ItemFormPage(orderId: o.id, item: item))
         case "return":
             presentForm(ReturnItemPage(order: o, item: item))
+        case "move":
+            await moveToTrip(o, item)
         case "status":
             let choices: [SheetAction<ItemStatus>] = ItemStatus.allCases
                 .filter { $0 != item.status }
@@ -456,6 +459,34 @@ struct OrderDetailPage: View {
             }
         default:
             break
+        }
+    }
+
+    /// One piece to another trip: it moves to her open order there (or a new one), with what she paid for it.
+    private func moveToTrip(_ o: Order, _ item: OrderItem) async {
+        guard let picked = await pickTrip(current: o.tripId) else { return }
+        let tripId: String? = picked.isEmpty ? nil : picked
+        if tripId == o.tripId { toast("القطعة أصلاً في هذي الرحلة", error: true); return }
+        let name = Store.shared.trip(tripId)?.name ?? "بدون رحلة"
+        let only = o.activeItems.count <= 1
+        guard await confirm("نقل \(item.title) لـ \(name)؟",
+                            message: only ? "هذي القطعة الوحيدة، فبينتقل الطلب كامل."
+                                          : "بتنتقل لطلب العميلة في الرحلة الثانية (أو طلب جديد)، ومعها اللي دفعته عنها لو الطلب هذا ما يحتاجه.",
+                            ok: "انقلها", destructive: false) else { return }
+        busy = true
+        defer { busy = false }
+        do {
+            let res = try await Api.shared.post("/ps/items/\(item.id)/move-trip", ["trip_id": nn(tripId)]) as? JSON ?? [:]
+            await Store.shared.refresh()
+            let target = jstr(res["order_id"])
+            if jb(res["whole_order"]) || target.isEmpty || target == o.id {
+                toast("انتقل الطلب لـ \(name)")
+            } else {
+                toast("انتقلت لـ \(name)")
+                pushPage(OrderDetailPage(orderId: target))
+            }
+        } catch {
+            toastError(error)
         }
     }
 
