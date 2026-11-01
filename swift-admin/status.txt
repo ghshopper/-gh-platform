@@ -1,1 +1,1 @@
-success 9034ae7a6f7f3516ffe12c07281991a9be0b0b49 swift-admin 70
+cancelled 8509c2428839645c83823deea88dc367970e0751 swift-admin-release 72
