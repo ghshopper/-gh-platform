@@ -230,6 +230,62 @@ fileprivate func smToday(_ orders: [Order]) -> SMToday {
     return t
 }
 
+// MARK: - Totals per place (whole trip)
+
+fileprivate struct SMPlaceSum {
+    var bought: [String: Double] = [:]
+    var boughtOmr = 0.0
+    var boughtCount = 0
+    var left: [String: Double] = [:]
+    var leftOmr = 0.0
+    var leftCount = 0
+    var leftNoPrice = 0
+    var totalOmr: Double { boughtOmr + leftOmr }
+    var isEmpty: Bool { boughtCount == 0 && leftCount == 0 }
+}
+
+/// What the trip spent and still plans to spend, per place. Key nil = no place set.
+@MainActor
+fileprivate func smPlaceSums(_ orders: [Order]) -> [PurchasePlace?: SMPlaceSum] {
+    let q = ShoppingQueue.shared
+    var out: [PurchasePlace?: SMPlaceSum] = [:]
+    var seen = Set<String>()
+    let ids = Set(orders.map(\.id))
+    // bought on this phone, maybe not on the server yet
+    for p in q.pending + Array(q.recorded.values) where ids.contains(p.orderId) {
+        let k = PurchasePlace.from(p.place)
+        out[k, default: SMPlaceSum()].bought[p.currency, default: 0] += p.price
+        out[k, default: SMPlaceSum()].boughtOmr += p.price * p.rate
+        out[k, default: SMPlaceSum()].boughtCount += 1
+        seen.insert(p.id)
+    }
+    for o in orders {
+        for i in o.activeItems where !i.instant && !seen.contains(i.id) {
+            if i.status == .requested {
+                let k = i.planPlace
+                out[k, default: SMPlaceSum()].leftCount += 1
+                if let e = i.estimate {
+                    out[k, default: SMPlaceSum()].left[e.currency, default: 0] += e.amount
+                    out[k, default: SMPlaceSum()].leftOmr += e.amount * Rates.shared.rate(e.currency)
+                } else {
+                    out[k, default: SMPlaceSum()].leftNoPrice += 1
+                }
+            } else if let a = i.costAmount {
+                let k = i.purchasePlace ?? i.planPlace
+                let c = i.costCurrency ?? "EUR"
+                out[k, default: SMPlaceSum()].bought[c, default: 0] += a
+                out[k, default: SMPlaceSum()].boughtOmr += a * (i.costRate ?? Rates.shared.rate(c))
+                out[k, default: SMPlaceSum()].boughtCount += 1
+            }
+        }
+    }
+    return out
+}
+
+fileprivate func smCur(_ m: [String: Double]) -> String {
+    m.isEmpty ? "—" : m.keys.sorted().map { money(m[$0] ?? 0, $0) }.joined(separator: " + ")
+}
+
 // MARK: - Page
 
 /// وضع التسوق. tripId nil: the newest open trip.
@@ -299,6 +355,7 @@ struct ShoppingModePage: View {
                 }
                 .padding(.top, 8)
             }
+            SMPlaceTotalsView(sums: smPlaceSums(smOrders(key)), filter: placeFilter)
             if groups.isEmpty {
                 EmptyState(icon: "magnifyingglass", title: "ما لقيت شي", message: "جرّب اسم البراند أو القطعة أو العميل.")
             } else {
@@ -367,6 +424,51 @@ fileprivate struct SMTotalsView: View {
             .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(GH.card))
         }
         .padding(.horizontal, 16).padding(.top, 14)
+    }
+}
+
+// MARK: - Place totals card
+
+fileprivate struct SMPlaceTotalsView: View {
+    let sums: [PurchasePlace?: SMPlaceSum]
+    let filter: SMPlaceFilter
+
+    var body: some View {
+        switch filter {
+        case .all:
+            let keys: [PurchasePlace?] = PurchasePlace.allCases.map { Optional($0) }.filter { !(sums[$0]?.isEmpty ?? true) }
+                + ((sums[nil]?.isEmpty ?? true) ? [] : [nil])
+            if keys.count > 0 {
+                GHSection("مجموع كل مكان في الرحلة") {
+                    ForEach(keys, id: \.self) { k in
+                        let s = sums[k] ?? SMPlaceSum()
+                        Tile(k?.label ?? "بدون مكان",
+                             subtitle: "اشتريت \(s.boughtCount) بـ \(omr(s.boughtOmr)) · باقي \(s.leftCount) ≈ \(omr(s.leftOmr))",
+                             value: omr(s.totalOmr), valueColor: GH.label, valueFont: .gh(15, .semibold), chevron: false)
+                    }
+                }
+            }
+        case .unplanned:
+            detail("بدون مكان", sums[nil] ?? SMPlaceSum())
+        case .place(let p):
+            detail(p.label, sums[p] ?? SMPlaceSum())
+        }
+    }
+
+    private func detail(_ title: String, _ s: SMPlaceSum) -> some View {
+        GHSection("مجموع \(title) في الرحلة") {
+            VStack(spacing: 0) {
+                KV("اشتريت · \(s.boughtCount) قطعة", smCur(s.bought))
+                KV("باقي · \(s.leftCount) قطعة", s.left.isEmpty ? "—" : "≈ " + smCur(s.left))
+                if s.leftNoPrice > 0 {
+                    KV("بدون سعر متوقع", "\(s.leftNoPrice) قطعة", color: GH.amber)
+                }
+                KV("اشتريت بالريال", omr(s.boughtOmr))
+                KV("باقي بالريال", "≈ " + omr(s.leftOmr))
+                KV("المجموع", omr(s.totalOmr), strong: true)
+            }
+            .padding(.vertical, 4)
+        }
     }
 }
 
