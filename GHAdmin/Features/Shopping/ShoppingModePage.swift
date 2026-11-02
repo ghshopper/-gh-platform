@@ -332,6 +332,7 @@ struct ShoppingModePage: View {
         if all.isEmpty {
             EmptyState(icon: "checkmark.seal", title: "ما في شي باقي تشتريه",
                        message: "كل قطع هذي الرحلة انشرت. غيّر الرحلة من فوق إذا تبي.")
+            SMPlaceTotalsView(sums: smPlaceSums(smOrders(key)), filter: .all)
         } else {
             let places = Set(all.map { e -> SMPlaceFilter in e.item.planPlace.map { SMPlaceFilter.place($0) } ?? SMPlaceFilter.unplanned })
             let hit = smBrandHit(query)
