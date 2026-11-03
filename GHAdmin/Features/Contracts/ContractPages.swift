@@ -297,7 +297,9 @@ struct ContractsPage: View {
         let running = all.filter { $0.isSigned && $0.latePayments.isEmpty && !$0.allPaid }
         let finished = all.filter { $0.isSigned && $0.allPaid }
         let owed = all.filter(\.isSigned).reduce(0.0) { $0 + $1.payments.reduce(0) { $0 + $1.left } }
-        GHPage("عقود الأقساط", onRefresh: { await store.refresh() }) {
+        GHPage("عقود الأقساط", onRefresh: { await store.refresh() }, trailing: {
+            NavIcon("signature", action: { pushPage(ContractSealPage()) })
+        }) {
             if all.isEmpty {
                 EmptyState(icon: "signature", title: "ما في عقود للحين",
                            message: "من أي طلب: الزر … ثم «عقد أقساط». يوصل العميل رابط يعبّي فيه بياناته ويوقّع.")
@@ -311,6 +313,11 @@ struct ContractsPage: View {
                 section("بانتظار التوقيع", waiting)
                 section("جارية", running)
                 section("خلصت", finished)
+            }
+            GHSection {
+                Tile("ختمك وتوقيعك على العقود", subtitle: "يطلعون تحت «الطرف الأول» في كل عقد",
+                     action: { pushPage(ContractSealPage()) },
+                     leading: { IconBox("seal.fill", color: GH.gold) })
             }
         }
     }
@@ -337,5 +344,88 @@ struct ContractsPage: View {
                     value: late > 0 ? omr(late) : omr(c.total), valueColor: late > 0 ? GH.red : GH.secondary,
                     action: { pushPage(ContractPage(contractId: c.id, orderId: c.orderId)) },
                     leading: { IconBox(c.isSigned ? "signature" : "hourglass", color: late > 0 ? GH.red : (c.isSigned ? GH.green : GH.amber)) })
+    }
+}
+
+// MARK: - The seller's stamp and signature
+
+/// «ختم وتوقيع العقود»: a photo of the stamp and the signature on white paper; the
+/// server removes the paper and prints them under «الطرف الأول» on every contract.
+@MainActor
+struct ContractSealPage: View {
+    @StateObject private var picker = OrderPhotoPicker()
+    @State private var urls: [String: String] = [:]
+    @State private var loaded = false
+    @State private var busy: String?
+
+    init() {}
+
+    var body: some View {
+        GHPage("ختم وتوقيع العقود", onRefresh: { await load() }) {
+            GHSection(footer: "صوّرهم على ورقة بيضاء وبإضاءة حلوة. الخلفية البيضاء تنشال بروحها، ويطلعون في كل عقد يوقّعه العميل بعد اليوم.") {
+                slot("signature", "توقيعك")
+                slot("stamp", "ختم الشركة")
+            }
+        }
+        .orderPhotoPicker(picker)
+        .task { await load() }
+    }
+
+    private func slot(_ kind: String, _ title: String) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Text(title).font(TS.title).foregroundStyle(GH.label)
+                Spacer()
+                if busy == kind { ProgressView() }
+            }
+            ZStack {
+                RoundedRectangle(cornerRadius: 14, style: .continuous).fill(Color.white)
+                RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(GH.separator, lineWidth: 1)
+                if let u = urls[kind] {
+                    RemoteImage(url: u, contentMode: .fit).padding(14)
+                } else if loaded {
+                    Text("ما رفعت \(title) للحين").font(TS.small).foregroundStyle(GH.tertiary)
+                }
+            }
+            .frame(height: 140)
+            HStack(spacing: 10) {
+                SecondaryButton(urls[kind] == nil ? "ارفع صورة" : "غيّرها", icon: "camera", action: { Task { await pick(kind) } })
+                if urls[kind] != nil {
+                    SecondaryButton("احذف", icon: "trash", action: { Task { await remove(kind, title) } })
+                }
+            }
+        }
+        .padding(16)
+    }
+
+    private func load() async {
+        do { urls = try await Store.shared.contractSeal() } catch { toastError(error) }
+        loaded = true
+    }
+
+    private func pick(_ kind: String) async {
+        var camera = false
+        if UIImagePickerController.isSourceTypeAvailable(.camera) {
+            let c: Bool? = await pickAction(actions: [SheetAction("صوّر بالكاميرا", true), SheetAction("من الصور", false)])
+            guard let c else { return }
+            camera = c
+        }
+        guard let img = await picker.pick(camera: camera), let data = img.jpegData(compressionQuality: 0.9) else { return }
+        busy = kind
+        defer { busy = nil }
+        do {
+            try await Store.shared.uploadContractSeal(kind: kind, data: data)
+            await load()
+            toast("انحفظ")
+        } catch {
+            toastError(error)
+        }
+    }
+
+    private func remove(_ kind: String, _ title: String) async {
+        guard await confirm("حذف \(title)؟", message: "العقود الجاية تطلع بدونه.") else { return }
+        busy = kind
+        defer { busy = nil }
+        do { try await Store.shared.deleteContractSeal(kind: kind); urls[kind] = nil } catch { toastError(error) }
     }
 }

@@ -35,6 +35,7 @@ enum DemoScreens {
         case "coupons": tab.wrappedValue = 4; pushPage(CouponsPage())
         case "shopping": tab.wrappedValue = 4; pushPage(ShoppingModePage())
         case "contracts": tab.wrappedValue = 4; pushPage(ContractsPage())
+        case "contractseal": tab.wrappedValue = 4; pushPage(ContractSealPage())
         case "contractform": if let o = Store.shared.orders.first { presentForm(ContractFormPage(order: o)) }
         case "quote": tab.wrappedValue = 4; pushPage(QuoteCalculatorPage())
         case "transfers": tab.wrappedValue = 4; pushPage(TransferPastePage())

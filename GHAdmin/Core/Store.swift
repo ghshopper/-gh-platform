@@ -587,6 +587,22 @@ final class Store: ObservableObject {
         }
     }
 
+    /// The seller's stamp and signature on every contract: kind → image link (nil = not uploaded).
+    func contractSeal() async throws -> [String: String] {
+        let res = try await api.get("/ps/contract-seal") as? JSON
+        var out: [String: String] = [:]
+        for k in ["stamp", "signature"] { if let m = res?[k] as? JSON, let u = js(m["url"]) { out[k] = u } }
+        return out
+    }
+
+    func uploadContractSeal(kind: String, data: Data) async throws {
+        _ = try await api.upload("/ps/contract-seal", field: "file", data: data, fields: ["kind": kind])
+    }
+
+    func deleteContractSeal(kind: String) async throws {
+        _ = try await api.delete("/ps/contract-seal/\(kind)")
+    }
+
     func cancelContract(_ id: String) async throws {
         try await write { try await api.post("/ps/contracts/\(id)/cancel") }
     }
