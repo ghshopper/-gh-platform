@@ -498,6 +498,105 @@ struct Payment: Identifiable, Hashable {
     }
 }
 
+// MARK: - Installment contracts (عقود الأقساط)
+
+struct ContractPayment: Identifiable, Hashable {
+    var index: Int
+    var amount: Double
+    var dueOn: Date?
+    var fixed: Bool
+    var paid: Double
+    var left: Double
+    /// paid | due | late | upcoming | unscheduled
+    var state: String
+    var id: Int { index }
+
+    init(_ m: JSON) {
+        index = Int(jd(m["index"]))
+        amount = jd(m["amount"])
+        dueOn = jdate(m["due_on"])
+        fixed = jb(m["fixed"])
+        paid = jd(m["paid"])
+        left = jd(m["left"])
+        state = js(m["state"]) ?? "upcoming"
+    }
+
+    var ordinal: String {
+        ["الأولى", "الثانية", "الثالثة", "الرابعة", "الخامسة", "السادسة"].indices.contains(index)
+            ? ["الأولى", "الثانية", "الثالثة", "الرابعة", "الخامسة", "السادسة"][index] : "\(index + 1)"
+    }
+
+    var stateLabel: String {
+        switch state {
+        case "paid": return "مدفوعة"
+        case "due": return "اليوم"
+        case "late": return "متأخرة"
+        case "unscheduled": return "ما تحدد موعدها"
+        default: return "جاية"
+        }
+    }
+
+    var isLate: Bool { state == "late" }
+}
+
+struct Contract: Identifiable, Hashable {
+    let id: String
+    var orderId: String
+    /// sent | signed | cancelled
+    var status: String
+    var url: String
+    var total: Double
+    var payments: [ContractPayment]
+    var lastDay: Date?
+    var deliveryRule: String
+    var note: String?
+    var signerName: String?
+    var signerCivilId: String?
+    var signerPhone: String?
+    var signerAddress: String?
+    var pdfPath: String?
+    var idFrontPath: String?
+    var idBackPath: String?
+    var signaturePath: String?
+    var signedAt: Date?
+    var createdAt: Date?
+
+    init(_ m: JSON) {
+        id = jstr(m["id"])
+        orderId = jstr(m["order_id"])
+        status = js(m["status"]) ?? "sent"
+        url = jstr(m["url"])
+        total = jd(m["total"])
+        payments = jlist(m["payments"]).map(ContractPayment.init)
+        lastDay = jdate(m["last_day"])
+        deliveryRule = js(m["delivery_rule"]) ?? "after_first"
+        note = js(m["note"])
+        signerName = js(m["signer_name"])
+        signerCivilId = js(m["signer_civil_id"])
+        signerPhone = js(m["signer_phone"])
+        signerAddress = js(m["signer_address"])
+        pdfPath = js(m["pdf_path"])
+        idFrontPath = js(m["id_front_path"])
+        idBackPath = js(m["id_back_path"])
+        signaturePath = js(m["signature_path"])
+        signedAt = jdate(m["signed_at"])
+        createdAt = jdate(m["created_at"])
+    }
+
+    var isSigned: Bool { status == "signed" }
+    var latePayments: [ContractPayment] { isSigned ? payments.filter(\.isLate) : [] }
+    var lateAmount: Double { latePayments.reduce(0) { $0 + $1.left } }
+    var nextPayment: ContractPayment? { payments.first { $0.state != "paid" } }
+    var allPaid: Bool { !payments.isEmpty && payments.allSatisfy { $0.state == "paid" } }
+
+    var statusLabel: String {
+        if !isSigned { return "بانتظار التوقيع" }
+        if allPaid { return "خلصت الأقساط" }
+        if !latePayments.isEmpty { return "متأخر" }
+        return "موقّع"
+    }
+}
+
 // MARK: - Orders
 
 enum DriverStatus: String, CaseIterable, Hashable {
@@ -657,6 +756,8 @@ struct Order: Identifiable, Hashable {
     var createdAt: Date?
     var items: [OrderItem]
     var payments: [Payment]
+    /// عقود الأقساط (not the cancelled ones).
+    var contracts: [Contract] = []
     // Delivery by a driver
     var driverId: String?
     var deliveryAddress: String?
@@ -774,6 +875,7 @@ struct Order: Identifiable, Hashable {
             .sorted { ($0.createdAt ?? old) < ($1.createdAt ?? old) }
         payments = jlist(m["payments"] ?? m["gh_payments"]).map(Payment.init)
             .sorted { ($0.paidOn ?? old) < ($1.paidOn ?? old) }
+        contracts = jlist(m["contracts"]).map(Contract.init)
         driverId = js(m["driver_id"])
         deliveryAddress = js(m["delivery_address"])
         deliveryCollect = jb(m["delivery_collect"])

@@ -97,6 +97,7 @@ struct OrderDetailPage: View {
             deliverySection(o)
             eventsSection(o)
             paymentsSection(o)
+            contractsSection(o)
             privateSection(o)
             if Api.shared.access.full {
                 activitySection(o)
@@ -324,6 +325,26 @@ struct OrderDetailPage: View {
             KV("الإجمالي", omr(o.total), strong: true)
             KV("المدفوع", omr(o.paid), color: GH.green)
             KV("المتبقي", omr(o.remaining), strong: true, color: o.hasBalance ? GH.red : GH.green)
+        }
+    }
+
+    // MARK: installment contracts
+
+    @ViewBuilder private func contractsSection(_ o: Order) -> some View {
+        if !o.contracts.isEmpty {
+            GHSection("عقد الأقساط") {
+                ForEach(o.contracts) { c in
+                    let next = c.nextPayment
+                    Tile(c.statusLabel,
+                         subtitle: c.isSigned
+                            ? (next.map { "الدفعة \($0.ordinal): \(omr($0.left))" + ($0.dueOn.map { " · \(dateStr($0))" } ?? "") } ?? "كل الدفعات مدفوعة")
+                            : "\(c.payments.count) دفعات · بانتظار توقيع العميل",
+                         value: omr(c.total), valueColor: GH.secondary,
+                         action: { pushPage(ContractPage(contractId: c.id, orderId: o.id)) },
+                         leading: { IconBox(c.isSigned ? "signature" : "hourglass",
+                                            color: !c.latePayments.isEmpty ? GH.red : (c.isSigned ? GH.green : GH.amber)) })
+                }
+            }
         }
     }
 
@@ -563,6 +584,7 @@ struct OrderDetailPage: View {
         if o.hasBalance { actions.append(SheetAction("نسخ رابط الدفع", "paylink-copy")) }
         if o.trackingToken != nil { actions.append(SheetAction("نسخ رابط التتبّع", "track")) }
         if !o.activeItems.isEmpty { actions.append(SheetAction("إرجاع قطع…", "return")) }
+        if !o.activeItems.isEmpty { actions.append(SheetAction(o.contracts.isEmpty ? "عقد أقساط" : "عقد أقساط جديد", "contract")) }
         actions.append(SheetAction(o.gift == nil ? "اجعل الطلب هدية 🎁" : "تعديل الهدية", "giftedit"))
         actions.append(SheetAction("كرت إهداء", "giftcard"))
         actions.append(SheetAction("حذف الطلب", "delete", destructive: true))
@@ -581,6 +603,8 @@ struct OrderDetailPage: View {
             presentForm(GiftCardPage(gift: o.gift))
         case "return":
             presentForm(ReturnPage(order: o))
+        case "contract":
+            presentForm(ContractFormPage(order: o))
         case "trip":
             if let id = await odPickTrip(current: o.tripId) {
                 let value: Any = nn(id.isEmpty ? nil : id)

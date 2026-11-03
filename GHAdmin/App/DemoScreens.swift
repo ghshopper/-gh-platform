@@ -34,6 +34,8 @@ enum DemoScreens {
         case "storybadges": presentForm(StoryBadgeDemo())
         case "coupons": tab.wrappedValue = 4; pushPage(CouponsPage())
         case "shopping": tab.wrappedValue = 4; pushPage(ShoppingModePage())
+        case "contracts": tab.wrappedValue = 4; pushPage(ContractsPage())
+        case "contractform": if let o = Store.shared.orders.first { presentForm(ContractFormPage(order: o)) }
         case "quote": tab.wrappedValue = 4; pushPage(QuoteCalculatorPage())
         case "transfers": tab.wrappedValue = 4; pushPage(TransferPastePage())
         case "tripcash": tab.wrappedValue = 4; pushPage(TripCashPage(tripId: nil))

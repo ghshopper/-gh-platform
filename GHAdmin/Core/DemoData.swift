@@ -145,6 +145,27 @@ enum DemoData {
             }
             b["orders"] = orders2
         }
+        // عقود الأقساط: one signed with a late payment, one waiting for the signature
+        var orders3 = jlist(b["orders"])
+        if orders3.count > 3, (orders3[1]["contracts"] == nil || jlist(orders3[1]["contracts"]).isEmpty) {
+            func pay(_ i: Int, _ a: Double, _ due: String?, _ paid: Double, _ state: String) -> JSON {
+                ["index": i, "amount": a, "due_on": nn(due), "fixed": false, "paid": paid, "left": a - paid, "state": state]
+            }
+            orders3[1]["contracts"] = [[
+                "id": "demo-contract-1", "order_id": jstr(orders3[1]["id"]), "status": "signed", "url": "https://ghshopper.com/contract/?c=demo",
+                "total": 305, "delivery_rule": "after_first", "signer_name": "مريم سالم الحارثي", "signer_civil_id": "12345678",
+                "signer_phone": "91234567", "pdf_path": "ps/contracts/demo/contract.pdf", "id_front_path": "ps/contracts/demo/id-front.jpg",
+                "id_back_path": "ps/contracts/demo/id-back.jpg", "signature_path": "ps/contracts/demo/signature.png",
+                "signed_at": isoAgo(hours: 24 * 20), "created_at": isoAgo(hours: 24 * 20), "last_day": dayAgo(-40),
+                "payments": [pay(0, 175, dayAgo(20), 175, "paid"), pay(1, 65, dayAgo(3), 0, "late"), pay(2, 65, dayAgo(-27), 0, "upcoming")],
+            ] as JSON]
+            orders3[3]["contracts"] = [[
+                "id": "demo-contract-2", "order_id": jstr(orders3[3]["id"]), "status": "sent", "url": "https://ghshopper.com/contract/?c=demo2",
+                "total": 480, "delivery_rule": "after_first", "created_at": isoAgo(hours: 3), "last_day": dayAgo(-60),
+                "payments": [pay(0, 240, nil, 0, "unscheduled"), pay(1, 240, nil, 0, "unscheduled")],
+            ] as JSON]
+            b["orders"] = orders3
+        }
         if b["driver_handovers_pending"] == nil { b["driver_handovers_pending"] = 1 }
         b["customers"] = customers
         return b

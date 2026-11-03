@@ -573,6 +573,29 @@ final class Store: ObservableObject {
 
     func deletePayment(_ id: String) async throws { try await write { try await api.delete("/ps/payments/\(id)") } }
 
+    // عقود الأقساط
+
+    /// A new installment contract: the payments (amount, fixed date or nil = the customer picks) → the contract with its link.
+    func createContract(_ orderId: String, payments: [(amount: Double, dueOn: Date?)], total: Double?, maxDays: Int,
+                        afterAll: Bool, note: String?) async throws -> Contract {
+        try await write {
+            let res = try await api.post("/ps/orders/\(orderId)/contracts", [
+                "payments": payments.map { p -> JSON in ["amount": p.amount, "due_on": nn(p.dueOn.map(dayString))] },
+                "total": nn(total), "max_days": maxDays, "delivery_rule": afterAll ? "after_all" : "after_first", "note": nn(note),
+            ]) as? JSON
+            return Contract((res?["contract"] as? JSON) ?? [:])
+        }
+    }
+
+    func cancelContract(_ id: String) async throws {
+        try await write { try await api.post("/ps/contracts/\(id)/cancel") }
+    }
+
+    /// Every open or signed contract, newest first.
+    var contracts: [Contract] {
+        orders.flatMap(\.contracts).sorted { ($0.createdAt ?? .distantPast) > ($1.createdAt ?? .distantPast) }
+    }
+
     // trips
 
     @discardableResult
