@@ -230,6 +230,7 @@ struct OrderRow: View {
                         .foregroundStyle(GH.secondary)
                         .padding(.top, 3)
                     itemsLine
+                    deliveryLine
                     badges.padding(.top, 8)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -281,6 +282,34 @@ struct OrderRow: View {
                 .truncationMode(.tail)
                 .padding(.top, 3)
         }
+    }
+
+    /// Who delivers it: our driver by name, or the delivery company.
+    @ViewBuilder
+    private var deliveryLine: some View {
+        if let d = deliveryText {
+            HStack(spacing: 5) {
+                Image(systemName: d.icon).font(.system(size: 12, weight: .semibold))
+                Text(d.text).lineLimit(1)
+            }
+            .font(TS.sub)
+            .foregroundStyle(GH.blue)
+            .padding(.top, 4)
+        }
+    }
+
+    private var deliveryText: (icon: String, text: String)? {
+        if let id = order.driverId {
+            let name = store.driver(id)?.name ?? "المندوب"
+            return ("person.fill", "المندوب: \(name)")
+        }
+        if let m = order.deliveryMethod, m.isCourier {
+            var t = m.carrierName
+            if m.toBranch { t += " · من الفرع" } else if m.isGulf { t += " · شحن خليجي" }
+            if let tr = order.carrierTracking, !tr.isEmpty, !order.carrierIsLink { t += " · \(tr)" }
+            return ("shippingbox.fill", t)
+        }
+        return nil
     }
 
     private var badges: some View {
