@@ -1027,7 +1027,7 @@ struct DriverOrderPage: View {
             ? [Color(hex: 0xFFF08C00), Color(hex: 0xFFD9480F)]
             : [Color(hex: 0xFF1FA35B), Color(hex: 0xFF13795B)]
         let text = collect
-            ? "حصّل \(omr(o.toCollect)) عند التسليم\(o.isCod ? " (قيمة الطلب)" : "")"
+            ? "حصّل \(omr(o.toCollect)) عند التسليم\(o.isCod ? " (قيمة الطلب)" : o.toCollect > o.deliveryFee + 0.0005 ? " (الباقي على الطلب)" : "")"
             : "التوصيل مدفوع، لا تحصّل شي"
         return HStack(spacing: 12) {
             Image(systemName: collect ? "dollarsign.circle.fill" : "checkmark.seal.fill")
@@ -1192,7 +1192,7 @@ struct DriverOrderPage: View {
                 SheetAction("كاش 💵", "cash"),
                 SheetAction("حوّل لكم (تحويل بنكي)", "transfer"),
             ]
-            let message = o.isCod ? "قيمة الطلب كاملة من الزبون" : "رسوم التوصيل من الزبون"
+            let message = o.isCod ? "قيمة الطلب كاملة من الزبون" : o.toCollect > o.deliveryFee + 0.0005 ? "الباقي على الطلب من الزبون" : "رسوم التوصيل من الزبون"
             guard let chosen = await pickAction(title: "حصّلت \(omr(o.toCollect))؟", message: message,
                                                 actions: how) else { return }
             collectedBy = chosen

@@ -798,7 +798,13 @@ struct Order: Identifiable, Hashable {
     var sourceLabel: String { storeSource == "app" ? "من التطبيق" : "من الموقع" }
 
     /// What the driver collects at the door.
-    var toCollect: Double { codAmount ?? (deliveryCollect && deliveryFee > 0 ? deliveryFee : 0) }
+    /// What the driver collects at the door: before delivery, what's still owed (or the installment due);
+    /// once delivered the server keeps the amount in cod_amount.
+    var toCollect: Double {
+        if let c = codAmount { return c }
+        if driverStatus != .delivered { return labelCollect }
+        return deliveryCollect && deliveryFee > 0 ? deliveryFee : 0
+    }
     /// What the waybill asks to collect: the set amount (COD), else everything still owed on the order
     /// (unpaid pieces + the delivery fee), so a label never says «مدفوع» while money is left.
     var labelCollect: Double {
@@ -1014,7 +1020,9 @@ struct DriverOrder: Identifiable, Hashable {
     var customerDeliveryNote: String?
 
     /// What to collect at the door: the order (cash on delivery) or the fee.
-    var toCollect: Double { codAmount ?? (collect && deliveryFee > 0 ? deliveryFee : 0) }
+    /// From the server (to_collect): what's still owed, or the set amount / the installment due.
+    var serverToCollect: Double?
+    var toCollect: Double { serverToCollect ?? codAmount ?? (collect && deliveryFee > 0 ? deliveryFee : 0) }
     var isCod: Bool { codAmount != nil }
     var isDone: Bool { status == .delivered }
     var isFailed: Bool { status == .failed }
@@ -1047,6 +1055,7 @@ struct DriverOrder: Identifiable, Hashable {
         waybillNo = js(m["waybill_no"])
         customerIsMale = js(m["customer_gender"]) == "m"
         codAmount = jdn(m["cod_amount"])
+        serverToCollect = jdn(m["to_collect"])
         deliveredAt = jdate(m["driver_delivered_at"])
         items = jlist(m["items"]).map { DriverOrderItem(brand: js($0["brand"]), name: jstr($0["name"]), details: js($0["details"])) }
         createdAt = jdate(m["created_at"])
