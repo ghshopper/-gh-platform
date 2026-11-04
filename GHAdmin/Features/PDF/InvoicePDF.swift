@@ -149,7 +149,8 @@ private func dueRow(_ v: Double, left: CGFloat, width: CGFloat) -> InvRow {
 }
 
 /// Builds the bilingual (Arabic / English) customer invoice.
-func buildInvoicePdf(_ o: Order, customer: Customer?, biz: BusinessSettings) -> Data {
+/// forPrint: white page (no ivory background) so a home inkjet doesn't spend colour ink on it.
+func buildInvoicePdf(_ o: Order, customer: Customer?, biz: BusinessSettings, forPrint: Bool = false) -> Data {
     let pageW: CGFloat = mm(148)
     let pageH: CGFloat = mm(210)
     let L = mm(16)
@@ -407,7 +408,7 @@ func buildInvoicePdf(_ o: Order, customer: Customer?, biz: BusinessSettings) -> 
     return renderer.pdfData { ctx in
         for (index, page) in pages.enumerated() {
             ctx.beginPage()
-            ghPdfFill(CGRect(x: 0, y: 0, width: pageW, height: pageH), IC.ivory)
+            if !forPrint { ghPdfFill(CGRect(x: 0, y: 0, width: pageW, height: pageH), IC.ivory) }
 
             // top strip: GH SHOPPER · PERSONAL SHOPPER · year (space-between)
             let stripTop = mm(8.5)

@@ -89,12 +89,21 @@ struct OrdersPage: View {
     @ObservedObject private var store = Store.shared
     @State private var filter: OrderFilter = .all
     @State private var query = ""
+    /// Ticking orders to print them together (nil = not selecting).
+    @State private var printing: BulkPrintKind?
+    @State private var picked: Set<String> = []
 
     var body: some View {
         GHPage("الطلبات",
                onRefresh: { await Store.shared.refresh() },
-               trailing: { NavIcon("plus.circle.fill") { newOrder() } },
-               leading: { NavIcon("qrcode.viewfinder") { scan() } }) {
+               trailing: {
+                   HStack(spacing: 14) {
+                       NavIcon("printer") { Task { await startPrint() } }
+                       NavIcon("plus.circle.fill") { newOrder() }
+                   }
+               },
+               leading: { NavIcon("qrcode.viewfinder") { scan() } },
+               bottom: { printBar }) {
             searchBox
             filterBar
             content
@@ -154,7 +163,17 @@ struct OrdersPage: View {
             }
             GHSection("\(shown.count) طلب · \(omr(shown.reduce(0) { $0 + $1.total }))") {
                 ForEach(shown) { o in
-                    OrderRow(order: o, onTap: { pushPage(OrderDetailPage(orderId: o.id)) })
+                    if printing != nil {
+                        HStack(spacing: 0) {
+                            Image(systemName: picked.contains(o.id) ? "checkmark.circle.fill" : "circle")
+                                .font(.system(size: 22))
+                                .foregroundStyle(picked.contains(o.id) ? GH.burgundy : GH.tertiary)
+                                .padding(.leading, 14)
+                            OrderRow(order: o, onTap: { toggle(o.id) })
+                        }
+                    } else {
+                        OrderRow(order: o, onTap: { pushPage(OrderDetailPage(orderId: o.id)) })
+                    }
                 }
             }
         }
@@ -174,6 +193,52 @@ struct OrdersPage: View {
             if !waiting.isEmpty { KV("باقي تشتريها", "\(waiting.count) · \(omr(waiting.reduce(0) { $0 + $1.price }))") }
             if cost > 0 && Api.shared.access.can("finance") { KV("دفعت في شرائها", omr(cost)) }
         }
+    }
+
+    // MARK: printing many
+
+    @ViewBuilder
+    private var printBar: some View {
+        if let kind = printing {
+            let shown = list
+            HStack(spacing: 10) {
+                SecondaryButton("إلغاء", action: { printing = nil; picked = [] })
+                    .frame(width: 90)
+                SecondaryButton(picked.count == shown.count && !shown.isEmpty ? "شيل الكل" : "حدد الكل", action: {
+                    picked = picked.count == shown.count ? [] : Set(shown.map(\.id))
+                })
+                .frame(width: 110)
+                PrimaryButton(picked.isEmpty ? "اختر طلبات" : "اطبع \(kind.label) (\(picked.count))", icon: "printer.fill",
+                              action: picked.isEmpty ? nil : { Task { await printPicked(kind) } })
+            }
+            .frame(height: 52)
+        }
+    }
+
+    private func toggle(_ id: String) {
+        if picked.contains(id) { picked.remove(id) } else { picked.insert(id) }
+    }
+
+    private func startPrint() async {
+        let kinds: [SheetAction<BulkPrintKind>] = BulkPrintKind.allCases.map { SheetAction($0.label, $0) }
+        guard let kind = await pickAction(title: "طباعة مجموعة طلبات", message: "الفواتير تطلع بخلفية بيضاء عشان توفر حبر.", actions: kinds) else { return }
+        let shown = list
+        let scope: String? = await pickAction(title: kind.label, actions: [
+            SheetAction("كل الطلبات الظاهرة (\(shown.count))", "all"),
+            SheetAction("أحدد الطلبات", "pick"),
+        ])
+        switch scope {
+        case "all": await bulkPrint(shown, kind: kind)
+        case "pick": picked = []; printing = kind
+        default: break
+        }
+    }
+
+    private func printPicked(_ kind: BulkPrintKind) async {
+        let chosen = list.filter { picked.contains($0.id) }
+        await bulkPrint(chosen, kind: kind)
+        printing = nil
+        picked = []
     }
 
     // MARK: logic
