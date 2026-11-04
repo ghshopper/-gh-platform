@@ -254,8 +254,9 @@ func buildWaybillPdf(_ o: Order, customer: Customer?, biz: BusinessSettings, dri
         // Cash to collect / prepaid: a solid black block, white text
         do {
             y += mm(0.4)
-            let ar = wp(collect ? "حصّل عند التسليم" : "مدفوع", 4.4, .medium, WC.paper, lh: 1.2)
-            let en = wen(collect ? "CASH ON DELIVERY" : "PREPAID", kern: 0.6, color: WC.paper)
+            let inst = o.onInstallments
+            let ar = wp(collect ? (inst ? "حصّل القسط المستحق" : "حصّل عند التسليم") : (inst ? "أقساط" : "مدفوع"), 4.4, .medium, WC.paper, lh: 1.2)
+            let en = wen(collect ? "CASH ON DELIVERY" : (inst ? "INSTALLMENTS" : "PREPAID"), kern: 0.6, color: WC.paper)
             let colW = max(ar.width(), en.width())
             let rightH = ar.lineBox + mm(0.8) + en.lineBox
             let amount = wp(plainOmr(o.labelCollect), 7.4, .medium, WC.paper, kern: 0.1, lh: 1, align: .left, ltr: true)

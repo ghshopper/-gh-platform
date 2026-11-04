@@ -801,7 +801,17 @@ struct Order: Identifiable, Hashable {
     var toCollect: Double { codAmount ?? (deliveryCollect && deliveryFee > 0 ? deliveryFee : 0) }
     /// What the waybill asks to collect: the set amount (COD), else everything still owed on the order
     /// (unpaid pieces + the delivery fee), so a label never says «مدفوع» while money is left.
-    var labelCollect: Double { codAmount ?? max(0, (remaining * 1000).rounded() / 1000) }
+    var labelCollect: Double {
+        if let c = codAmount { return c }
+        // installments: only what's due by today, never the whole balance
+        if onInstallments {
+            let due = contracts.flatMap(\.payments).filter { $0.state == "late" || $0.state == "due" }.reduce(0) { $0 + $1.left }
+            return (due * 1000).rounded() / 1000
+        }
+        return max(0, (remaining * 1000).rounded() / 1000)
+    }
+    /// The order has an installment contract (sent or signed).
+    var onInstallments: Bool { !contracts.isEmpty }
 
     var carrierIsLink: Bool { carrierTracking.map { $0.hasPrefix("http://") || $0.hasPrefix("https://") } ?? false }
 
