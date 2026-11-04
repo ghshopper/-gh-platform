@@ -511,9 +511,11 @@ fileprivate struct TodayContent: View {
     @ViewBuilder
     private var itemSections: some View {
         if !data.outForDelivery.isEmpty {
-            GHSection("خرجت للتوصيل · \(data.outForDelivery.count)") {
-                ForEach(Array(data.outForDelivery.prefix(8))) { e in
-                    itemTile(e, onTap: nil)
+            // one row per order (not per piece), with who delivers it
+            let orders = outOrders
+            GHSection("خرجت للتوصيل · \(orders.count) طلب", footer: orders.count > 10 ? "الباقي في الطلبات ← «خرجت للتوصيل»." : nil) {
+                ForEach(Array(orders.prefix(10))) { o in
+                    OrderRow(order: o, onTap: { openOrder(o.id) })
                 }
             }
         }
@@ -531,6 +533,11 @@ fileprivate struct TodayContent: View {
                 }
             }
         }
+    }
+
+    private var outOrders: [Order] {
+        var seen = Set<String>()
+        return data.outForDelivery.compactMap { e in seen.insert(e.order.id).inserted ? e.order : nil }
     }
 
     private var toBuyFooter: String? {
