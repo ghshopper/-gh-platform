@@ -135,7 +135,7 @@ func buildWaybillPdf(_ o: Order, customer: Customer?, biz: BusinessSettings, dri
 
     let waybill = o.waybillNo
     let trackUrl = o.trackingToken.map { AppConfig.trackingBaseUrl + $0 } ?? "https://ghshopper.com"
-    let collect = o.toCollect > 0
+    let collect = o.labelCollect > 0.0005
     let pieces = o.activeItems.count
     let split = splitOffice(o.deliveryAddress ?? customer?.address)
     let office = split.office
@@ -258,7 +258,7 @@ func buildWaybillPdf(_ o: Order, customer: Customer?, biz: BusinessSettings, dri
             let en = wen(collect ? "CASH ON DELIVERY" : "PREPAID", kern: 0.6, color: WC.paper)
             let colW = max(ar.width(), en.width())
             let rightH = ar.lineBox + mm(0.8) + en.lineBox
-            let amount = wp(plainOmr(o.toCollect), 7.4, .medium, WC.paper, kern: 0.1, lh: 1, align: .left, ltr: true)
+            let amount = wp(plainOmr(o.labelCollect), 7.4, .medium, WC.paper, kern: 0.1, lh: 1, align: .left, ltr: true)
             let unit = wp("OMR", 2, .medium, WC.paper, kern: 0.5, align: .left, ltr: true)
             let sub = wp("لا تحصّل أي مبلغ", 2.6, .regular, WC.paper)
             let leftH = collect ? amount.lineBox : sub.lineBox

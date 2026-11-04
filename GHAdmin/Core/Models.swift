@@ -799,6 +799,9 @@ struct Order: Identifiable, Hashable {
 
     /// What the driver collects at the door.
     var toCollect: Double { codAmount ?? (deliveryCollect && deliveryFee > 0 ? deliveryFee : 0) }
+    /// What the waybill asks to collect: the set amount (COD), else everything still owed on the order
+    /// (unpaid pieces + the delivery fee), so a label never says «مدفوع» while money is left.
+    var labelCollect: Double { codAmount ?? max(0, (remaining * 1000).rounded() / 1000) }
 
     var carrierIsLink: Bool { carrierTracking.map { $0.hasPrefix("http://") || $0.hasPrefix("https://") } ?? false }
 
