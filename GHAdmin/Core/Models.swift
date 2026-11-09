@@ -505,6 +505,7 @@ struct ContractPayment: Identifiable, Hashable {
     var amount: Double
     var dueOn: Date?
     var fixed: Bool
+    var onDelivery: Bool
     var paid: Double
     var left: Double
     /// paid | due | late | upcoming | unscheduled
@@ -516,6 +517,7 @@ struct ContractPayment: Identifiable, Hashable {
         amount = jd(m["amount"])
         dueOn = jdate(m["due_on"])
         fixed = jb(m["fixed"])
+        onDelivery = jb(m["on_delivery"])
         paid = jd(m["paid"])
         left = jd(m["left"])
         state = js(m["state"]) ?? "upcoming"
@@ -531,6 +533,7 @@ struct ContractPayment: Identifiable, Hashable {
         case "paid": return "مدفوعة"
         case "due": return "اليوم"
         case "late": return "متأخرة"
+        case "on_delivery": return "عند الاستلام"
         case "unscheduled": return "ما تحدد موعدها"
         default: return "جاية"
         }
@@ -544,6 +547,8 @@ struct Contract: Identifiable, Hashable {
     var orderId: String
     /// sent | signed | cancelled
     var status: String
+    /// installment | cod (إقرار طلب ودفع عند الاستلام)
+    var kind: String
     var url: String
     var total: Double
     var payments: [ContractPayment]
@@ -565,6 +570,7 @@ struct Contract: Identifiable, Hashable {
         id = jstr(m["id"])
         orderId = jstr(m["order_id"])
         status = js(m["status"]) ?? "sent"
+        kind = js(m["kind"]) ?? "installment"
         url = jstr(m["url"])
         total = jd(m["total"])
         payments = jlist(m["payments"]).map(ContractPayment.init)
@@ -584,6 +590,8 @@ struct Contract: Identifiable, Hashable {
     }
 
     var isSigned: Bool { status == "signed" }
+    var isCod: Bool { kind == "cod" }
+    var title: String { isCod ? "إقرار الدفع عند الاستلام" : "عقد الأقساط" }
     var latePayments: [ContractPayment] { isSigned ? payments.filter(\.isLate) : [] }
     var lateAmount: Double { latePayments.reduce(0) { $0 + $1.left } }
     var nextPayment: ContractPayment? { payments.first { $0.state != "paid" } }
@@ -591,6 +599,7 @@ struct Contract: Identifiable, Hashable {
 
     var statusLabel: String {
         if !isSigned { return "بانتظار التوقيع" }
+        if isCod { return allPaid ? "انسلم وانْدفع" : "موقّع" }
         if allPaid { return "خلصت الأقساط" }
         if !latePayments.isEmpty { return "متأخر" }
         return "موقّع"
@@ -811,13 +820,13 @@ struct Order: Identifiable, Hashable {
         if let c = codAmount { return c }
         // installments: only what's due by today, never the whole balance
         if onInstallments {
-            let due = contracts.flatMap(\.payments).filter { $0.state == "late" || $0.state == "due" }.reduce(0) { $0 + $1.left }
+            let due = contracts.filter { !$0.isCod }.flatMap(\.payments).filter { $0.state == "late" || $0.state == "due" }.reduce(0) { $0 + $1.left }
             return (due * 1000).rounded() / 1000
         }
         return max(0, (remaining * 1000).rounded() / 1000)
     }
     /// The order has an installment contract (sent or signed).
-    var onInstallments: Bool { !contracts.isEmpty }
+    var onInstallments: Bool { contracts.contains { !$0.isCod } }
 
     var carrierIsLink: Bool { carrierTracking.map { $0.hasPrefix("http://") || $0.hasPrefix("https://") } ?? false }
 

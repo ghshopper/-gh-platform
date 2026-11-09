@@ -603,6 +603,16 @@ final class Store: ObservableObject {
         _ = try await api.delete("/ps/contract-seal/\(kind)")
     }
 
+    /// إقرار طلب ودفع عند الاستلام: total, optional deposit before buying, the rest at the door.
+    func createCodAgreement(_ orderId: String, total: Double, deposit: Double, note: String?) async throws -> Contract {
+        try await write {
+            let res = try await api.post("/ps/orders/\(orderId)/contracts", [
+                "kind": "cod", "total": total, "deposit": deposit, "note": nn(note),
+            ]) as? JSON
+            return Contract((res?["contract"] as? JSON) ?? [:])
+        }
+    }
+
     func cancelContract(_ id: String) async throws {
         try await write { try await api.post("/ps/contracts/\(id)/cancel") }
     }

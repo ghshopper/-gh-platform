@@ -80,7 +80,7 @@ struct MorePage: View {
                     Tile("سيولة الرحلة", subtitle: "كم بتدفع في الرحلة، وكم معك من العرابين",
                          action: { pushPage(TripCashPage(tripId: nil)) },
                          leading: { IconBox("banknote.fill", color: GH.amber) })
-                    Tile("عقود الأقساط", subtitle: "الموقّعة والمتأخرة والي تنتظر توقيع",
+                    Tile("العقود والإقرارات", subtitle: "عقود الأقساط وإقرارات الدفع عند الاستلام",
                          action: { pushPage(ContractsPage()) },
                          leading: { IconBox("signature", color: GH.burgundy) })
                 }

@@ -20,6 +20,14 @@ fileprivate func ctCustomer(_ orderId: String) -> Customer? {
 func contractLinkMessage(_ c: Contract, order: Order?) -> String {
     let name = order.flatMap { Store.shared.customer($0.customerId)?.name }.map { $0.split(separator: " ").first.map(String.init) ?? $0 } ?? ""
     let ref = order?.invoiceNo ?? ""
+    if c.isCod {
+        return """
+        مرحبا \(name) 🤍
+        قبل ما نشتري قطعك لطلب \(ref) من GH Shopper (\(omr(c.total))، الدفع عند الاستلام)، نحتاج منك توقيع إقرار الطلب.
+        افتح الرابط، عبّي بياناتك، ارفع صورة البطاقة من الأمام والخلف ووقّع، ويوصلك الإقرار PDF على طول:
+        \(c.url)
+        """
+    }
     return """
     مرحبا \(name) 🤍
     هذا رابط عقد الأقساط لطلبك \(ref) من GH Shopper (\(omr(c.total)) على \(c.payments.count) دفعات).
@@ -182,11 +190,65 @@ func sendContractLink(_ c: Contract, order: Order?) async {
 fileprivate func sendLink(_ c: Contract, order: Order?) async {
     guard !c.url.isEmpty else { return }
     let actions: [SheetAction<String>] = [SheetAction("أرسل للعميل واتساب", "wa"), SheetAction("نسخ الرابط", "copy"), SheetAction("مشاركة", "share")]
-    switch await pickAction(title: "رابط العقد جاهز", message: "العميل يعبّي بياناته ويختار المواعيد ويرفع البطاقة ويوقّع.", actions: actions) {
+    switch await pickAction(title: c.isCod ? "رابط الإقرار جاهز" : "رابط العقد جاهز",
+                            message: c.isCod ? "العميل يعبّي بياناته ويرفع البطاقة ويوقّع." : "العميل يعبّي بياناته ويختار المواعيد ويرفع البطاقة ويوقّع.", actions: actions) {
     case "wa": openWhatsApp(phone: order.flatMap { Store.shared.customer($0.customerId)?.phone }, text: contractLinkMessage(c, order: order))
-    case "copy": copyText(c.url, toastText: "نسخت رابط العقد")
+    case "copy": copyText(c.url, toastText: "نسخت الرابط")
     case "share": share([contractLinkMessage(c, order: order)])
     default: break
+    }
+}
+
+// MARK: - New COD acknowledgement
+
+@MainActor
+struct CodAgreementFormPage: View {
+    let order: Order
+    @State private var total: String
+    @State private var deposit = ""
+    @State private var note = ""
+    @State private var saving = false
+    @Environment(\.dismiss) private var dismiss
+
+    init(order: Order) {
+        self.order = order
+        _total = State(initialValue: ctAmountText(order.total))
+    }
+
+    var body: some View {
+        GHPage("إقرار دفع عند الاستلام", trailing: {
+            if saving { ProgressView() } else { NavButton("أرسل", bold: true, action: { Task { await save() } }) }
+        }, leading: {
+            NavButton("إلغاء", action: { dismiss() })
+        }) {
+            GHSection(footer: "العميل يوقّع إنه طلب القطع وبيدفع عند الاستلام، وإن رفضه بدون سبب ما يعفيه من الدفع. يرفع بطاقته ويوقّع، والإقرار ينحفظ PDF في الطلب.") {
+                AmountRow("المبلغ", text: $total)
+                AmountRow("عربون قبل الشراء", text: $deposit)
+            }
+            GHSection(footer: "العربون اختياري. الباقي يندفع كامل عند الاستلام.") {
+                let t = parseAmount(total) ?? 0, d = parseAmount(deposit) ?? 0
+                KV("عند الاستلام", omr(max(0, t - d)), strong: true)
+            }
+            GHSection("شروط إضافية") {
+                FieldRow("ملاحظة", text: $note, placeholder: "اختياري")
+            }
+        }
+    }
+
+    private func save() async {
+        let t = parseAmount(total) ?? 0, d = parseAmount(deposit) ?? 0
+        if t <= 0 { toast("اكتب المبلغ", error: true); return }
+        if d >= t { toast("العربون لازم يكون أقل من المبلغ", error: true); return }
+        saving = true
+        do {
+            let n = note.trimmingCharacters(in: .whitespacesAndNewlines)
+            let c = try await Store.shared.createCodAgreement(order.id, total: t, deposit: d, note: n.isEmpty ? nil : n)
+            dismiss()
+            await sendLink(c, order: order)
+        } catch {
+            saving = false
+            toastError(error)
+        }
     }
 }
 
@@ -208,12 +270,12 @@ struct ContractPage: View {
         if let c = contract {
             page(c)
         } else {
-            GHPage("عقد الأقساط") { EmptyState(icon: "doc.text", title: "العقد انلغى أو مب موجود") }
+            GHPage("العقد") { EmptyState(icon: "doc.text", title: "العقد انلغى أو مب موجود") }
         }
     }
 
     private func page(_ c: Contract) -> some View {
-        GHPage("عقد الأقساط", onRefresh: { await store.refresh() }, trailing: {
+        GHPage(c.title, onRefresh: { await store.refresh() }, trailing: {
             if busy { ProgressView() }
         }) {
             GHSection {
@@ -228,10 +290,10 @@ struct ContractPage: View {
                          leading: { IconBox("doc.text", color: GH.burgundy, size: 28) })
                 }
             }
-            GHSection("الدفعات", footer: c.isSigned ? "تنحسب مدفوعة من دفعات الطلب بالترتيب: الأولى ثم الثانية…" : "المواعيد الي ما حددتها يختارها العميل لما يوقّع.") {
+            GHSection(c.isCod ? "الدفع" : "الدفعات", footer: c.isCod ? "تنحسب مدفوعة من دفعات الطلب." : (c.isSigned ? "تنحسب مدفوعة من دفعات الطلب بالترتيب: الأولى ثم الثانية…" : "المواعيد الي ما حددتها يختارها العميل لما يوقّع.")) {
                 ForEach(c.payments) { p in
-                    Tile("الدفعة \(p.ordinal)",
-                         subtitle: [p.dueOn.map { dateStr($0) } ?? (p.index == 0 ? "عند التوقيع" : "العميل يختار"),
+                    Tile(c.isCod ? (p.onDelivery ? "عند الاستلام" : "العربون") : "الدفعة \(p.ordinal)",
+                         subtitle: [p.onDelivery ? "يندفع للمندوب أو تحويل عند التسليم" : (p.dueOn.map { dateStr($0) } ?? (p.index == 0 ? (c.isCod ? "قبل الشراء" : "عند التوقيع") : "العميل يختار")),
                                     p.state == "paid" || p.paid < 0.0005 ? nil : "دفع \(omr(p.paid)) · باقي \(omr(p.left))"]
                             .compactMap { $0 }.joined(separator: " · "),
                          value: omr(p.amount), valueColor: ctStateColor(p.state), valueFont: .gh(15, .semibold), chevron: false,
@@ -247,12 +309,12 @@ struct ContractPage: View {
                     if let a = c.signerAddress { KV("العنوان", a) }
                 }
                 GHSection("الملفات") {
-                    Tile("العقد PDF", action: { Task { await ctOpenFile(c.pdfPath) } }, leading: { IconBox("doc.richtext.fill", color: GH.burgundy, size: 28) })
+                    Tile(c.isCod ? "الإقرار PDF" : "العقد PDF", action: { Task { await ctOpenFile(c.pdfPath) } }, leading: { IconBox("doc.richtext.fill", color: GH.burgundy, size: 28) })
                     Tile("البطاقة من الأمام", action: { Task { await ctOpenFile(c.idFrontPath) } }, leading: { IconBox("person.text.rectangle", color: GH.blue, size: 28) })
                     Tile("البطاقة من الخلف", action: { Task { await ctOpenFile(c.idBackPath) } }, leading: { IconBox("person.text.rectangle", color: GH.blue, size: 28) })
                     Tile("التوقيع", action: { Task { await ctOpenFile(c.signaturePath) } }, leading: { IconBox("signature", color: GH.label, size: 28) })
                 }
-                if c.nextPayment != nil {
+                if c.nextPayment != nil && !c.isCod {
                     GHSection {
                         Tile("ذكّر العميل بالدفعة الجاية", subtitle: "رسالة واتساب جاهزة فيها المبلغ والحساب",
                              action: { openWhatsApp(phone: c.signerPhone ?? ctCustomer(orderId)?.phone, text: contractReminderMessage(c, order: order)) },
@@ -275,7 +337,7 @@ struct ContractPage: View {
     }
 
     private func cancel(_ c: Contract) async {
-        guard await confirm("إلغاء رابط العقد؟", message: "الرابط يوقف، وتقدر تسوي عقد جديد بعدين.", ok: "إلغاء الرابط") else { return }
+        guard await confirm(c.isCod ? "إلغاء رابط الإقرار؟" : "إلغاء رابط العقد؟", message: "الرابط يوقف، وتقدر تسوي عقد جديد بعدين.", ok: "إلغاء الرابط") else { return }
         busy = true
         defer { busy = false }
         do { try await store.cancelContract(c.id) } catch { toastError(error) }
@@ -297,12 +359,12 @@ struct ContractsPage: View {
         let running = all.filter { $0.isSigned && $0.latePayments.isEmpty && !$0.allPaid }
         let finished = all.filter { $0.isSigned && $0.allPaid }
         let owed = all.filter(\.isSigned).reduce(0.0) { $0 + $1.payments.reduce(0) { $0 + $1.left } }
-        GHPage("عقود الأقساط", onRefresh: { await store.refresh() }, trailing: {
+        GHPage("العقود والإقرارات", onRefresh: { await store.refresh() }, trailing: {
             NavIcon("signature", action: { pushPage(ContractSealPage()) })
         }) {
             if all.isEmpty {
                 EmptyState(icon: "signature", title: "ما في عقود للحين",
-                           message: "من أي طلب: الزر … ثم «عقد أقساط». يوصل العميل رابط يعبّي فيه بياناته ويوقّع.")
+                           message: "من أي طلب: الزر … ثم «عقد أقساط» أو «إقرار دفع عند الاستلام». يوصل العميل رابط يعبّي فيه بياناته ويوقّع.")
             } else {
                 HStack(spacing: 10) {
                     StatCard(label: "باقي على العملاء", value: omr(owed), icon: "banknote.fill", hero: true)
@@ -333,7 +395,7 @@ struct ContractsPage: View {
     private func row(_ c: Contract) -> some View {
         let o = store.order(c.orderId)
         let name = c.signerName ?? o.flatMap { store.customer($0.customerId)?.name } ?? "—"
-        var parts: [String] = [o?.invoiceNo ?? ""]
+        var parts: [String] = [c.isCod ? "إقرار استلام" : "أقساط", o?.invoiceNo ?? ""]
         if let p = c.nextPayment, c.isSigned {
             parts.append("الجاية \(omr(p.left))" + (p.dueOn.map { " · \(dateStr($0))" } ?? ""))
         } else if !c.isSigned {

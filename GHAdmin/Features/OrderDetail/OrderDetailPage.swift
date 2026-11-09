@@ -332,11 +332,11 @@ struct OrderDetailPage: View {
 
     @ViewBuilder private func contractsSection(_ o: Order) -> some View {
         if !o.contracts.isEmpty {
-            GHSection("عقد الأقساط") {
+            GHSection("العقود") {
                 ForEach(o.contracts) { c in
                     let next = c.nextPayment
-                    Tile(c.statusLabel,
-                         subtitle: c.isSigned
+                    Tile("\(c.title) · \(c.statusLabel)",
+                         subtitle: c.isCod ? (c.isSigned ? "وقّع \(c.signerName ?? "")" : "بانتظار توقيع العميل") : c.isSigned
                             ? (next.map { "الدفعة \($0.ordinal): \(omr($0.left))" + ($0.dueOn.map { " · \(dateStr($0))" } ?? "") } ?? "كل الدفعات مدفوعة")
                             : "\(c.payments.count) دفعات · بانتظار توقيع العميل",
                          value: omr(c.total), valueColor: GH.secondary,
@@ -584,7 +584,8 @@ struct OrderDetailPage: View {
         if o.hasBalance { actions.append(SheetAction("نسخ رابط الدفع", "paylink-copy")) }
         if o.trackingToken != nil { actions.append(SheetAction("نسخ رابط التتبّع", "track")) }
         if !o.activeItems.isEmpty { actions.append(SheetAction("إرجاع قطع…", "return")) }
-        if !o.activeItems.isEmpty { actions.append(SheetAction(o.contracts.isEmpty ? "عقد أقساط" : "عقد أقساط جديد", "contract")) }
+        if !o.activeItems.isEmpty { actions.append(SheetAction(o.contracts.contains { !$0.isCod } ? "عقد أقساط جديد" : "عقد أقساط", "contract")) }
+        if !o.activeItems.isEmpty { actions.append(SheetAction("إقرار دفع عند الاستلام", "cod")) }
         actions.append(SheetAction(o.gift == nil ? "اجعل الطلب هدية 🎁" : "تعديل الهدية", "giftedit"))
         actions.append(SheetAction("كرت إهداء", "giftcard"))
         actions.append(SheetAction("حذف الطلب", "delete", destructive: true))
@@ -605,6 +606,8 @@ struct OrderDetailPage: View {
             presentForm(ReturnPage(order: o))
         case "contract":
             presentForm(ContractFormPage(order: o))
+        case "cod":
+            presentForm(CodAgreementFormPage(order: o))
         case "trip":
             if let id = await odPickTrip(current: o.tripId) {
                 let value: Any = nn(id.isEmpty ? nil : id)
