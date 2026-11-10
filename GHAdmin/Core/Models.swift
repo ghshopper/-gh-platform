@@ -970,12 +970,15 @@ struct Driver: Identifiable, Hashable {
     var name: String
     var phone: String?
     var userId: String?
+    /// The fixed number he signs in with (app and the /driver site).
+    var username: String?
     var active: Bool = true
 
     init(_ m: JSON) {
         id = jstr(m["id"])
         name = jstr(m["name"])
         phone = js(m["phone"])
+        username = js(m["username"])
         userId = js(m["user_id"])
         active = !(m["active"] as? Bool == false || (m["active"] as? NSNumber)?.intValue == 0)
     }

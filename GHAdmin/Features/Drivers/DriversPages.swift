@@ -24,17 +24,17 @@ fileprivate let whatsAppGreen = Color(hex: 0xFF25D366)
 
 /// Offers to send the driver their login details on WhatsApp.
 @MainActor
-fileprivate func shareDriverLogin(name: String, phone: String, password: String) async {
-    let shown = driverDisplayPhone(phone.count == 8 ? "968\(phone)" : phone)
-    let msg = "هلا \(name) 👋\n"
-        + "هذي بيانات دخولك لتطبيق GH Shopper للتوصيل:\n"
-        + "الرقم: \(shown)\n"
-        + "كلمة المرور: \(password)"
+fileprivate func shareDriverLogin(name: String, phone: String, username: String?, password: String?, title: String? = nil) async {
+    let login = username ?? driverDisplayPhone(phone.count == 8 ? "968\(phone)" : phone)
+    var msg = "هلا \(name) 👋\n"
+        + "هذي بيانات دخولك لتطبيق GH Shopper للتوصيل (أو من الموقع ghshopper.com/driver):\n"
+        + "رقم المستخدم: \(login)"
+    if let password { msg += "\nكلمة المرور: \(password)" }
     let actions: [SheetAction<String>] = [
         SheetAction("إرسال واتساب", "wa"),
         SheetAction("نسخ", "copy"),
     ]
-    let a = await pickAction(title: "تم إضافة \(name)", message: "أرسل له بيانات الدخول؟", actions: actions)
+    let a = await pickAction(title: title ?? "تم إضافة \(name)", message: "أرسل له بيانات الدخول؟", actions: actions)
     if a == "wa" {
         let p = waPhone(phone) ?? ""
         openURL("https://wa.me/\(p)?text=\(driversEncodeComponent(msg))")
@@ -104,7 +104,7 @@ struct DriverFormPage: View {
         GHPage("مندوب جديد",
                trailing: { trailingButton },
                leading: { NavButton("إلغاء") { dismiss() } }) {
-            GHSection(footer: "المندوب يحمّل نفس التطبيق ويدخل برقم جواله وكلمة المرور هذي.") {
+            GHSection(footer: "ينعطى رقم مستخدم ثابت يدخل فيه التطبيق أو الموقع مع كلمة المرور هذي.") {
                 FieldRow("الاسم", text: $name, autofocus: true)
                 FieldRow("الجوال", text: $phone, placeholder: "9XXXXXXX", keyboard: .phone, ltr: true)
                 FieldRow("كلمة المرور", text: $password, keyboard: .number, ltr: true)
@@ -134,8 +134,8 @@ struct DriverFormPage: View {
         }
         saving = true
         do {
-            try await Store.shared.createDriver(name: trimmedName, phone: digits, password: password)
-            await shareDriverLogin(name: trimmedName, phone: digits, password: password)
+            let user = try await Store.shared.createDriver(name: trimmedName, phone: digits, password: password)
+            await shareDriverLogin(name: trimmedName, phone: digits, username: user, password: password)
             dismiss()
         } catch {
             saving = false
@@ -203,7 +203,17 @@ struct DriverDetailPage: View {
             SwitchRow("الحساب شغّال",
                       subtitle: d.active ? nil : "ما يقدر يشوف أي طلب",
                       isOn: activeBinding)
-            Tile("تغيير الرقم", subtitle: "يدخل التطبيق والموقع بالرقم الجديد",
+            if (d.username ?? "").count == 5 {
+                Tile("رقم المستخدم", subtitle: "يدخل فيه التطبيق والموقع، ما يتغيّر",
+                     value: d.username ?? "", valueColor: GH.label, valueFont: .gh(17, .semibold), chevron: false,
+                     action: { Task { await shareDriverLogin(name: d.name, phone: d.phone ?? "", username: d.username, password: nil, title: "رقم المستخدم") } },
+                     leading: { IconBox("person.text.rectangle", color: GH.burgundy) })
+            } else {
+                Tile("أعطه رقم مستخدم ثابت", subtitle: "للحين يدخل برقم جواله. بعدها يدخل برقم ثابت ما يتغيّر",
+                     action: { Task { await giveUsername(d) } },
+                     leading: { IconBox("person.text.rectangle", color: GH.burgundy) })
+            }
+            Tile("تغيير رقم الجوال", subtitle: "للاتصال والواتساب، رقم المستخدم ما يتغيّر",
                  action: { Task { await changePhone(d) } },
                  leading: { IconBox("phone.fill", color: GH.blue) })
             Tile("كلمة مرور جديدة",
@@ -255,20 +265,30 @@ struct DriverDetailPage: View {
         let pw = driverRandomPassword()
         do {
             try await Store.shared.setDriverPassword(d.id, pw)
-            await shareDriverLogin(name: d.name, phone: d.phone ?? "", password: pw)
+            await shareDriverLogin(name: d.name, phone: d.phone ?? "", username: d.username, password: pw, title: "كلمة مرور جديدة")
         } catch {
             toastError(error)
         }
     }
 
     private func changePhone(_ d: Driver) async {
-        guard let p = await promptText("رقم \(d.name) الجديد", message: "بعدها يدخل بالرقم الجديد ونفس كلمة المرور.",
+        guard let p = await promptText("جوال \(d.name) الجديد", message: "رقم المستخدم وكلمة المرور ما يتغيّرون.",
                                        placeholder: "9XXXXXXX", initial: d.phone ?? "", keyboard: .phonePad) else { return }
         let digits = p.filter(\.isNumber)
         if digits.count < 8 { toast("اكتب الرقم صح", error: true); return }
         do {
             try await Store.shared.setDriverPhone(d.id, digits)
             toast("تغيّر الرقم")
+        } catch {
+            toastError(error)
+        }
+    }
+
+    private func giveUsername(_ d: Driver) async {
+        guard await confirm("رقم مستخدم ثابت لـ \(d.name)؟", message: "بعدها ما يقدر يدخل برقم جواله، يدخل بالرقم الجديد ونفس كلمة المرور.", ok: "أعطه رقم") else { return }
+        do {
+            let u = try await Store.shared.newDriverUsername(d.id)
+            await shareDriverLogin(name: d.name, phone: d.phone ?? "", username: u, password: nil, title: "رقم المستخدم: \(u ?? "")")
         } catch {
             toastError(error)
         }

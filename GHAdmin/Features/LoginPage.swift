@@ -11,14 +11,14 @@ struct LoginPage: View {
                 GHImage.logo.resizable().scaledToFit().frame(height: 120)
                 Text("تسجيل الدخول").font(TS.big).foregroundStyle(GH.label).padding(.top, 28)
                 VStack(spacing: 0) {
-                    field($email, "الإيميل أو رقم الجوال", keyboard: .emailAddress)
+                    field($email, "الإيميل أو رقم المستخدم", keyboard: .emailAddress)
                     Rectangle().fill(GH.separator).frame(height: 0.5)
                     field($password, "كلمة المرور", secure: true)
                 }
                 .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                 .padding(.top, 24)
                 PrimaryButton("دخول", busy: busy) { Task { await submit() } }.padding(.top, 20)
-                Text("نفس حسابك في لوحة الإدارة بالموقع. المناديب يدخلون برقم الجوال.")
+                Text("نفس حسابك في لوحة الإدارة بالموقع. المناديب يدخلون برقم المستخدم.")
                     .font(TS.small).foregroundStyle(GH.secondary).multilineTextAlignment(.center).padding(.top, 14)
             }
             .frame(maxWidth: 420)

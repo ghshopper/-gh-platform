@@ -533,15 +533,28 @@ final class Store: ObservableObject {
 
     // drivers
 
-    func createDriver(name: String, phone: String, password: String) async throws {
-        try await write { try await api.post("/ps/drivers", ["name": name, "phone": phone, "password": password]) }
+    /// Returns his sign-in number.
+    @discardableResult
+    func createDriver(name: String, phone: String, password: String) async throws -> String? {
+        try await write {
+            let res = try await api.post("/ps/drivers", ["name": name, "phone": phone, "password": password]) as? JSON
+            return js((res?["driver"] as? JSON)?["username"])
+        }
+    }
+
+    /// An old driver (signing in with his phone) gets a fixed 5-digit sign-in number.
+    func newDriverUsername(_ driverId: String) async throws -> String? {
+        try await write {
+            let res = try await api.put("/ps/drivers/\(driverId)", ["new_username": true]) as? JSON
+            return js((res?["driver"] as? JSON)?["username"])
+        }
     }
 
     func setDriverPassword(_ driverId: String, _ password: String) async throws {
         try await api.put("/ps/drivers/\(driverId)", ["password": password])
     }
 
-    /// A new phone number for a driver: he signs in with it from now on (same password).
+    /// A new phone number for a driver (calls, WhatsApp); his sign-in number stays.
     func setDriverPhone(_ driverId: String, _ phone: String) async throws {
         try await write { try await api.put("/ps/drivers/\(driverId)", ["phone": phone]) }
     }
