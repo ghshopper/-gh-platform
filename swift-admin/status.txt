@@ -1,1 +1,1 @@
-success e4e61714a089be11ac3c1766116cc76914f3fa68 swift-admin-release 100
+success e4e61714a089be11ac3c1766116cc76914f3fa68 swift-admin 101
