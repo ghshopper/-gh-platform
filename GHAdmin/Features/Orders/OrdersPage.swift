@@ -90,7 +90,8 @@ struct OrdersPage: View {
     @State private var filter: OrderFilter = .all
     @State private var query = ""
     /// Ticking orders to print them together (nil = not selecting).
-    @State private var printing: BulkPrintKind?
+    /// Ticking orders to act on them together (nil = not selecting).
+    @State private var selecting: OrdersBulk?
     @State private var picked: Set<String> = []
 
     var body: some View {
@@ -98,7 +99,7 @@ struct OrdersPage: View {
                onRefresh: { await Store.shared.refresh() },
                trailing: {
                    HStack(spacing: 14) {
-                       NavIcon("printer") { Task { await startPrint() } }
+                       NavIcon("checklist") { Task { await startBulk() } }
                        NavIcon("plus.circle.fill") { newOrder() }
                    }
                },
@@ -163,7 +164,7 @@ struct OrdersPage: View {
             }
             GHSection("\(shown.count) طلب · \(omr(shown.reduce(0) { $0 + $1.total }))") {
                 ForEach(shown) { o in
-                    if printing != nil {
+                    if selecting != nil {
                         HStack(spacing: 0) {
                             Image(systemName: picked.contains(o.id) ? "checkmark.circle.fill" : "circle")
                                 .font(.system(size: 22))
@@ -195,21 +196,21 @@ struct OrdersPage: View {
         }
     }
 
-    // MARK: printing many
+    // MARK: acting on many orders (print, hand to a driver)
 
     @ViewBuilder
     private var printBar: some View {
-        if let kind = printing {
+        if let act = selecting {
             let shown = list
             HStack(spacing: 10) {
-                SecondaryButton("إلغاء", action: { printing = nil; picked = [] })
+                SecondaryButton("إلغاء", action: { selecting = nil; picked = [] })
                     .frame(width: 90)
                 SecondaryButton(picked.count == shown.count && !shown.isEmpty ? "شيل الكل" : "حدد الكل", action: {
                     picked = picked.count == shown.count ? [] : Set(shown.map(\.id))
                 })
                 .frame(width: 110)
-                PrimaryButton(picked.isEmpty ? "اختر طلبات" : "اطبع \(kind.label) (\(picked.count))", icon: "printer.fill",
-                              action: picked.isEmpty ? nil : { Task { await printPicked(kind) } })
+                PrimaryButton(picked.isEmpty ? "اختر طلبات" : "\(act.verb) (\(picked.count))", icon: act.icon,
+                              action: picked.isEmpty ? nil : { Task { await runPicked(act) } })
             }
             .frame(height: 52)
         }
@@ -219,9 +220,20 @@ struct OrdersPage: View {
         if picked.contains(id) { picked.remove(id) } else { picked.insert(id) }
     }
 
-    private func startPrint() async {
-        let kinds: [SheetAction<BulkPrintKind>] = BulkPrintKind.allCases.map { SheetAction($0.label, $0) }
-        guard let kind = await pickAction(title: "طباعة مجموعة طلبات", message: "الفواتير تطلع بخلفية بيضاء عشان توفر حبر.", actions: kinds) else { return }
+    private func startBulk() async {
+        var acts: [SheetAction<String>] = BulkPrintKind.allCases.map { SheetAction("اطبع \($0.label)", $0.rawValue) }
+        acts.insert(SheetAction("سلّمها لمندوب (خرجت للتوصيل)", "driver"), at: 0)
+        guard let a = await pickAction(title: "مجموعة طلبات", message: "اختر شو تسوي، بعدين حدد الطلبات.", actions: acts) else { return }
+        if a == "driver" {
+            let ds = Store.shared.drivers.filter(\.active)
+            if ds.isEmpty { toast("ما في مناديب. ضيفهم من «المناديب» أول", error: true); return }
+            guard let d = await pickAction(title: "أي مندوب؟", actions: ds.map { SheetAction($0.name, $0.id) }),
+                  let driver = ds.first(where: { $0.id == d }) else { return }
+            picked = []
+            selecting = .driver(driver.id, driver.name)
+            return
+        }
+        guard let kind = BulkPrintKind(rawValue: a) else { return }
         let shown = list
         let scope: String? = await pickAction(title: kind.label, actions: [
             SheetAction("كل الطلبات الظاهرة (\(shown.count))", "all"),
@@ -229,15 +241,30 @@ struct OrdersPage: View {
         ])
         switch scope {
         case "all": await bulkPrint(shown, kind: kind)
-        case "pick": picked = []; printing = kind
+        case "pick": picked = []; selecting = .print(kind)
         default: break
         }
     }
 
-    private func printPicked(_ kind: BulkPrintKind) async {
+    private func runPicked(_ act: OrdersBulk) async {
         let chosen = list.filter { picked.contains($0.id) }
-        await bulkPrint(chosen, kind: kind)
-        printing = nil
+        switch act {
+        case .print(let kind):
+            await bulkPrint(chosen, kind: kind)
+        case .driver(let id, let name):
+            let elsewhere = chosen.filter { $0.driverId != nil && $0.driverId != id }.count
+            guard await confirm("تسلّم \(chosen.count) طلب لـ \(name)؟",
+                                message: "القطع الي وصلت تصير «خرجت للتوصيل»، وتوصله إشعار بكل طلب." + (elsewhere > 0 ? " \(elsewhere) منها عند مندوب ثاني وبتنتقل له." : ""),
+                                ok: "سلّم") else { return }
+            do {
+                try await Store.shared.handToDriver(chosen, driverId: id)
+                toast("انسلمت \(chosen.count) طلب لـ \(name)")
+            } catch {
+                toastError(error)
+                return
+            }
+        }
+        selecting = nil
         picked = []
     }
 
@@ -272,6 +299,26 @@ struct OrdersPage: View {
 }
 
 /// One order in a list: customer, number, items, status and amounts.
+/// What the ticked orders are for.
+enum OrdersBulk: Hashable {
+    case print(BulkPrintKind)
+    case driver(String, String)
+
+    var verb: String {
+        switch self {
+        case .print(let k): return "اطبع \(k.label)"
+        case .driver(_, let name): return "سلّم لـ \(name)"
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .print: return "printer.fill"
+        case .driver: return "car.fill"
+        }
+    }
+}
+
 struct OrderRow: View {
     let order: Order
     var showCustomer: Bool = true

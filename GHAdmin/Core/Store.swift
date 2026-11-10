@@ -559,6 +559,21 @@ final class Store: ObservableObject {
         }
     }
 
+    /// Many orders to one driver at once: each keeps its address and note; the pieces that arrived go out for delivery.
+    func handToDriver(_ orders: [Order], driverId: String) async throws {
+        try await write {
+            for o in orders where o.driverId != driverId {
+                try await api.put("/ps/orders/\(o.id)/delivery", [
+                    "driver_id": driverId, "address": nn(o.deliveryAddress), "collect": o.deliveryCollect, "note": nn(o.driverNote),
+                ])
+            }
+            let ready = orders.flatMap(\.activeItems).filter { $0.status == .arrived }
+            if !ready.isEmpty {
+                try await api.post("/ps/items/status", ["ids": ready.map(\.id), "status": ItemStatus.outForDelivery.key])
+            }
+        }
+    }
+
     // payments
 
     func addPayment(_ orderId: String, amount: Double, method: String?, paidOn: Date? = nil, note: String? = nil,
