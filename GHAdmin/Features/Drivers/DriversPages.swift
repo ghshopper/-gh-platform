@@ -203,6 +203,9 @@ struct DriverDetailPage: View {
             SwitchRow("الحساب شغّال",
                       subtitle: d.active ? nil : "ما يقدر يشوف أي طلب",
                       isOn: activeBinding)
+            Tile("تغيير الرقم", subtitle: "يدخل التطبيق والموقع بالرقم الجديد",
+                 action: { Task { await changePhone(d) } },
+                 leading: { IconBox("phone.fill", color: GH.blue) })
             Tile("كلمة مرور جديدة",
                  action: { Task { await resetPassword(d) } },
                  leading: { IconBox("lock.rotation", color: GH.purple) })
@@ -253,6 +256,19 @@ struct DriverDetailPage: View {
         do {
             try await Store.shared.setDriverPassword(d.id, pw)
             await shareDriverLogin(name: d.name, phone: d.phone ?? "", password: pw)
+        } catch {
+            toastError(error)
+        }
+    }
+
+    private func changePhone(_ d: Driver) async {
+        guard let p = await promptText("رقم \(d.name) الجديد", message: "بعدها يدخل بالرقم الجديد ونفس كلمة المرور.",
+                                       placeholder: "9XXXXXXX", initial: d.phone ?? "", keyboard: .phonePad) else { return }
+        let digits = p.filter(\.isNumber)
+        if digits.count < 8 { toast("اكتب الرقم صح", error: true); return }
+        do {
+            try await Store.shared.setDriverPhone(d.id, digits)
+            toast("تغيّر الرقم")
         } catch {
             toastError(error)
         }

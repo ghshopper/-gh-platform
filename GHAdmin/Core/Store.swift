@@ -541,6 +541,11 @@ final class Store: ObservableObject {
         try await api.put("/ps/drivers/\(driverId)", ["password": password])
     }
 
+    /// A new phone number for a driver: he signs in with it from now on (same password).
+    func setDriverPhone(_ driverId: String, _ phone: String) async throws {
+        try await write { try await api.put("/ps/drivers/\(driverId)", ["phone": phone]) }
+    }
+
     func deleteDriver(_ driverId: String) async throws { try await write { try await api.delete("/ps/drivers/\(driverId)") } }
 
     func saveDriver(_ id: String, name: String? = nil, active: Bool? = nil) async throws {
