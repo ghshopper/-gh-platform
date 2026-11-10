@@ -80,6 +80,9 @@ struct MorePage: View {
                     Tile("سيولة الرحلة", subtitle: "كم بتدفع في الرحلة، وكم معك من العرابين",
                          action: { pushPage(TripCashPage(tripId: nil)) },
                          leading: { IconBox("banknote.fill", color: GH.amber) })
+                    Tile("رابط التقييم", subtitle: "لعملاء إنستغرام وأي عميل، ما يحتاج تسجيل",
+                         action: { Task { await shareReviewLink() } },
+                         leading: { IconBox("star.fill", color: GH.gold) })
                     Tile("العقود والإقرارات", subtitle: "عقود الأقساط وإقرارات الدفع عند الاستلام",
                          action: { pushPage(ContractsPage()) },
                          leading: { IconBox("signature", color: GH.burgundy) })
@@ -658,5 +661,21 @@ fileprivate struct MoreUnreadBadge: View {
                 .padding(.horizontal, 7).padding(.vertical, 2)
                 .background(Capsule().fill(GH.red))
         }
+    }
+}
+
+
+/// The general review link (for Instagram orders that are not in the system).
+@MainActor
+func shareReviewLink() async {
+    let url = "https://ghshopper.com/review/?s=instagram"
+    let msg = "مرحبًا،\nشكرًا لاختيارك GH Shopper. يسعدنا رأيك في تجربتك معنا، ياخذ دقيقة:\n\(url)\n\nمع التحية\nGH Shopper"
+    switch await pickAction(title: "رابط التقييم", message: url, actions: [
+        SheetAction("مشاركة الرسالة", "share"), SheetAction("نسخ الرابط", "copy"), SheetAction("افتح الصفحة", "open"),
+    ]) {
+    case "share": share([msg])
+    case "copy": copyText(url, toastText: "نسخت رابط التقييم")
+    case "open": openURL(url)
+    default: break
     }
 }

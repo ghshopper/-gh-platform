@@ -22,14 +22,14 @@ func contractLinkMessage(_ c: Contract, order: Order?) -> String {
     let ref = order?.invoiceNo ?? ""
     if c.isCod {
         return """
-        مرحبا \(name) 🤍
+        مرحبًا \(name)،
         قبل ما نشتري قطعك لطلب \(ref) من GH Shopper (\(omr(c.total))، الدفع عند الاستلام)، نحتاج منك توقيع إقرار الطلب.
         افتح الرابط، عبّي بياناتك، ارفع صورة البطاقة من الأمام والخلف ووقّع، ويوصلك الإقرار PDF على طول:
         \(c.url)
         """
     }
     return """
-    مرحبا \(name) 🤍
+    مرحبًا \(name)،
     هذا رابط عقد الأقساط لطلبك \(ref) من GH Shopper (\(omr(c.total)) على \(c.payments.count) دفعات).
     افتحه، عبّي بياناتك واختر مواعيد الدفعات، ارفع صورة البطاقة من الأمام والخلف ووقّع، ويوصلك العقد PDF على طول:
     \(c.url)
@@ -40,11 +40,11 @@ func contractLinkMessage(_ c: Contract, order: Order?) -> String {
 func contractReminderMessage(_ c: Contract, order: Order?) -> String {
     let name = (c.signerName ?? order.flatMap { Store.shared.customer($0.customerId)?.name } ?? "").split(separator: " ").first.map(String.init) ?? ""
     let ref = order?.invoiceNo ?? ""
-    guard let p = c.nextPayment else { return "مرحبا \(name)،" }
+    guard let p = c.nextPayment else { return "مرحبًا \(name)،" }
     let when = p.dueOn.map { dateStr($0) } ?? ""
     let lead = p.isLate ? "تذكير: الدفعة \(p.ordinal) من أقساط طلبك \(ref) كان موعدها \(when)" : "تذكير: الدفعة \(p.ordinal) من أقساط طلبك \(ref) موعدها \(when)"
     return """
-    مرحبا \(name) 🤍
+    مرحبًا \(name)،
     \(lead)، والمبلغ \(omr(p.left)).
     التحويل على حساب GH SPC في بنك صحار الدولي
     IBAN: OM900300000011020055247
